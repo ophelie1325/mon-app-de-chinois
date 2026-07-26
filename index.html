@@ -277,7 +277,7 @@ input[type=range]{width:100%;accent-color:var(--red)}
 const KEY='coach-chinois-v2';
 let memoryOnly=false;
 function loadState(){
-  const base={items:{},written:[],lessons:{},streak:{n:0,last:''},
+  const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
       pause:.7,sfx:true,auto:false,voices:{d:'',A:'',B:'',C:''}}};
   try{
@@ -355,7 +355,45 @@ const WORDS=[
   {id:'w315',hz:'公司',py:'gōng sī',fr:'entreprise, société',hsk:3,th:['presenter','travail']},
   {id:'w316',hz:'欢迎',py:'huān yíng',fr:'accueillir ; bienvenue',hsk:3,th:['presenter']},
   {id:'w317',hz:'以前',py:'yǐ qián',fr:'avant, autrefois',hsk:3,th:['presenter','temps']},
-  {id:'w318',hz:'妻子',py:'qī zi',fr:'épouse',hsk:3,th:['presenter','famille']}
+  {id:'w318',hz:'妻子',py:'qī zi',fr:'épouse',hsk:3,th:['presenter','famille']},
+
+  // ---- HSK 2 · présenter et décrire quelqu’un
+  {id:'w221',hz:'男人',py:'nán rén',fr:'un homme',hsk:2,th:['decrire']},
+  {id:'w222',hz:'女人',py:'nǚ rén',fr:'une femme',hsk:2,th:['decrire']},
+  {id:'w223',hz:'孩子',py:'hái zi',fr:'enfant',hsk:2,th:['decrire','famille']},
+  {id:'w224',hz:'眼睛',py:'yǎn jing',fr:'œil, yeux',hsk:2,th:['decrire','sante']},
+  {id:'w225',hz:'身体',py:'shēn tǐ',fr:'corps ; santé',hsk:2,th:['decrire','sante']},
+  {id:'w226',hz:'高',py:'gāo',fr:'grand (de taille), haut',hsk:2,th:['decrire']},
+  {id:'w227',hz:'漂亮',py:'piào liang',fr:'joli, beau',hsk:2,th:['decrire']},
+  {id:'w228',hz:'好看',py:'hǎo kàn',fr:'beau, agréable à regarder',hsk:2,th:['decrire']},
+  {id:'w229',hz:'白',py:'bái',fr:'blanc',hsk:2,th:['decrire']},
+  {id:'w230',hz:'黑',py:'hēi',fr:'noir',hsk:2,th:['decrire']},
+  {id:'w231',hz:'快乐',py:'kuài lè',fr:'joyeux, gai',hsk:2,th:['decrire','quotidien']},
+  {id:'w232',hz:'忙',py:'máng',fr:'occupé, affairé',hsk:2,th:['decrire','travail']},
+  {id:'w233',hz:'累',py:'lèi',fr:'fatigué',hsk:2,th:['decrire','sante']},
+  {id:'w234',hz:'穿',py:'chuān',fr:'porter (un vêtement)',hsk:2,th:['decrire','achats']},
+  {id:'w235',hz:'衣服',py:'yī fu',fr:'vêtement(s)',hsk:2,th:['decrire','achats']},
+  {id:'w236',hz:'觉得',py:'jué de',fr:'trouver, avoir l’impression',hsk:2,th:['decrire','avis']},
+  {id:'w237',hz:'非常',py:'fēi cháng',fr:'extrêmement, vraiment très',hsk:2,th:['decrire']},
+  {id:'w238',hz:'最',py:'zuì',fr:'le plus (superlatif)',hsk:2,th:['decrire','avis']},
+
+  // ---- HSK 3 · présenter et décrire quelqu’un
+  {id:'w321',hz:'头发',py:'tóu fa',fr:'cheveux',hsk:3,th:['decrire']},
+  {id:'w322',hz:'聪明',py:'cōng ming',fr:'intelligent',hsk:3,th:['decrire']},
+  {id:'w323',hz:'可爱',py:'kě ài',fr:'mignon, adorable',hsk:3,th:['decrire']},
+  {id:'w324',hz:'胖',py:'pàng',fr:'gros, corpulent',hsk:3,th:['decrire']},
+  {id:'w325',hz:'瘦',py:'shòu',fr:'mince, maigre',hsk:3,th:['decrire']},
+  {id:'w326',hz:'矮',py:'ǎi',fr:'petit (de taille)',hsk:3,th:['decrire']},
+  {id:'w327',hz:'年轻',py:'nián qīng',fr:'jeune',hsk:3,th:['decrire']},
+  {id:'w328',hz:'帅',py:'shuài',fr:'beau (pour un homme)',hsk:3,th:['decrire']},
+  {id:'w329',hz:'安静',py:'ān jìng',fr:'calme, silencieux',hsk:3,th:['decrire','logement']},
+  {id:'w330',hz:'热情',py:'rè qíng',fr:'chaleureux, accueillant',hsk:3,th:['decrire']},
+  {id:'w331',hz:'有名',py:'yǒu míng',fr:'célèbre, renommé',hsk:3,th:['decrire']},
+  {id:'w332',hz:'关心',py:'guān xīn',fr:'se soucier de, prendre soin de',hsk:3,th:['decrire','famille']},
+  {id:'w333',hz:'性格',py:'xìng gé',fr:'caractère, tempérament',hsk:3,th:['decrire']},
+  {id:'w334',hz:'样子',py:'yàng zi',fr:'allure, apparence',hsk:3,th:['decrire']},
+  {id:'w335',hz:'眼镜',py:'yǎn jìng',fr:'lunettes',hsk:3,th:['decrire']},
+  {id:'w336',hz:'戴',py:'dài',fr:'porter (lunettes, chapeau)',hsk:3,th:['decrire']}
 ];
 
 const CHARS=[
@@ -366,7 +404,15 @@ const CHARS=[
   {id:'c5',hz:'住',py:'zhù',fr:'habiter',hsk:2,th:['presenter']},
   {id:'c6',hz:'介',py:'jiè',fr:'introduire',hsk:3,th:['presenter']},
   {id:'c7',hz:'绍',py:'shào',fr:'relier, présenter',hsk:3,th:['presenter']},
-  {id:'c8',hz:'城',py:'chéng',fr:'ville, muraille',hsk:3,th:['presenter','espace']}
+  {id:'c8',hz:'城',py:'chéng',fr:'ville, muraille',hsk:3,th:['presenter','espace']},
+  {id:'c9',hz:'高',py:'gāo',fr:'haut, grand',hsk:2,th:['decrire']},
+  {id:'c10',hz:'白',py:'bái',fr:'blanc',hsk:2,th:['decrire']},
+  {id:'c11',hz:'黑',py:'hēi',fr:'noir',hsk:2,th:['decrire']},
+  {id:'c12',hz:'忙',py:'máng',fr:'occupé',hsk:2,th:['decrire','travail']},
+  {id:'c13',hz:'胖',py:'pàng',fr:'gros, corpulent',hsk:3,th:['decrire']},
+  {id:'c14',hz:'瘦',py:'shòu',fr:'mince, maigre',hsk:3,th:['decrire']},
+  {id:'c15',hz:'眼',py:'yǎn',fr:'œil',hsk:3,th:['decrire']},
+  {id:'c16',hz:'帅',py:'shuài',fr:'beau, élégant',hsk:3,th:['decrire']}
 ];
 
 const GRAMMAR=[
@@ -423,6 +469,61 @@ const GRAMMAR=[
        a:['我昨天来了。','我是昨天来的。'],ok:0,
        why:'Fait nouveau → 了. La forme 是…的 supposerait que votre arrivée est déjà connue.'}
     ]
+  },
+  {
+    id:'g202',hsk:2,th:['decrire'],
+    title:'Décrire : 很, 不, 太…了, et le 的 qui qualifie',
+    body:[
+      'En chinois, l’adjectif se comporte comme un verbe : il se suffit à lui-même. On ne met <b>jamais</b> 是 devant. On dit 她很漂亮, jamais 她是漂亮.',
+      'À l’affirmative, <b>很</b> est presque obligatoire, mais il ne veut pas dire « très ». Il ne fait que soutenir l’adjectif. Sans lui, 她漂亮 sous-entend une comparaison : « elle, elle est jolie — les autres, non ».',
+      'La négation se fait avec <b>不</b> : 他不高. Pour intensifier vraiment : <b>非常</b> ou <b>太…了</b>.',
+      'Pour qualifier un nom, ce qui décrit passe <b>avant</b> le nom et 的 les relie : 一个很好看的孩子. Un adjectif court et courant peut s’en passer : 好孩子.'
+    ],
+    ex:[
+      {hz:'她很漂亮。',py:'tā hěn piào liang',fr:'Elle est jolie.'},
+      {hz:'我朋友不高，可是他非常快乐。',py:'wǒ péng you bù gāo, kě shì tā fēi cháng kuài lè',fr:'Mon ami n’est pas grand, mais il est vraiment gai.'},
+      {hz:'今天我太累了。',py:'jīn tiān wǒ tài lèi le',fr:'Aujourd’hui, je suis trop fatiguée.'},
+      {hz:'他是一个很好的老师。',py:'tā shì yí ge hěn hǎo de lǎo shī',fr:'C’est un très bon professeur.'}
+    ],
+    qcm:[
+      {q:'Comment dire « elle est jolie » ?',
+       a:['她是漂亮。','她很漂亮。','她漂亮是。'],ok:1,
+       why:'L’adjectif tient lieu de verbe : 是 n’a rien à faire là. 很 sert d’appui et ne se traduit pas ici par « très ».'},
+      {q:'Comment dire « il n’est pas grand » ?',
+       a:['他不高。','他没高。','他不是高。'],ok:0,
+       why:'不 nie les adjectifs et les habitudes. 没 nie l’existence ou une action accomplie.'},
+      {q:'Comment dire « un enfant très beau » ?',
+       a:['一个孩子很好看的','一个很好看的孩子','很好看一个的孩子'],ok:1,
+       why:'Ce qui décrit précède toujours le nom, et 的 fait la jointure : [很好看] 的 [孩子].'}
+    ]
+  },
+  {
+    id:'g302',hsk:3,th:['decrire'],
+    title:'Le complément de degré : verbe + 得',
+    body:[
+      'Pour dire <b>comment</b> une action est faite — bien, vite, mal —, le chinois ne touche pas au verbe : il ajoute <b>得</b> derrière, puis un adjectif. Structure : verbe + <b>得</b> + 很 + adjectif.',
+      '他说得很快 : il parle vite. Après 得, l’adjectif obéit à ses règles habituelles, 很 compris.',
+      'Si le verbe a un complément d’objet, il faut <b>répéter le verbe</b> : 他<b>说</b>汉语<b>说</b>得很好. À l’oral, on abrège souvent en 他汉语说得很好.',
+      'La négation porte sur l’adjectif, jamais sur le verbe : 他跑得<b>不</b>快, et non 他不跑得快.',
+      '长得 sert à décrire le physique : 这个孩子长得很可爱, littéralement « cet enfant a poussé adorable ».'
+    ],
+    ex:[
+      {hz:'他汉语说得很好。',py:'tā Hàn yǔ shuō de hěn hǎo',fr:'Il parle très bien chinois.'},
+      {hz:'这个孩子长得很可爱。',py:'zhè ge hái zi zhǎng de hěn kě ài',fr:'Cet enfant est adorable.'},
+      {hz:'我写汉字写得不好。',py:'wǒ xiě Hàn zì xiě de bù hǎo',fr:'J’écris mal les caractères.'},
+      {hz:'你走得太快了。',py:'nǐ zǒu de tài kuài le',fr:'Tu marches trop vite.'}
+    ],
+    qcm:[
+      {q:'Comment dire « il court vite » ?',
+       a:['他跑很快。','他跑得很快。','他很快跑。'],ok:1,
+       why:'La manière se place après le verbe, introduite par 得. 很快跑 n’est pas naturel ici.'},
+      {q:'Le verbe a un objet : « il parle bien chinois ».',
+       a:['他说汉语得很好。','他说汉语说得很好。','他汉语很好说得。'],ok:1,
+       why:'Avec un objet, on répète le verbe avant 得. La forme abrégée 他汉语说得很好 est également juste.'},
+      {q:'Comment dire « il ne court pas vite » ?',
+       a:['他不跑得快。','他跑得不快。'],ok:1,
+       why:'不 porte sur l’adjectif placé après 得, jamais sur le verbe lui-même.'}
+    ]
   }
 ];
 
@@ -465,6 +566,47 @@ const TEXTS=[
       {q:'他为什么来北京？',a:['因为公司在北京','因为他妻子在北京工作','因为他是北京人'],ok:1},
       {q:'他什么时候结婚的？',a:['今年','去年','前年'],ok:1},
       {q:'李经理是张明的…',a:['同事','经理','邻居'],ok:1}
+    ]
+  },
+  {
+    id:'t202',hsk:2,th:['decrire'],mode:'CE',
+    title:'我的两个朋友',
+    fr:'Mes deux amis',
+    lines:[
+      {hz:'我有两个好朋友，一个叫小雨，一个叫大明。',py:'wǒ yǒu liǎng ge hǎo péng you, yí ge jiào Xiǎo yǔ, yí ge jiào Dà míng',fr:'J’ai deux bons amis : l’une s’appelle Xiaoyu, l’autre Daming.'},
+      {hz:'小雨很高，她的眼睛很大。',py:'Xiǎo yǔ hěn gāo, tā de yǎn jing hěn dà',fr:'Xiaoyu est grande, elle a de grands yeux.'},
+      {hz:'她非常漂亮，也很快乐。',py:'tā fēi cháng piào liang, yě hěn kuài lè',fr:'Elle est vraiment jolie, et très gaie aussi.'},
+      {hz:'她喜欢穿白色的衣服。',py:'tā xǐ huan chuān bái sè de yī fu',fr:'Elle aime porter des vêtements blancs.'},
+      {hz:'大明不高，可是他的身体很好。',py:'Dà míng bù gāo, kě shì tā de shēn tǐ hěn hǎo',fr:'Daming n’est pas grand, mais il est en très bonne santé.'},
+      {hz:'他工作很忙，每天都很累。',py:'tā gōng zuò hěn máng, měi tiān dōu hěn lèi',fr:'Il est très pris par son travail et il est fatigué tous les jours.'},
+      {hz:'我觉得他们两个人都非常好。',py:'wǒ jué de tā men liǎng ge rén dōu fēi cháng hǎo',fr:'Je trouve qu’ils sont tous les deux formidables.'}
+    ],
+    qcm:[
+      {q:'小雨的眼睛怎么样？',a:['很大','很小','不好看'],ok:0},
+      {q:'小雨喜欢穿什么颜色的衣服？',a:['黑色的','白色的','红色的'],ok:1},
+      {q:'大明高吗？',a:['很高','不高','非常高'],ok:1},
+      {q:'大明为什么很累？',a:['因为他工作很忙','因为他不高','因为他不快乐'],ok:0}
+    ]
+  },
+  {
+    id:'t302',hsk:3,th:['decrire'],mode:'CO',
+    title:'他长什么样？',
+    fr:'À quoi ressemble-t-il ?',
+    lines:[
+      {who:'A',hz:'明天我去机场接张老师，可是我没见过他。',py:'míng tiān wǒ qù jī chǎng jiē Zhāng lǎo shī, kě shì wǒ méi jiàn guo tā',fr:'Demain je vais chercher M. Zhang à l’aéroport, mais je ne l’ai jamais vu.'},
+      {who:'B',hz:'他长得很高，头发不多，还戴眼镜。',py:'tā zhǎng de hěn gāo, tóu fa bù duō, hái dài yǎn jìng',fr:'Il est très grand, il n’a pas beaucoup de cheveux et il porte des lunettes.'},
+      {who:'A',hz:'他今年多大？年轻吗？',py:'tā jīn nián duō dà? nián qīng ma',fr:'Quel âge a-t-il cette année ? Est-il jeune ?'},
+      {who:'B',hz:'不太年轻，他今年五十多岁了。',py:'bú tài nián qīng, tā jīn nián wǔ shí duō suì le',fr:'Pas très jeune : il a une cinquantaine d’années.'},
+      {who:'A',hz:'他的性格怎么样？',py:'tā de xìng gé zěn me yàng',fr:'Quel est son caractère ?'},
+      {who:'B',hz:'他很热情，也很关心学生。',py:'tā hěn rè qíng, yě hěn guān xīn xué sheng',fr:'Il est très chaleureux et il se soucie beaucoup de ses étudiants.'},
+      {who:'A',hz:'那我怎么找到他呢？',py:'nà wǒ zěn me zhǎo dào tā ne',fr:'Alors, comment vais-je le trouver ?'},
+      {who:'B',hz:'别着急，他也认识你，他看过你的照片。',py:'bié zháo jí, tā yě rèn shi nǐ, tā kàn guo nǐ de zhào piàn',fr:'Ne t’inquiète pas, il te connaît aussi : il a vu ta photo.'}
+    ],
+    qcm:[
+      {q:'张老师长什么样？',a:['很高，戴眼镜','很矮，头发很多','又高又胖'],ok:0},
+      {q:'张老师今年多大？',a:['四十多岁','五十多岁','六十多岁'],ok:1},
+      {q:'张老师的性格怎么样？',a:['很安静','很热情','不太关心学生'],ok:1},
+      {q:'为什么不用着急？',a:['因为张老师看过她的照片','因为机场很小','因为他们是同事'],ok:0}
     ]
   }
 ];
@@ -545,6 +687,82 @@ const PROD=[
     consigne:'Traduisez en chinois.',
     fr:'Mon voisin est infirmier. Il travaille dans un hôpital à Pékin.',
     ok:'我的邻居是护士。他在北京的一家医院工作。'
+  },
+  {
+    id:'p221',hsk:2,th:['decrire'],type:'ordre',
+    consigne:'Remettez les mots dans l’ordre.',
+    words:['她','的','眼睛','很','大'],
+    ok:'她的眼睛很大',
+    fr:'Elle a de grands yeux.'
+  },
+  {
+    id:'p222',hsk:2,th:['decrire'],type:'ordre',
+    consigne:'Remettez les mots dans l’ordre. Attention à la place de 的.',
+    words:['他','是','一个','很','好','的','老师'],
+    ok:'他是一个很好的老师',
+    fr:'C’est un très bon professeur.'
+  },
+  {
+    id:'p223',hsk:2,th:['decrire'],type:'trad',
+    consigne:'Traduisez en chinois. N’oubliez pas 很 devant l’adjectif.',
+    fr:'Je trouve qu’elle est très jolie et très gaie.',
+    ok:'我觉得她很漂亮，也很快乐。'
+  },
+  {
+    id:'p224',hsk:2,th:['decrire'],type:'ordre',
+    consigne:'Remettez les mots dans l’ordre.',
+    words:['她','喜欢','穿','白色的','衣服'],
+    ok:'她喜欢穿白色的衣服',
+    fr:'Elle aime porter des vêtements blancs.'
+  },
+  {
+    id:'p225',hsk:2,th:['decrire'],type:'trad',
+    consigne:'Traduisez en chinois. Pensez à la négation 不.',
+    fr:'Mon ami n’est pas grand, mais il est vraiment gai.',
+    ok:'我朋友不高，可是他非常快乐。'
+  },
+  {
+    id:'p226',hsk:2,th:['decrire'],type:'libre',
+    consigne:'Décrivez quelqu’un que vous aimez bien, en quatre à six phrases : son apparence, son caractère, ce qu’il ou elle aime porter.',
+    modele:'我有一个好朋友，她叫Claire。她很高，她的眼睛很大。她非常漂亮，也很快乐。她喜欢穿白色的衣服。她工作很忙，可是她每天都很高兴。我觉得她是一个很好的朋友。'
+  },
+  {
+    id:'p321',hsk:3,th:['decrire'],type:'ordre',
+    consigne:'Remettez les mots dans l’ordre (complément de degré).',
+    words:['他','汉语','说','得','很','好'],
+    ok:'他汉语说得很好',
+    fr:'Il parle très bien chinois.'
+  },
+  {
+    id:'p322',hsk:3,th:['decrire'],type:'ordre',
+    consigne:'Remettez les mots dans l’ordre. 长得 décrit le physique.',
+    words:['这个','孩子','长','得','很','可爱'],
+    ok:'这个孩子长得很可爱',
+    fr:'Cet enfant est adorable.'
+  },
+  {
+    id:'p323',hsk:3,th:['decrire'],type:'trad',
+    consigne:'Traduisez en chinois en employant le complément de degré 得.',
+    fr:'Mon collègue écrit très bien les caractères chinois.',
+    ok:'我的同事写汉字写得很好。'
+  },
+  {
+    id:'p324',hsk:3,th:['decrire'],type:'ordre',
+    consigne:'Remettez les mots dans l’ordre. La tournure 又…又… enchaîne deux qualités.',
+    words:['她','长','得','又','高','又','瘦'],
+    ok:'她长得又高又瘦',
+    fr:'Elle est grande et mince.'
+  },
+  {
+    id:'p325',hsk:3,th:['decrire'],type:'trad',
+    consigne:'Traduisez en chinois.',
+    fr:'Le nouveau professeur est très chaleureux, il se soucie beaucoup de ses étudiants.',
+    ok:'新老师很热情，他很关心学生。'
+  },
+  {
+    id:'p326',hsk:3,th:['decrire'],type:'libre',
+    consigne:'Décrivez une personne de votre entourage en cinq à huit phrases : son apparence, son caractère, ce qu’elle fait bien. Employez 长得 et au moins un complément de degré 得.',
+    modele:'我给你们介绍一下我的同事Julie。她今年三十岁，长得又高又瘦，头发很长，还戴眼镜。她的性格很安静，可是对学生非常热情。她汉语说得很好，写汉字也写得很漂亮。我觉得她是一个很认真的老师。'
   }
 ];
 
@@ -567,6 +785,26 @@ const HSKX=[
       {audio:'我是去年从上海来北京的，我妻子也在这儿工作。',q:'他是今年来北京的。',a:['对','错'],ok:1},
       {audio:'张明是我的新同事，他人很好，工作也很认真。',q:'张明工作很认真。',a:['对','错'],ok:0},
       {audio:'我叫王小雨，我不是老师，我是学生。',q:'王小雨是老师。',a:['对','错'],ok:1}
+    ]
+  },
+  {
+    id:'h202',hsk:2,section:'阅读',th:['decrire'],
+    format:'HSK 2 · 阅读 第三部分 — 选词填空',
+    consigne:'Choisissez le mot qui complète la phrase.',
+    items:[
+      {q:'她的眼睛很（ ）。',a:['长','大','忙'],ok:1},
+      {q:'他今天工作很（ ），非常累。',a:['忙','快乐','好看'],ok:0},
+      {q:'我（ ）她很漂亮。',a:['认识','介绍','觉得'],ok:2}
+    ]
+  },
+  {
+    id:'h302',hsk:3,section:'听力',th:['decrire'],
+    format:'HSK 3 · 听力 第二部分 — 判断对错',
+    consigne:'Écoutez, puis dites si la phrase proposée est juste ou fausse.',
+    items:[
+      {audio:'张老师长得很高，头发不多，他还戴眼镜。',q:'张老师戴眼镜。',a:['对','错'],ok:0},
+      {audio:'我的同事很安静，可是她对学生非常热情。',q:'她对学生不热情。',a:['对','错'],ok:1},
+      {audio:'他汉语说得很好，可是汉字写得不太好。',q:'他汉字写得很好。',a:['对','错'],ok:1}
     ]
   }
 ];
@@ -599,6 +837,36 @@ const LESSONS=[
       {k:'prod', label:'Je remets en ordre',             ref:'p304'},
       {k:'prod', label:'Je traduis',                     ref:'p306'},
       {k:'prod', label:'J\u2019écris mon texte',           ref:'p303'},
+      {k:'bilan',label:'Bilan noté',                     ref:null}
+    ]
+  },
+  {
+    id:'l-decrire-2',theme:'decrire',hsk:2,
+    title:'Présenter et décrire quelqu’un — HSK 2',
+    intro:'Décrire l’apparence et le caractère de quelqu’un, et dire ce qu’on pense de lui.',
+    steps:[
+      {k:'text', label:'Découverte — je lis',            ref:'t202'},
+      {k:'qcm',  label:'Ai-je compris ?',                ref:'t202'},
+      {k:'mots', label:'Les mots du texte',              ref:null},
+      {k:'gram', label:'Point de langue — l’adjectif',   ref:'g202'},
+      {k:'prod', label:'Je remets en ordre',             ref:'p222'},
+      {k:'prod', label:'Je traduis',                     ref:'p223'},
+      {k:'prod', label:'J’écris mon texte',              ref:'p226'},
+      {k:'bilan',label:'Bilan noté',                     ref:null}
+    ]
+  },
+  {
+    id:'l-decrire-3',theme:'decrire',hsk:3,
+    title:'Présenter et décrire quelqu’un — HSK 3',
+    intro:'Faire le portrait de quelqu’un : allure, caractère, et ce qu’il fait bien.',
+    steps:[
+      {k:'text', label:'Découverte — j’écoute',          ref:'t302'},
+      {k:'qcm',  label:'Ai-je compris ?',                ref:'t302'},
+      {k:'mots', label:'Les mots du dialogue',           ref:null},
+      {k:'gram', label:'Point de langue — le degré 得',   ref:'g302'},
+      {k:'prod', label:'Je remets en ordre',             ref:'p322'},
+      {k:'prod', label:'Je traduis',                     ref:'p323'},
+      {k:'prod', label:'J’écris mon texte',              ref:'p326'},
       {k:'bilan',label:'Bilan noté',                     ref:null}
     ]
   }
@@ -697,6 +965,19 @@ function fits(o){
 }
 function pool(){return WORDS.filter(fits);}
 function themeName(id){const t=THEMES.find(x=>x.id===id);return t?t.n:'';}
+function lessonProgress(l){return (S.lessons[l.id]||[]).length;}
+/* Parcours mis en avant sur l’accueil : le dernier ouvert s’il est en cours,
+   sinon le premier commencé mais non terminé, sinon le premier non entamé. */
+function currentLesson(){
+  const lp=LESSONS.filter(l=>l.hsk===S.settings.level);
+  if(!lp.length)return null;
+  const running=lp.filter(l=>{const p=lessonProgress(l);return p>0&&p<l.steps.length;});
+  if(running.length){
+    const last=running.find(l=>l.id===S.lastLesson);
+    return last||running[0];
+  }
+  return lp.find(l=>lessonProgress(l)===0)||lp[lp.length-1];
+}
 
 /* --- Voix : sélection, locuteurs, pauses --- */
 let voices=[];
@@ -856,7 +1137,7 @@ function setTheme(t){S.settings.theme=t;save();ctx={};render();}
 function nothing(){
   return `<div class="void"><span class="em">空</span>
     <p><b>Rien à ce filtre</b></p>
-    <p class="sm">Ce premier essai contient le thème « Se présenter » en HSK 2 et HSK 3. Changez de niveau ou de thème.</p></div>`;
+    <p class="sm">Le contenu couvre pour l’instant « Se présenter » et « Présenter et décrire quelqu’un », en HSK 2 et HSK 3. Changez de niveau ou de thème.</p></div>`;
 }
 function ribbon(){
   if(!ctx.from)return '';
@@ -880,7 +1161,6 @@ function vHome(){
   const P=pool();
   const todo=P.filter(w=>due(w.id)).length;
   const ma=P.filter(w=>mastered(w.id)).length;
-  const lp=LESSONS.filter(l=>l.hsk===S.settings.level);
   return `<div class="hero">
     <span class="mark">汉</span>
     <h1>Bonjour Ophélie</h1>
@@ -899,8 +1179,8 @@ function vHome(){
   ${MODULES.map(m=>{
     let sub=m.d,frac=null;
     if(m.id==='vocab'){sub=todo?todo+' à réviser':'À jour';frac=P.length?ma/P.length:0;}
-    if(m.id==='parcours'){const l=lp[0];const p=l?(S.lessons[l.id]||[]).length:0;
-      sub=l?`${p} / ${l.steps.length} étapes · ${themeName(l.theme)}`:'Aucun parcours à ce niveau';
+    if(m.id==='parcours'){const l=currentLesson();const p=l?lessonProgress(l):0;
+      sub=l?`${themeName(l.theme)} · ${p} / ${l.steps.length} étapes`:'Aucun parcours à ce niveau';
       frac=l?p/l.steps.length:0;}
     if(m.wide)return `<button class="mod wide c-${m.c}" onclick="go('${m.id}')">
       <span class="emb">${m.em}</span>
@@ -1352,7 +1632,7 @@ function vParcours(){
       onclick="toast('Ce thème sera ajouté après validation du format.')">
       <span class="emb" style="color:var(--line2);font-family:var(--ui)">${num}</span>
       <span class="col"><b style="color:var(--muted)">${esc(th.n)}</b><span>Bientôt disponible</span></span></button>`;
-    return `<button class="mod wide c-${c}" onclick="go('lecon',{l:'${l.id}'})">
+    return `<button class="mod wide c-${c}" onclick="openLesson('${l.id}')">
       <span class="emb" style="font-family:var(--ui)">${num}</span>
       <span class="col"><b>${esc(th.n)}</b><span>${p} / ${l.steps.length} étapes</span>
         <span class="bar" style="margin-top:7px"><i style="width:${p/l.steps.length*100}%"></i></span></span>
@@ -1361,6 +1641,7 @@ function vParcours(){
   </div>`;
 }
 
+function openLesson(id){S.lastLesson=id;save();go('lecon',{l:id});}
 function vLecon(){
   const l=LESSONS.find(x=>x.id===ctx.l);
   if(!l)return vParcours();
@@ -1407,6 +1688,9 @@ function vProgres(){
   const todo=pool().filter(w=>due(w.id)).length;
   const boxes=[0,1,2,3,4,5].map(b=>all.filter(w=>S.items[w.id]&&S.items[w.id].box===b).length);
   const maxb=Math.max(1,...boxes);
+  const stepsAll=LESSONS.reduce((n,l)=>n+l.steps.length,0);
+  const stepsDone=LESSONS.reduce((n,l)=>n+lessonProgress(l),0);
+  const pcent=stepsAll?Math.round(stepsDone/stepsAll*100):0;
   return `<div class="top"><div class="htitle">Mes progrès<small>Tous niveaux confondus</small></div></div>
   <div class="grid2">
     <div class="kpi"><b style="color:var(--red)">${todo}</b><span>à réviser au filtre</span></div>
@@ -1423,6 +1707,10 @@ function vProgres(){
     <p class="mut sm" style="margin:10px 0 0">Un mot monte d’une boîte à chaque réussite. Boîte 4 ou 5 = acquis. Un échec le renvoie en boîte 0. Les mots des boîtes basses sortent en priorité dans les exercices des parcours.</p>
   </div>
   <h2 class="sec">Parcours</h2>
+  <div class="box">
+    <div class="bar"><i style="width:${pcent}%;background:var(--red)"></i></div>
+    <p class="mut sm" style="margin:10px 0 0">${stepsDone} étape${stepsDone>1?'s':''} validée${stepsDone>1?'s':''} sur ${stepsAll}, tous parcours et tous niveaux confondus — ${pcent} %.</p>
+  </div>
   ${LESSONS.map(l=>{const p=(S.lessons[l.id]||[]).length;
     return `<div class="wrow"><span class="g" style="font-family:var(--ui);font-size:19px;color:var(--red)">${p>=l.steps.length?'成':'路'}</span>
     <span class="m"><b>${esc(l.title)}</b><span class="mut">${p} / ${l.steps.length} étapes</span>
