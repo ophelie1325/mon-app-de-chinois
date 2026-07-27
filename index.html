@@ -261,6 +261,38 @@ input[type=range]{width:100%;accent-color:var(--red)}
   background:var(--ink);color:#fff;padding:13px 20px;border-radius:16px;font-size:14.5px;
   z-index:60;max-width:88%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .sentence{font-weight:500;font-size:22px;line-height:1.95}
+.tbox{border-radius:18px;background:#FEFCF8;border:2px solid var(--line2);flex:none}
+.tbox.ok{border-color:var(--jade)}
+.ladder{display:flex;align-items:center;gap:11px;padding:7px 0}
+.ladder .bx{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;
+  font-size:13px;font-weight:700;background:#F0E9DE;color:var(--muted)}
+.ladder .bx.on{background:var(--red);color:#FFF6EC}
+.ladder .tx{flex:1;min-width:0;font-size:13.5px}
+.ladder .tx b{font-size:14.5px}
+.diff{font-family:var(--han);font-size:21px;line-height:1.7;word-break:break-all}
+.diff u{text-decoration:none;border-bottom:3px solid currentColor}
+.mgrid{display:flex;gap:10px}
+.mgrid>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
+.mit{width:100%;padding:13px 7px;border-radius:15px;background:var(--card);border:2px solid var(--line);
+  font-size:15.5px;font-weight:700;text-align:center;line-height:1.25;box-shadow:0 3px 0 rgba(120,90,50,.05)}
+.mit.hz{font-family:var(--han);font-size:20px}
+.mit:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
+.mit.sel{border-color:var(--indigo);background:var(--indigo-s);color:var(--indigo-d)}
+.mit.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:none;opacity:.7}
+.mit.no{border-color:var(--red);background:var(--red-s);color:var(--red-d)}
+.gtab{width:100%;border-collapse:separate;border-spacing:5px}
+.gtab th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 0 2px}
+.gtab td{padding:0}
+.gc{width:100%;padding:11px 4px;border-radius:13px;font-size:14.5px;font-weight:700;text-align:center;
+  line-height:1.25;background:#FAF5EC;border:2px solid transparent;color:var(--ink);font-family:var(--han)}
+.gc.gap{background:#FEFCF8;border:2px dashed var(--line2);color:var(--line2)}
+.gc.sel{border:2px solid var(--indigo);background:var(--indigo-s);color:var(--indigo-d)}
+.gc.fill{background:var(--card);border:2px solid var(--line2)}
+.gc.ok{border:2px solid var(--jade);background:var(--jade-s);color:var(--jade-d)}
+.gc.no{border:2px solid var(--red);background:var(--red-s);color:var(--red-d)}
+.tok{border-color:var(--line)}
+.tok.bon{border-color:var(--jade);color:var(--jade-d);background:var(--jade-s)}
+.tok.mauvais{border-color:var(--red);color:var(--red-d);background:var(--red-s)}
 .hidden{display:none}
 @media (max-width:340px){.grid{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -534,11 +566,14 @@ const TEXTS=[
     fr:'Ma nouvelle amie',
     lines:[
       {hz:'我叫王小雨。',py:'wǒ jiào Wáng Xiǎo yǔ',fr:'Je m\u2019appelle Wang Xiaoyu.'},
+      {hz:'我姓王，名字叫小雨。',py:'wǒ xìng Wáng, míng zi jiào Xiǎo yǔ',fr:'Mon nom de famille est Wang, mon prénom Xiaoyu.'},
       {hz:'我是中国人，今年二十三岁。',py:'wǒ shì Zhōng guó rén, jīn nián èr shí sān suì',fr:'Je suis chinoise, j\u2019ai vingt-trois ans cette année.'},
       {hz:'我住在北京，我是学生。',py:'wǒ zhù zài Běi jīng, wǒ shì xué sheng',fr:'J\u2019habite à Pékin, je suis étudiante.'},
       {hz:'我有一个法国朋友，她叫Marie。',py:'wǒ yǒu yí ge Fǎ guó péng you, tā jiào Marie',fr:'J\u2019ai une amie française, elle s\u2019appelle Marie.'},
       {hz:'她是老师，她在北京工作。',py:'tā shì lǎo shī, tā zài Běi jīng gōng zuò',fr:'Elle est professeure, elle travaille à Pékin.'},
       {hz:'我们常常一起说汉语和法语。',py:'wǒ men cháng cháng yì qǐ shuō Hàn yǔ hé Fǎ yǔ',fr:'Nous parlons souvent chinois et français ensemble.'},
+      {hz:'她会说汉语，我也会说一点儿法语。',py:'tā huì shuō Hàn yǔ, wǒ yě huì shuō yì diǎnr Fǎ yǔ',fr:'Elle sait parler chinois, et moi je sais parler un peu français.'},
+      {hz:'我还有一个朋友是医生，他工作很忙。',py:'wǒ hái yǒu yí ge péng you shì yī shēng, tā gōng zuò hěn máng',fr:'J’ai encore un autre ami, il est médecin et il est très pris par son travail.'},
       {hz:'我很高兴认识她。',py:'wǒ hěn gāo xìng rèn shi tā',fr:'Je suis très heureuse de la connaître.'}
     ],
     qcm:[
@@ -558,6 +593,11 @@ const TEXTS=[
       {who:'C',hz:'您好，李经理。认识您很高兴。',py:'nín hǎo, Lǐ jīng lǐ. rèn shi nín hěn gāo xìng',fr:'Bonjour Monsieur Li. Je suis très heureux de vous connaître.'},
       {who:'B',hz:'你以前在哪儿工作？',py:'nǐ yǐ qián zài nǎr gōng zuò',fr:'Où travailliez-vous auparavant ?'},
       {who:'C',hz:'我以前在上海的一家公司工作。',py:'wǒ yǐ qián zài Shàng hǎi de yì jiā gōng sī gōng zuò',fr:'Je travaillais dans une entreprise à Shanghai.'},
+      {who:'B',hz:'你以前去过别的国家吗？',py:'nǐ yǐ qián qù guo bié de guó jiā ma',fr:'Aviez-vous déjà travaillé dans un autre pays ?'},
+      {who:'C',hz:'去过。我以前是留学生，在法国学过两年法语。',py:'qù guo. wǒ yǐ qián shì liú xué shēng, zài Fǎ guó xué guo liǎng nián Fǎ yǔ',fr:'Oui. J’ai été étudiant étranger et j’ai étudié le français deux ans en France.'},
+      {who:'B',hz:'那你有什么爱好？',py:'nà nǐ yǒu shén me ài hào',fr:'Et quels sont vos centres d’intérêt ?'},
+      {who:'C',hz:'我特别喜欢跑步。我自己也很喜欢北京这个城市。',py:'wǒ tè bié xǐ huan pǎo bù. wǒ zì jǐ yě hěn xǐ huan Běi jīng zhè ge chéng shì',fr:'J’aime particulièrement courir. Et j’aime beaucoup Pékin, cette ville me plaît.'},
+      {who:'A',hz:'他工作很认真，我跟他的关系也很好。',py:'tā gōng zuò hěn rèn zhēn, wǒ gēn tā de guān xi yě hěn hǎo',fr:'Il travaille très sérieusement, et je m’entends très bien avec lui.'},
       {who:'B',hz:'那你为什么来北京呢？',py:'nà nǐ wèi shén me lái Běi jīng ne',fr:'Alors pourquoi êtes-vous venu à Pékin ?'},
       {who:'C',hz:'因为我妻子在这儿工作。我是去年结婚的。',py:'yīn wèi wǒ qī zi zài zhèr gōng zuò. wǒ shì qù nián jié hūn de',fr:'Parce que ma femme travaille ici. Je me suis marié l\u2019an dernier.'}
     ],
@@ -579,6 +619,9 @@ const TEXTS=[
       {hz:'她喜欢穿白色的衣服。',py:'tā xǐ huan chuān bái sè de yī fu',fr:'Elle aime porter des vêtements blancs.'},
       {hz:'大明不高，可是他的身体很好。',py:'Dà míng bù gāo, kě shì tā de shēn tǐ hěn hǎo',fr:'Daming n’est pas grand, mais il est en très bonne santé.'},
       {hz:'他工作很忙，每天都很累。',py:'tā gōng zuò hěn máng, měi tiān dōu hěn lèi',fr:'Il est très pris par son travail et il est fatigué tous les jours.'},
+      {hz:'小雨是一个很好看的女人，大明是一个很忙的男人。',py:'Xiǎo yǔ shì yí ge hěn hǎo kàn de nǚ rén, Dà míng shì yí ge hěn máng de nán rén',fr:'Xiaoyu est une femme très belle, Daming un homme très occupé.'},
+      {hz:'大明的眼睛是黑色的。',py:'Dà míng de yǎn jing shì hēi sè de',fr:'Daming a les yeux noirs.'},
+      {hz:'他们是我最好的朋友。',py:'tā men shì wǒ zuì hǎo de péng you',fr:'Ce sont mes meilleurs amis.'},
       {hz:'我觉得他们两个人都非常好。',py:'wǒ jué de tā men liǎng ge rén dōu fēi cháng hǎo',fr:'Je trouve qu’ils sont tous les deux formidables.'}
     ],
     qcm:[
@@ -597,8 +640,11 @@ const TEXTS=[
       {who:'B',hz:'他长得很高，头发不多，还戴眼镜。',py:'tā zhǎng de hěn gāo, tóu fa bù duō, hái dài yǎn jìng',fr:'Il est très grand, il n’a pas beaucoup de cheveux et il porte des lunettes.'},
       {who:'A',hz:'他今年多大？年轻吗？',py:'tā jīn nián duō dà? nián qīng ma',fr:'Quel âge a-t-il cette année ? Est-il jeune ?'},
       {who:'B',hz:'不太年轻，他今年五十多岁了。',py:'bú tài nián qīng, tā jīn nián wǔ shí duō suì le',fr:'Pas très jeune : il a une cinquantaine d’années.'},
+      {who:'B',hz:'他不矮也不胖，样子还很年轻，学生们都说他很帅。',py:'tā bù ǎi yě bú pàng, yàng zi hái hěn nián qīng, xué sheng men dōu shuō tā hěn shuài',fr:'Il n’est ni petit ni gros, il a l’air encore jeune, et les étudiants le trouvent tous très beau.'},
       {who:'A',hz:'他的性格怎么样？',py:'tā de xìng gé zěn me yàng',fr:'Quel est son caractère ?'},
       {who:'B',hz:'他很热情，也很关心学生。',py:'tā hěn rè qíng, yě hěn guān xīn xué sheng',fr:'Il est très chaleureux et il se soucie beaucoup de ses étudiants.'},
+      {who:'B',hz:'他在学校特别有名，人聪明，工作也很认真。',py:'tā zài xué xiào tè bié yǒu míng, rén cōng ming, gōng zuò yě hěn rèn zhēn',fr:'Il est particulièrement connu dans l’école : il est intelligent et travaille très sérieusement.'},
+      {who:'B',hz:'不过他很安静，话不多。',py:'bú guò tā hěn ān jìng, huà bù duō',fr:'Cela dit, il est très calme et parle peu.'},
       {who:'A',hz:'那我怎么找到他呢？',py:'nà wǒ zěn me zhǎo dào tā ne',fr:'Alors, comment vais-je le trouver ?'},
       {who:'B',hz:'别着急，他也认识你，他看过你的照片。',py:'bié zháo jí, tā yě rèn shi nǐ, tā kàn guo nǐ de zhào piàn',fr:'Ne t’inquiète pas, il te connaît aussi : il a vu ta photo.'}
     ],
@@ -871,6 +917,179 @@ const LESSONS=[
     ]
   }
 ];
+/* ---------------------------------------------------------------------
+   Index des phrases : toute phrase du corpus (textes, exemples de
+   grammaire, corrigés de production) devient un contexte réutilisable
+   par le module Vocabulaire. Aucune rédaction supplémentaire.
+   --------------------------------------------------------------------- */
+const SENT=[];
+TEXTS.forEach(t=>t.lines.forEach(l=>SENT.push({hz:l.hz,py:l.py||'',fr:l.fr,hsk:t.hsk,th:t.th})));
+GRAMMAR.forEach(g=>g.ex.forEach(e=>SENT.push({hz:e.hz,py:e.py||'',fr:e.fr,hsk:g.hsk,th:g.th})));
+PROD.forEach(p=>{if(p.ok&&p.fr)SENT.push({hz:p.ok,py:'',fr:p.fr,hsk:p.hsk,th:p.th});});
+
+/* ---------------------------------------------------------------------
+   EXOS — banque d’exercices transverses. Quatre familles :
+   match (appariement), vf (vrai/faux), grid (tableau), fix (改错).
+   Chacun porte un niveau et des thèmes, comme le reste du corpus.
+   --------------------------------------------------------------------- */
+const EXOS=[
+  /* ---------------- Appariement ---------------- */
+  {id:'x-m201',kind:'match',hsk:2,th:['presenter'],han:{l:1},
+   titre:'Appariement — qui fait quoi',
+   consigne:'Touchez un mot à gauche, puis sa traduction à droite.',
+   pairs:[['名字','prénom, nom'],['老师','professeur'],['学生','élève, étudiant'],
+          ['医生','médecin'],['朋友','ami'],['汉语','le chinois']]},
+  {id:'x-m301',kind:'match',hsk:3,th:['presenter'],han:{l:1},py:1,
+   titre:'Appariement — 汉字 et pinyin',
+   consigne:'Touchez un mot, puis le pinyin qui lui revient. Attention aux tons.',
+   pairs:[['介绍','jiè shào'],['同事','tóng shì'],['邻居','lín jū'],
+          ['经理','jīng lǐ'],['公司','gōng sī'],['爱好','ài hào']]},
+  {id:'x-m221',kind:'match',hsk:2,th:['decrire'],han:{l:1},
+   titre:'Appariement — décrire quelqu’un',
+   consigne:'Touchez un mot à gauche, puis sa traduction à droite.',
+   pairs:[['眼睛','les yeux'],['身体','le corps, la santé'],['衣服','les vêtements'],
+          ['漂亮','joli, beau'],['快乐','joyeux, gai'],['累','fatigué']]},
+  {id:'x-m321',kind:'match',hsk:3,th:['decrire'],han:{l:1},py:1,
+   titre:'Appariement — 汉字 et pinyin',
+   consigne:'Touchez un mot, puis le pinyin qui lui revient. Attention aux tons.',
+   pairs:[['头发','tóu fa'],['眼镜','yǎn jìng'],['性格','xìng gé'],
+          ['热情','rè qíng'],['聪明','cōng ming'],['年轻','nián qīng']]},
+
+  /* ---------------- Vrai ou faux ---------------- */
+  {id:'x-v201',kind:'vf',hsk:2,th:['presenter'],ref:'t201',
+   titre:'Vrai ou faux',
+   consigne:'D’après le texte, ces phrases sont-elles justes ?',
+   items:[
+     {q:'王小雨是法国人。',ok:1,why:'她是中国人，住在北京。'},
+     {q:'她住在北京。',ok:0,why:'第三句：我住在北京。'},
+     {q:'Marie 是医生。',ok:1,why:'Marie 是老师，她在北京工作。'},
+     {q:'王小雨会说一点儿法语。',ok:0,why:'她说：我也会说一点儿法语。'}
+   ]},
+  {id:'x-v301',kind:'vf',hsk:3,th:['presenter'],ref:'t301',
+   titre:'Vrai ou faux',
+   consigne:'D’après le dialogue, ces phrases sont-elles justes ?',
+   items:[
+     {q:'张明以前在北京工作。',ok:1,why:'他以前在上海的一家公司工作。'},
+     {q:'张明去过别的国家。',ok:0,why:'他以前是留学生，在法国学过两年法语。'},
+     {q:'张明的爱好是跑步。',ok:0,why:'他说：我特别喜欢跑步。'},
+     {q:'张明是今年结婚的。',ok:1,why:'他是去年结婚的。'}
+   ]},
+  {id:'x-v221',kind:'vf',hsk:2,th:['decrire'],ref:'t202',
+   titre:'Vrai ou faux',
+   consigne:'D’après le texte, ces phrases sont-elles justes ?',
+   items:[
+     {q:'小雨很高。',ok:0,why:'第二句：小雨很高，她的眼睛很大。'},
+     {q:'大明也很高。',ok:1,why:'大明不高，可是他的身体很好。'},
+     {q:'小雨喜欢穿黑色的衣服。',ok:1,why:'她喜欢穿白色的衣服。'},
+     {q:'大明每天都很累。',ok:0,why:'他工作很忙，每天都很累。'}
+   ]},
+  {id:'x-v321',kind:'vf',hsk:3,th:['decrire'],ref:'t302',
+   titre:'Vrai ou faux',
+   consigne:'D’après le dialogue, ces phrases sont-elles justes ?',
+   items:[
+     {q:'张老师戴眼镜。',ok:0,why:'他长得很高，头发不多，还戴眼镜。'},
+     {q:'张老师今年三十多岁。',ok:1,why:'他今年五十多岁了。'},
+     {q:'张老师很安静，话不多。',ok:0,why:'不过他很安静，话不多。'},
+     {q:'说话的人以前见过张老师。',ok:1,why:'她说：我没见过他。'}
+   ]},
+
+  /* ---------------- Tableau à compléter ---------------- */
+  {id:'x-g201',kind:'grid',hsk:2,th:['presenter'],
+   titre:'Tableau — les mots de base',
+   consigne:'Touchez une case vide, puis l’étiquette qui lui revient.',
+   cols:['汉字','pinyin','français'],
+   rows:[['名字',{g:'míng zi'},'prénom, nom'],
+         ['老师','lǎo shī',{g:'professeur'}],
+         [{g:'医生'},'yī shēng','médecin'],
+         ['朋友',{g:'péng you'},'ami'],
+         ['中国','Zhōng guó',{g:'la Chine'}]],
+   extra:['学生','gāo xìng','le voisin']},
+  {id:'x-g301',kind:'grid',hsk:3,th:['presenter'],
+   titre:'Tableau — le travail et les gens',
+   consigne:'Touchez une case vide, puis l’étiquette qui lui revient.',
+   cols:['汉字','pinyin','français'],
+   rows:[['介绍',{g:'jiè shào'},'présenter quelqu’un'],
+         ['同事','tóng shì',{g:'collègue'}],
+         [{g:'公司'},'gōng sī','entreprise'],
+         ['爱好',{g:'ài hào'},'passe-temps'],
+         ['城市','chéng shì',{g:'ville'}]],
+   extra:['邻居','guó jiā','pays']},
+  {id:'x-g221',kind:'grid',hsk:2,th:['decrire'],
+   titre:'Tableau — le portrait',
+   consigne:'Touchez une case vide, puis l’étiquette qui lui revient.',
+   cols:['汉字','pinyin','français'],
+   rows:[['眼睛',{g:'yǎn jing'},'les yeux'],
+         ['漂亮','piào liang',{g:'joli, beau'}],
+         [{g:'衣服'},'yī fu','les vêtements'],
+         ['快乐',{g:'kuài lè'},'joyeux, gai'],
+         ['非常','fēi cháng',{g:'extrêmement'}]],
+   extra:['身体','hěn lèi','noir']},
+  {id:'x-g321',kind:'grid',hsk:3,th:['decrire'],
+   titre:'Tableau — allure et caractère',
+   consigne:'Touchez une case vide, puis l’étiquette qui lui revient.',
+   cols:['汉字','pinyin','français'],
+   rows:[['头发',{g:'tóu fa'},'les cheveux'],
+         ['聪明','cōng ming',{g:'intelligent'}],
+         [{g:'眼镜'},'yǎn jìng','les lunettes'],
+         ['性格',{g:'xìng gé'},'le caractère'],
+         ['热情','rè qíng',{g:'chaleureux'}]],
+   extra:['年轻','ān jìng','mince']},
+
+  /* ---------------- 改错 ---------------- */
+  {id:'x-f201',kind:'fix',hsk:2,th:['presenter'],ref:'g201',
+   titre:'改错 — corriger la phrase',
+   consigne:'Touchez le mot fautif, puis choisissez par quoi le remplacer.',
+   items:[
+     {t:['我','是','叫','马丽'],bad:1,fix:['on le supprime','很','会'],ok:0,
+      bonne:'我叫马丽。',why:'叫 est déjà le verbe. 是 ne peut pas s’ajouter devant un autre verbe.'},
+     {t:['你','叫','什么','名字','吗'],bad:4,fix:['on le supprime','呢','吧'],ok:0,
+      bonne:'你叫什么名字？',why:'吗 ne s’emploie qu’avec une question fermée. Ici 什么 pose déjà la question.'},
+     {t:['你','今年','几岁'],bad:2,fix:['多大','多少','什么'],ok:0,
+      bonne:'你今年多大？',why:'几岁 s’adresse à un jeune enfant. Pour un adulte, c’est 多大.'},
+     {t:['我','住','北京'],bad:1,fix:['住在','是住','住的'],ok:0,
+      bonne:'我住在北京。',why:'住 réclame 在 devant le lieu.'}
+   ]},
+  {id:'x-f301',kind:'fix',hsk:3,th:['presenter'],ref:'g301',
+   titre:'改错 — la structure 是…的',
+   consigne:'Touchez le mot fautif, puis choisissez par quoi le remplacer.',
+   items:[
+     {t:['我','是','去年','结婚'],bad:3,fix:['结婚的','结婚了','结婚吗'],ok:0,
+      bonne:'我是去年结婚的。',why:'的 ferme obligatoirement la structure 是…的. C’est 是 qui peut tomber, jamais 的.'},
+     {t:['你','是','在哪儿','学的','汉语','了'],bad:5,fix:['on le supprime','吗','呢'],ok:0,
+      bonne:'你是在哪儿学的汉语？',why:'了 et 是…的 ne cohabitent pas : le fait est acquis, seule la circonstance est en jeu.'},
+     {t:['他','是','在北京','工作'],bad:3,fix:['工作的','工作了','工作吧'],ok:0,
+      bonne:'他是在北京工作的。',why:'Même règle : sans 的, la structure est incomplète.'},
+     {t:['他','是','我的','新的','同事'],bad:3,fix:['新','很新','新得'],ok:0,
+      bonne:'他是我的新同事。',why:'Un adjectif court et courant se colle au nom sans 的, surtout après un premier 的.'}
+   ]},
+  {id:'x-f221',kind:'fix',hsk:2,th:['decrire'],ref:'g202',
+   titre:'改错 — l’adjectif',
+   consigne:'Touchez le mot fautif, puis choisissez par quoi le remplacer.',
+   items:[
+     {t:['她','是','漂亮'],bad:1,fix:['很','会','的'],ok:0,
+      bonne:'她很漂亮。',why:'L’adjectif tient lieu de verbe : pas de 是 devant lui, mais 很 en appui.'},
+     {t:['他','不是','高'],bad:1,fix:['不','没','很不'],ok:0,
+      bonne:'他不高。',why:'La négation d’un adjectif, c’est 不 seul.'},
+     {t:['他','是','一个','很好','老师'],bad:3,fix:['很好的','好得','很的好'],ok:0,
+      bonne:'他是一个很好的老师。',why:'的 relie obligatoirement l’adjectif au nom qu’il qualifie.'},
+     {t:['今天','我','太累'],bad:2,fix:['太累了','太的累','很累吗'],ok:0,
+      bonne:'今天我太累了。',why:'太 appelle 了 en fin de phrase : 太…了 fonctionne en paire.'}
+   ]},
+  {id:'x-f321',kind:'fix',hsk:3,th:['decrire'],ref:'g302',
+   titre:'改错 — le complément de degré',
+   consigne:'Touchez le mot fautif, puis choisissez par quoi le remplacer.',
+   items:[
+     {t:['他','跑','很快'],bad:1,fix:['跑得','跑的','跑地'],ok:0,
+      bonne:'他跑得很快。',why:'La manière se rattache au verbe par 得, et par rien d’autre.'},
+     {t:['他','说','汉语','得很好'],bad:3,fix:['说得很好','的很好','很好'],ok:0,
+      bonne:'他说汉语说得很好。',why:'Quand le verbe a un objet, il faut le répéter avant 得.'},
+     {t:['他','跑得','不很快'],bad:2,fix:['不快','很不快','没快'],ok:0,
+      bonne:'他跑得不快。',why:'不 se place directement devant l’adjectif, sans 很.'},
+     {t:['这个','孩子','长','很可爱'],bad:2,fix:['长得','长的','长了'],ok:0,
+      bonne:'这个孩子长得很可爱。',why:'长得 est la tournure figée pour décrire le physique.'}
+   ]}
+];
+
 /* =====================================================================
    3. OUTILS
    ===================================================================== */
@@ -885,6 +1104,49 @@ function pinyin(py){
     if(!p.trim()||/^[,，.。?？!！]$/.test(p))return esc(p);
     return `<span class="s${toneOf(p)}">${esc(p)}</span>`;
   }).join('');
+}
+const VOW={a:'aāáǎà',e:'eēéěè',i:'iīíǐì',o:'oōóǒò',u:'uūúǔù','ü':'üǖǘǚǜ'};
+function stripTone(sy){
+  let r='';
+  for(const c of sy){
+    let hit=false;
+    for(const k in VOW){const i=VOW[k].indexOf(c);if(i>=0){r+=(c===c.toUpperCase()&&c!==k?k.toUpperCase():k);hit=true;break;}}
+    if(!hit)r+=c;
+  }
+  return r;
+}
+/* Repose une marque de ton sur la voyelle réglementaire : a et e priment,
+   dans « ou » c’est le o, sinon c’est la dernière voyelle. */
+function setTone(sy,n){
+  const base=stripTone(sy),low=base.toLowerCase();
+  if(n===0)return base;
+  let pos=-1;
+  if(low.includes('a'))pos=low.indexOf('a');
+  else if(low.includes('e'))pos=low.indexOf('e');
+  else if(low.includes('ou'))pos=low.indexOf('o');
+  else for(let i=low.length-1;i>=0;i--){if('aeiouü'.includes(low[i])){pos=i;break;}}
+  if(pos<0)return base;
+  return base.slice(0,pos)+VOW[low[pos]][n]+base.slice(pos+1);
+}
+function tonVariants(py){
+  const parts=py.split(' '),out=[py];
+  let guard=0;
+  while(out.length<4&&guard++<80){
+    const i=Math.random()*parts.length|0,cur=toneOf(parts[i]),n=Math.random()*5|0;
+    if(n===cur)continue;
+    const c=parts.slice();c[i]=setTone(parts[i],n);
+    const v=c.join(' ');
+    if(!out.includes(v))out.push(v);
+  }
+  return out;
+}
+function normZh(t){return String(t||'').replace(/[\s，。？！、,.?!；;：:’'"“”（）()]/g,'');}
+function diffZh(given,expect){
+  const A=normZh(given),B=normZh(expect);
+  let h=0;while(h<A.length&&h<B.length&&A[h]===B[h])h++;
+  let t=0;while(t<A.length-h&&t<B.length-h&&A[A.length-1-t]===B[B.length-1-t])t++;
+  const mark=x=>esc(x.slice(0,h))+(x.length-t>h?'<u>'+esc(x.slice(h,x.length-t))+'</u>':'')+esc(x.slice(x.length-t));
+  return {you:mark(A),exp:mark(B)};
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function jq(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
@@ -1104,9 +1366,10 @@ function render(){
     `<button class="${view===t.id?'on':''}" onclick="tab('${t.id}')">${ico(t.k)}${t.n}</button>`).join('');
   const V={home:vHome,vocab:vVocab,chars:vChars,gram:vGram,co:vCO,ce:vCE,prod:vProd,
            hsk:vHSK,parcours:vParcours,lecon:vLecon,mots:vQuiz,bilan:vQuiz,
-           progres:vProgres,reglages:vReglages};
+           progres:vProgres,reglages:vReglages,exo:vExo};
   document.getElementById('app').innerHTML=(V[view]||vHome)();
   if(view==='chars')mountWriter();
+  if(view==='vocab'&&ctx.d&&ctx.d.kind==='trace')mountTrace();
   if(ctx.scrollTo){
     const el=document.getElementById(ctx.scrollTo);
     ctx.scrollTo=null;
@@ -1197,37 +1460,343 @@ function vHome(){
   ${memoryOnly?`<div class="box mt"><p><b>Sauvegarde inactive</b></p><p class="mut sm">Le navigateur bloque le stockage dans cet aperçu. Une fois publiée sur GitHub Pages, la progression sera conservée.</p></div>`:''}`;
 }
 
-/* ---------- Vocabulaire : auto-évaluation, alimente les boîtes ---------- */
+/* =====================================================================
+   VOCABULAIRE — échelle d’épreuves
+   La boîte de Leitner ne règle plus seulement la fréquence : elle règle
+   aussi l’exigence. Le jugement est objectif à chaque étage.
+   ===================================================================== */
+const LADDER=[
+  {k:'reco',  n:'Reconnaître', d:'汉字 → français'},
+  {k:'prod',  n:'Produire',    d:'français → 汉字'},
+  {k:'tons',  n:'Tons',        d:'retrouver le pinyin exact'},
+  {k:'trou',  n:'En contexte', d:'compléter la phrase'},
+  {k:'trace', n:'Tracer',      d:'écrire de mémoire, sans modèle'},
+  {k:'saisie',n:'Traduire',    d:'au clavier chinois'}
+];
+function sentsFor(w){
+  const c=(w.ex?[{hz:w.ex.hz,py:w.ex.py||'',fr:w.ex.fr,hsk:w.hsk,th:w.th}]:[]).concat(SENT);
+  return c.filter(x=>x.hz.indexOf(w.hz)>=0)
+          .sort((a,b)=>((a.hsk===w.hsk?0:1)-(b.hsk===w.hsk?0:1))||(a.hz.length-b.hz.length));
+}
+function distract(w,n){
+  let c=pool().filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
+  if(c.length<n)c=WORDS.filter(x=>x.hsk===w.hsk&&x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
+  if(c.length<n)c=WORDS.filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
+  return shuffle(c).slice(0,n);
+}
+function hanOf(t){return [...String(t)].filter(c=>/[\u4e00-\u9fff]/.test(c));}
+function makeDrill(w){
+  const ss=sentsFor(w);
+  let kind=LADDER[Math.min(boxOf(w.id),LADDER.length-1)].k;
+  if((kind==='trou'||kind==='saisie')&&!ss.length)kind='prod';
+  if(kind==='trace'&&typeof HanziWriter==='undefined')kind='prod';
+  const d={kind:kind,w:w,ans:null,mist:0,neuf:!S.items[w.id]};
+  if(kind==='reco'||kind==='prod'){
+    const hz=(kind==='prod'),good=hz?w.hz:w.fr;
+    d.a=shuffle([good].concat(distract(w,3).map(x=>hz?x.hz:x.fr)));
+    d.ok=d.a.indexOf(good);d.han=hz;
+    d.prompt=hz?w.fr:w.hz;d.promptHan=!hz;
+  }
+  if(kind==='tons'){
+    d.a=shuffle(tonVariants(w.py));d.ok=d.a.indexOf(w.py);
+    d.prompt=w.hz;d.promptHan=true;d.han=false;
+  }
+  if(kind==='trou'){
+    /* on préfère une phrase où le mot n’apparaît qu’une fois ; sinon on masque
+       toutes ses occurrences, sans quoi la réponse resterait lisible. */
+    const uniq=ss.filter(x=>x.hz.split(w.hz).length===2);
+    d.s=uniq[0]||ss[0];
+    d.a=shuffle([w.hz].concat(distract(w,3).map(x=>x.hz)));
+    d.ok=d.a.indexOf(w.hz);d.han=true;
+    d.gap=d.s.hz.split(w.hz).join('（\u3000）');
+  }
+  if(kind==='saisie')d.s=ss[0];
+  return d;
+}
+function startVocab(quick){
+  const P=pool();
+  if(!P.length)return toast('Aucun mot à ce filtre.');
+  const q=P.filter(w=>due(w.id));
+  const src=(q.length?q:P).slice().sort((a,b)=>boxOf(a.id)-boxOf(b.id));
+  const list=shuffle(src.slice(0,Math.min(src.length,12)));
+  ctx.session={ids:list.map(x=>x.id),i:0,right:0,quick:!!quick,rappel:!q.length};
+  ctx.show=0;
+  ctx.d=quick?null:makeDrill(list[0]);
+  render();scrollTo(0,0);
+}
+function curWord(){return WORDS.find(x=>x.id===ctx.session.ids[ctx.session.i]);}
+function vNext(){
+  const Z=ctx.session;
+  if(Z.i<Z.ids.length-1){
+    Z.i++;ctx.show=0;
+    ctx.d=Z.quick?null:makeDrill(curWord());
+  }else Z.done=true;
+  render();scrollTo(0,0);
+}
+function vAnswer(j){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.ans=j;
+  const good=(j===d.ok);
+  beep(good?'ok':'no');
+  grade(d.w.id,good?2:0);
+  if(good)ctx.session.right++;
+  render();
+}
+function vSubmit(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  const el=document.getElementById('zi');
+  const txt=el?el.value:'';
+  if(!normZh(txt))return toast('Écrivez la phrase avant de valider.');
+  d.txt=txt;
+  const good=(normZh(txt)===normZh(d.s.hz));
+  d.ans=good?1:0;
+  beep(good?'ok':'no');
+  grade(d.w.id,good?2:1);
+  if(good)ctx.session.right++;
+  render();
+}
+function vSkip(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.ans=-1;d.txt=(document.getElementById('zi')||{}).value||'';
+  beep('no');grade(d.w.id,0);render();
+}
+function vTraceDone(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.ans=1;
+  const good=(d.mist===0);
+  beep(good?'ok':'no');
+  grade(d.w.id,good?2:(d.mist<=2?1:0));
+  if(good)ctx.session.right++;
+  render();
+}
+/* Tracé de mémoire : un carré par caractère, enchaînés automatiquement. */
+let TW=[];
+function mountTrace(){
+  const d=ctx.d;
+  if(!d||d.kind!=='trace'||typeof HanziWriter==='undefined')return;
+  /* Une séance de tracé déjà en cours et toujours à l’écran : ne pas la relancer. */
+  if(d.ans==null&&d.mounted){
+    const el0=document.getElementById('tw0');
+    if(el0&&el0.childNodes.length)return;
+  }
+  const chars=hanOf(d.w.hz);
+  const size=chars.length>2?102:(chars.length===2?138:196);
+  TW=[];
+  chars.forEach((c,k)=>{
+    const el=document.getElementById('tw'+k);if(!el)return;
+    el.innerHTML='';
+    TW.push(HanziWriter.create(el,c,{width:size,height:size,padding:8,
+      showCharacter:d.ans!=null,showOutline:d.ans!=null,delayBetweenStrokes:150,
+      strokeColor:'#2C2723',outlineColor:'#E2D6C4',drawingColor:'#B8342E',highlightColor:'#3D7A69'}));
+  });
+  if(d.ans!=null)return;
+  d.mounted=true;
+  const run=k=>{
+    if(k>=TW.length)return vTraceDone();
+    TW[k].quiz({onComplete(r){
+      d.mist+=r.totalMistakes;
+      TW[k].showCharacter();TW[k].showOutline();
+      const box=document.getElementById('tw'+k);if(box)box.className='tbox ok';
+      setTimeout(()=>run(k+1),320);
+    }});
+  };
+  run(0);
+}
+function vReveal(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.ans=-1;beep('no');grade(d.w.id,0);render();
+  setTimeout(()=>TW.forEach((t,i)=>setTimeout(()=>t.animateCharacter(),i*900)),120);
+}
+
+/* =====================================================================
+   MOTEURS D’EXERCICES TRANSVERSES
+   ===================================================================== */
+function exoAt(kind,ref){
+  return EXOS.filter(x=>x.kind===kind&&fits(x)&&(!ref||x.ref===ref));
+}
+
+/* ---- Vrai ou faux : en ligne dans les écrans de compréhension ---- */
+function vfBlock(x){
+  ctx.ans=ctx.ans||{};
+  const L=['对 — vrai','错 — faux'];
+  return `<h2 class="sec">${esc(x.titre)}</h2>
+  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  ${x.items.map((it,i)=>{
+    const key=x.id+':'+i,ch=ctx.ans[key];
+    const nx=i+1<x.items.length?`'q-${x.id}-${i+1}'`:'null';
+    return `<div class="box" id="q-${x.id}-${i}">
+      <p class="hz" style="font-size:19.5px;font-weight:700;margin:0 0 11px">${esc(it.q)}</p>
+      <div class="row">${[0,1].map(j=>{
+        let cl='';if(ch!=null)cl=(j===it.ok)?'ok':(j===ch?'no':'');
+        return `<button class="opt ${cl}" style="text-align:center" onclick="pick('${key}',${j},${it.ok},${nx})">${L[j]}</button>`;
+      }).join('')}</div>
+      ${ch!=null?`<div class="verdict ${ch===it.ok?'ok':'no'}" style="margin-top:11px">${ch===it.ok?'Juste.':'Non.'}${it.why?' <span class="hz">'+esc(it.why)+'</span>':''}</div>`:''}
+    </div>`;
+  }).join('')}`;
+}
+
+/* ---- 改错 : en ligne dans la Grammaire ---- */
+function fixBlock(x){
+  ctx.fx=ctx.fx||{};
+  return `<h2 class="sec">${esc(x.titre)}</h2>
+  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  ${x.items.map((it,i)=>{
+    const key=x.id+':'+i,st=ctx.fx[key]||{t:null,f:null};
+    return `<div class="box" id="q-${x.id}-${i}">
+      <div class="tiles">${it.t.map((tk,k)=>{
+        let cl='';
+        if(st.t!=null)cl=(k===it.bad)?'bon':(k===st.t?'mauvais':'');
+        return `<button class="tile tok ${cl}" onclick="fixTap('${key}',${k},${it.bad})">${esc(tk)}</button>`;
+      }).join('')}</div>
+      ${st.t!=null?`<div class="verdict ${st.t===it.bad?'ok':'no'} mt">${
+          st.t===it.bad?'C’est bien là que ça cloche.':'Le mot fautif était '+esc(it.t[it.bad])+'.'}</div>
+        <p class="mut sm">Par quoi le remplacer ?</p>
+        <div class="opts">${it.fix.map((f,j)=>{
+          let c2='';if(st.f!=null)c2=(j===it.ok)?'ok':(j===st.f?'no':'');
+          return `<button class="opt ${c2}" onclick="fixPick('${key}',${j},${it.ok})">${esc(f)}</button>`;
+        }).join('')}
+        </div>
+        ${st.f!=null?`<div class="verdict ${st.f===it.ok?'ok':'no'}">${
+            st.f===it.ok?'Juste.':'Il fallait : '+esc(it.fix[it.ok])+'.'}${it.why?' '+esc(it.why):''}</div>
+          <div class="sentence">${esc(it.bonne)}</div>
+          <button class="btn pale tiny mt" onclick="speak('${jq(it.bonne)}')">Écouter la phrase juste</button>`:''}`:''}
+    </div>`;
+  }).join('')}`;
+}
+function fixTap(key,k,bad){
+  ctx.fx=ctx.fx||{};
+  if(ctx.fx[key]&&ctx.fx[key].t!=null)return;
+  ctx.fx[key]={t:k,f:null};
+  beep(k===bad?'ok':'no');touchStreak();save();render();
+}
+function fixPick(key,j,ok){
+  const st=(ctx.fx||{})[key];
+  if(!st||st.t==null||st.f!=null)return;
+  st.f=j;beep(j===ok?'ok':'no');save();render();
+}
+
+/* ---- Appariement et tableau : écran dédié ---- */
+function gridGaps(x){
+  const o=[];x.rows.forEach(r=>r.forEach(c=>{if(c&&typeof c==='object'&&c.g)o.push(c.g);}));return o;
+}
+function openExo(id){
+  const x=EXOS.find(e=>e.id===id);if(!x)return;
+  const st={id:id};
+  if(x.kind==='match'){st.order=shuffle(x.pairs.map((p,i)=>i));st.sel=null;st.done=[];st.ko=0;st.bad=null;}
+  if(x.kind==='grid'){st.cell=null;st.fill={};st.checked=false;st.bank=shuffle(gridGaps(x).concat(x.extra||[]));}
+  go('exo',{exo:st});
+}
+function mTap(side,i){
+  const st=ctx.exo;if(!st)return;
+  if(side==='l'){
+    if(st.done.indexOf(i)>=0)return;
+    st.sel=(st.sel===i?null:i);st.bad=null;return render();
+  }
+  const pi=st.order[i];
+  if(st.done.indexOf(pi)>=0)return;
+  if(st.sel==null)return toast('Choisissez d’abord un mot dans la colonne de gauche.');
+  if(pi===st.sel){st.done.push(pi);beep('ok');st.bad=null;}
+  else{st.ko++;beep('no');st.bad=i;}
+  st.sel=null;touchStreak();save();render();
+}
+function gTapCell(k){
+  const st=ctx.exo;if(!st||st.checked)return;
+  if(st.fill[k]!=null){st.bank.push(st.fill[k]);delete st.fill[k];st.cell=null;return render();}
+  st.cell=(st.cell===k?null:k);render();
+}
+function gTapBank(i){
+  const st=ctx.exo;if(!st||st.checked)return;
+  if(st.cell==null)return toast('Touchez d’abord une case vide du tableau.');
+  st.fill[st.cell]=st.bank[i];st.bank.splice(i,1);st.cell=null;render();
+}
+function gCheck(){
+  const st=ctx.exo;if(!st)return;
+  st.checked=true;st.cell=null;touchStreak();save();render();scrollTo(0,0);
+}
+function vExo(){
+  const st=ctx.exo;if(!st)return vVocab();
+  const x=EXOS.find(e=>e.id===st.id);if(!x)return vVocab();
+  return x.kind==='match'?exoMatch(x,st):exoGrid(x,st);
+}
+function exoMatch(x,st){
+  const n=x.pairs.length,fini=st.done.length===n;
+  return header(x.titre,`${st.done.length} / ${n} paires`)+`
+  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  <div class="mgrid">
+    <div>${x.pairs.map((pr,i)=>{
+      const d=st.done.indexOf(i)>=0;
+      return `<button class="mit ${x.han&&x.han.l?'hz':''} ${d?'ok':(st.sel===i?'sel':'')}" onclick="mTap('l',${i})">${esc(pr[0])}</button>`;
+    }).join('')}</div>
+    <div>${st.order.map((pi,i)=>{
+      const d=st.done.indexOf(pi)>=0,lab=x.pairs[pi][1];
+      return `<button class="mit ${d?'ok':(st.bad===i?'no':'')}" onclick="mTap('r',${i})">${x.py?pinyin(lab):esc(lab)}</button>`;
+    }).join('')}</div>
+  </div>
+  ${fini
+    ?`<div class="verdict ${st.ko?'no':'ok'} mt">${st.ko?st.ko+' erreur'+(st.ko>1?'s':'')+' avant d’arriver au bout.':'Toutes les paires du premier coup.'}</div>
+      <button class="btn pale" onclick="openExo('${x.id}')">Recommencer</button>`
+    :`<p class="mut sm mt">Touchez un mot à gauche, puis son correspondant à droite. Les paires justes se verrouillent.</p>`}`;
+}
+function exoGrid(x,st){
+  let tot=0,bon=0;
+  const corps=x.rows.map((r,ri)=>`<tr>${r.map((c,ci)=>{
+    const k=ri+'-'+ci;
+    if(!(c&&typeof c==='object'&&c.g))return `<td><div class="gc">${esc(c)}</div></td>`;
+    tot++;
+    const v=st.fill[k];
+    let cl=v!=null?'fill':'gap',txt=(v!=null?v:'?');
+    if(st.checked){
+      const juste=(v===c.g);if(juste)bon++;
+      cl=juste?'ok':'no';txt=c.g;
+    }else if(st.cell===k)cl='sel';
+    return `<td><button class="gc ${cl}" onclick="gTapCell('${k}')">${esc(txt)}</button></td>`;
+  }).join('')}</tr>`).join('');
+  const reste=Object.keys(st.fill).length;
+  return header(x.titre,`${reste} / ${tot} cases remplies`)+`
+  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  <div class="box">
+    <table class="gtab"><thead><tr>${x.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+    <tbody>${corps}</tbody></table>
+  </div>
+  ${st.checked
+    ?`<div class="box"><div class="score"><div class="n">${bon}<small> / ${tot}</small></div>
+        <div class="lbl">cases justes</div></div>
+      <div class="bar" style="margin:12px 0"><i style="width:${Math.round(bon/tot*100)}%;background:${bon===tot?'var(--jade)':'var(--red)'}"></i></div>
+      <p class="mut sm">Les cases en rouge affichent la réponse attendue.</p>
+      <button class="btn pale" onclick="openExo('${x.id}')">Recommencer</button></div>`
+    :`<h2 class="sec">Étiquettes</h2>
+      <div class="tiles">${st.bank.map((b,i)=>`<button class="tile" onclick="gTapBank(${i})">${esc(b)}</button>`).join('')}</div>
+      <button class="btn jade mt" onclick="gCheck()">Vérifier</button>
+      <p class="mut sm mt">Touchez une case vide, puis l’étiquette. Touchez une case remplie pour la vider.</p>`}`;
+}
+
 function vVocab(){
   const P=pool();
   if(!P.length)return header('Vocabulaire')+levelPills()+nothing();
-  const q=P.filter(w=>due(w.id));
-  const list=q.length?q:P;
-  if(ctx.i==null)ctx.i=0;
-  ctx.dir=ctx.dir||'hz-fr';
-  const w=list[ctx.i%list.length];
-  const ma=P.filter(x=>mastered(x.id)).length;
-  const front=ctx.dir==='hz-fr'?`<div class="glyph">${esc(w.hz)}</div>`:`<div class="fr">${esc(w.fr)}</div>`;
-  const rev=ctx.dir==='hz-fr'
-    ?`<div class="py">${pinyin(w.py)}</div><div class="fr" style="margin-top:6px">${esc(w.fr)}</div>`
-    :`<div class="glyph sm">${esc(w.hz)}</div><div class="py">${pinyin(w.py)}</div>`;
+  if(!ctx.session)return vocabHome(P);
+  if(ctx.session.done)return vocabScore();
+  return ctx.session.quick?vocabFlash():vocabDrill();
+}
+
+function vocabHome(P){
+  const q=P.filter(w=>due(w.id)),ma=P.filter(w=>mastered(w.id)).length;
   return header('Vocabulaire',`${q.length} à réviser · ${ma} acquis sur ${P.length}`)+ribbon()+`
-  <p class="mut sm">Classez chaque mot : la boîte détermine à quelle fréquence il reviendra, ici comme dans les exercices des parcours.</p>
-  <div class="row" style="margin-bottom:12px">
-    <button class="btn ${ctx.dir==='hz-fr'?'':'pale'} sm" onclick="ctx.dir='hz-fr';ctx.show=0;render()">汉字 → fr</button>
-    <button class="btn ${ctx.dir==='fr-hz'?'':'pale'} sm" onclick="ctx.dir='fr-hz';ctx.show=0;render()">fr → 汉字</button>
+  <div class="box">
+    <p class="sm" style="margin:0 0 4px"><b>Une épreuve différente à chaque étage</b></p>
+    <p class="mut sm">La boîte d’un mot ne décide plus seulement de la date à laquelle il revient, mais de ce qu’on vous demande d’en faire. Chaque réponse est jugée, plus rien n’est déclaratif.</p>
+    ${LADDER.map((L,i)=>`<div class="ladder">
+      <span class="bx ${P.some(w=>boxOf(w.id)===i)?'on':''}">${i}</span>
+      <span class="tx"><b>${esc(L.n)}</b> — <span class="mut">${esc(L.d)}</span></span>
+      <span class="st mut sm">${P.filter(w=>boxOf(w.id)===i).length}</span>
+    </div>`).join('')}
   </div>
-  <div class="card3d">
-    ${front}
-    ${ctx.show?`<hr>${rev}
-      <button class="btn pale tiny mt" onclick="speak('${jq(w.hz)}')">Écouter</button>`:''}
-  </div>
-  ${ctx.show?`<div class="judge">
-      <button class="btn pale" onclick="vg('${w.id}',0)">À revoir</button>
-      <button class="btn gold" onclick="vg('${w.id}',1)">Hésitant</button>
-      <button class="btn jade" onclick="vg('${w.id}',2)">Acquis</button>
-    </div>`
-   :`<div class="mt"><button class="btn" onclick="ctx.show=1;render()">Voir la réponse</button></div>`}
+  <button class="btn" onclick="startVocab(0)">${q.length?`Séance — ${Math.min(q.length,12)} mot${Math.min(q.length,12)>1?'s':''}`:'Séance libre — 12 mots'}</button>
+  <button class="btn pale mt" onclick="startVocab(1)">Révision rapide — cartes à retourner</button>
+  ${exoAt('match').concat(exoAt('grid')).map(x=>`<button class="wrow" style="width:100%;text-align:left;margin-top:9px"
+    onclick="openExo('${x.id}')">
+    <span class="g" style="font-family:var(--han);font-size:23px;color:var(--clay)">${x.kind==='match'?'配':'表'}</span>
+    <span class="m"><b>${esc(x.titre)}</b><span class="mut">${esc(x.consigne)}</span></span></button>`).join('')}
+  <p class="mut sm mt">La révision rapide ne fait pas monter les boîtes : elle sert aux trajets, quand vous ne pouvez ni tracer ni taper.</p>
   <h2 class="sec">Les mots de ce filtre</h2>
   ${P.map(x=>`<div class="wrow">
     <span class="g">${esc(x.hz)}</span>
@@ -1235,7 +1804,129 @@ function vVocab(){
     ${mastered(x.id)?'<span class="seal">印</span>':`<span class="st">boîte ${boxOf(x.id)}</span>`}
   </div>`).join('')}`;
 }
-function vg(id,g){grade(id,g);ctx.show=0;ctx.i=(ctx.i||0)+1;render();scrollTo(0,0);}
+
+function vocabProg(){
+  const Z=ctx.session;
+  return `<div class="qnum">Mot ${Z.i+1} sur ${Z.ids.length}${ctx.d?' · '+esc((LADDER.find(L=>L.k===ctx.d.kind)||{}).n||''):''}</div>
+  <div class="qprog">${Z.ids.map((id,k)=>{
+    const cl=k===Z.i?'now':(k<Z.i?'ok':'');
+    return `<i class="${cl}"></i>`;}).join('')}</div>`;
+}
+
+function vocabDrill(){
+  const d=ctx.d,w=d.w,rep=d.ans!=null;
+  const fiche=`<div class="box" style="text-align:center">
+      <div class="hz" style="font-size:44px;font-weight:700;line-height:1.2">${esc(w.hz)}</div>
+      <div class="py" style="font-size:19px">${pinyin(w.py)}</div>
+      <p class="mut" style="margin:4px 0 10px">${esc(w.fr)}</p>
+      <button class="btn pale tiny" onclick="speak('${jq(w.hz)}')">Écouter</button>
+    </div>`;
+  const suite=rep?`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Mot suivant':'Voir le bilan'}</button>`:'';
+
+  /* --- QCM : reconnaître, produire, tons, phrase à trou --- */
+  if(d.kind==='reco'||d.kind==='prod'||d.kind==='tons'||d.kind==='trou'){
+    const consigne={reco:'Que signifie ce mot ?',prod:'Quel mot correspond ?',
+      tons:'Quel pinyin est exact ? Les tons seuls diffèrent.',
+      trou:'Complétez la phrase.'}[d.kind];
+    return header('Vocabulaire',w.fr&&d.kind!=='reco'?'':' ')+vocabProg()+
+    (d.neuf&&d.kind==='reco'&&!rep?`<div class="verdict ok">Premier passage sur ce mot — regardez-le, puis répondez.</div>`+fiche:'')+`
+    <div class="box">
+      <p class="mut sm" style="margin:0 0 6px">${esc(consigne)}</p>
+      ${d.kind==='trou'
+        ?`<div class="sentence">${esc(d.gap)}</div>
+          <p class="mut sm" style="margin:6px 0 0">${esc(d.s.fr)}</p>`
+        :`<div class="prompt"><div class="${d.promptHan?'big':'med'}">${esc(d.prompt)}</div></div>`}
+      ${d.kind==='tons'?`<div style="text-align:center"><button class="btn pale tiny" onclick="speak('${jq(w.hz)}')">Écouter</button></div>`:''}
+      <div class="opts">${d.a.map((opt,j)=>{
+        let cl='';if(rep)cl=(j===d.ok)?'ok':(j===d.ans?'no':'');
+        return `<button class="opt ${d.han?'han':''} ${cl}" onclick="vAnswer(${j})">${d.kind==='tons'?pinyin(opt):esc(opt)}</button>`;
+      }).join('')}</div>
+      ${rep?`<div class="verdict ${d.ans===d.ok?'ok':'no'}">${d.ans===d.ok?'Juste.':'Réponse attendue : '+esc(d.a[d.ok])+'.'} ${esc(w.hz)} — ${esc(w.py)} — ${esc(w.fr)}</div>
+        <button class="btn pale sm" onclick="speak('${jq(d.kind==='trou'?d.s.hz:w.hz)}')">Écouter</button>`:''}
+    </div>
+    ${suite}`;
+  }
+
+  /* --- Tracé de mémoire --- */
+  if(d.kind==='trace'){
+    const chars=hanOf(w.hz);
+    const size=chars.length>2?102:(chars.length===2?138:196);
+    return header('Vocabulaire',' ')+vocabProg()+`
+    <div class="box" style="text-align:center">
+      <p class="mut sm" style="margin:0 0 4px">Écrivez ce mot de mémoire. Aucun contour n’est affiché.</p>
+      <div class="fr" style="font-size:20px;font-weight:700">${esc(w.fr)}</div>
+      <div class="py" style="font-size:18px;margin-bottom:12px">${pinyin(w.py)}</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${chars.map((c,k)=>`<div id="tw${k}" class="tbox" style="width:${size}px;height:${size}px"></div>`).join('')}
+      </div>
+      ${rep?`<div class="verdict ${d.ans===-1?'no':(d.mist===0?'ok':'no')} mt">${
+          d.ans===-1?'Tracé révélé — le mot revient en boîte 0.'
+          :(d.mist===0?'Sans une seule erreur de tracé.':d.mist+' erreur(s) de tracé.')
+        } ${esc(w.hz)} — ${esc(w.py)}</div>`
+       :`<button class="btn pale sm mt" onclick="vReveal()">Je ne m’en souviens pas — montrer</button>`}
+    </div>
+    ${suite}`;
+  }
+
+  /* --- Saisie au clavier chinois --- */
+  const dz=rep?diffZh(d.txt||'',d.s.hz):null;
+  return header('Vocabulaire',' ')+vocabProg()+`
+  <div class="box">
+    <p class="mut sm" style="margin:0 0 6px">Écrivez cette phrase en chinois, au clavier. Elle contient ${esc(w.hz)}.</p>
+    <p style="font-size:18px;font-weight:700;margin:0 0 12px">${esc(d.s.fr)}</p>
+    ${rep?'':`<textarea id="zi" rows="2" placeholder="汉字…"></textarea>
+      <div class="row mt">
+        <button class="btn jade sm" onclick="vSubmit()">Valider</button>
+        <button class="btn pale sm" onclick="vSkip()">Je passe</button>
+      </div>`}
+    ${rep?`<div class="verdict ${d.ans===1?'ok':'no'}">${d.ans===1?'Identique au modèle.':(d.ans===-1?'Phrase passée.':'Ce n’est pas tout à fait ça.')}</div>
+      ${d.ans!==1?`<p class="mut sm" style="margin:0 0 2px">Vous avez écrit</p>
+        <div class="diff" style="color:var(--red-d)">${dz.you||'—'}</div>
+        <p class="mut sm" style="margin:10px 0 2px">Attendu</p>`:'<p class="mut sm" style="margin:0 0 2px">Modèle</p>'}
+      <div class="diff" style="color:var(--jade-d)">${dz.exp}</div>
+      ${d.s.py?`<p class="py sm" style="margin-top:6px">${pinyin(d.s.py)}</p>`:''}
+      <button class="btn pale sm mt" onclick="speak('${jq(d.s.hz)}')">Écouter</button>`:''}
+  </div>
+  ${suite}`;
+}
+
+function vocabFlash(){
+  const w=curWord();
+  ctx.dir=ctx.dir||'hz-fr';
+  const front=ctx.dir==='hz-fr'?`<div class="glyph">${esc(w.hz)}</div>`:`<div class="fr">${esc(w.fr)}</div>`;
+  const rev=ctx.dir==='hz-fr'
+    ?`<div class="py">${pinyin(w.py)}</div><div class="fr" style="margin-top:6px">${esc(w.fr)}</div>`
+    :`<div class="glyph sm">${esc(w.hz)}</div><div class="py">${pinyin(w.py)}</div>`;
+  return header('Révision rapide','Les boîtes ne bougent pas')+vocabProg()+`
+  <div class="row" style="margin-bottom:12px">
+    <button class="btn ${ctx.dir==='hz-fr'?'':'pale'} sm" onclick="ctx.dir='hz-fr';ctx.show=0;render()">汉字 → fr</button>
+    <button class="btn ${ctx.dir==='fr-hz'?'':'pale'} sm" onclick="ctx.dir='fr-hz';ctx.show=0;render()">fr → 汉字</button>
+  </div>
+  <div class="card3d">
+    ${front}
+    ${ctx.show?`<hr>${rev}<button class="btn pale tiny mt" onclick="speak('${jq(w.hz)}')">Écouter</button>`:''}
+  </div>
+  ${ctx.show?`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Mot suivant':'Terminer'}</button>`
+            :`<button class="btn mt" onclick="ctx.show=1;render()">Voir la réponse</button>`}`;
+}
+
+function vocabScore(){
+  const Z=ctx.session,n=Z.ids.length;
+  if(Z.quick)return header('Révision rapide')+`
+    <div class="box"><div class="score"><div class="n">${n}</div><div class="lbl">mot${n>1?'s':''} passé${n>1?'s':''} en revue</div></div>
+    <p class="mut sm">Aucune boîte n’a bougé : c’était une lecture, pas une épreuve.</p></div>
+    <button class="btn" onclick="ctx.session=null;ctx.d=null;render()">Retour au vocabulaire</button>`;
+  const pct=Math.round(Z.right/n*100);
+  const monte=Z.ids.filter(id=>boxOf(id)>0).length;
+  return header('Séance terminée')+`
+  <div class="box">
+    <div class="score"><div class="n">${Z.right}<small> / ${n}</small></div><div class="lbl">${pct}% de réussite</div></div>
+    <div class="bar" style="margin:14px 0"><i style="width:${pct}%;background:${pct>=75?'var(--jade)':'var(--red)'}"></i></div>
+    <p class="mut sm">${monte} mot${monte>1?'s':''} au-dessus de la boîte 0. Les mots ratés reviendront dès la prochaine séance, au même étage.</p>
+  </div>
+  <button class="btn" onclick="startVocab(0)">Nouvelle séance</button>
+  <button class="btn pale mt" onclick="ctx.session=null;ctx.d=null;render()">Retour au vocabulaire</button>`;
+}
 
 /* ---------- Caractères ---------- */
 function vChars(){
@@ -1327,7 +2018,8 @@ function vGram(){
   </div>`).join('')}
   <h2 class="sec">À vous</h2>
   ${g.qcm.map((q,i)=>`<div class="box" id="q-${g.id}-${i}"><p>${esc(q.q)}</p>
-    ${opts(g.id+':'+i,q,false,i+1<g.qcm.length?`q-${g.id}-${i+1}`:null)}</div>`).join('')}`;
+    ${opts(g.id+':'+i,q,false,i+1<g.qcm.length?`q-${g.id}-${i+1}`:null)}</div>`).join('')}
+  ${exoAt('fix',g.id).map(fixBlock).join('')}`;
 }
 
 /* ---------- Compréhension ---------- */
@@ -1363,7 +2055,8 @@ function comp(mode,titre,sub){
   </div>`).join('')}
   <h2 class="sec">Questions</h2>
   ${t.qcm.map((q,i)=>`<div class="box" id="q-${t.id}-${i}"><p class="hz" style="font-size:19px;font-weight:700">${esc(q.q)}</p>
-    ${opts(t.id+':'+i,q,true,i+1<t.qcm.length?`q-${t.id}-${i+1}`:null)}</div>`).join('')}`;
+    ${opts(t.id+':'+i,q,true,i+1<t.qcm.length?`q-${t.id}-${i+1}`:null)}</div>`).join('')}
+  ${exoAt('vf',t.id).map(vfBlock).join('')}`;
 }
 
 /* ---------- Production écrite ---------- */
