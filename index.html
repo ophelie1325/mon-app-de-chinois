@@ -316,7 +316,7 @@ let memoryOnly=false;
 function loadState(){
   const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
-      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',chatTurns:7,chatDemote:true,
+      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,chatTurns:7,chatDemote:true,
       voices:{d:'',A:'',B:'',C:''}}};
   try{
     const raw=localStorage.getItem(KEY);
@@ -1444,50 +1444,95 @@ Pas de préambule ni de conclusion.`;
     const d=await r.json();
     return d.content.filter(c=>c.type==='text').map(c=>c.text).join('\n');
   }
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(S.settings.gmodel||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(k),
-    {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+  const r=await fetch(gURL('models/'+encodeURIComponent(S.settings.gmodel||'gemini-2.5-flash')+':generateContent'),
+    {method:'POST',headers:gHead(),body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
   if(!r.ok)throw new Error('erreur '+r.status);
   const d=await r.json();
   return ((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('\n');
 }
 
 
-/* ---- Essai de la clé : dire précisément ce qui coince ---- */
+/* ---- Essai de la clé : sonder les quatre combinaisons et tout rapporter ---- */
 async function testKey(){
   const p=S.settings.provider,k=(S.settings.apikey||'').trim();
-  const fin=(ok,msg)=>{ctx.test={busy:false,ok:ok,msg:msg};render();};
-  ctx.test={busy:true,msg:''};render();
+  const fin=(ok,msg,det)=>{ctx.test={busy:false,ok:ok,msg:msg,det:det||[]};render();};
+  ctx.test={busy:true,msg:'',det:[]};render();
   if(!k)return fin(false,'Aucune clé enregistrée. Collez-la dans le champ ci-dessus.');
-  try{
-    if(p==='gemini'){
-      let r;
-      try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(k));}
-      catch(e){return fin(false,'Impossible de joindre Google. Vérifiez la connexion, ou un blocage du navigateur.');}
-      if(!r.ok)return fin(false,gemErr(r.status,'')+' La clé elle-même n’a pas été acceptée.');
-      const d=await r.json();
-      const noms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
-                 .map(m=>String(m.name||'').replace('models/',''));
-      if(!noms.length)return fin(false,'Clé reconnue, mais aucun modèle de génération ne lui est ouvert. Activez l’API Generative Language sur votre projet Google.');
-      const pref=['gemini-2.5-flash','gemini-flash-latest','gemini-2.0-flash','gemini-2.5-flash-lite','gemini-2.5-pro'];
-      const choisi=pref.find(x=>noms.includes(x))||noms[0];
-      S.settings.gmodel=choisi;save();
-      const o=await gemJSON('Tu réponds en JSON.',[{role:'user',parts:[{text:'Écris « bonjour » en chinois.'}]}],
-        {type:'object',properties:{hz:{type:'string'}},required:['hz']});
-      return fin(true,'Tout fonctionne. Modèle retenu : '+choisi+'. Essai renvoyé : '+(o.hz||'—')+'. '+noms.length+' modèles accessibles à cette clé.');
-    }
+  if(p==='anthropic')return testAnthropic(k,fin);
+
+  const combos=[['v1beta','query'],['v1beta','header'],['v1','query'],['v1','header']];
+  const essais=[];let bon=null,noms=[];
+  for(const c of combos){
+    const ver=c[0],auth=c[1];
     let r;
-    try{
-      r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-        headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
-                 'anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:16,messages:[{role:'user',content:'Réponds : ok'}]})});
-    }catch(e){return fin(false,'Impossible de joindre Anthropic. Vérifiez la connexion, ou un blocage du navigateur.');}
-    if(r.status===401)return fin(false,'Clé refusée (401). Vérifiez qu’elle est complète et active.');
-    if(r.status===400)return fin(false,'Requête refusée (400). La clé est probablement mal collée.');
-    if(r.status===429)return fin(false,'Quota épuisé (429), ou crédit insuffisant sur le compte.');
-    if(!r.ok)return fin(false,'Erreur '+r.status+'.');
-    return fin(true,'Tout fonctionne. La clé Anthropic répond.');
-  }catch(e){fin(false,e.message||String(e));}
+    try{r=await fetch(gURL('models',ver,auth),{headers:gHead(auth)});}
+    catch(e){essais.push(ver+' · clé dans l’'+authNom(auth)+' → serveur injoignable');continue;}
+    if(r.ok){
+      let d={};try{d=await r.json();}catch(e){}
+      noms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).indexOf('generateContent')>=0)
+           .map(m=>String(m.name||'').replace('models/',''));
+      essais.push(ver+' · clé dans l’'+authNom(auth)+' → répond, '+noms.length+' modèle'+(noms.length>1?'s':''));
+      if(noms.length){bon=c;break;}
+      continue;
+    }
+    const e=await gErrMsg(r);
+    essais.push(ver+' · clé dans l’'+authNom(auth)+' → '+e.status+(e.gstatus?' '+e.gstatus:'')+
+                (e.message?' : '+e.message.slice(0,160):''));
+  }
+  if(!bon){
+    const t=essais.join(' | ');
+    let cause='Aucune des quatre combinaisons ne répond.';
+    if(/401|ACCESS_TOKEN_TYPE_UNSUPPORTED|invalid authentication/i.test(t))
+      cause='La clé est refusée à l’authentification. C’est le symptôme connu des clés au préfixe AQ. : créez une clé et restreignez-la explicitement à l’API Generative Language.';
+    else if(/403|SERVICE_DISABLED|PERMISSION_DENIED/i.test(t))
+      cause='L’API Generative Language n’est pas activée sur le projet de cette clé, ou la clé n’a pas ce droit.';
+    else if(/404/.test(t))
+      cause='Le service ne reconnaît aucune des deux versions d’API avec cette clé. La clé n’est probablement pas rattachée à un projet où l’API Generative Language est activée.';
+    else if(/injoignable/.test(t))
+      cause='Le réseau ou le navigateur bloque l’appel.';
+    return fin(false,cause,essais);
+  }
+  const pref=['gemini-2.5-flash','gemini-flash-latest','gemini-2.0-flash','gemini-2.5-flash-lite',
+              'gemini-2.0-flash-001','gemini-2.5-pro'];
+  const cands=pref.filter(x=>noms.indexOf(x)>=0)
+    .concat(noms.filter(x=>pref.indexOf(x)<0&&!/tts|image|embedding|vision|live|native-audio/.test(x)));
+  S.settings.gver=bon[0];S.settings.gauth=bon[1];save();
+  const SCH={type:'object',properties:{hz:{type:'string'}},required:['hz']};
+  const MSG=[{role:'user',parts:[{text:'Écris « bonjour » en chinois.'}]}];
+  for(const m of cands.slice(0,6)){
+    let r=await gemCall(m,'Tu réponds en JSON.',MSG,SCH);
+    if(r.ok){
+      S.settings.gmodel=m;S.settings.gjson=true;save();
+      return fin(true,'Tout fonctionne. Modèle retenu : '+m+', en '+bon[0]+', clé dans l’'+authNom(bon[1])+
+        ', sortie JSON structurée. Essai renvoyé : '+String(r.txt).slice(0,40),
+        essais.concat(noms.length+' modèles accessibles'));
+    }
+    essais.push(m+' · JSON structuré → '+r.status+' : '+r.msg);
+    r=await gemCall(m,'Tu réponds uniquement par un objet JSON brut.',MSG,null);
+    if(r.ok){
+      S.settings.gmodel=m;S.settings.gjson=false;save();
+      return fin(true,'Fonctionne avec '+m+', mais ce modèle refuse la sortie JSON structurée : '+
+        'l’application repasse en JSON simple, sans perte pour vous.',
+        essais.concat(noms.length+' modèles accessibles'));
+    }
+    essais.push(m+' · JSON simple → '+r.status+' : '+r.msg);
+  }
+  return fin(false,'La clé est reconnue et '+noms.length+' modèles sont listés, mais aucun n’accepte l’appel de '+
+    'génération. Le détail ci-dessous donne la raison exacte renvoyée par Google.',essais);
+}
+async function testAnthropic(k,fin){
+  let r;
+  try{
+    r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
+               'anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:16,messages:[{role:'user',content:'Réponds : ok'}]})});
+  }catch(e){return fin(false,'Impossible de joindre Anthropic. Vérifiez la connexion, ou un blocage du navigateur.');}
+  if(r.status===401)return fin(false,'Clé refusée (401). Vérifiez qu’elle est complète et active.');
+  if(r.status===400)return fin(false,'Requête refusée (400). La clé est probablement mal collée.');
+  if(r.status===429)return fin(false,'Quota épuisé (429), ou crédit insuffisant sur le compte.');
+  if(!r.ok)return fin(false,'Erreur '+r.status+'.');
+  return fin(true,'Tout fonctionne. La clé Anthropic répond.');
 }
 
 /* =====================================================================
@@ -2811,29 +2856,63 @@ const DEB_SCHEMA={type:'object',properties:{
     ecrit:{type:'string'},mieux:{type:'string'},py:{type:'string'},fr:{type:'string'}},required:['ecrit','mieux']}}},
   required:['bilan','erreurs']};
 
+
+/* ---- Appels Gemini : version d’API et mode d’authentification retenus ----
+   Les clés récentes au préfixe AQ. n’acceptent pas toujours la clé dans
+   l’URL. On mémorise la combinaison qui répond réellement. ---------------- */
+function gURL(path,ver,auth){
+  const k=(S.settings.apikey||'').trim();
+  return 'https://generativelanguage.googleapis.com/'+(ver||S.settings.gver||'v1beta')+'/'+path+
+    ((auth||S.settings.gauth||'query')==='query'?(path.indexOf('?')>=0?'&':'?')+'key='+encodeURIComponent(k):'');
+}
+function gHead(auth){
+  const h={'content-type':'application/json'};
+  if((auth||S.settings.gauth||'query')==='header')h['x-goog-api-key']=(S.settings.apikey||'').trim();
+  return h;
+}
+async function gErrMsg(r){
+  let d=null;try{d=await r.json();}catch(e){}
+  const e=(d&&d.error)||{};
+  return {status:r.status,gstatus:e.status||'',message:e.message||''};
+}
+function authNom(a){return a==='header'?'en-tête':'URL';}
+
+/* ---- Un appel de génération, avec le message d’erreur de Google ---- */
+async function gemCall(model,sys,contents,schema){
+  const body={contents:contents};
+  if(sys)body.systemInstruction={parts:[{text:sys}]};
+  body.generationConfig=schema
+    ?{responseMimeType:'application/json',responseSchema:schema,temperature:.8}
+    :{temperature:.8};
+  let r;
+  try{r=await fetch(gURL('models/'+model+':generateContent'),{method:'POST',headers:gHead(),body:JSON.stringify(body)});}
+  catch(e){return {ok:false,status:0,msg:'réseau injoignable, ou requête bloquée par le navigateur'};}
+  if(!r.ok){const e=await gErrMsg(r);
+    return {ok:false,status:e.status,gstatus:e.gstatus,msg:(e.message||gemErr(e.status,'')).slice(0,220)};}
+  let d={};try{d=await r.json();}catch(e){return {ok:false,status:200,msg:'réponse illisible'};}
+  const txt=((d.candidates||[])[0]&&(d.candidates||[])[0].content&&(d.candidates||[])[0].content.parts||[])
+            .map(x=>x.text||'').join('');
+  if(!txt)return {ok:false,status:200,msg:'réponse vide — contenu peut-être bloqué par les filtres'};
+  return {ok:true,txt:txt};
+}
+
 /* ---- Appel Gemini, sortie structurée ---- */
 function gemErr(st,txt){
   if(st===400)return 'Requête refusée (400). La clé est probablement invalide ou incomplète.';
-  if(st===403)return 'Accès refusé (403). La clé n’a pas le droit d’appeler ce modèle.';
-  if(st===404)return 'Modèle introuvable (404). Testez la clé dans les Réglages pour choisir un modèle disponible.';
+  if(st===401)return 'Clé non acceptée (401). Les clés récentes au préfixe AQ. sont souvent rejetées par cette API ; essayez une clé restreinte à l’API Generative Language.';
+  if(st===403)return 'Accès refusé (403). L’API Generative Language n’est pas activée sur le projet, ou la clé n’a pas ce droit.';
+  if(st===404)return 'Adresse ou modèle introuvable (404). Relancez « Tester la clé » : la sonde essaie les quatre combinaisons et dit laquelle répond.';
   if(st===429)return 'Quota épuisé (429). Réessayez plus tard.';
   if(st>=500)return 'Panne côté Google ('+st+'). Réessayez dans un moment.';
   return 'Erreur '+st+'.';
 }
 async function gemJSON(sys,contents,schema){
-  const k=(S.settings.apikey||'').trim();
   const m=S.settings.gmodel||'gemini-2.5-flash';
-  let r;
-  try{
-    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(m)+':generateContent?key='+encodeURIComponent(k),
-      {method:'POST',headers:{'content-type':'application/json'},
-       body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:contents,
-         generationConfig:{responseMimeType:'application/json',responseSchema:schema,temperature:.8}})});
-  }catch(e){throw new Error('Pas de réseau, ou requête bloquée par le navigateur.');}
-  if(!r.ok)throw new Error(gemErr(r.status,''));
-  const d=await r.json();
-  const txt=((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('');
-  try{return JSON.parse(txt.replace(/```json|```/g,'').trim());}
+  const strict=S.settings.gjson!==false;
+  const sys2=strict?sys:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balises de code ni commentaire.';
+  const r=await gemCall(m,sys2,contents,strict?schema:null);
+  if(!r.ok)throw new Error(r.msg+(r.status?' ('+r.status+')':''));
+  try{return JSON.parse(String(r.txt).replace(/```json|```/g,'').trim());}
   catch(e){throw new Error('Réponse illisible du modèle.');}
 }
 
@@ -3179,7 +3258,10 @@ function vReglages(){
         :'Aucune clé enregistrée pour l’instant.'}</p>
       <button class="btn jade mt" onclick="testKey()">Tester la clé</button>
       ${ctx.test?`<div class="verdict ${ctx.test.busy?'':(ctx.test.ok?'ok':'no')}" style="margin-top:11px">${
-        ctx.test.busy?'Essai en cours…':esc(ctx.test.msg)}</div>`:''}
+        ctx.test.busy?'Essai en cours…':esc(ctx.test.msg)}</div>
+        ${(ctx.test.det||[]).length?`<div class="box" style="margin-top:10px">
+          <p class="mut sm" style="margin:0 0 6px"><b>Détail des essais</b> — à me recopier si besoin</p>
+          ${ctx.test.det.map(d=>`<p class="mut sm" style="margin:0 0 4px">${esc(d)}</p>`).join('')}</div>`:''}`:''}
       <p class="mut sm mt">${S.settings.provider==='gemini'
         ?'Clé gratuite via Google AI Studio. Sur le palier gratuit, les données envoyées peuvent servir à entraîner le modèle.'
         :'Clé via la console Anthropic. Facturation à la consommation, indépendante de l’abonnement Claude.'}</p>`:''}
