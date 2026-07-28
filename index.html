@@ -156,6 +156,11 @@ p{margin:0 0 10px}
 .opt:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
 .opt.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:0 4px 0 #C6DFD8}
 .opt.no{border-color:var(--red);background:var(--red-s);color:var(--red-d);box-shadow:0 4px 0 #F0CFCB}
+.opt.pick{border-color:var(--gold);background:var(--gold-s);color:var(--gold-d);box-shadow:0 4px 0 #F0DDB4}
+.bub{border-radius:16px;padding:14px 16px;margin:0 0 11px;border:1.5px solid #E7DCCB;background:#fff}
+.bub.them{border-bottom-left-radius:5px;margin-right:34px}
+.bub.me{border-bottom-right-radius:5px;margin-left:34px;background:var(--red-s);border-color:#F0CFCB;text-align:right}
+.bub.me .sentence{color:var(--red-d)}
 .verdict{border-radius:17px;padding:13px 15px;font-size:14.5px;margin-bottom:10px}
 .verdict.ok{background:var(--jade-s);color:var(--jade-d)}
 .verdict.no{background:var(--red-s);color:var(--red-d)}
@@ -311,7 +316,8 @@ let memoryOnly=false;
 function loadState(){
   const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
-      pause:.7,sfx:true,auto:false,voices:{d:'',A:'',B:'',C:''}}};
+      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',chatTurns:7,chatDemote:true,
+      voices:{d:'',A:'',B:'',C:''}}};
   try{
     const raw=localStorage.getItem(KEY);
     if(!raw)return base;
@@ -576,6 +582,10 @@ const TEXTS=[
       {hz:'我还有一个朋友是医生，他工作很忙。',py:'wǒ hái yǒu yí ge péng you shì yī shēng, tā gōng zuò hěn máng',fr:'J’ai encore un autre ami, il est médecin et il est très pris par son travail.'},
       {hz:'我很高兴认识她。',py:'wǒ hěn gāo xìng rèn shi tā',fr:'Je suis très heureuse de la connaître.'}
     ],
+    glob:[
+      {q:'De quoi parle ce texte ?',a:['Une personne se présente et parle de ses amis','Deux collègues règlent un problème de travail','Quelqu’un commande au restaurant'],ok:0},
+      {q:'Combien de personnes sont nommées ?',a:['Une seule','Deux','Quatre'],ok:1}
+    ],
     qcm:[
       {q:'王小雨是哪国人？',a:['法国人','中国人','美国人'],ok:1},
       {q:'她今年多大？',a:['二十三岁','三十二岁','二十岁'],ok:0},
@@ -601,6 +611,10 @@ const TEXTS=[
       {who:'B',hz:'那你为什么来北京呢？',py:'nà nǐ wèi shén me lái Běi jīng ne',fr:'Alors pourquoi êtes-vous venu à Pékin ?'},
       {who:'C',hz:'因为我妻子在这儿工作。我是去年结婚的。',py:'yīn wèi wǒ qī zi zài zhèr gōng zuò. wǒ shì qù nián jié hūn de',fr:'Parce que ma femme travaille ici. Je me suis marié l\u2019an dernier.'}
     ],
+    glob:[
+      {q:'Que se passe-t-il dans ce dialogue ?',a:['On présente un nouveau collègue à son responsable','On accueille un client dans un magasin','On retrouve un ami d’enfance'],ok:0},
+      {q:'Sur quel ton parle-t-on ?',a:['Familier, entre amis proches','Poli, en contexte professionnel','Tendu, presque un conflit'],ok:1}
+    ],
     qcm:[
       {q:'张明以前在哪个城市工作？',a:['北京','上海','广州'],ok:1},
       {q:'他为什么来北京？',a:['因为公司在北京','因为他妻子在北京工作','因为他是北京人'],ok:1},
@@ -623,6 +637,10 @@ const TEXTS=[
       {hz:'大明的眼睛是黑色的。',py:'Dà míng de yǎn jing shì hēi sè de',fr:'Daming a les yeux noirs.'},
       {hz:'他们是我最好的朋友。',py:'tā men shì wǒ zuì hǎo de péng you',fr:'Ce sont mes meilleurs amis.'},
       {hz:'我觉得他们两个人都非常好。',py:'wǒ jué de tā men liǎng ge rén dōu fēi cháng hǎo',fr:'Je trouve qu’ils sont tous les deux formidables.'}
+    ],
+    glob:[
+      {q:'Que fait ce texte ?',a:['Il décrit deux personnes','Il raconte un voyage','Il explique une recette'],ok:0},
+      {q:'Le regard porté sur ces deux amis est plutôt…',a:['Bienveillant','Critique','Indifférent'],ok:0}
     ],
     qcm:[
       {q:'小雨的眼睛怎么样？',a:['很大','很小','不好看'],ok:0},
@@ -647,6 +665,10 @@ const TEXTS=[
       {who:'B',hz:'不过他很安静，话不多。',py:'bú guò tā hěn ān jìng, huà bù duō',fr:'Cela dit, il est très calme et parle peu.'},
       {who:'A',hz:'那我怎么找到他呢？',py:'nà wǒ zěn me zhǎo dào tā ne',fr:'Alors, comment vais-je le trouver ?'},
       {who:'B',hz:'别着急，他也认识你，他看过你的照片。',py:'bié zháo jí, tā yě rèn shi nǐ, tā kàn guo nǐ de zhào piàn',fr:'Ne t’inquiète pas, il te connaît aussi : il a vu ta photo.'}
+    ],
+    glob:[
+      {q:'Pourquoi la première personne pose-t-elle toutes ces questions ?',a:['Elle doit reconnaître quelqu’un qu’elle n’a jamais vu','Elle cherche un logement','Elle prépare un examen'],ok:0},
+      {q:'Combien de personnes parlent ?',a:['Une','Deux','Trois'],ok:1}
     ],
     qcm:[
       {q:'张老师长什么样？',a:['很高，戴眼镜','很矮，头发很多','又高又胖'],ok:0},
@@ -868,6 +890,7 @@ const LESSONS=[
       {k:'prod', label:'Je remets en ordre',             ref:'p204'},
       {k:'prod', label:'Je traduis',                     ref:'p205'},
       {k:'prod', label:'J\u2019écris mon texte',           ref:'p206'},
+      {k:'chat', label:'Je converse',                 ref:null},
       {k:'bilan',label:'Bilan noté',                     ref:null}
     ]
   },
@@ -883,6 +906,7 @@ const LESSONS=[
       {k:'prod', label:'Je remets en ordre',             ref:'p304'},
       {k:'prod', label:'Je traduis',                     ref:'p306'},
       {k:'prod', label:'J\u2019écris mon texte',           ref:'p303'},
+      {k:'chat', label:'Je converse',                 ref:null},
       {k:'bilan',label:'Bilan noté',                     ref:null}
     ]
   },
@@ -898,6 +922,7 @@ const LESSONS=[
       {k:'prod', label:'Je remets en ordre',             ref:'p222'},
       {k:'prod', label:'Je traduis',                     ref:'p223'},
       {k:'prod', label:'J’écris mon texte',              ref:'p226'},
+      {k:'chat', label:'Je converse',                 ref:null},
       {k:'bilan',label:'Bilan noté',                     ref:null}
     ]
   },
@@ -913,6 +938,7 @@ const LESSONS=[
       {k:'prod', label:'Je remets en ordre',             ref:'p322'},
       {k:'prod', label:'Je traduis',                     ref:'p323'},
       {k:'prod', label:'J’écris mon texte',              ref:'p326'},
+      {k:'chat', label:'Je converse',                 ref:null},
       {k:'bilan',label:'Bilan noté',                     ref:null}
     ]
   }
@@ -1148,6 +1174,113 @@ function diffZh(given,expect){
   const mark=x=>esc(x.slice(0,h))+(x.length-t>h?'<u>'+esc(x.slice(h,x.length-t))+'</u>':'')+esc(x.slice(x.length-t));
   return {you:mark(A),exp:mark(B)};
 }
+/* ---------------------------------------------------------------------
+   CONTRÔLE DU PINYIN — garde-fou
+   Vérifie qu’une chaîne de pinyin correspond bien, syllabe par syllabe,
+   à sa chaîne de caractères. Sert à contrôler le corpus, et surtout à
+   filtrer le pinyin renvoyé par un modèle externe : si le contrôle
+   échoue, le pinyin n’est pas affiché du tout.
+   Trois motifs de rejet : syllabe impossible en mandarin, marque de ton
+   posée sur la mauvaise voyelle, nombre de syllabes différent du nombre
+   de caractères. S’y ajoute un simple doute, non bloquant : le caractère
+   est connu du corpus avec une seule lecture, et ce n’est pas celle-ci.
+   --------------------------------------------------------------------- */
+const SYL=new Set((
+ 'a ai an ang ao e ê ei en eng er o ou '+
+ 'yi ya yao ye you yan yin yang ying yong wu wa wo wai wei wan wen wang weng yu yue yuan yun '+
+ 'ba bo bai bei bao ban ben bang beng bi bie biao bian bin bing bu '+
+ 'pa po pai pei pao pou pan pen pang peng pi pie piao pian pin ping pu '+
+ 'ma mo me mai mei mao mou man men mang meng mi mie miao miu mian min ming mu '+
+ 'fa fo fei fou fan fen fang feng fu '+
+ 'da de dai dei dao dou dan dang deng dong di dia die diao diu dian ding du duo dui duan dun '+
+ 'ta te tai tei tao tou tan tang teng tong ti tie tiao tian ting tu tuo tui tuan tun '+
+ 'na ne nai nei nao nou nan nen nang neng nong ni nie niao niu nian nin niang ning nu nuo nuan nü nüe '+
+ 'la le lo lai lei lao lou lan lang leng long li lia lie liao liu lian lin liang ling lu luo luan lun lü lüe '+
+ 'ga ge gai gei gao gou gan gen gang geng gong gu gua guo guai gui guan gun guang '+
+ 'ka ke kai kei kao kou kan ken kang keng kong ku kua kuo kuai kui kuan kun kuang '+
+ 'ha he hai hei hao hou han hen hang heng hong hu hua huo huai hui huan hun huang '+
+ 'ji jia jie jiao jiu jian jin jiang jing jiong ju jue juan jun '+
+ 'qi qia qie qiao qiu qian qin qiang qing qiong qu que quan qun '+
+ 'xi xia xie xiao xiu xian xin xiang xing xiong xu xue xuan xun '+
+ 'zha zhe zhi zhai zhei zhao zhou zhan zhen zhang zheng zhong zhu zhua zhuo zhuai zhui zhuan zhun zhuang '+
+ 'cha che chi chai chao chou chan chen chang cheng chong chu chua chuo chuai chui chuan chun chuang '+
+ 'sha she shi shai shei shao shou shan shen shang sheng shu shua shuo shuai shui shuan shun shuang '+
+ 're ri rao rou ran ren rang reng rong ru rua ruo rui ruan run '+
+ 'za ze zi zai zei zao zou zan zen zang zeng zong zu zuo zui zuan zun '+
+ 'ca ce ci cai cao cou can cen cang ceng cong cu cuo cui cuan cun '+
+ 'sa se si sai sao sou san sen sang seng song su suo sui suan sun '+
+ 'ng hm hng m n yo').split(' '));
+
+const HAN_RE=/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+const PY_PONCT=/[\s,，.。、·？?！!;；:：""“”‘’'`()（）《》「」…—–\-]+/;
+
+function hanChars(s){return Array.from(String(s||'')).filter(c=>HAN_RE.test(c));}
+function pySyls(py){return String(py||'').split(PY_PONCT).map(t=>t.trim()).filter(Boolean);}
+/* Forme nue d’une syllabe : minuscules, v noté ü, marques de ton retirées. */
+function pyBare(s){return stripTone(String(s||'').toLowerCase()).replace(/v/g,'ü');}
+/* Clé de lecture : la syllabe nue suivie de son ton, insensible à la
+   place exacte de la marque. */
+function pyRead(s){return pyBare(s)+toneOf(s);}
+
+function pinyinCheck(hz,py,skipDict){
+  const han=hanChars(hz),toks=pySyls(py);
+  if(!han.length)return{ok:true,code:'',why:'',paires:[],doute:[]};
+  if(!toks.length)return{ok:false,code:'vide',why:'Pinyin absent.',paires:[],doute:[]};
+  const syls=[];
+  for(const t of toks){
+    /* Nom propre laissé en alphabet latin : il figure tel quel dans la
+       chaîne de caractères et ne consomme aucune syllabe. */
+    if(/^[A-Za-zÀ-ÿ'’-]+$/.test(t)&&!SYL.has(pyBare(t))
+       &&String(hz).toLowerCase().includes(t.toLowerCase()))continue;
+    /* Interjections nasales : 嗯 ǹg, 呣 ḿ, 哼 hng… la marque de ton ne
+       porte pas sur une voyelle, on ne contrôle donc pas sa place. */
+    const nu0=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(/^(ng|hm|hng|m|n|ê)$/.test(nu0)){syls.push({raw:t,nu:nu0,ton:0,er:false});continue;}
+    const n=pyBare(t);
+    let er=false,val=SYL.has(n);
+    if(!val&&n.length>2&&n.slice(-1)==='r'&&SYL.has(n.slice(0,-1))){val=true;er=true;}
+    if(!val)return{ok:false,code:'syllabe',why:'Syllabe impossible en pinyin : '+t,paires:[],doute:[]};
+    const ton=toneOf(t),nu=er?n.slice(0,-1):n;
+    const attendu=setTone(nu,ton)+(er?'r':'');
+    if(String(t).toLowerCase().replace(/v/g,'ü')!==attendu)
+      return{ok:false,code:'marque',why:'Marque de ton mal placée : '+t+' — attendu '+attendu,paires:[],doute:[]};
+    syls.push({raw:t,nu:nu,ton:ton,er:er});
+  }
+  const paires=[];let i=0;
+  for(const s of syls){
+    if(i>=han.length)break;
+    paires.push({c:han[i],s:s});
+    i+=(s.er&&han[i+1]==='儿')?2:1;
+  }
+  if(i!==han.length||paires.length!==syls.length)
+    return{ok:false,code:'compte',
+      why:han.length+' caractère'+(han.length>1?'s':'')+' pour '+syls.length+' syllabe'+(syls.length>1?'s':''),
+      paires:[],doute:[]};
+  const doute=[];
+  if(!skipDict)paires.forEach((p,k)=>{
+    const r=PYDICT[p.c];
+    if(r&&r.size===1&&!r.has(p.s.nu+p.s.ton))
+      doute.push({i:k,c:p.c,lu:p.s.raw,connu:Array.from(r)[0]});
+  });
+  return{ok:true,code:doute.length?'doute':'',why:'',paires:paires,doute:doute};
+}
+
+/* Dictionnaire des lectures, bâti sur le corpus au démarrage : un
+   caractère, l’ensemble des lectures qu’on lui connaît ici. */
+const PYDICT={};
+function pyLearn(hz,py){
+  const r=pinyinCheck(hz,py,true);
+  if(!r.ok)return false;
+  r.paires.forEach(p=>{(PYDICT[p.c]=PYDICT[p.c]||new Set()).add(p.s.nu+p.s.ton);});
+  return true;
+}
+function buildPyDict(){
+  WORDS.forEach(w=>pyLearn(w.hz,w.py));
+  CHARS.forEach(c=>pyLearn(c.hz,c.py));
+  SENT.forEach(s=>{if(s.py)pyLearn(s.hz,s.py);});
+}
+buildPyDict();
+
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function jq(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -1311,11 +1444,50 @@ Pas de préambule ni de conclusion.`;
     const d=await r.json();
     return d.content.filter(c=>c.type==='text').map(c=>c.text).join('\n');
   }
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(k),
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(S.settings.gmodel||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(k),
     {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
   if(!r.ok)throw new Error('erreur '+r.status);
   const d=await r.json();
   return ((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('\n');
+}
+
+
+/* ---- Essai de la clé : dire précisément ce qui coince ---- */
+async function testKey(){
+  const p=S.settings.provider,k=(S.settings.apikey||'').trim();
+  const fin=(ok,msg)=>{ctx.test={busy:false,ok:ok,msg:msg};render();};
+  ctx.test={busy:true,msg:''};render();
+  if(!k)return fin(false,'Aucune clé enregistrée. Collez-la dans le champ ci-dessus.');
+  try{
+    if(p==='gemini'){
+      let r;
+      try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(k));}
+      catch(e){return fin(false,'Impossible de joindre Google. Vérifiez la connexion, ou un blocage du navigateur.');}
+      if(!r.ok)return fin(false,gemErr(r.status,'')+' La clé elle-même n’a pas été acceptée.');
+      const d=await r.json();
+      const noms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+                 .map(m=>String(m.name||'').replace('models/',''));
+      if(!noms.length)return fin(false,'Clé reconnue, mais aucun modèle de génération ne lui est ouvert. Activez l’API Generative Language sur votre projet Google.');
+      const pref=['gemini-2.5-flash','gemini-flash-latest','gemini-2.0-flash','gemini-2.5-flash-lite','gemini-2.5-pro'];
+      const choisi=pref.find(x=>noms.includes(x))||noms[0];
+      S.settings.gmodel=choisi;save();
+      const o=await gemJSON('Tu réponds en JSON.',[{role:'user',parts:[{text:'Écris « bonjour » en chinois.'}]}],
+        {type:'object',properties:{hz:{type:'string'}},required:['hz']});
+      return fin(true,'Tout fonctionne. Modèle retenu : '+choisi+'. Essai renvoyé : '+(o.hz||'—')+'. '+noms.length+' modèles accessibles à cette clé.');
+    }
+    let r;
+    try{
+      r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
+                 'anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:16,messages:[{role:'user',content:'Réponds : ok'}]})});
+    }catch(e){return fin(false,'Impossible de joindre Anthropic. Vérifiez la connexion, ou un blocage du navigateur.');}
+    if(r.status===401)return fin(false,'Clé refusée (401). Vérifiez qu’elle est complète et active.');
+    if(r.status===400)return fin(false,'Requête refusée (400). La clé est probablement mal collée.');
+    if(r.status===429)return fin(false,'Quota épuisé (429), ou crédit insuffisant sur le compte.');
+    if(!r.ok)return fin(false,'Erreur '+r.status+'.');
+    return fin(true,'Tout fonctionne. La clé Anthropic répond.');
+  }catch(e){fin(false,e.message||String(e));}
 }
 
 /* =====================================================================
@@ -1329,9 +1501,10 @@ const MODULES=[
   {id:'co',      em:'听',c:'plum',  n:'Compréhension orale', d:'Écouter puis répondre'},
   {id:'ce',      em:'读',c:'gold',  n:'Compréhension écrite',d:'Lire puis répondre'},
   {id:'prod',    em:'写',c:'clay',  n:'Production écrite',   d:'Guidée, puis libre'},
-  {id:'hsk',     em:'考',c:'indigo',n:'Entraînement HSK',    d:'Au format de l’examen'}
+  {id:'hsk',     em:'考',c:'indigo',n:'Entraînement HSK',    d:'Au format de l’examen'},
+  {id:'chat',    em:'聊',c:'jade',  n:'Conversation',         d:'Dialoguer sur un thème',wide:1}
 ];
-const STEPMARK={text:'读',qcm:'问',mots:'词',gram:'法',prod:'写',bilan:'考'};
+const STEPMARK={text:'读',qcm:'问',mots:'词',gram:'法',prod:'写',chat:'聊',bilan:'考'};
 
 const SVG={
   back:'<path d="M15 5l-7 7 7 7"/>',
@@ -1366,7 +1539,7 @@ function render(){
     `<button class="${view===t.id?'on':''}" onclick="tab('${t.id}')">${ico(t.k)}${t.n}</button>`).join('');
   const V={home:vHome,vocab:vVocab,chars:vChars,gram:vGram,co:vCO,ce:vCE,prod:vProd,
            hsk:vHSK,parcours:vParcours,lecon:vLecon,mots:vQuiz,bilan:vQuiz,
-           progres:vProgres,reglages:vReglages,exo:vExo};
+           progres:vProgres,reglages:vReglages,exo:vExo,decouv:vDecouv,chat:vChat};
   document.getElementById('app').innerHTML=(V[view]||vHome)();
   if(view==='chars')mountWriter();
   if(view==='vocab'&&ctx.d&&ctx.d.kind==='trace')mountTrace();
@@ -2025,6 +2198,129 @@ function vGram(){
 /* ---------- Compréhension ---------- */
 function vCO(){return comp('CO','Compréhension orale','Écoutez d’abord, le texte reste caché');}
 function vCE(){return comp('CE','Compréhension écrite','Lisez, puis répondez');}
+/* ---- Affichage du document : suivi d’un bloc, ou découpé phrase à phrase ---- */
+function setFlow(f){S.settings.flow=f;save();render();}
+function flowPills(){
+  const f=S.settings.flow==='suivi'?'suivi':'decoupe';
+  return `<div class="pills" style="margin-bottom:12px">
+    <button class="pill ${f==='suivi'?'on':''}" onclick="setFlow('suivi')">Texte suivi</button>
+    <button class="pill ${f==='decoupe'?'on':''}" onclick="setFlow('decoupe')">Découpé</button>
+  </div>`;
+}
+function seqOf(t){return JSON.stringify(t.lines.map(l=>({hz:l.hz,who:l.who||null}))).replace(/'/g,'&#39;');}
+function docBody(t){
+  const dial=t.lines.some(l=>l.who);
+  if(S.settings.flow==='suivi'){
+    const bloc=k=>dial
+      ? t.lines.map(l=>`<div style="margin:0 0 8px"><span class="mut sm">${esc(l.who)} — </span>${k==='py'?pinyin(l.py):esc(l[k])}</div>`).join('')
+      : (k==='py'?t.lines.map(l=>pinyin(l.py)).join(' ')
+                 :esc(t.lines.map(l=>l[k]).join(k==='hz'?'':' ')));
+    return `<div class="box">
+      <div class="sentence" style="line-height:1.95">${bloc('hz')}</div>
+      ${ctx.py?`<div class="py sm" style="margin-top:10px">${bloc('py')}</div>`:''}
+      ${ctx.fr?`<p class="mut sm" style="margin-top:10px">${bloc('fr')}</p>`:''}
+    </div>`;
+  }
+  return t.lines.map(l=>`<div class="box">
+    ${l.who?`<p class="mut sm" style="margin:0 0 4px">Locuteur ${esc(l.who)}</p>`:''}
+    <div class="sentence">${esc(l.hz)}</div>
+    ${ctx.py?`<div class="py sm">${pinyin(l.py)}</div>`:''}
+    ${ctx.fr?`<p class="mut sm" style="margin:6px 0 0">${esc(l.fr)}</p>`:''}
+    <button class="btn pale tiny mt" onclick="speak('${jq(l.hz)}'${l.who?`,'${l.who}'`:''})">Écouter</button>
+  </div>`).join('');
+}
+function docTools(t,mode){
+  return `<div class="row mt">
+    <button class="btn pale sm" onclick="ctx.py=!ctx.py;render()">${ctx.py?'Cacher':'Voir'} pinyin</button>
+    <button class="btn pale sm" onclick="ctx.fr=!ctx.fr;render()">${ctx.fr?'Cacher':'Voir'} traduction</button>
+    ${mode==='CO'?`<button class="btn pale sm" onclick="ctx.hz=!ctx.hz;render()">${ctx.hz?'Cacher':'Voir'} texte</button>`:''}
+  </div>`;
+}
+
+/* =====================================================================
+   DÉCOUVERTE — premier contact avec le document.
+   Aucune question de détail : un repérage global, construit
+   automatiquement à partir des mots du thème, et une ou deux questions
+   d’ensemble rédigées avec le document.
+   ===================================================================== */
+function makeRep(t){
+  const txt=t.lines.map(l=>l.hz).join('');
+  const dansTh=WORDS.filter(w=>w.hsk===t.hsk&&(w.th||[]).some(x=>(t.th||[]).includes(x))&&txt.includes(w.hz));
+  const dansTout=WORDS.filter(w=>w.hsk===t.hsk&&txt.includes(w.hz));
+  const dedans=shuffle(dansTh.length>=5?dansTh:dansTout).slice(0,5);
+  const dehors=shuffle(WORDS.filter(w=>w.hsk===t.hsk&&!txt.includes(w.hz))).slice(0,3);
+  return {items:shuffle(dedans.concat(dehors)).map(w=>({hz:w.hz,py:w.py,fr:w.fr,dans:txt.includes(w.hz)})),
+          sel:{},checked:false};
+}
+function repPick(i){
+  const r=ctx.rep;if(!r||r.checked)return;
+  r.sel[i]=!r.sel[i];render();
+}
+function repCheck(){
+  const r=ctx.rep;if(!r||r.checked)return;
+  r.checked=true;
+  const juste=r.items.every((it,i)=>!!r.sel[i]===it.dans);
+  beep(juste?'ok':'no');render();
+}
+function repBlock(){
+  const r=ctx.rep,co=ctx.mode==='CO';
+  const bons=r.items.filter(it=>it.dans).length;
+  const trouves=r.items.filter((it,i)=>it.dans&&r.sel[i]).length;
+  const faux=r.items.filter((it,i)=>!it.dans&&r.sel[i]).length;
+  return `<h2 class="sec">Repérage</h2>
+  <div class="box"><p class="sm" style="margin:0"><b>${co?'Quels mots avez-vous entendus ?':'Quels mots trouvez-vous dans le texte ?'}</b>
+    <br><span class="mut">Il y en a ${bons} sur ${r.items.length}. Trois sont des intrus.</span></p></div>
+  <div class="opts">${r.items.map((it,i)=>{
+    let cl='';
+    if(r.checked)cl=it.dans?'ok':(r.sel[i]?'no':'');
+    else if(r.sel[i])cl='pick';
+    return `<button class="opt han ${cl}" onclick="repPick(${i})">${esc(it.hz)}
+      ${r.checked?`<span class="mut sm"> — ${esc(it.fr)}</span>`:''}</button>`;
+  }).join('')}</div>
+  ${r.checked
+    ?`<div class="verdict ${trouves===bons&&!faux?'ok':'no'}">${trouves} mot${trouves>1?'s':''} sur ${bons} repéré${trouves>1?'s':''}${faux?`, ${faux} intrus retenu${faux>1?'s':''}`:''}.</div>`
+    :`<button class="btn jade mt" onclick="repCheck()">Vérifier</button>`}`;
+}
+function vDecouv(){
+  const t=TEXTS.find(x=>x.id===ctx.t);
+  if(!t)return header('Découverte')+nothing();
+  const co=t.mode==='CO';
+  ctx.mode=t.mode;
+  if(!ctx.rep)ctx.rep=makeRep(t);
+  const seq=seqOf(t);
+  const montre=co?!!ctx.hz:true;
+  const nbLoc=new Set(t.lines.map(l=>l.who).filter(Boolean)).size;
+  const glob=(t.glob||[]).slice();
+  if(co&&nbLoc>1)glob.unshift({q:'Combien de personnes parlent ?',
+    a:['Une','Deux','Trois'],ok:Math.min(nbLoc,3)-1});
+  return header('Découverte — '+(co?'j’écoute':'je lis'),esc(t.fr))+ribbon()+`
+  <div class="box">
+    <p><b>${esc(t.title)}</b></p>
+    <p class="mut sm">${co
+      ?'Écoutez une ou deux fois sans lire. Vous n’avez pas à tout comprendre : cherchez seulement de quoi il s’agit.'
+      :'Lisez une première fois sans traduire. Cherchez seulement de quoi il s’agit.'}</p>
+    <button class="btn jade mt" onclick='speakSeq(${seq})'>Écouter en entier</button>
+    <button class="btn pale sm mt" onclick="stopSpeech()">Arrêter</button>
+    ${docTools(t,t.mode)}
+  </div>
+  ${montre?flowPills()+docBody(t)
+    :`<div class="void"><span class="em">听</span><p class="sm">Texte caché — c’est le moment d’écouter, pas de lire.</p></div>`}
+  ${repBlock()}
+  ${glob.length?`<h2 class="sec">De quoi s’agit-il ?</h2>
+  ${glob.map((q,i)=>`<div class="box" id="q-gl-${i}"><p><b>${esc(q.q)}</b></p>
+    ${opts('gl:'+t.id+':'+i,q,false,i+1<glob.length?`q-gl-${i+1}`:null)}</div>`).join('')}`:''}
+  <button class="btn red mt" onclick="versQuestions()">Passer aux questions de détail</button>
+  <p class="mut sm">Les questions précises sur le document sont à l’étape suivante.</p>`;
+}
+function versQuestions(){
+  const t=TEXTS.find(x=>x.id===ctx.t);if(!t)return;
+  go(t.mode==='CO'?'co':'ce',{t:t.id,from:ctx.from,doc:false});
+}
+
+/* =====================================================================
+   COMPRÉHENSION — les questions de détail. Le document reste
+   consultable, replié par défaut quand on arrive depuis la découverte.
+   ===================================================================== */
 function comp(mode,titre,sub){
   const P=TEXTS.filter(t=>fits(t)&&t.mode===mode);
   if(!P.length)return header(titre)+levelPills()+nothing();
@@ -2032,27 +2328,21 @@ function comp(mode,titre,sub){
   const t=P.find(x=>x.id===ctx.t)||P[0];
   const masked=(mode==='CO'&&!ctx.hz);
   const dialogue=t.lines.some(l=>l.who);
-  const seq=JSON.stringify(t.lines.map(l=>({hz:l.hz,who:l.who||null}))).replace(/'/g,'&#39;');
+  const replie=ctx.doc===false;
+  const seq=seqOf(t);
   return header(titre,sub)+ribbon()+`
   <div class="box">
     <p><b>${esc(t.title)}</b> <span class="mut sm">${esc(t.fr)}</span></p>
     <button class="btn jade" onclick='speakSeq(${seq})'>Écouter en entier</button>
     <button class="btn pale sm mt" onclick="stopSpeech()">Arrêter</button>
     ${dialogue?`<p class="mut sm mt">Chaque locuteur a sa voix, avec une pause entre les répliques. Réglable dans Réglages.</p>`:''}
-    <div class="row mt">
-      <button class="btn pale sm" onclick="ctx.py=!ctx.py;render()">${ctx.py?'Cacher':'Voir'} pinyin</button>
-      <button class="btn pale sm" onclick="ctx.fr=!ctx.fr;render()">${ctx.fr?'Cacher':'Voir'} traduction</button>
-      ${mode==='CO'?`<button class="btn pale sm" onclick="ctx.hz=!ctx.hz;render()">${ctx.hz?'Cacher':'Voir'} texte</button>`:''}
-    </div>
+    ${replie
+      ?`<button class="btn pale sm mt" onclick="ctx.doc=true;render()">Revoir le document</button>`
+      :docTools(t,mode)}
   </div>
-  ${masked?`<div class="void"><span class="em">听</span><p class="sm">Texte caché. Répondez à l’oreille, puis affichez-le pour vérifier.</p></div>`:
-  t.lines.map(l=>`<div class="box">
-    ${l.who?`<p class="mut sm" style="margin:0 0 4px">Locuteur ${esc(l.who)}</p>`:''}
-    <div class="sentence">${esc(l.hz)}</div>
-    ${ctx.py?`<div class="py sm">${pinyin(l.py)}</div>`:''}
-    ${ctx.fr?`<p class="mut sm" style="margin:6px 0 0">${esc(l.fr)}</p>`:''}
-    <button class="btn pale tiny mt" onclick="speak('${jq(l.hz)}'${l.who?`,'${l.who}'`:''})">Écouter</button>
-  </div>`).join('')}
+  ${replie?''
+    :masked?`<div class="void"><span class="em">听</span><p class="sm">Texte caché. Répondez à l’oreille, puis affichez-le pour vérifier.</p></div>`
+    :flowPills()+docBody(t)}
   <h2 class="sec">Questions</h2>
   ${t.qcm.map((q,i)=>`<div class="box" id="q-${t.id}-${i}"><p class="hz" style="font-size:19px;font-weight:700">${esc(q.q)}</p>
     ${opts(t.id+':'+i,q,true,i+1<t.qcm.length?`q-${t.id}-${i+1}`:null)}</div>`).join('')}
@@ -2369,8 +2659,411 @@ function openStep(lid,i){
   if(s.k==='bilan')return startQuiz(lid,'bilan',i);
   if(s.k==='gram')return go('gram',{g:s.ref,from:from});
   if(s.k==='prod')return go('prod',{p:s.ref,from:from});
+  if(s.k==='chat')return go('chat',{from:from,lesson:lid});
   const t=TEXTS.find(x=>x.id===s.ref);
-  return go(t.mode==='CO'?'co':'ce',{t:s.ref,from:from});
+  if(s.k==='text')return go('decouv',{t:s.ref,from:from});
+  return go(t.mode==='CO'?'co':'ce',{t:s.ref,from:from,doc:false});
+}
+
+/* =====================================================================
+   MODE CONVERSATION 聊
+   Un partenaire tenu au vocabulaire exact du thème × niveau, puis un
+   débriefing qui renvoie les mots fautifs dans les boîtes basses.
+   Sans clé, un dialogue guidé à choix multiples prend le relais.
+   ===================================================================== */
+const REGISTERS=[
+  {id:'reg2',n:'Courant — HSK 2',d:'Phrases très courtes, sujet souvent omis, 吧 呢 啊',
+   consigne:'Registre courant et simple. Phrases très courtes. Le sujet peut être omis. Emploie les particules 吧, 呢, 啊.'},
+  {id:'reg3',n:'Courant — HSK 3',d:'Un peu plus long, 嗯 行 没事儿, un peu de 儿化',
+   consigne:'Registre courant et détendu. Tu peux employer 嗯, 行, 没事儿, et un peu de 儿化 : 这儿, 哪儿, 一点儿.'},
+  {id:'regf',n:'Formel',        d:'您, 请问, 麻烦您, 打扰了',
+   consigne:'Registre poli et formel. Tu vouvoies avec 您. Tu emploies 请问, 麻烦您, 打扰了.'}
+];
+const CHATROLE={
+  presenter:'une personne que l’apprenante rencontre pour la première fois et qui cherche à faire connaissance',
+  decrire:'une amie de l’apprenante qui veut savoir à quoi ressemble une personne qu’elles connaissent toutes les deux'
+};
+
+/* ---- Dialogues guidés, jouables sans aucune clé ---- */
+const CHATSC=[
+{theme:'presenter',hsk:2,titre:'À la bibliothèque',
+ role:'Un étudiant chinois engage la conversation avec vous.',
+ turns:[
+  {hz:'你好！你叫什么名字？',py:'nǐ hǎo! nǐ jiào shén me míng zi',fr:'Bonjour ! Comment t’appelles-tu ?',
+   a:[{hz:'我叫欧菲，你呢？',py:'wǒ jiào Ōu fēi, nǐ ne',fr:'Je m’appelle Ophélie, et toi ?',ok:1},
+      {hz:'我很好，谢谢。',py:'wǒ hěn hǎo, xiè xie',fr:'Je vais bien, merci.',ok:0,why:'C’est la réponse à 你好吗，pas à une question sur le nom.'},
+      {hz:'他是我的朋友。',py:'tā shì wǒ de péng you',fr:'C’est mon ami.',ok:0,why:'La question porte sur vous, pas sur quelqu’un d’autre.'}]},
+  {hz:'我叫张明。你是哪国人？',py:'wǒ jiào Zhāng Míng. nǐ shì nǎ guó rén',fr:'Je m’appelle Zhang Ming. De quel pays viens-tu ?',
+   a:[{hz:'我是法国人。',py:'wǒ shì Fǎ guó rén',fr:'Je suis française.',ok:1},
+      {hz:'我今年三十岁。',py:'wǒ jīn nián sān shí suì',fr:'J’ai trente ans cette année.',ok:0,why:'C’est l’âge, pas la nationalité.'},
+      {hz:'我住在北京。',py:'wǒ zhù zài Běi jīng',fr:'J’habite à Pékin.',ok:0,why:'C’est le lieu où l’on habite, pas le pays d’origine.'}]},
+  {hz:'你在这儿做什么？',py:'nǐ zài zhèr zuò shén me',fr:'Que fais-tu ici ?',
+   a:[{hz:'我是学生，我学汉语。',py:'wǒ shì xué sheng, wǒ xué Hàn yǔ',fr:'Je suis étudiante, j’apprends le chinois.',ok:1},
+      {hz:'我很忙。',py:'wǒ hěn máng',fr:'Je suis très occupée.',ok:0,why:'Cela ne dit pas ce que vous faites ici.'},
+      {hz:'我有一个朋友。',py:'wǒ yǒu yí ge péng you',fr:'J’ai un ami.',ok:0,why:'Hors sujet.'}]},
+  {hz:'认识你很高兴！',py:'rèn shi nǐ hěn gāo xìng',fr:'Content de te connaître !',
+   a:[{hz:'我也很高兴。',py:'wǒ yě hěn gāo xìng',fr:'Moi aussi.',ok:1},
+      {hz:'我叫欧菲。',py:'wǒ jiào Ōu fēi',fr:'Je m’appelle Ophélie.',ok:0,why:'Le nom a déjà été donné au premier tour.'},
+      {hz:'你是老师吗？',py:'nǐ shì lǎo shī ma',fr:'Es-tu professeur ?',ok:0,why:'On ne répond pas à la formule de politesse.'}]}]},
+
+{theme:'presenter',hsk:3,titre:'Un nouveau collègue',
+ role:'Un collègue vous accueille le premier jour, sur un ton professionnel.',
+ turns:[
+  {hz:'您好，请问您是新来的同事吗？',py:'nín hǎo, qǐng wèn nín shì xīn lái de tóng shì ma',fr:'Bonjour, êtes-vous la nouvelle collègue ?',
+   a:[{hz:'是的，我是新来的。',py:'shì de, wǒ shì xīn lái de',fr:'Oui, je suis la nouvelle.',ok:1},
+      {hz:'我很高兴认识您。',py:'wǒ hěn gāo xìng rèn shi nín',fr:'Je suis heureuse de vous connaître.',ok:0,why:'C’est poli, mais cela ne répond pas à la question posée.'},
+      {hz:'我不是学生。',py:'wǒ bú shì xué sheng',fr:'Je ne suis pas étudiante.',ok:0,why:'Hors sujet.'}]},
+  {hz:'您以前在哪儿工作？',py:'nín yǐ qián zài nǎr gōng zuò',fr:'Où travailliez-vous auparavant ?',
+   a:[{hz:'我以前在上海工作。',py:'wǒ yǐ qián zài Shàng hǎi gōng zuò',fr:'Je travaillais à Shanghai.',ok:1},
+      {hz:'我是去年结婚的。',py:'wǒ shì qù nián jié hūn de',fr:'Je me suis mariée l’an dernier.',ok:0,why:'C’est la date du mariage, pas le lieu de travail.'},
+      {hz:'我在北京住了两年。',py:'wǒ zài Běi jīng zhù le liǎng nián',fr:'J’habite à Pékin depuis deux ans.',ok:0,why:'Cela parle du logement, pas du travail.'}]},
+  {hz:'您是什么时候来北京的？',py:'nín shì shén me shí hou lái Běi jīng de',fr:'Quand êtes-vous venue à Pékin ?',
+   a:[{hz:'我是去年来的。',py:'wǒ shì qù nián lái de',fr:'Je suis venue l’an dernier.',ok:1},
+      {hz:'我来北京。',py:'wǒ lái Běi jīng',fr:'Je viens à Pékin.',ok:0,why:'La question appelle la structure 是…的 pour préciser le moment.'},
+      {hz:'我去过法国。',py:'wǒ qù guo Fǎ guó',fr:'Je suis allée en France.',ok:0,why:'Hors sujet.'}]},
+  {hz:'那您有什么爱好呢？',py:'nà nín yǒu shén me ài hào ne',fr:'Et quels sont vos centres d’intérêt ?',
+   a:[{hz:'我特别喜欢跑步。',py:'wǒ tè bié xǐ huan pǎo bù',fr:'J’aime particulièrement courir.',ok:1},
+      {hz:'我的工作很忙。',py:'wǒ de gōng zuò hěn máng',fr:'Mon travail est très prenant.',ok:0,why:'Cela parle du travail, pas des loisirs.'},
+      {hz:'我没有朋友。',py:'wǒ méi yǒu péng you',fr:'Je n’ai pas d’amis.',ok:0,why:'Hors sujet.'}]}]},
+
+{theme:'decrire',hsk:2,titre:'Ta nouvelle amie',
+ role:'Une amie veut tout savoir de la personne que vous venez de rencontrer.',
+ turns:[
+  {hz:'你的新朋友叫什么名字？',py:'nǐ de xīn péng you jiào shén me míng zi',fr:'Comment s’appelle ta nouvelle amie ?',
+   a:[{hz:'她叫小雨。',py:'tā jiào Xiǎo yǔ',fr:'Elle s’appelle Xiaoyu.',ok:1},
+      {hz:'她很漂亮。',py:'tā hěn piào liang',fr:'Elle est très jolie.',ok:0,why:'C’est une description, la question portait sur le nom.'},
+      {hz:'我有两个朋友。',py:'wǒ yǒu liǎng ge péng you',fr:'J’ai deux amis.',ok:0,why:'Cela ne donne pas le nom.'}]},
+  {hz:'她高吗？',py:'tā gāo ma',fr:'Est-elle grande ?',
+   a:[{hz:'她很高，也很漂亮。',py:'tā hěn gāo, yě hěn piào liang',fr:'Elle est grande, et jolie aussi.',ok:1},
+      {hz:'她是高。',py:'tā shì gāo',fr:'Elle est grande.',ok:0,why:'Devant un adjectif on n’emploie pas 是 mais 很.'},
+      {hz:'她不高吗？',py:'tā bù gāo ma',fr:'N’est-elle pas grande ?',ok:0,why:'C’est une question, pas une réponse.'}]},
+  {hz:'她的性格怎么样？',py:'tā de xìng gé zěn me yàng',fr:'Quel est son caractère ?',
+   a:[{hz:'她非常快乐，也很热情。',py:'tā fēi cháng kuài lè, yě hěn rè qíng',fr:'Elle est très gaie et très chaleureuse.',ok:1},
+      {hz:'她穿白色的衣服。',py:'tā chuān bái sè de yī fu',fr:'Elle porte des vêtements blancs.',ok:0,why:'C’est le vêtement, pas le caractère.'},
+      {hz:'她太快乐。',py:'tā tài kuài lè',fr:'Elle est trop gaie.',ok:0,why:'太 appelle 了 à la fin : 太快乐了.'}]},
+  {hz:'你喜欢她吗？',py:'nǐ xǐ huan tā ma',fr:'Tu l’aimes bien ?',
+   a:[{hz:'我很喜欢她。',py:'wǒ hěn xǐ huan tā',fr:'Je l’aime beaucoup.',ok:1},
+      {hz:'我很高兴认识你。',py:'wǒ hěn gāo xìng rèn shi nǐ',fr:'Je suis heureuse de te connaître.',ok:0,why:'Cela ne répond pas à la question.'},
+      {hz:'她喜欢我吗？',py:'tā xǐ huan wǒ ma',fr:'Est-ce qu’elle m’aime bien ?',ok:0,why:'La question est renvoyée au lieu d’être traitée.'}]}]},
+
+{theme:'decrire',hsk:3,titre:'Reconnaître quelqu’un',
+ role:'Une collègue doit aller chercher M. Zhang à l’aéroport et ne l’a jamais vu.',
+ turns:[
+  {hz:'你见过张老师吗？他长什么样？',py:'nǐ jiàn guo Zhāng lǎo shī ma? tā zhǎng shén me yàng',fr:'As-tu déjà vu M. Zhang ? À quoi ressemble-t-il ?',
+   a:[{hz:'他长得很高，还戴眼镜。',py:'tā zhǎng de hěn gāo, hái dài yǎn jìng',fr:'Il est grand et porte des lunettes.',ok:1},
+      {hz:'他很有名。',py:'tā hěn yǒu míng',fr:'Il est très connu.',ok:0,why:'Cela ne décrit pas son allure.'},
+      {hz:'他长很高。',py:'tā zhǎng hěn gāo',fr:'Il est grand.',ok:0,why:'Après 长 il faut 得 devant le complément de degré : 长得很高.'}]},
+  {hz:'他今年多大了？',py:'tā jīn nián duō dà le',fr:'Quel âge a-t-il ?',
+   a:[{hz:'他五十多岁了。',py:'tā wǔ shí duō suì le',fr:'Il a une cinquantaine d’années.',ok:1},
+      {hz:'他很年轻。',py:'tā hěn nián qīng',fr:'Il est jeune.',ok:0,why:'Cela ne donne pas l’âge demandé.'},
+      {hz:'他今年多大？',py:'tā jīn nián duō dà',fr:'Quel âge a-t-il ?',ok:0,why:'La question est répétée au lieu d’être traitée.'}]},
+  {hz:'他的性格怎么样？',py:'tā de xìng gé zěn me yàng',fr:'Quel est son caractère ?',
+   a:[{hz:'他很热情，也很关心学生。',py:'tā hěn rè qíng, yě hěn guān xīn xué sheng',fr:'Il est chaleureux et attentif à ses étudiants.',ok:1},
+      {hz:'他戴眼镜。',py:'tā dài yǎn jìng',fr:'Il porte des lunettes.',ok:0,why:'C’est l’apparence, pas le caractère.'},
+      {hz:'他很安静吗？',py:'tā hěn ān jìng ma',fr:'Est-il calme ?',ok:0,why:'C’est une question, pas une réponse.'}]},
+  {hz:'那我怎么找到他呢？',py:'nà wǒ zěn me zhǎo dào tā ne',fr:'Alors comment vais-je le trouver ?',
+   a:[{hz:'别着急，他看过你的照片。',py:'bié zháo jí, tā kàn guo nǐ de zhào piàn',fr:'Ne t’inquiète pas, il a vu ta photo.',ok:1},
+      {hz:'我也不认识他。',py:'wǒ yě bú rèn shi tā',fr:'Moi non plus je ne le connais pas.',ok:0,why:'Cela n’aide en rien.'},
+      {hz:'他很帅。',py:'tā hěn shuài',fr:'Il est beau.',ok:0,why:'Hors sujet.'}]}]}
+];
+
+/* ---- Données et prompt ---- */
+function chatWords(theme,hsk){return WORDS.filter(w=>w.hsk===hsk&&(w.th||[]).includes(theme));}
+function chatGram(theme,hsk){return GRAMMAR.filter(g=>g.hsk===hsk&&(g.th||[]).includes(theme));}
+function chatThemes(){
+  const h=S.settings.level;
+  return THEMES.filter(t=>chatWords(t.id,h).length>=6||CHATSC.some(c=>c.theme===t.id&&c.hsk===h));
+}
+function hasKey(){return S.settings.provider!=='none'&&!!(S.settings.apikey||'').trim();}
+
+function chatSystem(c){
+  const mots=chatWords(c.theme,c.hsk);
+  const g=chatGram(c.theme,c.hsk)[0];
+  const reg=REGISTERS.find(r=>r.id===c.reg)||REGISTERS[0];
+  return `Tu es un partenaire de conversation chinois. Tu joues ce rôle : ${CHATROLE[c.theme]||'une personne qui bavarde avec l’apprenante'}.
+Sujet de l’échange : ${themeName(c.theme)}. Niveau de l’apprenante : HSK ${c.hsk}.
+${reg.consigne}
+
+Vocabulaire autorisé. N’emploie aucun autre mot de contenu :
+${mots.map(w=>w.hz+'  '+w.py+'  = '+w.fr).join('\n')}
+Restent permis les outils grammaticaux de base : 的 了 吗 呢 吧 不 也 很 和 在 有 是 我 你 您 他 她 这 那 什么 谁 几 多少 怎么 可以 会 想 要 请.
+
+${g?'Point de langue de la leçon, à faire apparaître naturellement dans tes questions : '+g.title+'.':''}
+
+Règles absolues :
+— Deux ou trois phrases courtes par tour, jamais davantage.
+— Tu restes dans ton personnage. Aucune explication, aucune correction, aucune traduction à l’intérieur du message chinois.
+— Tu poses une question à chaque tour pour relancer l’échange.
+— Le pinyin s’écrit SYLLABE PAR SYLLABE, séparées par des espaces, avec les marques de ton : « míng zi » et non « míngzi ». Exactement une syllabe par caractère chinois, ponctuation exclue.
+— Tu réponds uniquement par un objet JSON conforme au schéma demandé.`;
+}
+const CHAT_ITEM={type:'object',properties:{hz:{type:'string'},py:{type:'string'},fr:{type:'string'}},required:['hz','py','fr']};
+const CHAT_SCHEMA={type:'object',properties:{
+  hz:{type:'string'},py:{type:'string'},fr:{type:'string'},
+  gloss:{type:'array',items:CHAT_ITEM},pistes:{type:'array',items:CHAT_ITEM}},
+  required:['hz','py','fr','pistes']};
+const DEB_SCHEMA={type:'object',properties:{
+  bilan:{type:'string'},
+  erreurs:{type:'array',items:{type:'object',properties:{
+    ecrit:{type:'string'},attendu:{type:'string'},regle:{type:'string'},
+    mots:{type:'array',items:{type:'string'}}},required:['ecrit','attendu','regle']}},
+  reformulations:{type:'array',items:{type:'object',properties:{
+    ecrit:{type:'string'},mieux:{type:'string'},py:{type:'string'},fr:{type:'string'}},required:['ecrit','mieux']}}},
+  required:['bilan','erreurs']};
+
+/* ---- Appel Gemini, sortie structurée ---- */
+function gemErr(st,txt){
+  if(st===400)return 'Requête refusée (400). La clé est probablement invalide ou incomplète.';
+  if(st===403)return 'Accès refusé (403). La clé n’a pas le droit d’appeler ce modèle.';
+  if(st===404)return 'Modèle introuvable (404). Testez la clé dans les Réglages pour choisir un modèle disponible.';
+  if(st===429)return 'Quota épuisé (429). Réessayez plus tard.';
+  if(st>=500)return 'Panne côté Google ('+st+'). Réessayez dans un moment.';
+  return 'Erreur '+st+'.';
+}
+async function gemJSON(sys,contents,schema){
+  const k=(S.settings.apikey||'').trim();
+  const m=S.settings.gmodel||'gemini-2.5-flash';
+  let r;
+  try{
+    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(m)+':generateContent?key='+encodeURIComponent(k),
+      {method:'POST',headers:{'content-type':'application/json'},
+       body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:contents,
+         generationConfig:{responseMimeType:'application/json',responseSchema:schema,temperature:.8}})});
+  }catch(e){throw new Error('Pas de réseau, ou requête bloquée par le navigateur.');}
+  if(!r.ok)throw new Error(gemErr(r.status,''));
+  const d=await r.json();
+  const txt=((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('');
+  try{return JSON.parse(txt.replace(/```json|```/g,'').trim());}
+  catch(e){throw new Error('Réponse illisible du modèle.');}
+}
+
+/* ---- Garde-fou : le pinyin non conforme n’est pas affiché ---- */
+function pyMsg(code){
+  return code==='compte'?'il ne compte pas autant de syllabes que de caractères'
+    :code==='syllabe'?'il contient une syllabe qui n’existe pas en mandarin'
+    :code==='marque' ?'une marque de ton y est mal placée'
+    :code==='vide'   ?'il est absent'
+    :'il n’a pas passé le contrôle';
+}
+function chatGuard(o){
+  const r=pinyinCheck(o.hz||'',o.py||'');
+  o.pyOk=r.ok;o.pyCode=r.code;o.doute=r.doute||[];
+  ['pistes','gloss'].forEach(k=>(o[k]||[]).forEach(p=>{p.pyOk=pinyinCheck(p.hz||'',p.py||'').ok;}));
+  return o;
+}
+
+/* ---- Journal des conversations, clé séparée ---- */
+const CHATKEY='coach-chinois-chats';
+function chatLog(c){
+  try{
+    const a=JSON.parse(localStorage.getItem(CHATKEY)||'[]');
+    a.unshift({d:Date.now(),theme:c.theme,hsk:c.hsk,reg:c.reg,mode:c.mode,turns:c.turns,debrief:c.debrief||null});
+    localStorage.setItem(CHATKEY,JSON.stringify(a.slice(0,10)));
+  }catch(e){}
+}
+function chatLogRead(){try{return JSON.parse(localStorage.getItem(CHATKEY)||'[]');}catch(e){return [];}}
+function chatLogWipe(){try{localStorage.removeItem(CHATKEY);}catch(e){}toast('Journal des conversations effacé.');render();}
+function chatExport(){
+  const b=new Blob([JSON.stringify(chatLogRead(),null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u;a.download='conversations-chinois.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),2000);
+}
+
+/* ---- Conduite de la conversation ---- */
+function chatStart(theme,reg){
+  const hsk=S.settings.level;
+  const sc=CHATSC.find(x=>x.theme===theme&&x.hsk===hsk);
+  ctx.chat={theme:theme,hsk:hsk,reg:reg,turns:[],draft:'',busy:false,done:false,
+            mode:hasKey()?'live':'guide',sc:sc||null,step:0,picks:[],err:''};
+  if(ctx.chat.mode==='live')chatNext('(La conversation commence. Salue-moi et pose ta première question.)');
+  else render();
+}
+function chatContents(c,dernier){
+  const out=[];
+  c.turns.forEach(t=>{
+    if(t.who==='them')out.push({role:'model',parts:[{text:JSON.stringify({hz:t.hz,py:t.py,fr:t.fr,pistes:t.pistes||[]})}]});
+    else out.push({role:'user',parts:[{text:t.hz}]});
+  });
+  out.push({role:'user',parts:[{text:dernier}]});
+  return out;
+}
+async function chatNext(msg){
+  const c=ctx.chat;if(!c||c.busy)return;
+  c.busy=true;c.err='';render();
+  try{
+    const o=chatGuard(await gemJSON(chatSystem(c),chatContents(c,msg),CHAT_SCHEMA));
+    c.turns.push(Object.assign({who:'them'},o));
+  }catch(e){c.err=e.message||String(e);}
+  c.busy=false;render();
+}
+function chatSend(txt){
+  const c=ctx.chat;if(!c||c.busy)return;
+  const t=(txt!=null?txt:(c.draft||'')).trim();
+  if(!t)return;
+  c.turns.push({who:'me',hz:t});
+  c.draft='';
+  const n=c.turns.filter(x=>x.who==='me').length;
+  chatNext(n>=(S.settings.chatTurns||7)?t+'\n(C’est mon dernier tour : conclus brièvement.)':t);
+}
+function chatPiste(i){
+  const c=ctx.chat,last=[...c.turns].reverse().find(t=>t.who==='them');
+  if(!last||!last.pistes||!last.pistes[i])return;
+  chatSend(last.pistes[i].hz);
+}
+async function chatFinish(){
+  const c=ctx.chat;if(!c||c.busy)return;
+  c.busy=true;c.err='';render();
+  const mots=chatWords(c.theme,c.hsk);
+  const sys=`Tu es professeur de chinois pour une apprenante francophone de niveau HSK ${c.hsk}.
+Tu reçois une conversation. Tu n’examines QUE les tours de l’apprenante.
+Pour chaque erreur : ce qu’elle a écrit, ce qui était attendu, la règle en UNE phrase, en français.
+Le champ « mots » liste les mots de cette liste directement concernés, en caractères chinois, tels quels :
+${mots.map(w=>w.hz).join(' ')}
+Ajoute des reformulations plus naturelles quand la phrase est correcte mais maladroite.
+Termine par un bilan de deux phrases, encourageant et précis. Réponds en JSON.`;
+  const trans=c.turns.map(t=>(t.who==='me'?'APPRENANTE : ':'PARTENAIRE : ')+t.hz).join('\n');
+  try{
+    const d=await gemJSON(sys,[{role:'user',parts:[{text:trans}]}],DEB_SCHEMA);
+    (d.reformulations||[]).forEach(r=>{r.pyOk=pinyinCheck(r.mieux||'',r.py||'').ok;});
+    c.debrief=d;c.done=true;
+    c.retro=chatRetro(d,c);
+    chatLog(c);
+  }catch(e){c.err=e.message||String(e);}
+  c.busy=false;render();
+}
+function chatRetro(d,c){
+  if(!S.settings.chatDemote)return 0;
+  const mots=chatWords(c.theme,c.hsk),vus={};
+  (d.erreurs||[]).forEach(e=>(e.mots||[]).forEach(m=>{
+    const w=mots.find(x=>x.hz===m)||mots.find(x=>m&&String(m).includes(x.hz));
+    if(w&&!vus[w.id]){vus[w.id]=1;grade(w.id,1);}
+  }));
+  return Object.keys(vus).length;
+}
+
+/* ---- Dialogue guidé, sans clé ---- */
+function scPick(j){
+  const c=ctx.chat,t=c.sc.turns[c.step];
+  if(c.picks[c.step]!=null)return;
+  c.picks[c.step]=j;
+  beep(t.a[j].ok?'ok':'no');render();
+}
+function scNext(){
+  const c=ctx.chat;
+  if(c.step+1<c.sc.turns.length){c.step++;render();return;}
+  c.done=true;c.turns=c.sc.turns.map((t,i)=>({who:'them',hz:t.hz,py:t.py,fr:t.fr}));
+  chatLog(c);render();
+}
+
+/* ---- Écran ---- */
+function chatBubble(t,i){
+  if(t.who==='me')return `<div class="bub me"><div class="sentence">${esc(t.hz)}</div></div>`;
+  return `<div class="bub them">
+    <div class="sentence">${esc(t.hz)}</div>
+    ${t.pyOk===false
+      ?`<p class="mut sm" style="margin:7px 0 0">Pinyin écarté : ${pyMsg(t.pyCode)}. Seuls les caractères sont affichés.</p>`
+      :t.py?`<div class="py sm" style="margin-top:7px">${pinyin(t.py)}</div>`:''}
+    ${t.doute&&t.doute.length?`<p class="mut sm" style="margin:5px 0 0">Lecture à vérifier sur : ${t.doute.map(d=>esc(d.c)).join(' ')}</p>`:''}
+    <p class="mut sm" style="margin:7px 0 0">${esc(t.fr||'')}</p>
+    ${(t.gloss||[]).length?`<p class="mut sm" style="margin:6px 0 0">${t.gloss.map(g=>esc(g.hz+' — '+g.fr)).join(' · ')}</p>`:''}
+    <button class="btn pale tiny mt" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
+  </div>`;
+}
+function vChat(){
+  const c=ctx.chat;
+  if(!c)return chatSetup();
+  const dernier=[...c.turns].reverse().find(t=>t.who==='them');
+  const nMoi=c.turns.filter(t=>t.who==='me').length;
+  const max=S.settings.chatTurns||7;
+  if(c.mode==='guide')return chatGuide(c);
+  return header('聊 — '+themeName(c.theme),'HSK '+c.hsk+' · tour '+Math.min(nMoi+1,max)+' sur '+max)+ribbon()+`
+  ${c.turns.map(chatBubble).join('')}
+  ${c.busy?`<div class="box"><p class="mut sm" style="margin:0">Votre interlocuteur écrit…</p></div>`:''}
+  ${c.err?`<div class="verdict no">${esc(c.err)}</div>
+    <button class="btn pale sm mt" onclick="chatNext('(Reprends.)')">Réessayer</button>`:''}
+  ${c.done?chatDebriefBlock(c):`
+  ${dernier&&(dernier.pistes||[]).length&&!c.busy?`<h2 class="sec">Pistes de réponse</h2>
+    <div class="opts">${dernier.pistes.map((p,i)=>`<button class="opt han" onclick="chatPiste(${i})">
+      ${esc(p.hz)}<span class="mut sm"> — ${esc(p.fr)}</span></button>`).join('')}</div>`:''}
+  <h2 class="sec">Ma réponse</h2>
+  <div class="box">
+    <textarea rows="2" placeholder="Écrivez en chinois, au clavier" oninput="ctx.chat.draft=this.value">${esc(c.draft||'')}</textarea>
+    <button class="btn red mt" onclick="chatSend()">Envoyer</button>
+    ${nMoi>=4?`<button class="btn pale sm mt" onclick="chatFinish()">Terminer et faire le point</button>`:''}
+  </div>`}`;
+}
+function chatDebriefBlock(c){
+  const d=c.debrief||{};
+  return `<h2 class="sec">Le point sur cet échange</h2>
+  <div class="box"><p style="margin:0">${esc(d.bilan||'')}</p></div>
+  ${(d.erreurs||[]).length?(d.erreurs||[]).map(e=>`<div class="box">
+    <p class="hz" style="margin:0 0 5px"><b>${esc(e.ecrit||'')}</b></p>
+    <p class="hz" style="margin:0 0 7px;color:var(--jade)">${esc(e.attendu||'')}</p>
+    <p class="mut sm" style="margin:0">${esc(e.regle||'')}</p></div>`).join('')
+    :`<div class="box"><p class="mut sm" style="margin:0">Aucune erreur relevée.</p></div>`}
+  ${(d.reformulations||[]).length?`<h2 class="sec">Plus naturel</h2>
+  ${d.reformulations.map(r=>`<div class="box">
+    <p class="mut sm" style="margin:0 0 5px">${esc(r.ecrit||'')}</p>
+    <div class="sentence">${esc(r.mieux||'')}</div>
+    ${r.pyOk&&r.py?`<div class="py sm">${pinyin(r.py)}</div>`:''}
+    ${r.fr?`<p class="mut sm" style="margin:6px 0 0">${esc(r.fr)}</p>`:''}</div>`).join('')}`:''}
+  ${c.retro?`<div class="box"><p class="mut sm" style="margin:0">${c.retro} mot${c.retro>1?'s':''} ${c.retro>1?'redescendus':'redescendu'} d’une boîte pour être revu${c.retro>1?'s':''} plus tôt.</p></div>`:''}
+  <button class="btn pale mt" onclick="ctx.chat=null;render()">Nouvelle conversation</button>`;
+}
+function chatGuide(c){
+  const t=c.sc.turns[c.step],pick=c.picks[c.step];
+  const justes=c.picks.filter((p,i)=>p!=null&&c.sc.turns[i].a[p].ok).length;
+  if(c.done)return header('聊 — '+esc(c.sc.titre),'Dialogue guidé')+ribbon()+`
+    <div class="box"><p><b>Dialogue terminé.</b></p>
+      <p class="mut sm">${justes} réponse${justes>1?'s':''} juste${justes>1?'s':''} sur ${c.sc.turns.length}.</p></div>
+    ${c.sc.turns.map((x,i)=>`<div class="bub them"><div class="sentence">${esc(x.hz)}</div>
+      <div class="py sm" style="margin-top:7px">${pinyin(x.py)}</div>
+      <p class="mut sm" style="margin:7px 0 0">${esc(x.fr)}</p></div>
+      <div class="bub me"><div class="sentence">${esc(x.a[c.picks[i]!=null?c.picks[i]:x.a.findIndex(a=>a.ok)].hz)}</div></div>`).join('')}
+    <div class="box"><p class="mut sm" style="margin:0">Avec une clé Gemini dans les Réglages, cette étape devient une vraie conversation libre.</p></div>
+    <button class="btn pale mt" onclick="ctx.chat=null;render()">Recommencer</button>`;
+  return header('聊 — '+esc(c.sc.titre),'Dialogue guidé · réplique '+(c.step+1)+' sur '+c.sc.turns.length)+ribbon()+`
+  <div class="box"><p class="mut sm" style="margin:0">${esc(c.sc.role)}</p></div>
+  <div class="bub them">
+    <div class="sentence">${esc(t.hz)}</div>
+    <div class="py sm" style="margin-top:7px">${pinyin(t.py)}</div>
+    <p class="mut sm" style="margin:7px 0 0">${esc(t.fr)}</p>
+    <button class="btn pale tiny mt" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
+  </div>
+  <h2 class="sec">Que répondez-vous ?</h2>
+  <div class="opts">${t.a.map((a,j)=>{
+    let cl='';if(pick!=null)cl=a.ok?'ok':(j===pick?'no':'');
+    return `<button class="opt han ${cl}" onclick="scPick(${j})">${esc(a.hz)}
+      ${pick!=null?`<span class="mut sm"> — ${esc(a.fr)}</span>`:''}</button>`;}).join('')}</div>
+  ${pick!=null?`<div class="verdict ${t.a[pick].ok?'ok':'no'}">${t.a[pick].ok?'Juste.':esc(t.a[pick].why||'Ce n’est pas la bonne réponse.')}</div>
+    <button class="btn red mt" onclick="scNext()">${c.step+1<c.sc.turns.length?'Réplique suivante':'Terminer'}</button>`:''}`;
+}
+function chatSetup(){
+  const th=chatThemes(),h=S.settings.level;
+  const dispo=th.filter(t=>chatWords(t.id,h).length>=6||CHATSC.some(x=>x.theme===t.id&&x.hsk===h));
+  ctx.creg=ctx.creg||(h<=2?'reg2':'reg3');
+  ctx.cth=ctx.cth||(dispo.some(t=>t.id===S.settings.theme)?S.settings.theme:(dispo[0]||{}).id);
+  if(!dispo.length)return header('聊 — Conversation')+levelPills()+nothing();
+  return header('聊 — Conversation','Dialoguer sur un thème, puis faire le point')+ribbon()+`
+  ${levelPills()}
+  <div class="box">
+    <p class="mut sm" style="margin:0 0 8px">Thème</p>
+    <div class="selwrap"><select onchange="ctx.cth=this.value;render()">
+      ${dispo.map(t=>`<option value="${t.id}" ${ctx.cth===t.id?'selected':''}>${esc(t.n)}</option>`).join('')}
+    </select></div>
+    <p class="mut sm" style="margin:14px 0 8px">Registre</p>
+    ${REGISTERS.map(r=>`<button class="wrow" style="width:100%;text-align:left;${ctx.creg===r.id?'border-color:var(--jade)':''}"
+      onclick="ctx.creg='${r.id}';render()">
+      <span class="m"><b style="${ctx.creg===r.id?'color:var(--jade)':''}">${esc(r.n)}</b><span class="mut">${esc(r.d)}</span></span>
+      ${ctx.creg===r.id?'<span class="seal">选</span>':''}</button>`).join('')}
+  </div>
+  <div class="box">
+    ${hasKey()
+      ?`<p class="sm" style="margin:0"><b>Conversation libre.</b> <span class="mut">Votre partenaire s’en tient aux ${chatWords(ctx.cth,h).length} mots du thème. ${S.settings.chatTurns} tours, puis le point sur vos phrases.</span></p>`
+      :`<p class="sm" style="margin:0"><b>Dialogue guidé.</b> <span class="mut">Sans clé, l’échange se fait à choix multiples, quatre répliques. Ajoutez une clé Gemini dans les Réglages pour la conversation libre.</span></p>`}
+  </div>
+  <button class="btn red mt" onclick="chatStart(ctx.cth,ctx.creg)">Commencer</button>`;
 }
 
 /* ---------- Progrès ---------- */
@@ -2463,20 +3156,44 @@ function vReglages(){
     ${sw('auto','Passage automatique','Enchaîne la question suivante sans toucher « Suivant »')}
   </div>
 
-  <h2 class="sec">Correction des écrits</h2>
+  <h2 class="sec">Affichage des documents</h2>
   <div class="box">
-    <p class="mut sm">L’application fonctionne entièrement sans clé. Une clé ajoute la correction des phrases libres. Elle reste dans ce navigateur.</p>
-    <div class="selwrap"><select onchange="S.settings.provider=this.value;save();render()">
+    <p class="mut sm" style="margin:0 0 10px">Comment se présentent les textes et les dialogues en compréhension.</p>
+    ${flowPills()}
+    <p class="mut sm" style="margin:0">« Texte suivi » affiche le document d’un seul bloc, avec une seule écoute. « Découpé » place chaque phrase sur sa propre carte, avec son bouton d’écoute.</p>
+  </div>
+
+  <h2 class="sec">Correction et conversation</h2>
+  <div class="box">
+    <p class="mut sm">L’application fonctionne entièrement sans clé. Une clé ajoute la correction des écrits et la conversation libre du module 聊. Elle reste dans ce navigateur.</p>
+    <div class="selwrap"><select onchange="S.settings.provider=this.value;S.settings.gmodel='';save();render()">
       <option value="none" ${S.settings.provider==='none'?'selected':''}>Aucune — modèle seul</option>
       <option value="gemini" ${S.settings.provider==='gemini'?'selected':''}>Google Gemini — gratuit</option>
       <option value="anthropic" ${S.settings.provider==='anthropic'?'selected':''}>Anthropic — payant à l’usage</option>
     </select></div>
     ${S.settings.provider!=='none'?`
       <input type="password" placeholder="Collez la clé ici" value="${esc(S.settings.apikey)}"
-        onchange="S.settings.apikey=this.value;save();toast('Clé enregistrée sur cet appareil.')" style="margin-top:10px">
-      <p class="mut sm">${S.settings.provider==='gemini'
+        oninput="S.settings.apikey=this.value.trim();save()" style="margin-top:10px">
+      <p class="mut sm">${(S.settings.apikey||'').trim()
+        ?`Clé enregistrée : ${(S.settings.apikey||'').trim().length} caractères, se termine par …${esc((S.settings.apikey||'').trim().slice(-4))}.`
+        :'Aucune clé enregistrée pour l’instant.'}</p>
+      <button class="btn jade mt" onclick="testKey()">Tester la clé</button>
+      ${ctx.test?`<div class="verdict ${ctx.test.busy?'':(ctx.test.ok?'ok':'no')}" style="margin-top:11px">${
+        ctx.test.busy?'Essai en cours…':esc(ctx.test.msg)}</div>`:''}
+      <p class="mut sm mt">${S.settings.provider==='gemini'
         ?'Clé gratuite via Google AI Studio. Sur le palier gratuit, les données envoyées peuvent servir à entraîner le modèle.'
         :'Clé via la console Anthropic. Facturation à la consommation, indépendante de l’abonnement Claude.'}</p>`:''}
+  </div>
+
+  <h2 class="sec">Module 聊</h2>
+  <div class="box">
+    <p class="mut sm" style="margin:0 0 6px">Longueur d’un échange — ${S.settings.chatTurns} tours</p>
+    <input type="range" min="4" max="10" step="1" value="${S.settings.chatTurns}"
+      oninput="S.settings.chatTurns=parseInt(this.value,10);save();render()">
+    ${sw('chatDemote','Rétrograder les mots fautifs','Les mots relevés au débriefing redescendent d’une boîte et reviennent plus tôt en révision')}
+    <button class="btn pale mt" onclick="chatExport()">Exporter mes conversations</button>
+    <button class="btn pale sm mt" style="color:var(--red)" onclick="chatLogWipe()">Effacer le journal des conversations</button>
+    <p class="mut sm mt">Les dix derniers échanges sont conservés à part, hors de la sauvegarde de progression.</p>
   </div>
 
   <h2 class="sec">Ma progression</h2>
