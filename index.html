@@ -316,7 +316,7 @@ let memoryOnly=false;
 function loadState(){
   const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
-      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,chatTurns:7,chatDemote:true,
+      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,chatOneQ:true,chatTurns:7,chatDemote:true,
       voices:{d:'',A:'',B:'',C:''}}};
   try{
     const raw=localStorage.getItem(KEY);
@@ -1444,7 +1444,7 @@ Pas de préambule ni de conclusion.`;
     const d=await r.json();
     return d.content.filter(c=>c.type==='text').map(c=>c.text).join('\n');
   }
-  const r=await fetch(gURL('models/'+encodeURIComponent(S.settings.gmodel||'gemini-2.5-flash')+':generateContent'),
+  const r=await fetch(gURL('models/'+encodeURIComponent(S.settings.gmodel||'gemini-flash-latest')+':generateContent'),
     {method:'POST',headers:gHead(),body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
   if(!r.ok)throw new Error('erreur '+r.status);
   const d=await r.json();
@@ -1466,7 +1466,9 @@ async function testKey(){
     const ver=c[0],auth=c[1];
     let r;
     try{r=await fetch(gURL('models',ver,auth),{headers:gHead(auth)});}
-    catch(e){essais.push(ver+' · clé dans l’'+authNom(auth)+' → serveur injoignable');continue;}
+    catch(e){essais.push(ver+' · clé dans l’'+authNom(auth)+
+      (auth==='header'?' → refusé avant l’envoi : le navigateur exige un contrôle CORS que ce service n’accorde pas. Depuis une page web, la clé doit passer par l’URL.'
+                      :' → serveur injoignable'));continue;}
     if(r.ok){
       let d={};try{d=await r.json();}catch(e){}
       noms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).indexOf('generateContent')>=0)
@@ -1481,19 +1483,28 @@ async function testKey(){
   }
   if(!bon){
     const t=essais.join(' | ');
+    const tousMuets=essais.every(x=>/injoignable|avant l’envoi/.test(x));
     let cause='Aucune des quatre combinaisons ne répond.';
-    if(/401|ACCESS_TOKEN_TYPE_UNSUPPORTED|invalid authentication/i.test(t))
+    if(/API key not valid|API_KEY_INVALID/i.test(t))
+      cause='Google reçoit bien la clé mais la refuse. Dans neuf cas sur dix ce n’est pas la clé elle-même : '+
+            'c’est une restriction posée dessus. Ouvrez la console Google Cloud, Identifiants, puis la clé. '+
+            'Si « Restrictions relatives aux applications » est sur « Sites web », ajoutez-y '+
+            (location&&location.origin&&location.origin.indexOf('http')===0?location.origin+'/*':'l’adresse de votre site')+
+            ' — sinon mettez « Aucune ». Vérifiez aussi que l’API Generative Language est activée sur ce projet.';
+    else if(/401|ACCESS_TOKEN_TYPE_UNSUPPORTED|invalid authentication/i.test(t))
       cause='La clé est refusée à l’authentification. C’est le symptôme connu des clés au préfixe AQ. : créez une clé et restreignez-la explicitement à l’API Generative Language.';
     else if(/403|SERVICE_DISABLED|PERMISSION_DENIED/i.test(t))
       cause='L’API Generative Language n’est pas activée sur le projet de cette clé, ou la clé n’a pas ce droit.';
     else if(/404/.test(t))
       cause='Le service ne reconnaît aucune des deux versions d’API avec cette clé. La clé n’est probablement pas rattachée à un projet où l’API Generative Language est activée.';
-    else if(/injoignable/.test(t))
-      cause='Le réseau ou le navigateur bloque l’appel.';
+    else if(tousMuets)
+      cause='Le réseau ou le navigateur bloque tous les appels.';
     return fin(false,cause,essais);
   }
-  const pref=['gemini-2.5-flash','gemini-flash-latest','gemini-2.0-flash','gemini-2.5-flash-lite',
-              'gemini-2.0-flash-001','gemini-2.5-pro'];
+  /* gemini-2.5-flash est fermé aux nouveaux comptes depuis 2026 : les alias
+     « latest » suivent le modèle courant et ne se périment pas. */
+  const pref=['gemini-flash-latest','gemini-2.5-flash-lite','gemini-flash-lite-latest',
+              'gemini-2.0-flash','gemini-2.5-flash','gemini-2.5-pro'];
   const cands=pref.filter(x=>noms.indexOf(x)>=0)
     .concat(noms.filter(x=>pref.indexOf(x)<0&&!/tts|image|embedding|vision|live|native-audio/.test(x)));
   S.settings.gver=bon[0];S.settings.gauth=bon[1];save();
@@ -2838,7 +2849,9 @@ ${g?'Point de langue de la leçon, à faire apparaître naturellement dans tes q
 Règles absolues :
 — Deux ou trois phrases courtes par tour, jamais davantage.
 — Tu restes dans ton personnage. Aucune explication, aucune correction, aucune traduction à l’intérieur du message chinois.
-— Tu poses une question à chaque tour pour relancer l’échange.
+${S.settings.chatOneQ===false
+  ?'— Tu poses une ou deux questions par tour pour relancer l’échange.'
+  :'— Tu poses UNE SEULE question par tour. Jamais deux, jamais trois. Une question, puis tu t’arrêtes.'}
 — Le pinyin s’écrit SYLLABE PAR SYLLABE, séparées par des espaces, avec les marques de ton : « míng zi » et non « míngzi ». Exactement une syllabe par caractère chinois, ponctuation exclue.
 — Tu réponds uniquement par un objet JSON conforme au schéma demandé.`;
 }
@@ -2907,7 +2920,7 @@ function gemErr(st,txt){
   return 'Erreur '+st+'.';
 }
 async function gemJSON(sys,contents,schema){
-  const m=S.settings.gmodel||'gemini-2.5-flash';
+  const m=S.settings.gmodel||'gemini-flash-latest';
   const strict=S.settings.gjson!==false;
   const sys2=strict?sys:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balises de code ni commentaire.';
   const r=await gemCall(m,sys2,contents,strict?schema:null);
@@ -3030,23 +3043,31 @@ function scPick(j){
 }
 function scNext(){
   const c=ctx.chat;
-  if(c.step+1<c.sc.turns.length){c.step++;render();return;}
+  if(c.step+1<c.sc.turns.length){c.step++;ctx.gpy=false;ctx.gfr=false;render();return;}
   c.done=true;c.turns=c.sc.turns.map((t,i)=>({who:'them',hz:t.hz,py:t.py,fr:t.fr}));
   chatLog(c);render();
 }
 
 /* ---- Écran ---- */
+function chatShow(i,k){
+  const t=ctx.chat&&ctx.chat.turns[i];if(!t)return;
+  t[k]=!t[k];render();
+}
 function chatBubble(t,i){
   if(t.who==='me')return `<div class="bub me"><div class="sentence">${esc(t.hz)}</div></div>`;
+  const py=t.pyOk!==false&&!!t.py;
   return `<div class="bub them">
     <div class="sentence">${esc(t.hz)}</div>
-    ${t.pyOk===false
-      ?`<p class="mut sm" style="margin:7px 0 0">Pinyin écarté : ${pyMsg(t.pyCode)}. Seuls les caractères sont affichés.</p>`
-      :t.py?`<div class="py sm" style="margin-top:7px">${pinyin(t.py)}</div>`:''}
-    ${t.doute&&t.doute.length?`<p class="mut sm" style="margin:5px 0 0">Lecture à vérifier sur : ${t.doute.map(d=>esc(d.c)).join(' ')}</p>`:''}
-    <p class="mut sm" style="margin:7px 0 0">${esc(t.fr||'')}</p>
-    ${(t.gloss||[]).length?`<p class="mut sm" style="margin:6px 0 0">${t.gloss.map(g=>esc(g.hz+' — '+g.fr)).join(' · ')}</p>`:''}
-    <button class="btn pale tiny mt" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pale tiny" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
+      ${py?`<button class="btn pale tiny" onclick="chatShow(${i},'vpy')">${t.vpy?'Cacher le pinyin':'Pinyin'}</button>`:''}
+      <button class="btn pale tiny" onclick="chatShow(${i},'vfr')">${t.vfr?'Cacher la traduction':'Traduction'}</button>
+    </div>
+    ${t.pyOk===false?`<p class="mut sm" style="margin:8px 0 0">Pinyin écarté : ${pyMsg(t.pyCode)}.</p>`:''}
+    ${t.vpy&&py?`<div class="py sm" style="margin-top:9px">${pinyin(t.py)}</div>
+      ${t.doute&&t.doute.length?`<p class="mut sm" style="margin:5px 0 0">Lecture à vérifier sur : ${t.doute.map(d=>esc(d.c)).join(' ')}</p>`:''}`:''}
+    ${t.vfr?`<p class="mut sm" style="margin:9px 0 0">${esc(t.fr||'')}</p>
+      ${(t.gloss||[]).length?`<p class="mut sm" style="margin:6px 0 0">${t.gloss.map(g=>esc(g.hz+' — '+g.fr)).join(' · ')}</p>`:''}`:''}
   </div>`;
 }
 function vChat(){
@@ -3106,9 +3127,13 @@ function chatGuide(c){
   <div class="box"><p class="mut sm" style="margin:0">${esc(c.sc.role)}</p></div>
   <div class="bub them">
     <div class="sentence">${esc(t.hz)}</div>
-    <div class="py sm" style="margin-top:7px">${pinyin(t.py)}</div>
-    <p class="mut sm" style="margin:7px 0 0">${esc(t.fr)}</p>
-    <button class="btn pale tiny mt" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pale tiny" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
+      <button class="btn pale tiny" onclick="ctx.gpy=!ctx.gpy;render()">${ctx.gpy?'Cacher le pinyin':'Pinyin'}</button>
+      <button class="btn pale tiny" onclick="ctx.gfr=!ctx.gfr;render()">${ctx.gfr?'Cacher la traduction':'Traduction'}</button>
+    </div>
+    ${ctx.gpy?`<div class="py sm" style="margin-top:9px">${pinyin(t.py)}</div>`:''}
+    ${ctx.gfr?`<p class="mut sm" style="margin:9px 0 0">${esc(t.fr)}</p>`:''}
   </div>
   <h2 class="sec">Que répondez-vous ?</h2>
   <div class="opts">${t.a.map((a,j)=>{
@@ -3257,6 +3282,8 @@ function vReglages(){
         ?`Clé enregistrée : ${(S.settings.apikey||'').trim().length} caractères, se termine par …${esc((S.settings.apikey||'').trim().slice(-4))}.`
         :'Aucune clé enregistrée pour l’instant.'}</p>
       <button class="btn jade mt" onclick="testKey()">Tester la clé</button>
+      ${S.settings.gmodel?`<p class="mut sm mt">Modèle actuellement retenu : <b>${esc(S.settings.gmodel)}</b>${S.settings.gjson===false?' — sortie JSON simple':''}</p>`:''}
+      <p class="mut sm mt">Si vous restreignez la clé aux sites web, l’adresse à autoriser est celle d’où vous ouvrez cette page : <b>${esc((typeof location!=='undefined'&&location.origin)||'—')}</b></p>
       ${ctx.test?`<div class="verdict ${ctx.test.busy?'':(ctx.test.ok?'ok':'no')}" style="margin-top:11px">${
         ctx.test.busy?'Essai en cours…':esc(ctx.test.msg)}</div>
         ${(ctx.test.det||[]).length?`<div class="box" style="margin-top:10px">
@@ -3272,6 +3299,7 @@ function vReglages(){
     <p class="mut sm" style="margin:0 0 6px">Longueur d’un échange — ${S.settings.chatTurns} tours</p>
     <input type="range" min="4" max="10" step="1" value="${S.settings.chatTurns}"
       oninput="S.settings.chatTurns=parseInt(this.value,10);save();render()">
+    ${sw('chatOneQ','Une seule question par tour','Décochez si vous préférez que le partenaire enchaîne deux questions, plus exigeant')}
     ${sw('chatDemote','Rétrograder les mots fautifs','Les mots relevés au débriefing redescendent d’une boîte et reviennent plus tôt en révision')}
     <button class="btn pale mt" onclick="chatExport()">Exporter mes conversations</button>
     <button class="btn pale sm mt" style="color:var(--red)" onclick="chatLogWipe()">Effacer le journal des conversations</button>
