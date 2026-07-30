@@ -9,299 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#FBF6EE;
-  --card:#FFFFFF;
-  --ink:#2C2723;
-  --muted:#776E66;
-  --line:#EEE4D6;
-  --line2:#E2D6C4;
-
-  --red:#B8342E;      --red-d:#8E2622;  --red-s:#FBEDEA;
-  --gold:#B98526;     --gold-d:#8E651A; --gold-s:#FCF3E0;
-  --jade:#3D7A69;     --jade-d:#2C5B4E; --jade-s:#E9F3F0;
-  --indigo:#3C5375;   --indigo-d:#2B3D57;--indigo-s:#ECF0F7;
-  --plum:#8A4260;     --plum-d:#6A3049; --plum-s:#F9EDF2;
-  --clay:#A85A32;     --clay-d:#824426; --clay-s:#FBEFE6;
-
-  --ui:'Quicksand',system-ui,-apple-system,sans-serif;
-  --han:'Noto Sans SC',sans-serif;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0}
-body{
-  background:var(--bg);color:var(--ink);
-  font-family:var(--ui);font-weight:600;font-size:16px;line-height:1.5;
-  padding-bottom:calc(78px + env(safe-area-inset-bottom));
-  -webkit-font-smoothing:antialiased;
-}
-button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:none;color:inherit}
-:focus-visible{outline:3px solid var(--jade);outline-offset:3px}
-.wrap{max-width:620px;margin:0 auto;padding:0 16px}
-.hz,.sentence,.tile,.py,.opt.han,.emb{font-family:var(--han)}
-
-/* ---------- Bandeau haut ---------- */
-.top{display:flex;align-items:center;gap:12px;padding:16px 0 8px}
-.back{
-  width:46px;height:46px;flex:none;border-radius:16px;background:var(--card);
-  border:2px solid var(--line);display:grid;place-items:center;
-  box-shadow:0 3px 0 rgba(120,90,50,.08);
-}
-.back svg{width:20px;height:20px}
-.back:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.08)}
-.htitle{flex:1;min-width:0;font-size:21px;font-weight:700;line-height:1.25}
-.htitle small{display:block;font-size:13.5px;color:var(--muted);font-weight:600;margin-top:2px}
-
-/* ---------- Panneau d’accueil (signature) ---------- */
-.hero{
-  position:relative;overflow:hidden;border-radius:28px;padding:22px 20px;margin:14px 0 6px;
-  background:linear-gradient(158deg,#C43B32 0%,#A32B26 58%,#8E2622 100%);color:#FFF6EC;
-}
-.hero .mark{
-  position:absolute;right:-14px;bottom:-42px;font-family:var(--han);font-weight:700;
-  font-size:150px;line-height:1;color:#fff;opacity:.11;pointer-events:none;
-}
-.hero .rule{height:2px;background:rgba(255,255,255,.28);margin:13px 0;border-radius:2px}
-.hero h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.01em;position:relative;z-index:1}
-.hero .sub{font-size:14px;opacity:.86;margin-top:2px;position:relative;z-index:1}
-.hero .figs{display:flex;gap:24px;position:relative;z-index:1}
-.hero .fig b{display:block;font-size:27px;line-height:1.1}
-.hero .fig span{display:block;font-size:11.5px;opacity:.82;letter-spacing:.04em}
-.hero .cta{
-  display:block;width:100%;margin-top:15px;padding:15px;border-radius:17px;
-  background:#FFF6EC;color:var(--red-d);font-size:16.5px;box-shadow:0 5px 0 rgba(0,0,0,.2);position:relative;z-index:1;
-}
-.hero .cta:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
-
-/* ---------- Grille de modules ---------- */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-.mod{
-  background:var(--card);border:2px solid var(--line);border-radius:22px;
-  padding:14px;text-align:left;box-shadow:0 4px 0 rgba(120,90,50,.06);
-  display:flex;flex-direction:column;gap:6px;min-height:126px;
-}
-.mod:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
-.mod .emb{font-size:32px;font-weight:700;line-height:1}
-.mod b{font-size:15px;font-weight:700;line-height:1.25;margin-top:auto}
-.mod span{font-size:11.5px;color:var(--muted);line-height:1.3}
-.mod.wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:14px;min-height:0}
-.mod.wide .emb{font-size:38px}
-.mod.wide .col{flex:1;min-width:0}
-.mod.wide b{margin-top:0;display:block;font-size:17px}
-
-.c-red{border-color:#F0CFCB}    .c-red .emb,.c-red b{color:var(--red)}          .c-red .bar i{background:var(--red)}
-.c-gold{border-color:#F0DDB4}   .c-gold .emb,.c-gold b{color:var(--gold-d)}     .c-gold .bar i{background:var(--gold)}
-.c-jade{border-color:#C6DFD8}   .c-jade .emb,.c-jade b{color:var(--jade)}       .c-jade .bar i{background:var(--jade)}
-.c-indigo{border-color:#C9D5E7} .c-indigo .emb,.c-indigo b{color:var(--indigo)} .c-indigo .bar i{background:var(--indigo)}
-.c-plum{border-color:#E6C9D6}   .c-plum .emb,.c-plum b{color:var(--plum)}       .c-plum .bar i{background:var(--plum)}
-.c-clay{border-color:#EFD2BC}   .c-clay .emb,.c-clay b{color:var(--clay)}       .c-clay .bar i{background:var(--clay)}
-
-.bar{height:9px;border-radius:99px;background:#F0E9DE;overflow:hidden}
-.bar i{display:block;height:100%;border-radius:99px}
-
-/* ---------- Pastilles de filtre ---------- */
-.pills{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}
-.pills::-webkit-scrollbar{display:none}
-.pill{flex:none;padding:8px 15px;border-radius:999px;background:var(--card);
-  border:2px solid var(--line);font-size:14.5px;color:var(--muted)}
-.pill.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.pill.void{opacity:.45}
-.selwrap{position:relative;margin:8px 0 2px}
-.selwrap select{width:100%;appearance:none;font-family:var(--ui);font-weight:700;font-size:15px;
-  padding:12px 40px 12px 16px;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
-.selwrap::after{content:'▾';position:absolute;right:16px;top:11px;color:var(--muted);pointer-events:none}
-
-/* ---------- Blocs ---------- */
-.box{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:18px;margin-bottom:12px}
-h2.sec{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 11px}
-p{margin:0 0 10px}
-.mut{color:var(--muted);font-size:14.5px;font-weight:600}
-.sm{font-size:13.5px}
-.mt{margin-top:12px}
-.row{display:flex;gap:9px}
-.row>*{flex:1}
-
-/* ---------- Boutons ---------- */
-.btn{display:block;width:100%;padding:15px 16px;border-radius:17px;
-  background:var(--red);color:#fff;font-size:16.5px;box-shadow:0 5px 0 var(--red-d)}
-.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--red-d)}
-.btn.jade{background:var(--jade);box-shadow:0 5px 0 var(--jade-d)}
-.btn.jade:active{box-shadow:0 1px 0 var(--jade-d)}
-.btn.gold{background:var(--gold);box-shadow:0 5px 0 var(--gold-d)}
-.btn.gold:active{box-shadow:0 1px 0 var(--gold-d)}
-.btn.pale{background:var(--card);color:var(--ink);border:2px solid var(--line2);box-shadow:0 4px 0 var(--line)}
-.btn.pale:active{box-shadow:0 1px 0 var(--line)}
-.btn.sm{padding:11px 12px;font-size:14.5px;border-radius:14px}
-.btn.tiny{width:auto;display:inline-block;padding:9px 16px;font-size:14px;border-radius:13px}
-
-/* ---------- Carte de révision ---------- */
-.card3d{background:var(--card);border:2px solid var(--line);border-radius:26px;
-  padding:30px 20px;text-align:center;box-shadow:0 5px 0 rgba(120,90,50,.06)}
-.card3d .glyph{font-family:var(--han);font-weight:700;font-size:70px;line-height:1.2}
-.card3d .glyph.sm{font-size:42px}
-.card3d .fr{font-size:21px;font-weight:700}
-.card3d .py{font-size:20px;margin-top:6px}
-.card3d hr{border:0;border-top:2px dashed var(--line);margin:18px 0}
-.judge{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
-.judge button{padding:14px 4px;border-radius:16px;font-size:14.5px;line-height:1.2}
-
-/* ---------- Tons ---------- */
-.s1{color:#2F72A8} .s2{color:#3D8A46} .s3{color:#B98526} .s4{color:#B8342E} .s0{color:#8E857D}
-
-/* ---------- Choix ---------- */
-.opts{display:flex;flex-direction:column;gap:9px;margin:12px 0}
-.opt{width:100%;text-align:left;padding:14px 16px;border-radius:17px;background:var(--card);
-  border:2px solid var(--line);font-size:16.5px;box-shadow:0 4px 0 rgba(120,90,50,.05)}
-.opt:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
-.opt.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:0 4px 0 #C6DFD8}
-.opt.no{border-color:var(--red);background:var(--red-s);color:var(--red-d);box-shadow:0 4px 0 #F0CFCB}
-.opt.pick{border-color:var(--gold);background:var(--gold-s);color:var(--gold-d);box-shadow:0 4px 0 #F0DDB4}
-.bub{border-radius:16px;padding:14px 16px;margin:0 0 11px;border:1.5px solid #E7DCCB;background:#fff}
-.bub.them{border-bottom-left-radius:5px;margin-right:34px}
-.bub.me{border-bottom-right-radius:5px;margin-left:34px;background:var(--red-s);border-color:#F0CFCB;text-align:right}
-.bub.me .sentence{color:var(--red-d)}
-.verdict{border-radius:17px;padding:13px 15px;font-size:14.5px;margin-bottom:10px}
-.verdict.ok{background:var(--jade-s);color:var(--jade-d)}
-.verdict.no{background:var(--red-s);color:var(--red-d)}
-
-/* ---------- Étiquettes ---------- */
-.tiles{display:flex;flex-wrap:wrap;gap:9px}
-.tile{font-weight:700;font-size:21px;padding:9px 15px;border-radius:15px;background:var(--card);
-  border:2px solid var(--line);box-shadow:0 3px 0 rgba(120,90,50,.05)}
-.tile:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
-.drop{min-height:62px;border:2px dashed var(--line2);border-radius:17px;padding:9px;
-  display:flex;flex-wrap:wrap;gap:9px;align-items:center;background:#FEFCF8}
-
-/* ---------- Chemin en sceaux ---------- */
-.path{position:relative;padding:6px 0 4px}
-.path::before{content:'';position:absolute;left:32px;top:16px;bottom:50px;width:3px;
-  background:repeating-linear-gradient(to bottom,var(--line2) 0 7px,transparent 7px 15px)}
-.pstep{display:flex;gap:15px;align-items:center;width:100%;text-align:left;
-  padding:7px 0;margin-bottom:5px;position:relative}
-.pseal{width:66px;height:66px;flex:none;border-radius:19px;background:var(--card);
-  border:3px solid var(--line2);display:grid;place-items:center;
-  font-family:var(--han);font-weight:700;font-size:26px;color:var(--line2);
-  box-shadow:0 4px 0 rgba(120,90,50,.08)}
-.pstep:active .pseal{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.08)}
-.pstep .lab{flex:1;min-width:0}
-.pstep .lab b{display:block;font-size:15.5px;color:var(--muted);line-height:1.3}
-.pstep .lab span{display:block;font-size:12.5px;color:var(--line2);margin-top:2px}
-.pstep.open .pseal{border-color:var(--red);color:var(--red)}
-.pstep.open .lab b{color:var(--ink)}
-.pstep.open .lab span{color:var(--muted)}
-.pstep.done .pseal{background:var(--red);border-color:var(--red);color:#FFF6EC}
-.pstep.done .lab b{color:var(--ink)}
-.pstep.done .lab span{color:var(--jade)}
-
-/* ---------- Bandeau parcours ---------- */
-.ribbon{display:flex;align-items:center;gap:9px;background:var(--red-s);border:2px solid #F0CFCB;
-  border-radius:17px;padding:10px 12px;margin-bottom:12px;font-size:13.5px;color:var(--red-d)}
-.ribbon .rs{width:28px;height:28px;flex:none;border-radius:8px;background:var(--red);color:#FFF6EC;
-  display:grid;place-items:center;font-family:var(--han);font-size:15px;font-weight:700}
-.ribbon button{margin-left:auto;flex:none;background:var(--red);color:#fff;border-radius:12px;padding:8px 14px;font-size:13.5px}
-
-/* ---------- Sceau d’acquis ---------- */
-.seal{display:inline-grid;place-items:center;width:30px;height:30px;flex:none;
-  border:2.5px solid var(--red);border-radius:8px;color:var(--red);
-  font-family:var(--han);font-weight:700;font-size:15px}
-
-/* ---------- Liste de mots ---------- */
-.wrow{display:flex;align-items:center;gap:13px;background:var(--card);border:2px solid var(--line);
-  border-radius:18px;padding:12px 14px;margin-bottom:9px}
-.wrow .g{font-family:var(--han);font-weight:700;font-size:25px;flex:none;min-width:56px}
-.wrow .m{flex:1;min-width:0}
-.wrow .m b{display:block;font-size:15px}
-.wrow .m span{display:block;font-size:13.5px;font-weight:600}
-.wrow .st{font-size:12px;color:var(--muted);flex:none}
-
-/* ---------- Statistiques ---------- */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.kpi{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:15px}
-.kpi b{display:block;font-size:29px;line-height:1.1}
-.kpi span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
-
-/* ---------- Champs ---------- */
-textarea,input[type=password],input[type=text]{width:100%;font-family:var(--ui);font-weight:600;
-  font-size:16px;padding:14px;border-radius:17px;border:2px solid var(--line);background:#FEFCF8;color:var(--ink)}
-textarea{font-family:var(--han);font-size:19px;line-height:1.8;resize:vertical}
-input[type=range]{width:100%;accent-color:var(--red)}
-
-/* ---------- Onglets ---------- */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.97);
-  backdrop-filter:blur(8px);border-top:2px solid var(--line);
-  display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
-.tabs button{flex:1;padding:3px 2px;color:var(--muted);font-size:11px;font-weight:700}
-.tabs button svg{display:block;margin:0 auto 3px;width:23px;height:23px}
-.tabs button.on{color:var(--red)}
-
-/* ---------- Flux question par question ---------- */
-.qprog{display:flex;gap:5px;margin:4px 0 14px}
-.qprog i{flex:1;height:6px;border-radius:3px;background:#F0E9DE}
-.qprog i.ok{background:var(--jade)}
-.qprog i.no{background:var(--red)}
-.qprog i.now{background:var(--ink)}
-.qnum{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.prompt{text-align:center;padding:18px 8px 6px}
-.prompt .big{font-family:var(--han);font-weight:700;font-size:56px;line-height:1.2}
-.prompt .med{font-size:22px;font-weight:700;line-height:1.35}
-.score{text-align:center;padding:10px 0 4px}
-.score .n{font-size:50px;font-weight:700;line-height:1}
-.score .n small{font-size:22px;color:var(--muted)}
-.score .lbl{font-size:13.5px;color:var(--muted);margin-top:4px}
-.vsel{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-.vsel .who{width:88px;flex:none;font-size:13.5px;color:var(--muted)}
-.vsel .selwrap{flex:1;margin:0}
-.sw{display:flex;align-items:center;gap:12px;padding:13px 0}
-.sw .lb{flex:1;font-size:15px}
-.sw .kn{width:52px;height:30px;flex:none;border-radius:999px;background:var(--line2);position:relative}
-.sw .kn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
-.sw.on .kn{background:var(--jade)}
-.sw.on .kn::after{left:25px}
-
-/* ---------- Divers ---------- */
-.void{text-align:center;padding:40px 20px;color:var(--muted)}
-.void .em{font-family:var(--han);font-size:46px;font-weight:700;color:var(--line2);display:block;margin-bottom:10px}
-.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  background:var(--ink);color:#fff;padding:13px 20px;border-radius:16px;font-size:14.5px;
-  z-index:60;max-width:88%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-.sentence{font-weight:500;font-size:22px;line-height:1.95}
-.tbox{border-radius:18px;background:#FEFCF8;border:2px solid var(--line2);flex:none}
-.tbox.ok{border-color:var(--jade)}
-.ladder{display:flex;align-items:center;gap:11px;padding:7px 0}
-.ladder .bx{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;
-  font-size:13px;font-weight:700;background:#F0E9DE;color:var(--muted)}
-.ladder .bx.on{background:var(--red);color:#FFF6EC}
-.ladder .tx{flex:1;min-width:0;font-size:13.5px}
-.ladder .tx b{font-size:14.5px}
-.diff{font-family:var(--han);font-size:21px;line-height:1.7;word-break:break-all}
-.diff u{text-decoration:none;border-bottom:3px solid currentColor}
-.mgrid{display:flex;gap:10px}
-.mgrid>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
-.mit{width:100%;padding:13px 7px;border-radius:15px;background:var(--card);border:2px solid var(--line);
-  font-size:15.5px;font-weight:700;text-align:center;line-height:1.25;box-shadow:0 3px 0 rgba(120,90,50,.05)}
-.mit.hz{font-family:var(--han);font-size:20px}
-.mit:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
-.mit.sel{border-color:var(--indigo);background:var(--indigo-s);color:var(--indigo-d)}
-.mit.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:none;opacity:.7}
-.mit.no{border-color:var(--red);background:var(--red-s);color:var(--red-d)}
-.gtab{width:100%;border-collapse:separate;border-spacing:5px}
-.gtab th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 0 2px}
-.gtab td{padding:0}
-.gc{width:100%;padding:11px 4px;border-radius:13px;font-size:14.5px;font-weight:700;text-align:center;
-  line-height:1.25;background:#FAF5EC;border:2px solid transparent;color:var(--ink);font-family:var(--han)}
-.gc.gap{background:#FEFCF8;border:2px dashed var(--line2);color:var(--line2)}
-.gc.sel{border:2px solid var(--indigo);background:var(--indigo-s);color:var(--indigo-d)}
-.gc.fill{background:var(--card);border:2px solid var(--line2)}
-.gc.ok{border:2px solid var(--jade);background:var(--jade-s);color:var(--jade-d)}
-.gc.no{border:2px solid var(--red);background:var(--red-s);color:var(--red-d)}
-.tok{border-color:var(--line)}
-.tok.bon{border-color:var(--jade);color:var(--jade-d);background:var(--jade-s)}
-.tok.mauvais{border-color:var(--red);color:var(--red-d);background:var(--red-s)}
-.hidden{display:none}
-@media (max-width:340px){.grid{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
+<link rel="stylesheet" href="core.css">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -677,214 +385,6 @@ const TEXTS=[
       {q:'为什么不用着急？',a:['因为张老师看过她的照片','因为机场很小','因为他们是同事'],ok:0}
     ]
   }
-  ,
-  /* ================= VIVIER — documents ajoutés en séance A ================= */
-  {
-    id:'t203',hsk:2,th:['presenter'],mode:'CE',
-    title:'我的老师',
-    fr:'Mon professeur',
-    lines:[
-      {hz:'我有一个很好的老师。',py:'wǒ yǒu yí ge hěn hǎo de lǎo shī',fr:'J’ai un très bon professeur.'},
-      {hz:'她姓李，名字叫小美。',py:'tā xìng Lǐ, míng zi jiào Xiǎo měi',fr:'Elle s’appelle Li, son prénom est Xiaomei.'},
-      {hz:'她是中国人，今年三十岁。',py:'tā shì Zhōng guó rén, jīn nián sān shí suì',fr:'Elle est chinoise, elle a trente ans cette année.'},
-      {hz:'她住在上海，在大学工作。',py:'tā zhù zài Shàng hǎi, zài dà xué gōng zuò',fr:'Elle habite à Shanghai et travaille à l’université.'},
-      {hz:'她会说法语和英语。',py:'tā huì shuō Fǎ yǔ hé Yīng yǔ',fr:'Elle sait parler français et anglais.'},
-      {hz:'她问我：你叫什么名字？',py:'tā wèn wǒ, nǐ jiào shén me míng zi',fr:'Elle me demande : comment t’appelles-tu ?'},
-      {hz:'我说：我叫欧菲，我是法国学生。',py:'wǒ shuō, wǒ jiào Ōu fēi, wǒ shì Fǎ guó xué sheng',fr:'Je dis : je m’appelle Ophélie, je suis étudiante française.'},
-      {hz:'认识她，我很高兴。',py:'rèn shi tā, wǒ hěn gāo xìng',fr:'Je suis très heureuse de la connaître.'}
-    ],
-    glob:[
-      {q:'De qui parle ce texte ?',a:['D’un professeur de chinois','D’un médecin','D’un voisin'],ok:0},
-      {q:'Où cette personne travaille-t-elle ?',a:['À Pékin','À Shanghai','En France'],ok:1}
-    ],
-    qcm:[
-      {q:'老师姓什么？',a:['姓王','姓李','姓张'],ok:1},
-      {q:'她今年多大？',a:['三十岁','十三岁','四十岁'],ok:0},
-      {q:'她在哪儿工作？',a:['在北京','在上海','在法国'],ok:1},
-      {q:'她会说什么？',a:['法语和英语','只会说汉语','只会说法语'],ok:0}
-    ]
-  },
-  {
-    id:'t204',hsk:2,th:['presenter'],mode:'CO',
-    title:'你是哪国人？',
-    fr:'De quel pays viens-tu ?',
-    lines:[
-      {hz:'你好！你叫什么名字？',py:'nǐ hǎo! nǐ jiào shén me míng zi',fr:'Bonjour ! Comment t’appelles-tu ?',who:'A'},
-      {hz:'我叫欧菲。你呢？',py:'wǒ jiào Ōu fēi. nǐ ne',fr:'Je m’appelle Ophélie. Et toi ?',who:'B'},
-      {hz:'我叫张东。你是哪国人？',py:'wǒ jiào Zhāng Dōng. nǐ shì nǎ guó rén',fr:'Je m’appelle Zhang Dong. De quel pays viens-tu ?',who:'A'},
-      {hz:'我是法国人，我住在北京。',py:'wǒ shì Fǎ guó rén, wǒ zhù zài Běi jīng',fr:'Je suis française, j’habite à Pékin.',who:'B'},
-      {hz:'你在北京工作吗？',py:'nǐ zài Běi jīng gōng zuò ma',fr:'Tu travailles à Pékin ?',who:'A'},
-      {hz:'不，我是学生，我学汉语。',py:'bù, wǒ shì xué sheng, wǒ xué Hàn yǔ',fr:'Non, je suis étudiante, j’apprends le chinois.',who:'B'},
-      {hz:'你的汉语很好！你今年多大？',py:'nǐ de Hàn yǔ hěn hǎo! nǐ jīn nián duō dà',fr:'Ton chinois est très bon ! Quel âge as-tu ?',who:'A'},
-      {hz:'我今年二十五岁。你做什么工作？',py:'wǒ jīn nián èr shí wǔ suì. nǐ zuò shén me gōng zuò',fr:'J’ai vingt-cinq ans. Et toi, que fais-tu comme travail ?',who:'B'},
-      {hz:'我是医生。认识你很高兴。',py:'wǒ shì yī shēng. rèn shi nǐ hěn gāo xìng',fr:'Je suis médecin. Content de te connaître.',who:'A'}
-    ],
-    glob:[
-      {q:'Que font ces deux personnes ?',a:['Elles font connaissance','Elles commandent un repas','Elles cherchent un logement'],ok:0},
-      {q:'Que fait Ophélie à Pékin ?',a:['Elle est médecin','Elle est étudiante','Elle est professeure'],ok:1}
-    ],
-    qcm:[
-      {q:'欧菲是哪国人？',a:['中国人','法国人','美国人'],ok:1},
-      {q:'张东做什么工作？',a:['医生','老师','学生'],ok:0},
-      {q:'欧菲今年多大？',a:['二十五岁','三十五岁','十五岁'],ok:0},
-      {q:'欧菲在北京做什么？',a:['工作','学汉语','看朋友'],ok:1}
-    ]
-  },
-  {
-    id:'t303',hsk:3,th:['presenter'],mode:'CE',
-    title:'我的邻居',
-    fr:'Mon voisin',
-    lines:[
-      {hz:'我想介绍一下我的邻居。',py:'wǒ xiǎng jiè shào yí xià wǒ de lín jū',fr:'Je voudrais vous présenter mon voisin.'},
-      {hz:'他姓陈，是一家公司的经理。',py:'tā xìng Chén, shì yì jiā gōng sī de jīng lǐ',fr:'Il s’appelle Chen, il est directeur d’une entreprise.'},
-      {hz:'他以前在上海工作，去年才来北京。',py:'tā yǐ qián zài Shàng hǎi gōng zuò, qù nián cái lái Běi jīng',fr:'Il travaillait autrefois à Shanghai et n’est venu à Pékin que l’an dernier.'},
-      {hz:'他已经结婚了，妻子是护士。',py:'tā yǐ jīng jié hūn le, qī zi shì hù shi',fr:'Il est déjà marié, sa femme est infirmière.'},
-      {hz:'他们对人特别热情。',py:'tā men duì rén tè bié rè qíng',fr:'Ils sont particulièrement chaleureux avec les gens.'},
-      {hz:'他的爱好是跑步和看书。',py:'tā de ài hào shì pǎo bù hé kàn shū',fr:'Ses passe-temps sont la course et la lecture.'},
-      {hz:'我们的关系很好，常常一起吃饭。',py:'wǒ men de guān xi hěn hǎo, cháng cháng yì qǐ chī fàn',fr:'Nous nous entendons très bien et mangeons souvent ensemble.'},
-      {hz:'他工作很认真，同事都喜欢他。',py:'tā gōng zuò hěn rèn zhēn, tóng shì dōu xǐ huan tā',fr:'Il travaille très sérieusement, ses collègues l’apprécient tous.'},
-      {hz:'他说：欢迎你来我家！',py:'tā shuō, huān yíng nǐ lái wǒ jiā',fr:'Il dit : bienvenue chez moi !'}
-    ],
-    glob:[
-      {q:'De qui parle ce texte ?',a:['D’un voisin','D’un professeur','D’un client'],ok:0},
-      {q:'Que sait-on de sa situation ?',a:['Il est marié et dirige une entreprise','Il est étudiant étranger','Il est infirmier à Shanghai'],ok:0}
-    ],
-    qcm:[
-      {q:'陈先生做什么工作？',a:['护士','公司经理','老师'],ok:1},
-      {q:'他以前在哪个城市工作？',a:['北京','上海','南京'],ok:1},
-      {q:'他的妻子做什么？',a:['护士','经理','留学生'],ok:0},
-      {q:'他的爱好是什么？',a:['跑步和看书','听音乐','做饭'],ok:0}
-    ]
-  },
-  {
-    id:'t304',hsk:3,th:['presenter','travail'],mode:'CO',
-    title:'欢迎新同事',
-    fr:'Accueillir une nouvelle collègue',
-    lines:[
-      {hz:'大家好，我来介绍一下我们的新同事。',py:'dà jiā hǎo, wǒ lái jiè shào yí xià wǒ men de xīn tóng shì',fr:'Bonjour à tous, je vous présente notre nouvelle collègue.',who:'A'},
-      {hz:'你们好，我叫马丽，很高兴认识大家。',py:'nǐ men hǎo, wǒ jiào Mǎ Lì, hěn gāo xìng rèn shi dà jiā',fr:'Bonjour, je m’appelle Ma Li, ravie de vous connaître.',who:'B'},
-      {hz:'马丽以前在一家法国公司工作。',py:'Mǎ Lì yǐ qián zài yì jiā Fǎ guó gōng sī gōng zuò',fr:'Ma Li travaillait avant dans une entreprise française.',who:'A'},
-      {hz:'你是哪个城市来的？',py:'nǐ shì nǎ ge chéng shì lái de',fr:'De quelle ville viens-tu ?',who:'C'},
-      {hz:'我是从南京来的，来北京两年了。',py:'wǒ shì cóng Nán jīng lái de, lái Běi jīng liǎng nián le',fr:'Je viens de Nankin, je suis à Pékin depuis deux ans.',who:'B'},
-      {hz:'你的爱好是什么？',py:'nǐ de ài hào shì shén me',fr:'Quels sont tes centres d’intérêt ?',who:'C'},
-      {hz:'我喜欢跑步，也喜欢和邻居聊天。',py:'wǒ xǐ huan pǎo bù, yě xǐ huan hé lín jū liáo tiān',fr:'J’aime courir, et aussi bavarder avec mes voisins.',who:'B'},
-      {hz:'马丽工作很认真，大家有问题可以问她。',py:'Mǎ Lì gōng zuò hěn rèn zhēn, dà jiā yǒu wèn tí kě yǐ wèn tā',fr:'Ma Li travaille avec beaucoup de sérieux, n’hésitez pas à la solliciter.',who:'A'},
-      {hz:'欢迎你！',py:'huān yíng nǐ',fr:'Bienvenue !',who:'C'}
-    ],
-    glob:[
-      {q:'Que se passe-t-il dans ce dialogue ?',a:['On accueille une nouvelle collègue','On présente un client','On cherche un logement'],ok:0},
-      {q:'D’où vient Ma Li ?',a:['De Nankin','De Shanghai','De France'],ok:0}
-    ],
-    qcm:[
-      {q:'马丽以前在什么公司工作？',a:['一家中国公司','一家法国公司','一家美国公司'],ok:1},
-      {q:'她是从哪个城市来的？',a:['南京','北京','上海'],ok:0},
-      {q:'她来北京几年了？',a:['两年','三年','一年'],ok:0},
-      {q:'她的爱好是什么？',a:['跑步和聊天','看书','做饭'],ok:0}
-    ]
-  },
-  {
-    id:'t205',hsk:2,th:['decrire'],mode:'CO',
-    title:'那个男人是谁？',
-    fr:'Qui est cet homme ?',
-    lines:[
-      {hz:'你看，那个男人是谁？',py:'nǐ kàn, nà ge nán rén shì shuí',fr:'Regarde, qui est cet homme ?',who:'A'},
-      {hz:'那是我朋友的哥哥。',py:'nà shì wǒ péng you de gē ge',fr:'C’est le grand frère de mon ami.',who:'B'},
-      {hz:'他很高，穿白衣服。',py:'tā hěn gāo, chuān bái yī fu',fr:'Il est grand et porte des vêtements blancs.',who:'A'},
-      {hz:'对，他的眼睛很大，很好看。',py:'duì, tā de yǎn jing hěn dà, hěn hǎo kàn',fr:'Oui, il a de grands yeux, il est beau.',who:'B'},
-      {hz:'他旁边的女人是谁？',py:'tā páng biān de nǚ rén shì shuí',fr:'Et la femme à côté de lui, qui est-ce ?',who:'A'},
-      {hz:'那是他姐姐，她非常漂亮。',py:'nà shì tā jiě jie, tā fēi cháng piào liang',fr:'C’est sa grande sœur, elle est très jolie.',who:'B'},
-      {hz:'他们的孩子今年几岁？',py:'tā men de hái zi jīn nián jǐ suì',fr:'Quel âge a leur enfant cette année ?',who:'A'},
-      {hz:'五岁，是一个很快乐的孩子。',py:'wǔ suì, shì yí ge hěn kuài lè de hái zi',fr:'Cinq ans, c’est un enfant très joyeux.',who:'B'},
-      {hz:'我觉得他们最好看！',py:'wǒ jué de tā men zuì hǎo kàn',fr:'Je trouve que ce sont eux les plus beaux !',who:'A'}
-    ],
-    glob:[
-      {q:'De quoi parlent ces deux personnes ?',a:['Elles décrivent des gens qu’elles voient','Elles commandent au restaurant','Elles cherchent un travail'],ok:0},
-      {q:'Quel lien unit l’homme et la femme ?',a:['Frère et sœur','Mari et femme','Collègues'],ok:0}
-    ],
-    qcm:[
-      {q:'那个男人穿什么衣服？',a:['白衣服','黑衣服','红衣服'],ok:0},
-      {q:'他的眼睛怎么样？',a:['很小','很大','不好看'],ok:1},
-      {q:'那个女人是他的什么人？',a:['姐姐','妻子','同事'],ok:0},
-      {q:'孩子今年几岁？',a:['五岁','三岁','八岁'],ok:0}
-    ]
-  },
-  {
-    id:'t206',hsk:2,th:['decrire'],mode:'CE',
-    title:'我的两个学生',
-    fr:'Mes deux élèves',
-    lines:[
-      {hz:'我有两个学生，他们都很快乐。',py:'wǒ yǒu liǎng ge xué sheng, tā men dōu hěn kuài lè',fr:'J’ai deux élèves, ils sont tous deux très gais.'},
-      {hz:'第一个孩子叫小白，他很高。',py:'dì yī ge hái zi jiào Xiǎo bái, tā hěn gāo',fr:'Le premier s’appelle Xiaobai, il est grand.'},
-      {hz:'他的眼睛很黑，身体很好。',py:'tā de yǎn jing hěn hēi, shēn tǐ hěn hǎo',fr:'Il a les yeux très noirs et une bonne santé.'},
-      {hz:'他常常穿黑衣服，我觉得很好看。',py:'tā cháng cháng chuān hēi yī fu, wǒ jué de hěn hǎo kàn',fr:'Il porte souvent des vêtements noirs, je trouve cela très beau.'},
-      {hz:'第二个孩子是女孩，她叫小雨。',py:'dì èr ge hái zi shì nǚ hái, tā jiào Xiǎo yǔ',fr:'La seconde est une fille, elle s’appelle Xiaoyu.'},
-      {hz:'她非常漂亮，也非常忙。',py:'tā fēi cháng piào liang, yě fēi cháng máng',fr:'Elle est très jolie, et aussi très occupée.'},
-      {hz:'她每天学汉语，晚上很累。',py:'tā měi tiān xué Hàn yǔ, wǎn shang hěn lèi',fr:'Elle apprend le chinois chaque jour et le soir elle est fatiguée.'},
-      {hz:'他们是我最好的学生。',py:'tā men shì wǒ zuì hǎo de xué sheng',fr:'Ce sont mes meilleurs élèves.'}
-    ],
-    glob:[
-      {q:'Qui parle dans ce texte ?',a:['Un professeur','Un médecin','Un enfant'],ok:0},
-      {q:'Combien d’élèves sont décrits ?',a:['Un','Deux','Trois'],ok:1}
-    ],
-    qcm:[
-      {q:'小白是什么样子的？',a:['很高，眼睛很黑','不高，眼睛很白','非常忙'],ok:0},
-      {q:'小白常常穿什么衣服？',a:['白衣服','黑衣服','红衣服'],ok:1},
-      {q:'小雨晚上为什么很累？',a:['因为她每天学汉语','因为她很高','因为她不快乐'],ok:0},
-      {q:'老师觉得他们怎么样？',a:['是最好的学生','不好看','很忙'],ok:0}
-    ]
-  },
-  {
-    id:'t305',hsk:3,th:['decrire'],mode:'CE',
-    title:'我的同学小林',
-    fr:'Xiaolin, mon camarade de classe',
-    lines:[
-      {hz:'我给你介绍一下我的同学小林。',py:'wǒ gěi nǐ jiè shào yí xià wǒ de tóng xué Xiǎo Lín',fr:'Je te présente Xiaolin, mon camarade de classe.'},
-      {hz:'他很年轻，今年二十二岁。',py:'tā hěn nián qīng, jīn nián èr shí èr suì',fr:'Il est très jeune, il a vingt-deux ans cette année.'},
-      {hz:'他不高也不胖，头发很短。',py:'tā bù gāo yě bú pàng, tóu fa hěn duǎn',fr:'Il n’est ni grand ni gros, il a les cheveux courts.'},
-      {hz:'他戴眼镜，样子很聪明。',py:'tā dài yǎn jìng, yàng zi hěn cōng ming',fr:'Il porte des lunettes et a l’air très intelligent.'},
-      {hz:'他的性格很安静，说话不多。',py:'tā de xìng gé hěn ān jìng, shuō huà bù duō',fr:'Il a un caractère calme et parle peu.'},
-      {hz:'可是他对朋友特别热情。',py:'kě shì tā duì péng you tè bié rè qíng',fr:'Mais il est particulièrement chaleureux avec ses amis.'},
-      {hz:'他学习很认真，老师都关心他。',py:'tā xué xí hěn rèn zhēn, lǎo shī dōu guān xīn tā',fr:'Il étudie très sérieusement et tous les professeurs veillent sur lui.'},
-      {hz:'在学校里，他是一个有名的学生。',py:'zài xué xiào lǐ, tā shì yí ge yǒu míng de xué sheng',fr:'Dans l’école, c’est un élève connu de tous.'},
-      {hz:'我觉得他又聪明又可爱。',py:'wǒ jué de tā yòu cōng ming yòu kě ài',fr:'Je le trouve à la fois intelligent et attachant.'}
-    ],
-    glob:[
-      {q:'Que fait la personne qui parle ?',a:['Elle présente un camarade de classe','Elle décrit son professeur','Elle parle de son voisin'],ok:0},
-      {q:'Quel trait de caractère revient le plus ?',a:['Il est calme mais chaleureux','Il est bavard et agité','Il est distrait'],ok:0}
-    ],
-    qcm:[
-      {q:'小林今年多大？',a:['二十二岁','三十二岁','十二岁'],ok:0},
-      {q:'他的样子怎么样？',a:['很胖，头发很长','不高不胖，戴眼镜','很高，不戴眼镜'],ok:1},
-      {q:'他的性格怎么样？',a:['很安静，可是很热情','说话特别多','不关心朋友'],ok:0},
-      {q:'老师为什么关心他？',a:['因为他学习很认真','因为他很有名','因为他很年轻'],ok:0}
-    ]
-  },
-  {
-    id:'t306',hsk:3,th:['decrire'],mode:'CO',
-    title:'他长得怎么样？',
-    fr:'De quoi a-t-il l’air ?',
-    lines:[
-      {hz:'你认识新来的护士吗？',py:'nǐ rèn shi xīn lái de hù shi ma',fr:'Tu connais le nouvel infirmier ?',who:'A'},
-      {hz:'不认识。他长得怎么样？',py:'bú rèn shi. tā zhǎng de zěn me yàng',fr:'Non. De quoi a-t-il l’air ?',who:'B'},
-      {hz:'他很帅，个子很高，也很瘦。',py:'tā hěn shuài, gè zi hěn gāo, yě hěn shòu',fr:'Il est beau, très grand et plutôt mince.',who:'A'},
-      {hz:'他戴眼镜吗？',py:'tā dài yǎn jìng ma',fr:'Il porte des lunettes ?',who:'B'},
-      {hz:'戴。头发不长，人很年轻。',py:'dài. tóu fa bù cháng, rén hěn nián qīng',fr:'Oui. Ses cheveux sont courts, il est très jeune.',who:'A'},
-      {hz:'他的性格呢？',py:'tā de xìng gé ne',fr:'Et son caractère ?',who:'B'},
-      {hz:'他说话说得很慢，可是特别热情。',py:'tā shuō huà shuō de hěn màn, kě shì tè bié rè qíng',fr:'Il parle très lentement, mais il est extrêmement chaleureux.',who:'A'},
-      {hz:'他工作认真吗？',py:'tā gōng zuò rèn zhēn ma',fr:'Est-ce qu’il travaille sérieusement ?',who:'B'},
-      {hz:'非常认真，大家都关心他。',py:'fēi cháng rèn zhēn, dà jiā dōu guān xīn tā',fr:'Très sérieusement, tout le monde veille sur lui.',who:'A'}
-    ],
-    glob:[
-      {q:'De qui parlent ces deux personnes ?',a:['D’un nouvel infirmier','D’un professeur','D’un directeur'],ok:0},
-      {q:'Quelle impression donne cette personne ?',a:['Plutôt bonne','Plutôt mauvaise','Aucune opinion'],ok:0}
-    ],
-    qcm:[
-      {q:'新来的护士长得怎么样？',a:['很帅，很高，很瘦','很胖，很矮','不年轻'],ok:0},
-      {q:'他戴眼镜吗？',a:['戴','不戴','不知道'],ok:0},
-      {q:'他说话说得怎么样？',a:['很快','很慢','很少'],ok:1},
-      {q:'大家觉得他工作怎么样？',a:['非常认真','不认真','很慢'],ok:0}
-    ]
-  }
 ];
 
 const PROD=[
@@ -1091,8 +591,8 @@ const LESSONS=[
     title:'Se présenter — HSK 2',
     intro:'Dire son nom, son âge, sa nationalité, son travail, et poser les mêmes questions.',
     steps:[
-      {k:'text', label:'Découverte du document',         ref:null},
-      {k:'qcm',  label:'Ai-je compris ?',                ref:null},
+      {k:'text', label:'Découverte — je lis',            ref:'t201'},
+      {k:'qcm',  label:'Ai-je compris ?',                ref:'t201'},
       {k:'mots', label:'Les mots du texte',              ref:null},
       {k:'gram', label:'Point de langue — les questions',ref:'g201'},
       {k:'prod', label:'Je remets en ordre',             ref:'p204'},
@@ -1107,8 +607,8 @@ const LESSONS=[
     title:'Se présenter — HSK 3',
     intro:'Présenter quelqu\u2019un d\u2019autre, préciser d\u2019où l\u2019on vient et quand, parler de son parcours.',
     steps:[
-      {k:'text', label:'Découverte du document',         ref:null},
-      {k:'qcm',  label:'Ai-je compris ?',                ref:null},
+      {k:'text', label:'Découverte — j\u2019écoute',        ref:'t301'},
+      {k:'qcm',  label:'Ai-je compris ?',                ref:'t301'},
       {k:'mots', label:'Les mots du dialogue',           ref:null},
       {k:'gram', label:'Point de langue — 是…的',         ref:'g301'},
       {k:'prod', label:'Je remets en ordre',             ref:'p304'},
@@ -1123,8 +623,8 @@ const LESSONS=[
     title:'Présenter et décrire quelqu’un — HSK 2',
     intro:'Décrire l’apparence et le caractère de quelqu’un, et dire ce qu’on pense de lui.',
     steps:[
-      {k:'text', label:'Découverte du document',         ref:null},
-      {k:'qcm',  label:'Ai-je compris ?',                ref:null},
+      {k:'text', label:'Découverte — je lis',            ref:'t202'},
+      {k:'qcm',  label:'Ai-je compris ?',                ref:'t202'},
       {k:'mots', label:'Les mots du texte',              ref:null},
       {k:'gram', label:'Point de langue — l’adjectif',   ref:'g202'},
       {k:'prod', label:'Je remets en ordre',             ref:'p222'},
@@ -1139,8 +639,8 @@ const LESSONS=[
     title:'Présenter et décrire quelqu’un — HSK 3',
     intro:'Faire le portrait de quelqu’un : allure, caractère, et ce qu’il fait bien.',
     steps:[
-      {k:'text', label:'Découverte du document',         ref:null},
-      {k:'qcm',  label:'Ai-je compris ?',                ref:null},
+      {k:'text', label:'Découverte — j’écoute',          ref:'t302'},
+      {k:'qcm',  label:'Ai-je compris ?',                ref:'t302'},
       {k:'mots', label:'Les mots du dialogue',           ref:null},
       {k:'gram', label:'Point de langue — le degré 得',   ref:'g302'},
       {k:'prod', label:'Je remets en ordre',             ref:'p322'},
@@ -1321,150 +821,6 @@ const EXOS=[
       bonne:'他跑得不快。',why:'不 se place directement devant l’adjectif, sans 很.'},
      {t:['这个','孩子','长','很可爱'],bad:2,fix:['长得','长的','长了'],ok:0,
       bonne:'这个孩子长得很可爱。',why:'长得 est la tournure figée pour décrire le physique.'}
-   ]}
-  ,
-  /* ---------------- L'intrus ---------------- */
-  {id:'x-n201',kind:'intrus',hsk:2,th:['presenter'],
-   titre:'L’intrus — se présenter',
-   consigne:'Dans chaque série, un mot ne va pas avec les autres. Les étiquettes sont mélangées à chaque partie.',
-   items:[
-     {t:['老师','医生','学生','名字'],bad:3,why:'Les trois autres désignent une personne par son métier ou son statut ; 名字 est le nom lui-même.'},
-     {t:['中国','法国','美国','汉语'],bad:3,why:'Trois pays, et une langue.'},
-     {t:['叫','姓','住','岁'],bad:3,why:'Trois verbes, et une unité qui compte les années.'},
-     {t:['多大','哪','什么','会'],bad:3,why:'Trois outils d’interrogation ; 会 exprime la capacité.'},
-     {t:['说','认识','工作','朋友'],bad:3,why:'Trois verbes, et une personne.'}
-   ]},
-  {id:'x-n301',kind:'intrus',hsk:3,th:['presenter'],
-   titre:'L’intrus — présenter quelqu’un',
-   consigne:'Dans chaque série, un mot ne va pas avec les autres.',
-   items:[
-     {t:['经理','护士','同事','公司'],bad:3,why:'Trois personnes, et le lieu où elles travaillent.'},
-     {t:['城市','国家','公司','邻居'],bad:3,why:'Trois lieux ou entités ; 邻居 est une personne.'},
-     {t:['认真','热情','特别','爱好'],bad:3,why:'Trois façons de qualifier ; 爱好 est un nom.'},
-     {t:['结婚','介绍','欢迎','以前'],bad:3,why:'Trois verbes ; 以前 situe dans le temps.'},
-     {t:['留学生','同事','邻居','自己'],bad:3,why:'Trois façons de désigner quelqu’un d’autre ; 自己 renvoie à soi-même.'}
-   ]},
-  {id:'x-n221',kind:'intrus',hsk:2,th:['decrire'],
-   titre:'L’intrus — décrire quelqu’un',
-   consigne:'Dans chaque série, un mot ne va pas avec les autres.',
-   items:[
-     {t:['高','漂亮','好看','衣服'],bad:3,why:'Trois adjectifs, et un vêtement.'},
-     {t:['白','黑','大','眼睛'],bad:3,why:'Trois adjectifs ; 眼睛 est une partie du corps.'},
-     {t:['忙','累','快乐','穿'],bad:3,why:'Trois états ; 穿 est un verbe d’action.'},
-     {t:['男人','女人','孩子','身体'],bad:3,why:'Trois personnes ; 身体 désigne le corps.'},
-     {t:['非常','最','很','觉得'],bad:3,why:'Trois adverbes de degré ; 觉得 est un verbe d’opinion.'}
-   ]},
-  {id:'x-n321',kind:'intrus',hsk:3,th:['decrire'],
-   titre:'L’intrus — le portrait',
-   consigne:'Dans chaque série, un mot ne va pas avec les autres.',
-   items:[
-     {t:['胖','瘦','矮','头发'],bad:3,why:'Trois adjectifs de silhouette ; 头发 est une partie du corps.'},
-     {t:['聪明','可爱','热情','眼镜'],bad:3,why:'Trois traits de caractère ; 眼镜 est un objet.'},
-     {t:['戴','关心','介绍','性格'],bad:3,why:'Trois verbes ; 性格 est un nom.'},
-     {t:['年轻','帅','有名','样子'],bad:3,why:'Trois qualificatifs ; 样子 désigne l’allure elle-même.'},
-     {t:['安静','热情','认真','特别'],bad:3,why:'Trois traits de caractère ; 特别 sert surtout à renforcer ce qui suit.'}
-   ]},
-
-  /* ---------------- Question -> réponse ---------------- */
-  {id:'x-r201',kind:'qr',hsk:2,th:['presenter'],
-   titre:'Question → réponse',
-   consigne:'Écoutez la question, puis choisissez la seule réponse qui y répond vraiment.',
-   items:[
-     {q:'你叫什么名字？',py:'nǐ jiào shén me míng zi',
-      a:[{hz:'我叫王小雨。',py:'wǒ jiào Wáng Xiǎo yǔ',fr:'Je m’appelle Wang Xiaoyu.',ok:1},
-         {hz:'我很好，谢谢。',py:'wǒ hěn hǎo, xiè xie',fr:'Je vais bien, merci.',why:'C’est la réponse à 你好吗，pas à une question sur le nom.'},
-         {hz:'我住在北京。',py:'wǒ zhù zài Běi jīng',fr:'J’habite à Pékin.',why:'C’est le lieu où l’on habite, pas le nom.'}]},
-     {q:'你是哪国人？',py:'nǐ shì nǎ guó rén',
-      a:[{hz:'我是法国人。',py:'wǒ shì Fǎ guó rén',fr:'Je suis française.',ok:1},
-         {hz:'我今年二十岁。',py:'wǒ jīn nián èr shí suì',fr:'J’ai vingt ans cette année.',why:'C’est l’âge ; 哪国 demande un pays.'},
-         {hz:'我是学生。',py:'wǒ shì xué sheng',fr:'Je suis étudiante.',why:'C’est le statut, pas la nationalité.'}]},
-     {q:'你今年多大？',py:'nǐ jīn nián duō dà',
-      a:[{hz:'我今年二十三岁。',py:'wǒ jīn nián èr shí sān suì',fr:'J’ai vingt-trois ans cette année.',ok:1},
-         {hz:'我姓王。',py:'wǒ xìng Wáng',fr:'Mon nom de famille est Wang.',why:'多大 attend un âge, pas un nom.'},
-         {hz:'我会说汉语。',py:'wǒ huì shuō Hàn yǔ',fr:'Je sais parler chinois.',why:'Rien dans cette phrase ne renseigne sur l’âge.'}]},
-     {q:'你做什么工作？',py:'nǐ zuò shén me gōng zuò',
-      a:[{hz:'我是医生。',py:'wǒ shì yī shēng',fr:'Je suis médecin.',ok:1},
-         {hz:'我在北京。',py:'wǒ zài Běi jīng',fr:'Je suis à Pékin.',why:'C’est le lieu, pas le métier.'},
-         {hz:'我很高兴。',py:'wǒ hěn gāo xìng',fr:'Je suis contente.',why:'C’est un état, pas une profession.'}]},
-     {q:'你会说汉语吗？',py:'nǐ huì shuō Hàn yǔ ma',
-      a:[{hz:'会，我会说汉语。',py:'huì, wǒ huì shuō Hàn yǔ',fr:'Oui, je sais parler chinois.',ok:1},
-         {hz:'我是老师。',py:'wǒ shì lǎo shī',fr:'Je suis professeure.',why:'Une question en 吗 se reprend d’abord par le verbe : 会 ou 不会.'},
-         {hz:'他是我朋友。',py:'tā shì wǒ péng you',fr:'C’est mon ami.',why:'La question porte sur vous, pas sur quelqu’un d’autre.'}]}
-   ]},
-  {id:'x-r301',kind:'qr',hsk:3,th:['presenter'],
-   titre:'Question → réponse',
-   consigne:'Écoutez la question, puis choisissez la seule réponse qui y répond vraiment.',
-   items:[
-     {q:'你是从哪个城市来的？',py:'nǐ shì cóng nǎ ge chéng shì lái de',
-      a:[{hz:'我是从上海来的。',py:'wǒ shì cóng Shàng hǎi lái de',fr:'Je viens de Shanghai.',ok:1},
-         {hz:'我是坐飞机来的。',py:'wǒ shì zuò fēi jī lái de',fr:'Je suis venue en avion.',why:'是…的 porte ici sur la provenance, pas sur le moyen de transport.'},
-         {hz:'我是去年来的。',py:'wǒ shì qù nián lái de',fr:'Je suis venue l’an dernier.',why:'C’est le moment, pas la ville.'}]},
-     {q:'你结婚了吗？',py:'nǐ jié hūn le ma',
-      a:[{hz:'结婚了，我妻子是护士。',py:'jié hūn le, wǒ qī zi shì hù shi',fr:'Oui, ma femme est infirmière.',ok:1},
-         {hz:'我有一个邻居。',py:'wǒ yǒu yí ge lín jū',fr:'J’ai un voisin.',why:'Hors sujet : la question porte sur votre situation.'},
-         {hz:'我在一家公司工作。',py:'wǒ zài yì jiā gōng sī gōng zuò',fr:'Je travaille dans une entreprise.',why:'C’est le travail, pas la situation de famille.'}]},
-     {q:'你的爱好是什么？',py:'nǐ de ài hào shì shén me',
-      a:[{hz:'我喜欢跑步和看书。',py:'wǒ xǐ huan pǎo bù hé kàn shū',fr:'J’aime courir et lire.',ok:1},
-         {hz:'我是经理。',py:'wǒ shì jīng lǐ',fr:'Je suis directeur.',why:'C’est la fonction, pas le passe-temps.'},
-         {hz:'我以前住在南京。',py:'wǒ yǐ qián zhù zài Nán jīng',fr:'J’habitais autrefois à Nankin.',why:'C’est le passé, pas les centres d’intérêt.'}]},
-     {q:'他是你的什么人？',py:'tā shì nǐ de shén me rén',
-      a:[{hz:'他是我的同事。',py:'tā shì wǒ de tóng shì',fr:'C’est mon collègue.',ok:1},
-         {hz:'他很认真。',py:'tā hěn rèn zhēn',fr:'Il est très sérieux.',why:'C’est une qualité, pas le lien qui vous unit.'},
-         {hz:'他在北京工作。',py:'tā zài Běi jīng gōng zuò',fr:'Il travaille à Pékin.',why:'C’est le lieu de travail, pas la relation.'}]},
-     {q:'我给你介绍一下，好吗？',py:'wǒ gěi nǐ jiè shào yí xià, hǎo ma',
-      a:[{hz:'好的，谢谢你。',py:'hǎo de, xiè xie nǐ',fr:'D’accord, merci.',ok:1},
-         {hz:'我不认识他。',py:'wǒ bú rèn shi tā',fr:'Je ne le connais pas.',why:'La question demande votre accord, pas si vous connaissez déjà la personne.'},
-         {hz:'他是留学生。',py:'tā shì liú xué shēng',fr:'C’est un étudiant étranger.',why:'C’est une information sur lui, pas une réponse à la proposition.'}]}
-   ]},
-  {id:'x-r221',kind:'qr',hsk:2,th:['decrire'],
-   titre:'Question → réponse',
-   consigne:'Écoutez la question, puis choisissez la seule réponse qui y répond vraiment.',
-   items:[
-     {q:'她漂亮吗？',py:'tā piào liang ma',
-      a:[{hz:'很漂亮，我觉得她最好看。',py:'hěn piào liang, wǒ jué de tā zuì hǎo kàn',fr:'Très jolie, je la trouve la plus belle.',ok:1},
-         {hz:'她很忙。',py:'tā hěn máng',fr:'Elle est très occupée.',why:'很忙 parle de son emploi du temps, pas de son apparence.'},
-         {hz:'她是医生。',py:'tā shì yī shēng',fr:'Elle est médecin.',why:'C’est le métier ; la question porte sur l’apparence.'}]},
-     {q:'那个男人高吗？',py:'nà ge nán rén gāo ma',
-      a:[{hz:'他很高。',py:'tā hěn gāo',fr:'Il est très grand.',ok:1},
-         {hz:'他很累。',py:'tā hěn lèi',fr:'Il est fatigué.',why:'C’est la fatigue, pas la taille.'},
-         {hz:'他穿黑衣服。',py:'tā chuān hēi yī fu',fr:'Il porte des vêtements noirs.',why:'C’est la tenue, pas la taille.'}]},
-     {q:'孩子今天快乐吗？',py:'hái zi jīn tiān kuài lè ma',
-      a:[{hz:'很快乐，他非常高兴。',py:'hěn kuài lè, tā fēi cháng gāo xìng',fr:'Très joyeux, il est ravi.',ok:1},
-         {hz:'他有两个朋友。',py:'tā yǒu liǎng ge péng you',fr:'Il a deux amis.',why:'Rien ici ne dit son humeur.'},
-         {hz:'他的眼睛很黑。',py:'tā de yǎn jing hěn hēi',fr:'Il a les yeux très noirs.',why:'C’est l’apparence, pas l’humeur.'}]},
-     {q:'你觉得这件衣服好看吗？',py:'nǐ jué de zhè jiàn yī fu hǎo kàn ma',
-      a:[{hz:'我觉得非常好看。',py:'wǒ jué de fēi cháng hǎo kàn',fr:'Je la trouve très belle.',ok:1},
-         {hz:'我很高兴认识你。',py:'wǒ hěn gāo xìng rèn shi nǐ',fr:'Je suis ravie de te connaître.',why:'Formule de rencontre, sans rapport avec l’avis demandé.'},
-         {hz:'她是女人。',py:'tā shì nǚ rén',fr:'C’est une femme.',why:'Ne répond pas : la question demande un jugement.'}]},
-     {q:'他身体好吗？',py:'tā shēn tǐ hǎo ma',
-      a:[{hz:'很好，他不累。',py:'hěn hǎo, tā bú lèi',fr:'Très bonne, il n’est pas fatigué.',ok:1},
-         {hz:'他很白。',py:'tā hěn bái',fr:'Il est très pâle.',why:'C’est la couleur, pas l’état de santé.'},
-         {hz:'他叫小白。',py:'tā jiào Xiǎo bái',fr:'Il s’appelle Xiaobai.',why:'C’est le nom, pas la santé.'}]}
-   ]},
-  {id:'x-r321',kind:'qr',hsk:3,th:['decrire'],
-   titre:'Question → réponse',
-   consigne:'Écoutez la question, puis choisissez la seule réponse qui y répond vraiment.',
-   items:[
-     {q:'他长得怎么样？',py:'tā zhǎng de zěn me yàng',
-      a:[{hz:'他很帅，个子很高。',py:'tā hěn shuài, gè zi hěn gāo',fr:'Il est beau et très grand.',ok:1},
-         {hz:'他很热情。',py:'tā hěn rè qíng',fr:'Il est chaleureux.',why:'C’est le caractère ; 长得 demande l’apparence.'},
-         {hz:'他工作很认真。',py:'tā gōng zuò hěn rèn zhēn',fr:'Il travaille sérieusement.',why:'C’est la manière de travailler, pas l’allure.'}]},
-     {q:'她的性格怎么样？',py:'tā de xìng gé zěn me yàng',
-      a:[{hz:'很安静，可是特别热情。',py:'hěn ān jìng, kě shì tè bié rè qíng',fr:'Très calme, mais extrêmement chaleureuse.',ok:1},
-         {hz:'她戴眼镜。',py:'tā dài yǎn jìng',fr:'Elle porte des lunettes.',why:'C’est un détail d’apparence, pas le caractère.'},
-         {hz:'她很瘦。',py:'tā hěn shòu',fr:'Elle est mince.',why:'C’est la silhouette, pas le tempérament.'}]},
-     {q:'他说汉语说得好吗？',py:'tā shuō Hàn yǔ shuō de hǎo ma',
-      a:[{hz:'说得非常好。',py:'shuō de fēi cháng hǎo',fr:'Il parle très bien.',ok:1},
-         {hz:'他很聪明。',py:'tā hěn cōng ming',fr:'Il est intelligent.',why:'C’est une qualité générale ; la question porte sur la manière de parler.'},
-         {hz:'他是留学生。',py:'tā shì liú xué shēng',fr:'C’est un étudiant étranger.',why:'C’est son statut, pas son niveau.'}]},
-     {q:'他戴眼镜吗？',py:'tā dài yǎn jìng ma',
-      a:[{hz:'戴，他一直戴眼镜。',py:'dài, tā yì zhí dài yǎn jìng',fr:'Oui, il en porte tout le temps.',ok:1},
-         {hz:'他穿白衣服。',py:'tā chuān bái yī fu',fr:'Il porte des vêtements blancs.',why:'穿 concerne les vêtements ; pour les lunettes on emploie 戴.'},
-         {hz:'他头发很长。',py:'tā tóu fa hěn cháng',fr:'Il a les cheveux longs.',why:'Hors sujet : rien sur les lunettes.'}]},
-     {q:'大家为什么关心他？',py:'dà jiā wèi shén me guān xīn tā',
-      a:[{hz:'因为他工作特别认真。',py:'yīn wèi tā gōng zuò tè bié rèn zhēn',fr:'Parce qu’il travaille avec un grand sérieux.',ok:1},
-         {hz:'因为他很矮。',py:'yīn wèi tā hěn ǎi',fr:'Parce qu’il est petit.',why:'La taille n’explique pas l’attention des autres.'},
-         {hz:'他是我的同事。',py:'tā shì wǒ de tóng shì',fr:'C’est mon collègue.',why:'C’est le lien, pas la raison demandée par 为什么.'}]}
    ]}
 ];
 
@@ -1712,63 +1068,7 @@ function fits(o){
 }
 function pool(){return WORDS.filter(fits);}
 function themeName(id){const t=THEMES.find(x=>x.id===id);return t?t.n:'';}
-/* ---------------------------------------------------------------------
-   État d'une leçon. Ancien format : un simple tableau d'indices d'étapes.
-   Nouveau format : {s:[étapes faites], runs:passages achevés, best:%,
-   seen:[documents déjà tirés], doc:document du passage en cours}.
-   lstate() convertit à la volée : une sauvegarde ancienne reste lisible.
-   --------------------------------------------------------------------- */
-function lstate(id){
-  let o=S.lessons[id];
-  if(Array.isArray(o))o={s:o.slice(),runs:0,best:0,seen:[],doc:''};
-  if(!o||typeof o!=='object')o={s:[],runs:0,best:0,seen:[],doc:''};
-  if(!Array.isArray(o.s))o.s=[];
-  if(!Array.isArray(o.seen))o.seen=[];
-  if(typeof o.runs!=='number')o.runs=0;
-  if(typeof o.best!=='number')o.best=0;
-  if(typeof o.doc!=='string')o.doc='';
-  S.lessons[id]=o;
-  return o;
-}
-function lessonProgress(l){return lstate(l.id).s.length;}
-
-/* Vivier : tous les documents du thème x niveau d'une leçon. */
-function docPool(l){return TEXTS.filter(t=>t.hsk===l.hsk&&t.th.includes(l.theme));}
-/* Tire le document du passage en cours : le premier jamais vu, sinon on
-   repart du début du vivier en évitant de reprendre celui qu'on quitte. */
-function pickDoc(l){
-  const P=docPool(l);if(!P.length)return null;
-  const st=lstate(l.id);
-  let libres=P.filter(t=>!st.seen.includes(t.id));
-  if(!libres.length){
-    st.seen=[];
-    libres=P.filter(t=>t.id!==st.doc);
-    if(!libres.length)libres=P;
-  }
-  const t=libres[0];
-  st.doc=t.id;
-  if(!st.seen.includes(t.id))st.seen.push(t.id);
-  save();
-  return t;
-}
-/* Document courant, sans en changer si un tirage est déjà en cours. */
-function lessonDoc(l){
-  const P=docPool(l);if(!P.length)return null;
-  const st=lstate(l.id);
-  if(st.doc){const c=P.find(t=>t.id===st.doc);if(c)return c;}
-  return pickDoc(l);
-}
-/* Relance : les étapes repartent de zéro, le document change, les boîtes
-   de Leitner et le meilleur bilan sont préservés. */
-function restartLesson(id){
-  const l=LESSONS.find(x=>x.id===id);if(!l)return;
-  const st=lstate(id);
-  st.s=[];st.doc='';
-  const t=pickDoc(l);
-  save();stopSpeech();
-  view='lecon';ctx={l:id};render();scrollTo(0,0);
-  toast(t?'Nouveau passage — document : '+t.fr:'Nouveau passage.');
-}
+function lessonProgress(l){return (S.lessons[l.id]||[]).length;}
 /* Parcours mis en avant sur l’accueil : le dernier ouvert s’il est en cours,
    sinon le premier commencé mais non terminé, sinon le premier non entamé. */
 function currentLesson(){
@@ -2003,8 +1303,7 @@ function render(){
     `<button class="${view===t.id?'on':''}" onclick="tab('${t.id}')">${ico(t.k)}${t.n}</button>`).join('');
   const V={home:vHome,vocab:vVocab,chars:vChars,gram:vGram,co:vCO,ce:vCE,prod:vProd,
            hsk:vHSK,parcours:vParcours,lecon:vLecon,mots:vQuiz,bilan:vQuiz,
-           progres:vProgres,reglages:vReglages,exo:vExo,decouv:vDecouv,chat:vChat,
-           ordre:vOrdre,dictee:vDictee};
+           progres:vProgres,reglages:vReglages,exo:vExo,decouv:vDecouv,chat:vChat};
   document.getElementById('app').innerHTML=(V[view]||vHome)();
   if(view==='chars')mountWriter();
   if(view==='vocab'&&ctx.d&&ctx.d.kind==='trace')mountTrace();
@@ -2049,9 +1348,8 @@ function ribbon(){
 }
 function finishStep(){
   const {l,i}=ctx.from;
-  const st=lstate(l),L=LESSONS.find(x=>x.id===l);
-  if(!st.s.includes(i))st.s.push(i);
-  if(L&&st.s.length===L.steps.length&&!st.closed){st.closed=true;st.runs=(st.runs||0)+1;}
+  S.lessons[l]=S.lessons[l]||[];
+  if(!S.lessons[l].includes(i))S.lessons[l].push(i);
   touchStreak();save();stopSpeech();
   view='lecon';ctx={l:l};render();scrollTo(0,0);
 }
@@ -2323,7 +1621,6 @@ function openExo(id){
   const st={id:id};
   if(x.kind==='match'){st.order=shuffle(x.pairs.map((p,i)=>i));st.sel=null;st.done=[];st.ko=0;st.bad=null;}
   if(x.kind==='grid'){st.cell=null;st.fill={};st.checked=false;st.bank=shuffle(gridGaps(x).concat(x.extra||[]));}
-  if(x.kind==='intrus'){st.picks={};st.order=x.items.map(it=>shuffle(it.t.map((_,k)=>k)));}
   go('exo',{exo:st});
 }
 function mTap(side,i){
@@ -2353,255 +1650,10 @@ function gCheck(){
   const st=ctx.exo;if(!st)return;
   st.checked=true;st.cell=null;touchStreak();save();render();scrollTo(0,0);
 }
-/* =====================================================================
-   ===== SÉANCE A — QUATRE NOUVEAUX TYPES D'EXERCICES =====
-   L'intrus et question -> réponse sont rédigés dans EXOS.
-   La reconstitution de dialogue et la dictée ne le sont pas : elles
-   puisent dans le vivier de documents, donc tout document ajouté les
-   enrichit sans une ligne de contenu supplémentaire.
-   ===================================================================== */
-
-/* ---------- L'intrus : écran dédié, les étiquettes sont mélangées ---------- */
-function exoIntrus(x,st){
-  const n=x.items.length;
-  const faits=Object.keys(st.picks).length;
-  const justes=x.items.filter((it,i)=>st.picks[i]===it.bad).length;
-  return header(x.titre,`${faits} / ${n} séries`)+`
-  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
-  ${x.items.map((it,i)=>{
-    const ch=st.picks[i],ord=st.order[i];
-    return `<div class="box" id="q-${x.id}-${i}">
-      <p class="mut sm" style="margin:0 0 9px">Série ${i+1}</p>
-      <div class="tiles">${ord.map(k=>{
-        let cl='';
-        if(ch!=null)cl=(k===it.bad)?'bon':(k===ch?'mauvais':'');
-        return `<button class="tile tok hz ${cl}" onclick="intrusTap(${i},${k},${it.bad})">${esc(it.t[k])}</button>`;
-      }).join('')}</div>
-      ${ch!=null?`<div class="verdict ${ch===it.bad?'ok':'no'} mt">${
-        ch===it.bad?'C’est bien l’intrus.':'L’intrus était <span class="hz">'+esc(it.t[it.bad])+'</span>.'}
-        ${it.why?' '+esc(it.why):''}</div>`:''}
-    </div>`;
-  }).join('')}
-  ${faits===n?`<div class="box"><div class="score"><div class="n">${justes}<small> / ${n}</small></div>
-      <div class="lbl">intrus trouvés</div></div>
-    <div class="bar" style="margin:12px 0"><i style="width:${Math.round(justes/n*100)}%;background:${justes===n?'var(--jade)':'var(--red)'}"></i></div>
-    <button class="btn pale" onclick="openExo('${x.id}')">Recommencer</button></div>`:''}`;
-}
-function intrusTap(i,k,bad){
-  const st=ctx.exo;if(!st||st.picks[i]!=null)return;
-  st.picks[i]=k;beep(k===bad?'ok':'no');touchStreak();save();render();
-}
-
-/* ---------- Question -> réponse : bloc en ligne dans la compréhension ---------- */
-function qrBlock(x){
-  ctx.qr=ctx.qr||{};
-  return `<h2 class="sec">${esc(x.titre)}</h2>
-  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
-  ${x.items.map((it,i)=>{
-    const key=x.id+':'+i,ch=ctx.qr[key];
-    const bonne=it.a.findIndex(a=>a.ok);
-    return `<div class="box" id="q-${x.id}-${i}">
-      <p class="hz" style="font-size:20px;font-weight:700;margin:0 0 4px">${esc(it.q)}</p>
-      <p class="py" style="margin:0 0 10px">${pinyin(it.py||'')}</p>
-      <button class="btn pale tiny" onclick="speak('${jq(it.q)}')">Écouter la question</button>
-      <div class="opts mt">${it.a.map((a,j)=>{
-        let cl='';if(ch!=null)cl=a.ok?'ok':(j===ch?'no':'');
-        return `<button class="opt han ${cl}" onclick="qrTap('${key}',${j},${bonne})">${esc(a.hz)}</button>`;
-      }).join('')}</div>
-      ${ch!=null?`<div class="verdict ${ch===bonne?'ok':'no'}">${
-          ch===bonne?'Juste.':'Attendu : <span class="hz">'+esc(it.a[bonne].hz)+'</span>.'}
-          ${it.a[ch]&&it.a[ch].why?' '+esc(it.a[ch].why):''}</div>
-        <div class="box" style="margin:9px 0 0">
-          <p class="py" style="margin:0">${pinyin(it.a[bonne].py||'')}</p>
-          <p class="sm mut" style="margin:3px 0 0">${esc(it.a[bonne].fr||'')}</p>
-          <button class="btn pale tiny mt" onclick="speak('${jq(it.a[bonne].hz)}')">Écouter la réponse</button>
-        </div>`:''}
-    </div>`;
-  }).join('')}`;
-}
-function qrTap(key,j,ok){
-  ctx.qr=ctx.qr||{};
-  if(ctx.qr[key]!=null)return;
-  ctx.qr[key]=j;beep(j===ok?'ok':'no');touchStreak();save();render();
-}
-
-/* ---------- Reconstitution : cinq répliques tirées du vivier ---------- */
-function openOrdre(){
-  const tous=TEXTS.filter(t=>fits(t)&&t.lines.length>=5);
-  if(!tous.length)return toast('Aucun document assez long à ce niveau.');
-  const dial=tous.filter(t=>t.lines.some(l=>l.who));
-  const t=shuffle(dial.length?dial:tous)[0];
-  const dep=Math.floor(Math.random()*(t.lines.length-4));
-  const seg=t.lines.slice(dep,dep+5);
-  go('ordre',{ord:{src:t.id,seg:seg,bank:shuffle(seg.map((l,i)=>i)),mis:[],checked:false},from:ctx.from});
-}
-function ordTap(i){
-  const o=ctx.ord;if(!o||o.checked)return;
-  const p=o.bank.indexOf(i);if(p<0)return;
-  o.bank.splice(p,1);o.mis.push(i);render();
-}
-function ordBack(k){
-  const o=ctx.ord;if(!o||o.checked)return;
-  const i=o.mis.splice(k,1)[0];o.bank.push(i);render();
-}
-function ordCheck(){
-  const o=ctx.ord;if(!o)return;
-  o.checked=true;touchStreak();save();render();scrollTo(0,0);
-}
-function vOrdre(){
-  const o=ctx.ord;if(!o)return vCO();
-  const t=TEXTS.find(x=>x.id===o.src);
-  const n=o.seg.length,bons=o.mis.filter((i,k)=>i===k).length;
-  const complet=o.mis.length===n;
-  const seq=JSON.stringify(o.mis.map(i=>({hz:o.seg[i].hz,who:o.seg[i].who||null}))).replace(/'/g,'&#39;');
-  return header('Remettre dans l’ordre',t?esc(t.title):'')+ribbon()+`
-  <div class="box"><p class="sm" style="margin:0"><b>Cinq répliques ont été mélangées. Touchez-les dans l’ordre où elles se suivent.</b></p>
-    <p class="mut sm">Extrait de « ${t?esc(t.fr):''} ». Touchez une réplique déjà placée pour la retirer.</p></div>
-  <h2 class="sec">Votre reconstitution</h2>
-  ${o.mis.length?o.mis.map((i,k)=>{
-    const l=o.seg[i];
-    let cl='';if(o.checked)cl=(i===k)?'ok':'no';
-    return `<div class="box ${cl?'':''}" style="border-left:4px solid ${o.checked?(i===k?'var(--jade)':'var(--red)'):'var(--gold)'}">
-      <p class="mut sm" style="margin:0 0 4px">${k+1}${l.who?' · locuteur '+esc(l.who):''}${
-        o.checked&&i!==k?' — attendue en position '+(i+1):''}</p>
-      <p class="hz" style="font-size:19px;font-weight:700;margin:0">${esc(l.hz)}</p>
-      <p class="py" style="margin:2px 0 0">${pinyin(l.py||'')}</p>
-      ${o.checked?`<p class="sm mut" style="margin:3px 0 0">${esc(l.fr||'')}</p>`:
-        `<button class="btn pale tiny mt" onclick="ordBack(${k})">Retirer</button>`}
-    </div>`;
-  }).join(''):`<div class="void"><span class="em">读</span><p class="sm">Rien de placé pour l’instant.</p></div>`}
-  ${o.checked?`<div class="box"><div class="score"><div class="n">${bons}<small> / ${n}</small></div>
-      <div class="lbl">répliques bien placées</div></div>
-    <div class="bar" style="margin:12px 0"><i style="width:${Math.round(bons/n*100)}%;background:${bons===n?'var(--jade)':'var(--red)'}"></i></div>
-    <h2 class="sec">L’ordre attendu</h2>
-    ${o.seg.map((l,k)=>`<div class="box"><p class="mut sm" style="margin:0 0 4px">${k+1}${l.who?' · '+esc(l.who):''}</p>
-      <p class="hz" style="font-size:19px;font-weight:700;margin:0">${esc(l.hz)}</p>
-      <p class="sm mut" style="margin:3px 0 0">${esc(l.fr||'')}</p></div>`).join('')}
-    <button class="btn jade" onclick='speakSeq(${seq})'>Écouter votre version</button>
-    <button class="btn pale mt" onclick="stopSpeech()">Arrêter</button>
-    <button class="btn pale mt" onclick="openOrdre()">Un autre extrait</button>`
-  :`<h2 class="sec">Répliques à placer</h2>
-    ${o.bank.map(i=>`<button class="wrow" style="width:100%;text-align:left" onclick="ordTap(${i})">
-      <span class="g hz" style="font-size:20px">${esc(o.seg[i].hz.slice(0,1))}</span>
-      <span class="m"><b class="hz">${esc(o.seg[i].hz)}</b><span class="py">${pinyin(o.seg[i].py||'')}</span></span></button>`).join('')}
-    ${complet?`<button class="btn jade mt" onclick="ordCheck()">Vérifier</button>`
-      :`<p class="mut sm mt">Placez les cinq répliques pour pouvoir vérifier.</p>`}`}`;
-}
-
-/* ---------- Dictée : saisie libre en 汉字, comparaison alignée ---------- */
-function hanOnly(x){return String(x||'').split('').filter(c=>HAN_RE.test(c)).join('');}
-function alignHan(saisi,attendu){
-  const a=saisi.split(''),b=attendu.split('');
-  const n=a.length,m=b.length,d=[];
-  for(let i=0;i<=n;i++){d.push(new Array(m+1).fill(0));d[i][0]=i;}
-  for(let j=0;j<=m;j++)d[0][j]=j;
-  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){
-    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
-  }
-  const out=[];let i=n,j=m;
-  while(i>0||j>0){
-    if(i>0&&j>0&&d[i][j]===d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)){
-      out.unshift({o:a[i-1]===b[j-1]?'ok':'sub',a:a[i-1],b:b[j-1]});i--;j--;
-    }else if(i>0&&d[i][j]===d[i-1][j]+1){out.unshift({o:'trop',a:a[i-1],b:''});i--;}
-    else{out.unshift({o:'manque',a:'',b:b[j-1]});j--;}
-  }
-  return out;
-}
-function openDictee(){
-  const phr=[];
-  TEXTS.filter(fits).forEach(t=>t.lines.forEach(l=>{
-    const h=hanOnly(l.hz);
-    if(h.length>=6&&h.length<=14)phr.push({hz:l.hz,py:l.py||'',fr:l.fr||'',src:t.id});
-  }));
-  if(phr.length<3)return toast('Pas assez de phrases de bonne longueur à ce niveau.');
-  go('dictee',{dic:{qs:shuffle(phr).slice(0,Math.min(6,phr.length)),i:0,val:'',essais:0,checked:false,res:[]},from:ctx.from});
-}
-function dicCheck(){
-  const D=ctx.dic;if(!D||D.checked)return;
-  const el=document.getElementById('dic-in');
-  const val=el?el.value:(D.val||'');
-  D.val=val;
-  const saisi=hanOnly(val),attendu=hanOnly(D.qs[D.i].hz);
-  if(!saisi)return toast('Écrivez d’abord ce que vous entendez.');
-  if(saisi===attendu){
-    D.checked=true;D.ops=alignHan(saisi,attendu);D.res[D.i]=D.essais===0?2:1;
-    beep('ok');
-  }else if(D.essais===0){
-    D.essais=1;D.ops=null;beep('no');toast('Pas tout à fait. Réécoutez et corrigez.');
-  }else{
-    D.checked=true;D.ops=alignHan(saisi,attendu);D.res[D.i]=0;beep('no');
-  }
-  touchStreak();save();render();
-}
-function dicReveal(){
-  const D=ctx.dic;if(!D||D.checked)return;
-  const el=document.getElementById('dic-in');
-  D.val=el?el.value:(D.val||'');
-  D.checked=true;D.res[D.i]=0;
-  D.ops=alignHan(hanOnly(D.val),hanOnly(D.qs[D.i].hz));
-  save();render();
-}
-function dicNext(){
-  const D=ctx.dic;if(!D)return;
-  if(D.i<D.qs.length-1){D.i++;D.val='';D.essais=0;D.checked=false;D.ops=null;render();scrollTo(0,0);}
-  else{D.done=true;render();scrollTo(0,0);}
-}
-function vDictee(){
-  const D=ctx.dic;if(!D)return vCO();
-  if(D.done){
-    const parf=D.res.filter(r=>r===2).length,rep=D.res.filter(r=>r===1).length,n=D.qs.length;
-    return header('Dictée','Résultat')+`
-    <div class="box"><div class="score"><div class="n">${parf}<small> / ${n}</small></div>
-      <div class="lbl">phrases justes du premier coup</div></div>
-      <p class="mut sm">${rep?rep+' phrase'+(rep>1?'s justes':' juste')+' à la seconde tentative. ':''}Les caractères manqués reviendront dans vos lectures.</p>
-    </div>
-    <button class="btn" onclick="openDictee()">Une autre dictée</button>
-    <button class="btn pale mt" onclick="back()">Revenir</button>`;
-  }
-  const q=D.qs[D.i];
-  return header('Dictée',`Phrase ${D.i+1} sur ${D.qs.length}`)+ribbon()+`
-  <div class="box">
-    <p class="sm" style="margin:0 0 9px"><b>Écoutez, puis écrivez la phrase en 汉字 avec votre clavier chinois.</b></p>
-    <button class="btn jade" onclick="speak('${jq(q.hz)}')">Écouter</button>
-    <button class="btn pale sm mt" onclick="speakSlow('${jq(q.hz)}')">Écouter lentement</button>
-    <p class="mut sm mt">La ponctuation n’est pas comptée. ${D.essais?'Deuxième essai.':'Vous avez droit à deux essais.'}</p>
-  </div>
-  <div class="box">
-    <textarea id="dic-in" rows="2" placeholder="汉字…" ${D.checked?'disabled':''}
-      oninput="ctx.dic.val=this.value">${esc(D.val||'')}</textarea>
-    ${D.checked?'':`<button class="btn jade mt" onclick="dicCheck()">Vérifier</button>
-      <button class="btn pale sm mt" onclick="dicReveal()">Je donne ma langue au chat</button>`}
-  </div>
-  ${D.checked&&D.ops?`<h2 class="sec">Comparaison</h2>
-  <div class="box">
-    <p class="hz" style="font-size:24px;line-height:1.9;margin:0">${D.ops.map(op=>{
-      if(op.o==='ok')return `<span style="color:var(--jade-d)">${esc(op.b)}</span>`;
-      if(op.o==='sub')return `<span style="color:var(--red)">${esc(op.a)}</span><span style="color:var(--jade-d);opacity:.55">${esc(op.b)}</span>`;
-      if(op.o==='trop')return `<span style="color:var(--red);text-decoration:line-through">${esc(op.a)}</span>`;
-      return `<span style="color:var(--mut);border-bottom:2px dotted var(--red)">${esc(op.b)}</span>`;
-    }).join('')}</p>
-    <p class="mut sm mt">Vert : juste. Rouge barré : caractère en trop. Rouge suivi d’un caractère pâle : ce que vous avez écrit, puis l’attendu. Gris souligné : caractère oublié.</p>
-  </div>
-  <div class="box">
-    <p class="hz" style="font-size:21px;font-weight:700;margin:0">${esc(q.hz)}</p>
-    <p class="py" style="margin:3px 0 0">${pinyin(q.py)}</p>
-    <p class="sm mut" style="margin:3px 0 0">${esc(q.fr)}</p>
-  </div>
-  <button class="btn" onclick="dicNext()">${D.i<D.qs.length-1?'Phrase suivante':'Voir le résultat'}</button>`:''}`;
-}
-function speakSlow(t){
-  const r=S.settings.rate;
-  S.settings.rate=Math.max(.45,r*.65);
-  speak(t);
-  S.settings.rate=r;
-}
-
 function vExo(){
   const st=ctx.exo;if(!st)return vVocab();
   const x=EXOS.find(e=>e.id===st.id);if(!x)return vVocab();
-  if(x.kind==='match')return exoMatch(x,st);
-  if(x.kind==='intrus')return exoIntrus(x,st);
-  return exoGrid(x,st);
+  return x.kind==='match'?exoMatch(x,st):exoGrid(x,st);
 }
 function exoMatch(x,st){
   const n=x.pairs.length,fini=st.done.length===n;
@@ -2677,9 +1729,9 @@ function vocabHome(P){
   </div>
   <button class="btn" onclick="startVocab(0)">${q.length?`Séance — ${Math.min(q.length,12)} mot${Math.min(q.length,12)>1?'s':''}`:'Séance libre — 12 mots'}</button>
   <button class="btn pale mt" onclick="startVocab(1)">Révision rapide — cartes à retourner</button>
-  ${exoAt('match').concat(exoAt('grid')).concat(exoAt('intrus')).map(x=>`<button class="wrow" style="width:100%;text-align:left;margin-top:9px"
+  ${exoAt('match').concat(exoAt('grid')).map(x=>`<button class="wrow" style="width:100%;text-align:left;margin-top:9px"
     onclick="openExo('${x.id}')">
-    <span class="g" style="font-family:var(--han);font-size:23px;color:var(--clay)">${x.kind==='match'?'配':(x.kind==='intrus'?'异':'表')}</span>
+    <span class="g" style="font-family:var(--han);font-size:23px;color:var(--clay)">${x.kind==='match'?'配':'表'}</span>
     <span class="m"><b>${esc(x.titre)}</b><span class="mut">${esc(x.consigne)}</span></span></button>`).join('')}
   <p class="mut sm mt">La révision rapide ne fait pas monter les boîtes : elle sert aux trajets, quand vous ne pouvez ni tracer ni taper.</p>
   <h2 class="sec">Les mots de ce filtre</h2>
@@ -3058,15 +2110,7 @@ function comp(mode,titre,sub){
   <h2 class="sec">Questions</h2>
   ${t.qcm.map((q,i)=>`<div class="box" id="q-${t.id}-${i}"><p class="hz" style="font-size:19px;font-weight:700">${esc(q.q)}</p>
     ${opts(t.id+':'+i,q,true,i+1<t.qcm.length?`q-${t.id}-${i+1}`:null)}</div>`).join('')}
-  ${exoAt('vf',t.id).map(vfBlock).join('')}
-  ${exoAt('qr').map(qrBlock).join('')}
-  <h2 class="sec">S’entraîner autrement</h2>
-  <button class="wrow" style="width:100%;text-align:left" onclick="openOrdre()">
-    <span class="g" style="font-family:var(--han);font-size:23px;color:var(--indigo)">序</span>
-    <span class="m"><b>Remettre un dialogue dans l’ordre</b><span class="mut">Cinq répliques mélangées, tirées du vivier</span></span></button>
-  <button class="wrow" style="width:100%;text-align:left;margin-top:9px" onclick="openDictee()">
-    <span class="g" style="font-family:var(--han);font-size:23px;color:var(--plum)">听</span>
-    <span class="m"><b>Dictée</b><span class="mut">Six phrases à écrire au clavier chinois</span></span></button>`;
+  ${exoAt('vf',t.id).map(vfBlock).join('')}`;
 }
 
 /* ---------- Production écrite ---------- */
@@ -3228,7 +2272,7 @@ function lessonQuiz(l,mode){
   const qs=vocabQuestions(words,4);
   const g=GRAMMAR.find(x=>l.steps.some(s=>s.k==='gram'&&s.ref===x.id));
   if(g)shuffle(g.qcm).slice(0,2).forEach(q=>qs.push({kind:'gram',prompt:q.q,promptHan:false,a:q.a,ok:q.ok,han:false,why:q.why}));
-  const t=lessonDoc(l);
+  const t=TEXTS.find(x=>l.steps.some(s=>s.k==='text'&&s.ref===x.id));
   if(t)shuffle(t.qcm).slice(0,2).forEach(q=>qs.push({kind:'texte',prompt:q.q,promptHan:true,a:q.a,ok:q.ok,han:true,
     audio:t.lines.map(x=>x.hz).join(''),why:null}));
   return shuffle(qs);
@@ -3272,7 +2316,6 @@ function vQuiz(){
     const total=Q.qs.length,pct=Math.round(right/total*100);
     const seuil=Q.mode==='bilan'?Math.ceil(total*.75):Math.ceil(total*.6);
     const pass=right>=seuil;
-    if(Q.mode==='bilan'){const ls=lstate(Q.lid);if(pct>ls.best){ls.best=pct;save();}}
     const faibles=Q.qs.map((q,k)=>[q,Q.ans[k]]).filter(([q,a])=>a!==q.ok);
     const parType=k=>faibles.filter(([q])=>q.kind===k).length;
     return header(titre,l.title)+`
@@ -3329,7 +2372,7 @@ function vParcours(){
   <div class="grid" style="grid-template-columns:1fr">
   ${THEMES.map((th,i)=>{
     const l=LESSONS.find(x=>x.theme===th.id&&x.hsk===S.settings.level);
-    const p=l?lstate(l.id).s.length:0;
+    const p=l?(S.lessons[l.id]||[]).length:0;
     const c=['red','gold','jade','indigo','plum','clay'][i%6];
     const num=String(i+1).padStart(2,'0');
     if(!l)return `<button class="mod wide" style="opacity:.5"
@@ -3349,8 +2392,7 @@ function openLesson(id){S.lastLesson=id;save();go('lecon',{l:id});}
 function vLecon(){
   const l=LESSONS.find(x=>x.id===ctx.l);
   if(!l)return vParcours();
-  const st=lstate(l.id),done=st.s;
-  const doc=lessonDoc(l),vivier=docPool(l).length;
+  const done=S.lessons[l.id]||[];
   const words=WORDS.filter(w=>w.hsk===l.hsk&&w.th.includes(l.theme));
   const m=words.filter(w=>mastered(w.id)).length;
   const steps=l.steps.map((s,i)=>{
@@ -3367,16 +2409,11 @@ function vLecon(){
   <div class="box">
     <div class="bar"><i style="width:${done.length/l.steps.length*100}%;background:var(--red)"></i></div>
     <p class="mut sm" style="margin:10px 0 0">${done.length} / ${l.steps.length} étapes · ${m} mot${m>1?'s':''} acquis sur ${words.length}</p>
-    ${doc?`<p class="mut sm" style="margin:6px 0 0">Document de ce passage : <b>${esc(doc.title)}</b> — ${esc(doc.fr)}${vivier>1?` · ${st.seen.length} sur ${vivier} du vivier`:''}</p>`:''}
   </div>
   <div class="path">${steps}</div>
   ${done.length===l.steps.length?`<div class="box" style="text-align:center">
     <p class="hz" style="font-size:42px;margin:0;color:var(--red);font-weight:700">成</p>
-    <p><b>Parcours terminé</b></p>
-    <p class="mut sm">${st.runs>1?st.runs+' passages effectués. ':''}${st.best?'Meilleur bilan : '+st.best+' %. ':''}</p>
-    ${vivier>1?`<button class="btn red mt" onclick="restartLesson('${l.id}')">Relancer la leçon</button>
-      <p class="mut sm">Les étapes repartent de zéro sur un autre document. Vos boîtes de révision ne bougent pas.</p>`
-      :`<p class="mut sm">Un seul document disponible à ce niveau pour l’instant : la relance n’apporterait rien de neuf.</p>`}
+    <p><b>Thème terminé</b></p>
     <p class="mut sm">Passez au niveau supérieur pour reprendre le même thème avec plus de moyens.</p></div>`:''}`;
 }
 function openStep(lid,i){
@@ -3387,10 +2424,9 @@ function openStep(lid,i){
   if(s.k==='gram')return go('gram',{g:s.ref,from:from});
   if(s.k==='prod')return go('prod',{p:s.ref,from:from});
   if(s.k==='chat')return go('chat',{from:from,lesson:lid});
-  const t=lessonDoc(l);
-  if(!t){toast('Aucun document pour ce thème à ce niveau.');return;}
-  if(s.k==='text')return go('decouv',{t:t.id,from:from});
-  return go(t.mode==='CO'?'co':'ce',{t:t.id,from:from,doc:false});
+  const t=TEXTS.find(x=>x.id===s.ref);
+  if(s.k==='text')return go('decouv',{t:s.ref,from:from});
+  return go(t.mode==='CO'?'co':'ce',{t:s.ref,from:from,doc:false});
 }
 
 /* =====================================================================
@@ -3873,7 +2909,7 @@ function vProgres(){
     <div class="bar"><i style="width:${pcent}%;background:var(--red)"></i></div>
     <p class="mut sm" style="margin:10px 0 0">${stepsDone} étape${stepsDone>1?'s':''} validée${stepsDone>1?'s':''} sur ${stepsAll}, tous parcours et tous niveaux confondus — ${pcent} %.</p>
   </div>
-  ${LESSONS.map(l=>{const p=lstate(l.id).s.length;
+  ${LESSONS.map(l=>{const p=(S.lessons[l.id]||[]).length;
     return `<div class="wrow"><span class="g" style="font-family:var(--ui);font-size:19px;color:var(--red)">${p>=l.steps.length?'成':'路'}</span>
     <span class="m"><b>${esc(l.title)}</b><span class="mut">${p} / ${l.steps.length} étapes</span>
     <span class="bar" style="margin-top:6px"><i style="width:${p/l.steps.length*100}%;background:var(--red)"></i></span></span></div>`;}).join('')}`;
