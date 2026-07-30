@@ -1,6 +1,32 @@
+/* =====================================================================
+   core.css — livraison 20260730b
+
+   Deux registres, et rien entre les deux.
+
+   I.  APPARAT — le panneau d’accueil et les tuiles de modules, et eux
+       seuls. C’est la vitrine : ornements, filigranes, or, lanternes.
+   II. ATELIER — tout le reste. Deux sous-registres :
+       II.a consultation (listes, sommaires, chemin de leçon, fiches,
+            progrès, réglages) : filets fins, arrondis 12 à 14 px,
+            aucune ombre, rien qui distraie de la lecture ;
+       II.b exercices : saturé au contraire, cibles d’au moins 46 px,
+            arrondis 18 à 20 px, bordures de 2 px, enfoncement de 4 à 5 px.
+
+   Ce qui traverse les deux : le fond crème, la typographie, le sceau
+   pour marquer une position, le codage des tons, et le trio
+   jade (acquis) / ocre (en cours) / rouge (à revoir).
+   ===================================================================== */
+
+
+/* =====================================================================
+   0. SOCLE COMMUN
+   ===================================================================== */
 :root{
+  --build:'20260730b';   /* marqueur de livraison, lu par l’écran Réglages */
+
   --bg:#FBF6EE;
   --card:#FFFFFF;
+  --tuile:#FFFDF8;       /* le blanc légèrement chaud des tuiles de modules */
   --ink:#2C2723;
   --muted:#776E66;
   --line:#EEE4D6;
@@ -13,8 +39,16 @@
   --plum:#8A4260;     --plum-d:#6A3049; --plum-s:#F9EDF2;
   --clay:#A85A32;     --clay-d:#824426; --clay-s:#FBEFE6;
 
+  /* Le filet or, sur fond crème. Deux autres valeurs à essayer sur
+     l’écran réel : #D9BC7E plus doux, #E3CFA0 presque effacé. */
+  --or-filet:#C6A053;
+  /* L’or sur fond rouge, qui doit être bien plus clair pour se détacher. */
+  --or-clair:#F0D08A;
+  --panneau:#A82F2A;
+
   --ui:'Quicksand',system-ui,-apple-system,sans-serif;
   --han:'Noto Sans SC',sans-serif;
+  --han-serif:'Noto Serif SC',serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -28,54 +62,111 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
 :focus-visible{outline:3px solid var(--jade);outline-offset:3px}
 .wrap{max-width:620px;margin:0 auto;padding:0 16px}
 .hz,.sentence,.tile,.py,.opt.han,.emb{font-family:var(--han)}
+.hidden{display:none}
 
-/* ---------- Bandeau haut ---------- */
-.top{display:flex;align-items:center;gap:12px;padding:16px 0 8px}
-.back{
-  width:46px;height:46px;flex:none;border-radius:16px;background:var(--card);
-  border:2px solid var(--line);display:grid;place-items:center;
-  box-shadow:0 3px 0 rgba(120,90,50,.08);
-}
-.back svg{width:20px;height:20px}
-.back:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.08)}
-.htitle{flex:1;min-width:0;font-size:21px;font-weight:700;line-height:1.25}
-.htitle small{display:block;font-size:13.5px;color:var(--muted);font-weight:600;margin-top:2px}
+/* Les tons. Un mot mémorisé avec le mauvais ton coûte plus cher qu’un
+   mot jamais vu : cette échelle ne bouge nulle part dans l’application. */
+.s1{color:#2F72A8} .s2{color:#3D8A46} .s3{color:#B98526} .s4{color:#B8342E} .s0{color:#8E857D}
 
-/* ---------- Panneau d’accueil (signature) ---------- */
+/* Le sceau, qui marque une position dans les deux registres. */
+.seal{display:inline-grid;place-items:center;width:30px;height:30px;flex:none;
+  border:2.5px solid var(--red);border-radius:8px;color:var(--red);
+  font-family:var(--han);font-weight:700;font-size:15px}
+
+/* La pastille carrée d’état Leitner, en fin de ligne. */
+.dot{width:11px;height:11px;flex:none;border-radius:3px;background:var(--line2)}
+.dot.ok{background:var(--jade)}
+.dot.mid{background:var(--gold)}
+.dot.due{background:var(--red)}
+
+
+/* =====================================================================
+   I. REGISTRE D’APPARAT
+   Le panneau d’accueil et les tuiles de modules. Nulle part ailleurs.
+   ===================================================================== */
+
+/* ---------- Le panneau rouge ----------
+   Quatre couches de fond, de la plus proche à la plus lointaine :
+   les lanternes en haut à droite, la frise d’écailles en pied, le
+   treillis de fenêtre en diagonale, puis l’aplat. */
 .hero{
-  position:relative;overflow:hidden;border-radius:28px;padding:22px 20px;margin:14px 0 6px;
-  background:linear-gradient(158deg,#C43B32 0%,#A32B26 58%,#8E2622 100%);color:#FFF6EC;
+  position:relative;overflow:hidden;border-radius:28px;padding:26px 20px 22px;margin:14px 0 6px;
+  color:#FFF6EC;
+  background-color:var(--panneau);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='104' viewBox='0 0 96 104'%3E%3Cg stroke='%23F0D08A' stroke-width='1.6' fill='none' opacity='.85'%3E%3Cpath d='M30 0v14M66 0v24'/%3E%3C/g%3E%3Cg opacity='.92'%3E%3Crect x='21' y='14' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cellipse cx='30' cy='29' rx='15' ry='12' fill='%23D9483C' stroke='%23F0D08A' stroke-width='1.2'/%3E%3Crect x='21' y='40' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cpath d='M25 44v8M30 44v10M35 44v8' stroke='%23F0D08A' stroke-width='1.6'/%3E%3C/g%3E%3Cg opacity='.92'%3E%3Crect x='57' y='24' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cellipse cx='66' cy='39' rx='15' ry='12' fill='%23D9483C' stroke='%23F0D08A' stroke-width='1.2'/%3E%3Crect x='57' y='50' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cpath d='M61 54v8M66 54v10M71 54v8' stroke='%23F0D08A' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 100%,transparent 8.5px,rgba(240,208,138,.5) 8.5px,rgba(240,208,138,.5) 10px,transparent 10px),
+    repeating-linear-gradient(45deg,rgba(255,246,236,.09) 0 1px,transparent 1px 15px),
+    repeating-linear-gradient(-45deg,rgba(255,246,236,.09) 0 1px,transparent 1px 15px);
+  background-repeat:no-repeat,repeat-x,repeat,repeat;
+  background-position:top -2px right 10px,bottom left,0 0,0 0;
+  background-size:96px 104px,22px 12px,auto,auto;
 }
+/* Les cornières or, aux deux angles supérieurs. */
+.hero::before,.hero::after{
+  content:'';position:absolute;top:11px;width:27px;height:27px;pointer-events:none;
+  border-top:1.5px solid var(--or-clair);opacity:.9;
+}
+.hero::before{left:11px;border-left:1.5px solid var(--or-clair);border-top-left-radius:6px}
+.hero::after{right:11px;border-right:1.5px solid var(--or-clair);border-top-right-radius:6px}
+
+/* Le filigrane 汉, en bas à gauche. */
 .hero .mark{
-  position:absolute;right:-14px;bottom:-42px;font-family:var(--han);font-weight:700;
-  font-size:150px;line-height:1;color:#fff;opacity:.11;pointer-events:none;
+  position:absolute;left:-18px;bottom:-46px;font-family:var(--han-serif);font-weight:700;
+  font-size:152px;line-height:1;color:#fff;opacity:.13;pointer-events:none;
 }
-.hero .rule{height:2px;background:rgba(255,255,255,.28);margin:13px 0;border-radius:2px}
-.hero h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.01em;position:relative;z-index:1}
-.hero .sub{font-size:14px;opacity:.86;margin-top:2px;position:relative;z-index:1}
+/* 汉语 annonce le bonjour. Le texte reste à distance des lanternes. */
+.hero h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.01em;position:relative;z-index:1;
+  max-width:calc(100% - 92px)}
+.hero h1::before{
+  content:'汉语';display:block;font-family:var(--han-serif);font-weight:500;
+  font-size:15px;letter-spacing:.34em;color:var(--or-clair);opacity:.92;margin-bottom:8px;
+}
+.hero .sub{font-size:14px;opacity:.86;margin-top:3px;position:relative;z-index:1;
+  max-width:calc(100% - 92px)}
+/* Le séparateur à losange. */
+.hero .rule{
+  position:relative;height:1.5px;border-radius:0;margin:16px 0 14px;
+  background:linear-gradient(90deg,transparent,rgba(240,208,138,.72) 20%,rgba(240,208,138,.72) 80%,transparent);
+}
+.hero .rule::after{
+  content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-4px 0 0 -3.5px;
+  background:var(--or-clair);transform:rotate(45deg);
+}
 .hero .figs{display:flex;gap:24px;position:relative;z-index:1}
 .hero .fig b{display:block;font-size:27px;line-height:1.1}
 .hero .fig span{display:block;font-size:11.5px;opacity:.82;letter-spacing:.04em}
 .hero .cta{
-  display:block;width:100%;margin-top:15px;padding:15px;border-radius:17px;
-  background:#FFF6EC;color:var(--red-d);font-size:16.5px;box-shadow:0 5px 0 rgba(0,0,0,.2);position:relative;z-index:1;
+  display:block;width:100%;margin-top:16px;padding:15px;border-radius:17px;
+  background:#FFF6EC;color:var(--red-d);font-size:16.5px;
+  box-shadow:0 5px 0 rgba(0,0,0,.2);position:relative;z-index:1;
 }
 .hero .cta:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
 
-/* ---------- Grille de modules ---------- */
+/* ---------- Les tuiles de modules ----------
+   Le caractère emblème paraît deux fois : en petit et en couleur au
+   fil de la tuile, et en grand filigrane rouge qui déborde en haut à
+   droite. Le filigrane est tiré de l’attribut data-em. */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 .mod{
-  background:var(--card);border:2px solid var(--line);border-radius:22px;
+  position:relative;overflow:hidden;
+  background:var(--tuile);border:1.5px solid var(--line);border-radius:17px 5px 17px 5px;
   padding:14px;text-align:left;box-shadow:0 4px 0 rgba(120,90,50,.06);
   display:flex;flex-direction:column;gap:6px;min-height:126px;
 }
+.mod::before{
+  content:attr(data-em);position:absolute;top:-18px;right:-12px;
+  font-family:var(--han-serif);font-weight:700;font-size:78px;line-height:1;
+  color:#B8342E;opacity:.12;pointer-events:none;
+}
 .mod:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
-.mod .emb{font-size:32px;font-weight:700;line-height:1}
-.mod b{font-size:15px;font-weight:700;line-height:1.25;margin-top:auto}
-.mod span{font-size:11.5px;color:var(--muted);line-height:1.3}
+.mod .emb{position:relative;z-index:1;font-size:32px;font-weight:700;line-height:1}
+.mod b{position:relative;z-index:1;font-size:15px;font-weight:700;line-height:1.25;margin-top:auto}
+.mod span{position:relative;z-index:1;font-size:11.5px;color:var(--muted);line-height:1.3}
 .mod.wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:14px;min-height:0}
+.mod.wide::before{font-size:62px;top:-14px;right:-8px}
 .mod.wide .emb{font-size:38px}
-.mod.wide .col{flex:1;min-width:0}
+.mod.wide .col{position:relative;z-index:1;flex:1;min-width:0}
 .mod.wide b{margin-top:0;display:block;font-size:17px}
 
 .c-red{border-color:#F0CFCB}    .c-red .emb,.c-red b{color:var(--red)}          .c-red .bar i{background:var(--red)}
@@ -85,23 +176,90 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
 .c-plum{border-color:#E6C9D6}   .c-plum .emb,.c-plum b{color:var(--plum)}       .c-plum .bar i{background:var(--plum)}
 .c-clay{border-color:#EFD2BC}   .c-clay .emb,.c-clay b{color:var(--clay)}       .c-clay .bar i{background:var(--clay)}
 
-.bar{height:9px;border-radius:99px;background:#F0E9DE;overflow:hidden}
+/* La tuile du module en cours : coins presque vifs, quatre cornières
+   or, et l’emblème en sceau rouge plein, caractère réservé en crème.
+   Ces règles viennent après les couleurs de module, pour les couvrir. */
+.mod.cur{border-radius:6px 3px 6px 3px;border-color:var(--or-filet)}
+.mod.cur::after{
+  content:'';position:absolute;inset:6px;pointer-events:none;
+  --tr:linear-gradient(var(--or-filet),var(--or-filet));
+  background-image:var(--tr),var(--tr),var(--tr),var(--tr),var(--tr),var(--tr),var(--tr),var(--tr);
+  background-position:0 0,0 0,100% 0,100% 0,0 100%,0 100%,100% 100%,100% 100%;
+  background-size:14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px;
+  background-repeat:no-repeat;
+}
+.mod.cur .emb{
+  width:46px;height:46px;border-radius:8px;background:var(--red);color:#FBF6EE;
+  display:grid;place-items:center;font-size:26px;font-family:var(--han-serif);
+}
+.mod.cur.wide .emb{width:44px;height:44px;font-size:24px}
+
+/* La barre d’avancement des tuiles. */
+.bar{position:relative;z-index:1;height:9px;border-radius:99px;background:#F0E9DE;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:99px}
 
-/* ---------- Pastilles de filtre ---------- */
-.pills{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}
-.pills::-webkit-scrollbar{display:none}
-.pill{flex:none;padding:8px 15px;border-radius:999px;background:var(--card);
-  border:2px solid var(--line);font-size:14.5px;color:var(--muted)}
-.pill.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.pill.void{opacity:.45}
-.selwrap{position:relative;margin:8px 0 2px}
-.selwrap select{width:100%;appearance:none;font-family:var(--ui);font-weight:700;font-size:15px;
-  padding:12px 40px 12px 16px;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
-.selwrap::after{content:'▾';position:absolute;right:16px;top:11px;color:var(--muted);pointer-events:none}
+/* ---------- Le sélecteur de niveau, en six sceaux ----------
+   Actif en rouge plein, disponible en contour or, verrouillé en
+   pointillé pâle. La variante compacte sert sur les écrans de module. */
+.hsk{display:flex;gap:7px;padding:9px 0 4px}
+.hsk button{flex:1;padding:0;min-width:0;text-align:center}
+.hsk .sq{
+  width:46px;height:46px;margin:0 auto;border-radius:5px;
+  border:1.5px solid var(--or-filet);background:transparent;color:var(--gold-d);
+  display:grid;place-items:center;font-family:var(--han-serif);font-size:20px;font-weight:700;
+}
+.hsk .lb{display:block;font-size:10.5px;font-weight:700;color:var(--muted);
+  letter-spacing:.03em;margin-top:5px}
+.hsk .on .sq{background:var(--red);border-color:var(--red);color:#FBF6EE}
+.hsk .on .lb{color:var(--red)}
+.hsk .off .sq{border-style:dashed;border-color:var(--line2);color:var(--line2)}
+.hsk .off .lb{color:var(--line2)}
+.hsk.mini{gap:6px;padding:6px 0 2px}
+.hsk.mini .sq{width:35px;height:35px;font-size:16px;border-radius:4px}
+.hsk.mini .lb{font-size:9.5px;margin-top:3px}
 
-/* ---------- Blocs ---------- */
-.box{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:18px;margin-bottom:12px}
+/* ---------- Le sélecteur de thème ----------
+   Le caractère 题 en rouge, le nom du thème en clair, un chevron
+   discret, et le filet or dégradé en soulignement. */
+.selwrap.theme{
+  margin:11px 0 3px;
+  background-image:linear-gradient(90deg,var(--or-filet),transparent);
+  background-position:bottom left;
+  background-size:100% 1.5px;
+  background-repeat:no-repeat;
+}
+.selwrap.theme select{
+  padding:11px 34px 13px 45px;border:0;border-radius:0;background:transparent;
+  font-size:16.5px;color:var(--ink);
+}
+.selwrap.theme::before{
+  content:'题';position:absolute;left:6px;top:8px;pointer-events:none;
+  font-family:var(--han-serif);font-weight:700;font-size:24px;color:var(--red);
+}
+.selwrap.theme::after{content:'▾';right:10px;top:11px;color:var(--gold-d)}
+
+
+/* =====================================================================
+   II.a REGISTRE ATELIER — CONSULTATION
+   Listes, sommaires, chemin de leçon, fiches, progrès, réglages.
+   Filets fins, arrondis 12 à 14 px, aucune ombre. Un en-tête de
+   contexte discret, jamais de filigrane.
+   ===================================================================== */
+
+/* ---------- En-tête de contexte ---------- */
+.top{display:flex;align-items:center;gap:12px;padding:16px 0 8px}
+.back{
+  width:46px;height:46px;flex:none;border-radius:13px;background:var(--card);
+  border:1.5px solid var(--line2);display:grid;place-items:center;
+}
+.back svg{width:20px;height:20px}
+.back:active{background:var(--line)}
+.htitle{flex:1;min-width:0;font-size:21px;font-weight:700;line-height:1.25}
+.htitle small{display:block;font-size:13.5px;color:var(--muted);font-weight:600;margin-top:2px}
+
+/* ---------- Blocs et libellés ---------- */
+.box{background:var(--card);border:1.5px solid var(--line);border-radius:14px;
+  padding:17px;margin-bottom:11px}
 h2.sec{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 11px}
 p{margin:0 0 10px}
 .mut{color:var(--muted);font-size:14.5px;font-weight:600}
@@ -110,7 +268,9 @@ p{margin:0 0 10px}
 .row{display:flex;gap:9px}
 .row>*{flex:1}
 
-/* ---------- Boutons ---------- */
+/* ---------- Boutons ----------
+   L’enfoncement est la signature de l’application : il reste partout.
+   Les libellés sont en bas de casse gras, jamais en capitales. */
 .btn{display:block;width:100%;padding:15px 16px;border-radius:17px;
   background:var(--red);color:#fff;font-size:16.5px;box-shadow:0 5px 0 var(--red-d)}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--red-d)}
@@ -118,193 +278,270 @@ p{margin:0 0 10px}
 .btn.jade:active{box-shadow:0 1px 0 var(--jade-d)}
 .btn.gold{background:var(--gold);box-shadow:0 5px 0 var(--gold-d)}
 .btn.gold:active{box-shadow:0 1px 0 var(--gold-d)}
-.btn.pale{background:var(--card);color:var(--ink);border:2px solid var(--line2);box-shadow:0 4px 0 var(--line)}
+.btn.pale{background:var(--card);color:var(--ink);border:1.5px solid var(--line2);box-shadow:0 4px 0 var(--line)}
 .btn.pale:active{box-shadow:0 1px 0 var(--line)}
 .btn.sm{padding:11px 12px;font-size:14.5px;border-radius:14px}
 .btn.tiny{width:auto;display:inline-block;padding:9px 16px;font-size:14px;border-radius:13px}
+/* Inerte tant que la condition n’est pas remplie. */
+.btn.off,.btn[disabled]{background:#EDE5D9;color:#A79C90;box-shadow:0 5px 0 #DED3C3;pointer-events:none}
+.btn.off:active,.btn[disabled]:active{transform:none;box-shadow:0 5px 0 #DED3C3}
 
-/* ---------- Carte de révision ---------- */
-.card3d{background:var(--card);border:2px solid var(--line);border-radius:26px;
-  padding:30px 20px;text-align:center;box-shadow:0 5px 0 rgba(120,90,50,.06)}
-.card3d .glyph{font-family:var(--han);font-weight:700;font-size:70px;line-height:1.2}
-.card3d .glyph.sm{font-size:42px}
-.card3d .fr{font-size:21px;font-weight:700}
-.card3d .py{font-size:20px;margin-top:6px}
-.card3d hr{border:0;border-top:2px dashed var(--line);margin:18px 0}
-.judge{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
-.judge button{padding:14px 4px;border-radius:16px;font-size:14.5px;line-height:1.2}
+/* ---------- Pastilles de filtre ---------- */
+.pills{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}
+.pills::-webkit-scrollbar{display:none}
+.pill{flex:none;padding:9px 15px;border-radius:999px;background:var(--card);
+  border:1.5px solid var(--line2);font-size:14.5px;color:var(--muted)}
+.pill.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pill.void{opacity:.45}
+.selwrap{position:relative;margin:8px 0 2px}
+.selwrap select{width:100%;appearance:none;font-family:var(--ui);font-weight:700;font-size:15px;
+  padding:12px 40px 12px 16px;border-radius:13px;border:1.5px solid var(--line2);
+  background:var(--card);color:var(--ink)}
+.selwrap::after{content:'▾';position:absolute;right:16px;top:11px;color:var(--muted);pointer-events:none}
 
-/* ---------- Tons ---------- */
-.s1{color:#2F72A8} .s2{color:#3D8A46} .s3{color:#B98526} .s4{color:#B8342E} .s0{color:#8E857D}
-
-/* ---------- Choix ---------- */
-.opts{display:flex;flex-direction:column;gap:9px;margin:12px 0}
-.opt{width:100%;text-align:left;padding:14px 16px;border-radius:17px;background:var(--card);
-  border:2px solid var(--line);font-size:16.5px;box-shadow:0 4px 0 rgba(120,90,50,.05)}
-.opt:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
-.opt.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:0 4px 0 #C6DFD8}
-.opt.no{border-color:var(--red);background:var(--red-s);color:var(--red-d);box-shadow:0 4px 0 #F0CFCB}
-.opt.pick{border-color:var(--gold);background:var(--gold-s);color:var(--gold-d);box-shadow:0 4px 0 #F0DDB4}
-.bub{border-radius:16px;padding:14px 16px;margin:0 0 11px;border:1.5px solid #E7DCCB;background:#fff}
-.bub.them{border-bottom-left-radius:5px;margin-right:34px}
-.bub.me{border-bottom-right-radius:5px;margin-left:34px;background:var(--red-s);border-color:#F0CFCB;text-align:right}
-.bub.me .sentence{color:var(--red-d)}
-.verdict{border-radius:17px;padding:13px 15px;font-size:14.5px;margin-bottom:10px}
-.verdict.ok{background:var(--jade-s);color:var(--jade-d)}
-.verdict.no{background:var(--red-s);color:var(--red-d)}
-
-/* ---------- Étiquettes ---------- */
-.tiles{display:flex;flex-wrap:wrap;gap:9px}
-.tile{font-weight:700;font-size:21px;padding:9px 15px;border-radius:15px;background:var(--card);
-  border:2px solid var(--line);box-shadow:0 3px 0 rgba(120,90,50,.05)}
-.tile:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
-.drop{min-height:62px;border:2px dashed var(--line2);border-radius:17px;padding:9px;
-  display:flex;flex-wrap:wrap;gap:9px;align-items:center;background:#FEFCF8}
-
-/* ---------- Chemin en sceaux ---------- */
-.path{position:relative;padding:6px 0 4px}
-.path::before{content:'';position:absolute;left:32px;top:16px;bottom:50px;width:3px;
-  background:repeating-linear-gradient(to bottom,var(--line2) 0 7px,transparent 7px 15px)}
-.pstep{display:flex;gap:15px;align-items:center;width:100%;text-align:left;
-  padding:7px 0;margin-bottom:5px;position:relative}
-.pseal{width:66px;height:66px;flex:none;border-radius:19px;background:var(--card);
-  border:3px solid var(--line2);display:grid;place-items:center;
-  font-family:var(--han);font-weight:700;font-size:26px;color:var(--line2);
-  box-shadow:0 4px 0 rgba(120,90,50,.08)}
-.pstep:active .pseal{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.08)}
-.pstep .lab{flex:1;min-width:0}
-.pstep .lab b{display:block;font-size:15.5px;color:var(--muted);line-height:1.3}
-.pstep .lab span{display:block;font-size:12.5px;color:var(--line2);margin-top:2px}
-.pstep.open .pseal{border-color:var(--red);color:var(--red)}
-.pstep.open .lab b{color:var(--ink)}
-.pstep.open .lab span{color:var(--muted)}
-.pstep.done .pseal{background:var(--red);border-color:var(--red);color:#FFF6EC}
-.pstep.done .lab b{color:var(--ink)}
-.pstep.done .lab span{color:var(--jade)}
-
-/* ---------- Bandeau parcours ---------- */
-.ribbon{display:flex;align-items:center;gap:9px;background:var(--red-s);border:2px solid #F0CFCB;
-  border-radius:17px;padding:10px 12px;margin-bottom:12px;font-size:13.5px;color:var(--red-d)}
-.ribbon .rs{width:28px;height:28px;flex:none;border-radius:8px;background:var(--red);color:#FFF6EC;
-  display:grid;place-items:center;font-family:var(--han);font-size:15px;font-weight:700}
-.ribbon button{margin-left:auto;flex:none;background:var(--red);color:#fff;border-radius:12px;padding:8px 14px;font-size:13.5px}
-
-/* ---------- Sceau d’acquis ---------- */
-.seal{display:inline-grid;place-items:center;width:30px;height:30px;flex:none;
-  border:2.5px solid var(--red);border-radius:8px;color:var(--red);
-  font-family:var(--han);font-weight:700;font-size:15px}
-
-/* ---------- Liste de mots ---------- */
-.wrow{display:flex;align-items:center;gap:13px;background:var(--card);border:2px solid var(--line);
-  border-radius:18px;padding:12px 14px;margin-bottom:9px}
+/* ---------- Listes de mots ---------- */
+.wrow{display:flex;align-items:center;gap:13px;background:var(--card);border:1.5px solid var(--line);
+  border-radius:13px;padding:12px 14px;margin-bottom:8px}
+.wrow:active{background:#FDFAF4}
 .wrow .g{font-family:var(--han);font-weight:700;font-size:25px;flex:none;min-width:56px}
 .wrow .m{flex:1;min-width:0}
 .wrow .m b{display:block;font-size:15px}
 .wrow .m span{display:block;font-size:13.5px;font-weight:600}
 .wrow .st{font-size:12px;color:var(--muted);flex:none}
 
+/* ---------- Le chemin de leçon ----------
+   Des sceaux 一 à 八 reliés par un pointillé or. Chaque étape porte son
+   propre segment : il est or jusqu’à l’étape en cours, pâle ensuite. */
+.path{position:relative;padding:6px 0 4px}
+.pstep{display:flex;gap:15px;align-items:center;width:100%;text-align:left;
+  padding:7px 0;margin-bottom:5px;position:relative}
+.pstep:not(:last-child)::before{
+  content:'';position:absolute;left:26px;top:50%;height:100%;width:2px;
+  background:repeating-linear-gradient(to bottom,var(--line2) 0 6px,transparent 6px 13px);
+}
+.pstep.done:not(:last-child)::before,.pstep.open:not(:last-child)::before{
+  background:repeating-linear-gradient(to bottom,var(--or-filet) 0 6px,transparent 6px 13px);
+}
+.pseal{width:54px;height:54px;flex:none;border-radius:12px;background:var(--card);
+  border:1.5px solid var(--line2);display:grid;place-items:center;position:relative;z-index:1;
+  font-family:var(--han-serif);font-weight:700;font-size:23px;color:var(--line2)}
+.pstep:active .pseal{background:#FDFAF4}
+.pstep .lab{flex:1;min-width:0}
+.pstep .lab b{display:block;font-size:15.5px;color:var(--muted);line-height:1.3}
+.pstep .lab span{display:block;font-size:12.5px;color:var(--line2);margin-top:2px}
+.pstep.open .pseal{border-color:var(--red);color:var(--red);border-width:2px}
+.pstep.open .lab b{color:var(--ink)}
+.pstep.open .lab span{color:var(--muted)}
+.pstep.done .pseal{background:var(--red);border-color:var(--red);color:#FFF6EC}
+.pstep.done .lab b{color:var(--ink)}
+.pstep.done .lab span{color:var(--jade)}
+
+/* ---------- Bandeau de rappel du parcours ---------- */
+.ribbon{display:flex;align-items:center;gap:9px;background:var(--red-s);border:1.5px solid #F0CFCB;
+  border-radius:13px;padding:10px 12px;margin-bottom:12px;font-size:13.5px;color:var(--red-d)}
+.ribbon .rs{width:28px;height:28px;flex:none;border-radius:7px;background:var(--red);color:#FFF6EC;
+  display:grid;place-items:center;font-family:var(--han);font-size:15px;font-weight:700}
+.ribbon button{margin-left:auto;flex:none;background:var(--red);color:#fff;border-radius:11px;
+  padding:9px 14px;font-size:13.5px}
+
 /* ---------- Statistiques ---------- */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.kpi{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:15px}
+.kpi{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:15px}
 .kpi b{display:block;font-size:29px;line-height:1.1}
 .kpi span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
-
-/* ---------- Champs ---------- */
-textarea,input[type=password],input[type=text]{width:100%;font-family:var(--ui);font-weight:600;
-  font-size:16px;padding:14px;border-radius:17px;border:2px solid var(--line);background:#FEFCF8;color:var(--ink)}
-textarea{font-family:var(--han);font-size:19px;line-height:1.8;resize:vertical}
-input[type=range]{width:100%;accent-color:var(--red)}
-
-/* ---------- Onglets ---------- */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.97);
-  backdrop-filter:blur(8px);border-top:2px solid var(--line);
-  display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
-.tabs button{flex:1;padding:3px 2px;color:var(--muted);font-size:11px;font-weight:700}
-.tabs button svg{display:block;margin:0 auto 3px;width:23px;height:23px}
-.tabs button.on{color:var(--red)}
-
-/* ---------- Flux question par question ---------- */
-.qprog{display:flex;gap:5px;margin:4px 0 14px}
-.qprog i{flex:1;height:6px;border-radius:3px;background:#F0E9DE}
-.qprog i.ok{background:var(--jade)}
-.qprog i.no{background:var(--red)}
-.qprog i.now{background:var(--ink)}
-.qnum{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.prompt{text-align:center;padding:18px 8px 6px}
-.prompt .big{font-family:var(--han);font-weight:700;font-size:56px;line-height:1.2}
-.prompt .med{font-size:22px;font-weight:700;line-height:1.35}
-.score{text-align:center;padding:10px 0 4px}
-.score .n{font-size:50px;font-weight:700;line-height:1}
-.score .n small{font-size:22px;color:var(--muted)}
-.score .lbl{font-size:13.5px;color:var(--muted);margin-top:4px}
-.vsel{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-.vsel .who{width:88px;flex:none;font-size:13.5px;color:var(--muted)}
-.vsel .selwrap{flex:1;margin:0}
-.sw{display:flex;align-items:center;gap:12px;padding:13px 0}
-.sw .lb{flex:1;font-size:15px}
-.sw .kn{width:52px;height:30px;flex:none;border-radius:999px;background:var(--line2);position:relative}
-.sw .kn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
-.sw.on .kn{background:var(--jade)}
-.sw.on .kn::after{left:25px}
-
-/* ---------- Divers ---------- */
-.void{text-align:center;padding:40px 20px;color:var(--muted)}
-.void .em{font-family:var(--han);font-size:46px;font-weight:700;color:var(--line2);display:block;margin-bottom:10px}
-.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  background:var(--ink);color:#fff;padding:13px 20px;border-radius:16px;font-size:14.5px;
-  z-index:60;max-width:88%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-.sentence{font-weight:500;font-size:22px;line-height:1.95}
-.tbox{border-radius:18px;background:#FEFCF8;border:2px solid var(--line2);flex:none}
-.tbox.ok{border-color:var(--jade)}
 .ladder{display:flex;align-items:center;gap:11px;padding:7px 0}
-.ladder .bx{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;
+.ladder .bx{width:30px;height:30px;flex:none;border-radius:7px;display:grid;place-items:center;
   font-size:13px;font-weight:700;background:#F0E9DE;color:var(--muted)}
 .ladder .bx.on{background:var(--red);color:#FFF6EC}
 .ladder .tx{flex:1;min-width:0;font-size:13.5px}
 .ladder .tx b{font-size:14.5px}
+
+/* ---------- Champs ---------- */
+textarea,input[type=password],input[type=text]{width:100%;font-family:var(--ui);font-weight:600;
+  font-size:16px;padding:14px;border-radius:13px;border:1.5px solid var(--line2);
+  background:#FEFCF8;color:var(--ink)}
+textarea{font-family:var(--han);font-size:19px;line-height:1.8;resize:vertical}
+textarea:focus,input[type=password]:focus,input[type=text]:focus{outline:none;border-color:var(--jade)}
+input[type=range]{width:100%;accent-color:var(--red)}
+.sw{display:flex;align-items:center;gap:12px;padding:13px 0}
+.sw .lb{flex:1;font-size:15px}
+.sw .kn{width:52px;height:30px;flex:none;border-radius:999px;background:var(--line2);position:relative}
+.sw .kn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;
+  border-radius:50%;background:#fff;transition:left .15s}
+.sw.on .kn{background:var(--jade)}
+.sw.on .kn::after{left:25px}
+.vsel{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.vsel .who{width:88px;flex:none;font-size:13.5px;color:var(--muted)}
+.vsel .selwrap{flex:1;margin:0}
+
+/* ---------- Onglets ---------- */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.97);
+  backdrop-filter:blur(8px);border-top:1.5px solid var(--line2);
+  display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+.tabs button{flex:1;padding:3px 2px;color:var(--muted);font-size:11px;font-weight:700}
+.tabs button svg{display:block;margin:0 auto 3px;width:23px;height:23px}
+.tabs button.on{color:var(--red)}
+/* Pendant un exercice, la barre disparaît : rien ne doit détourner. */
+body.exo .tabs{display:none}
+body.exo{padding-bottom:24px}
+
+/* ---------- Divers ---------- */
+.void{text-align:center;padding:40px 20px;color:var(--muted)}
+.void .em{font-family:var(--han-serif);font-size:46px;font-weight:700;color:var(--line2);
+  display:block;margin-bottom:10px}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:13px 20px;border-radius:14px;font-size:14.5px;
+  z-index:60;max-width:88%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.sentence{font-weight:500;font-size:22px;line-height:1.95}
 .diff{font-family:var(--han);font-size:21px;line-height:1.7;word-break:break-all}
 .diff u{text-decoration:none;border-bottom:3px solid currentColor}
+
+
+/* =====================================================================
+   II.b REGISTRE ATELIER — EXERCICES
+   Saturé. Cibles d’au moins 46 px, arrondis 18 à 20 px, bordures de
+   2 px, enfoncement de 4 à 5 px. Pas de cœurs, pas de vies : rien de
+   punitif pour une adulte qui travaille seule.
+   ===================================================================== */
+
+/* ---------- En-tête d’exercice : progression épaisse et croix ---------- */
+.qprog{display:flex;gap:5px;margin:4px 0 16px}
+.qprog i{flex:1;height:13px;border-radius:7px;background:#F0E9DE}
+.qprog i.ok{background:var(--jade)}
+.qprog i.no{background:var(--red)}
+.qprog i.now{background:var(--ink)}
+.xclose{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;
+  background:var(--card);border:2px solid var(--line2);color:var(--muted)}
+.xclose svg{width:19px;height:19px}
+.xclose:active{background:var(--line)}
+.qnum{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.prompt{text-align:center;padding:18px 8px 6px}
+.prompt .big{font-family:var(--han);font-weight:700;font-size:56px;line-height:1.2}
+.prompt .med{font-size:22px;font-weight:700;line-height:1.35}
+
+/* ---------- Propositions ----------
+   La proposition retenue passe en aplat rouge, texte crème. Sur les
+   énoncés longs — HSK 5 et 6 — la classe « long » remplace l’aplat par
+   un contour épais : le crème sur rouge fatigue à la lecture. */
+.opts{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.opt{width:100%;min-height:52px;text-align:left;padding:15px 17px;border-radius:19px;
+  background:var(--card);border:2px solid var(--line2);font-size:17px;
+  box-shadow:0 5px 0 rgba(120,90,50,.07)}
+.opt:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(120,90,50,.07)}
+.opt.pick{background:var(--red);border-color:var(--red-d);color:#FFF6EC;box-shadow:0 5px 0 var(--red-d)}
+.opt.pick .s1,.opt.pick .s2,.opt.pick .s3,.opt.pick .s4,.opt.pick .s0,
+.opt.pick .py,.opt.pick small{color:#FFF6EC}
+.opt.pick.long{background:var(--red-s);color:var(--red-d);border:3px solid var(--red);
+  box-shadow:0 5px 0 #F0CFCB}
+.opt.pick.long .s1{color:#2F72A8} .opt.pick.long .s2{color:#3D8A46}
+.opt.pick.long .s3{color:#B98526} .opt.pick.long .s4{color:#B8342E}
+.opt.pick.long .s0{color:#8E857D}
+.opt.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:0 5px 0 #C6DFD8}
+.opt.no{border-color:var(--red);background:var(--red-s);color:var(--red-d);box-shadow:0 5px 0 #F0CFCB}
+
+/* ---------- Le bandeau de correction ----------
+   Il monte du bas en 260 ms, en aplat jade ou rouge, porte le mot à
+   mot de la réponse, et se referme par le bouton Continuer. */
+.corr{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  padding:19px 18px calc(19px + env(safe-area-inset-bottom));
+  border-radius:22px 22px 0 0;background:var(--jade);color:#FFF6EC;
+  box-shadow:0 -8px 28px rgba(0,0,0,.18);
+  animation:corrUp .26s cubic-bezier(.22,.9,.3,1);
+}
+.corr.no{background:var(--red)}
+.corr .lb{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.corr .mm{font-size:16px;line-height:1.55;margin-top:8px}
+.corr .mm .hz{font-family:var(--han);font-size:19px}
+.corr .btn{margin-top:15px;background:#FFF6EC;color:var(--jade-d);box-shadow:0 5px 0 rgba(0,0,0,.22)}
+.corr.no .btn{color:var(--red-d)}
+.corr .btn:active{box-shadow:0 1px 0 rgba(0,0,0,.22)}
+@keyframes corrUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* ---------- Verdict en ligne, quand la correction reste dans le flux ---------- */
+.verdict{border-radius:19px;padding:14px 16px;font-size:14.5px;margin-bottom:11px}
+.verdict.ok{background:var(--jade-s);color:var(--jade-d)}
+.verdict.no{background:var(--red-s);color:var(--red-d)}
+.score{text-align:center;padding:10px 0 4px}
+.score .n{font-size:50px;font-weight:700;line-height:1}
+.score .n small{font-size:22px;color:var(--muted)}
+.score .lbl{font-size:13.5px;color:var(--muted);margin-top:4px}
+
+/* ---------- Carte de révision ---------- */
+.card3d{background:var(--card);border:2px solid var(--line2);border-radius:20px;
+  padding:30px 20px;text-align:center;box-shadow:0 5px 0 rgba(120,90,50,.07)}
+.card3d .glyph{font-family:var(--han);font-weight:700;font-size:70px;line-height:1.2}
+.card3d .glyph.sm{font-size:42px}
+.card3d .fr{font-size:21px;font-weight:700}
+.card3d .py{font-size:20px;margin-top:6px}
+.card3d hr{border:0;border-top:2px dashed var(--line);margin:18px 0}
+.judge{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
+.judge button{min-height:52px;padding:14px 4px;border-radius:18px;font-size:14.5px;line-height:1.2}
+
+/* ---------- Étiquettes à remettre en ordre ---------- */
+.tiles{display:flex;flex-wrap:wrap;gap:9px}
+.tile{font-weight:700;font-size:21px;min-height:48px;padding:10px 15px;border-radius:18px;
+  background:var(--card);border:2px solid var(--line2);box-shadow:0 4px 0 rgba(120,90,50,.06)}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
+.drop{min-height:66px;border:2px dashed var(--line2);border-radius:19px;padding:10px;
+  display:flex;flex-wrap:wrap;gap:9px;align-items:center;background:#FEFCF8}
+
+/* ---------- Appariement en deux colonnes ---------- */
 .mgrid{display:flex;gap:10px}
 .mgrid>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
-.mit{width:100%;padding:13px 7px;border-radius:15px;background:var(--card);border:2px solid var(--line);
-  font-size:15.5px;font-weight:700;text-align:center;line-height:1.25;box-shadow:0 3px 0 rgba(120,90,50,.05)}
+.mit{width:100%;min-height:48px;padding:13px 7px;border-radius:18px;background:var(--card);
+  border:2px solid var(--line2);font-size:15.5px;font-weight:700;text-align:center;
+  line-height:1.25;box-shadow:0 4px 0 rgba(120,90,50,.06)}
 .mit.hz{font-family:var(--han);font-size:20px}
-.mit:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,90,50,.05)}
+.mit:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
 .mit.sel{border-color:var(--indigo);background:var(--indigo-s);color:var(--indigo-d)}
 .mit.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:none;opacity:.7}
 .mit.no{border-color:var(--red);background:var(--red-s);color:var(--red-d)}
+
+/* ---------- Grille de complétion ---------- */
 .gtab{width:100%;border-collapse:separate;border-spacing:5px}
-.gtab th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 0 2px}
+.gtab th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  font-weight:700;padding:0 0 2px}
 .gtab td{padding:0}
-.gc{width:100%;padding:11px 4px;border-radius:13px;font-size:14.5px;font-weight:700;text-align:center;
-  line-height:1.25;background:#FAF5EC;border:2px solid transparent;color:var(--ink);font-family:var(--han)}
+.gc{width:100%;min-height:46px;padding:12px 4px;border-radius:14px;font-size:14.5px;font-weight:700;
+  text-align:center;line-height:1.25;background:#FAF5EC;border:2px solid transparent;
+  color:var(--ink);font-family:var(--han)}
 .gc.gap{background:#FEFCF8;border:2px dashed var(--line2);color:var(--line2)}
 .gc.sel{border:2px solid var(--indigo);background:var(--indigo-s);color:var(--indigo-d)}
 .gc.fill{background:var(--card);border:2px solid var(--line2)}
 .gc.ok{border:2px solid var(--jade);background:var(--jade-s);color:var(--jade-d)}
 .gc.no{border:2px solid var(--red);background:var(--red-s);color:var(--red-d)}
-.tok{border-color:var(--line)}
+
+/* ---------- Conversation ---------- */
+.bub{border-radius:18px;padding:14px 16px;margin:0 0 11px;border:1.5px solid #E7DCCB;background:#fff}
+.bub.them{border-bottom-left-radius:5px;margin-right:34px}
+.bub.me{border-bottom-right-radius:5px;margin-left:34px;background:var(--red-s);
+  border-color:#F0CFCB;text-align:right}
+.bub.me .sentence{color:var(--red-d)}
+
+/* ---------- Jetons de correction ---------- */
+.tbox{border-radius:19px;background:#FEFCF8;border:2px solid var(--line2);flex:none}
+.tbox.ok{border-color:var(--jade)}
+.tok{border-color:var(--line2)}
 .tok.bon{border-color:var(--jade);color:var(--jade-d);background:var(--jade-s)}
 .tok.mauvais{border-color:var(--red);color:var(--red-d);background:var(--red-s)}
-.hidden{display:none}
-@media (max-width:340px){.grid{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
 
 /* =====================================================================
-   MODULE GRAMMAIRE
-   Navigation en lignes pleine largeur, jamais en rangée de pastilles.
+   III. MODULE GRAMMAIRE
+   Registre atelier. Navigation en lignes pleine largeur, jamais en
+   rangée de pastilles.
    ===================================================================== */
 .grow{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:13px 15px;
-  margin-bottom:10px;border-radius:19px;background:var(--card);border:2px solid var(--line);
-  box-shadow:0 4px 0 rgba(120,90,50,.06)}
-.grow:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
-.grow .em{font-family:var(--han);font-size:22px;font-weight:700;width:46px;height:46px;flex:none;
-  border-radius:15px;display:grid;place-items:center;background:#FAF5EC;color:var(--muted)}
+  margin-bottom:9px;border-radius:14px;background:var(--card);border:1.5px solid var(--line)}
+.grow:active{background:#FDFAF4}
+.grow .em{font-family:var(--han-serif);font-size:22px;font-weight:700;width:46px;height:46px;flex:none;
+  border-radius:12px;display:grid;place-items:center;background:#FAF5EC;color:var(--muted)}
 .grow .tx{flex:1;min-width:0}
 .grow .tx b{display:block;font-size:15.5px;line-height:1.3}
 .grow .tx small{display:block;color:var(--muted);font-size:12.5px;font-weight:600;margin-top:2px}
-.grow .st{flex:none;font-size:11px;font-weight:800;letter-spacing:.05em;padding:5px 9px;border-radius:9px;
-  background:#FAF5EC;color:var(--muted)}
+.grow .st{flex:none;font-size:11px;font-weight:800;letter-spacing:.05em;padding:5px 9px;
+  border-radius:8px;background:#FAF5EC;color:var(--muted)}
 .grow.c-jade .em{background:var(--jade-s);color:var(--jade-d)}
 .grow.c-indigo .em{background:var(--indigo-s);color:var(--indigo-d)}
 .grow.c-plum .em{background:var(--plum-s);color:var(--plum-d)}
@@ -315,14 +552,14 @@ input[type=range]{width:100%;accent-color:var(--red)}
   font-weight:800;margin:20px 0 9px}
 
 /* Résumé en tête de fiche */
-.gres{border-radius:19px;padding:15px 17px;margin-bottom:16px;background:var(--gold-s);
-  border:2px solid #F0DDB4;color:var(--gold-d);font-size:15.5px;line-height:1.5}
+.gres{border-radius:14px;padding:15px 17px;margin-bottom:16px;background:var(--gold-s);
+  border:1.5px solid #F0DDB4;color:var(--gold-d);font-size:15.5px;line-height:1.5}
 
 /* Découverte : progression et écran d’emploi */
 .gprog{display:flex;gap:5px;margin-bottom:16px}
 .gprog i{flex:1;height:5px;border-radius:3px;background:var(--line)}
 .gprog i.on{background:var(--jade)}
-.gsec{background:var(--card);border:2px solid var(--line);border-radius:21px;padding:17px;margin-bottom:14px}
+.gsec{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:17px;margin-bottom:13px}
 .gsec h3{margin:0 0 11px;font-size:17px;line-height:1.3;color:var(--jade-d)}
 .gsec p{margin:0 0 11px;font-size:15.5px;line-height:1.55}
 .gsec p:last-child{margin-bottom:0}
@@ -336,8 +573,8 @@ input[type=range]{width:100%;accent-color:var(--red)}
 .gex .note{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:6px;line-height:1.45}
 
 /* Le piège */
-.gpiege{border-radius:19px;padding:15px 17px;margin-bottom:14px;background:var(--red-s);
-  border:2px solid #F0CFCB}
+.gpiege{border-radius:14px;padding:15px 17px;margin-bottom:13px;background:var(--red-s);
+  border:1.5px solid #F0CFCB}
 .gpiege .lb{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;
   color:var(--red-d);margin-bottom:9px}
 .gpiege .ln{font-family:var(--han);font-size:19px;font-weight:700;margin:3px 0}
@@ -346,7 +583,7 @@ input[type=range]{width:100%;accent-color:var(--red)}
 .gpiege .why{font-size:14px;margin-top:10px;line-height:1.5;color:var(--red-d)}
 
 /* Micro-vérification entre deux écrans */
-.gchk{background:#FEFCF8;border:2px dashed var(--line2);border-radius:19px;padding:15px;margin-bottom:14px}
+.gchk{background:#FEFCF8;border:1.5px dashed var(--line2);border-radius:14px;padding:15px;margin-bottom:13px}
 .gchk .q{font-size:14.5px;margin-bottom:11px}
 .gchk .why{font-size:13.5px;margin-top:10px;line-height:1.5;color:var(--muted)}
 
@@ -356,9 +593,37 @@ input[type=range]{width:100%;accent-color:var(--red)}
 .glock{opacity:.5}
 .gconsigne{font-size:13px;letter-spacing:.04em;text-transform:uppercase;font-weight:800;
   color:var(--muted);margin-bottom:9px}
-.gta{width:100%;min-height:96px;padding:13px 15px;border-radius:17px;border:2px solid var(--line);
+.gta{width:100%;min-height:96px;padding:13px 15px;border-radius:14px;border:1.5px solid var(--line2);
   background:var(--card);font-family:var(--han);font-size:18px;font-weight:600;line-height:1.6;
   color:var(--ink);resize:vertical}
 .gta:focus{outline:none;border-color:var(--jade)}
 .gpy{font-family:var(--ui);font-size:13.5px;color:var(--muted);font-weight:600;margin-top:3px}
 .gpiege .gpy{color:var(--red-d);opacity:.8}
+
+
+/* =====================================================================
+   IV. TRANSITIONS
+   On anime l’entrée, jamais la sortie. Dans les exercices, la question
+   suivante entre par la droite, un retour entre par la gauche.
+   ===================================================================== */
+@keyframes vIn  {from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:none}}
+@keyframes vInR {from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:none}}
+@keyframes vInL {from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+#app.in  {animation:vIn  .2s cubic-bezier(.22,.9,.3,1)}
+#app.in-r{animation:vInR .2s cubic-bezier(.22,.9,.3,1)}
+#app.in-l{animation:vInL .2s cubic-bezier(.22,.9,.3,1)}
+::view-transition-old(root){animation:none}
+::view-transition-new(root){animation:vIn .2s cubic-bezier(.22,.9,.3,1)}
+
+
+/* =====================================================================
+   V. ADAPTATIONS
+   ===================================================================== */
+@media (max-width:340px){
+  .grid{grid-template-columns:1fr}
+  .hsk .sq{width:40px;height:40px;font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  ::view-transition-old(root),::view-transition-new(root){animation:none!important}
+}

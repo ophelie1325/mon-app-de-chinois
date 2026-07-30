@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="core.css">
+<link rel="stylesheet" href="core.css?v=20260730b">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -19,6 +19,7 @@
 /* =====================================================================
    1. PERSISTANCE
    ===================================================================== */
+const BUILD='20260730b';   /* même valeur que --build dans core.css */
 const KEY='coach-chinois-v2';
 let memoryOnly=false;
 function loadState(){
@@ -1261,7 +1262,7 @@ const MODULES=[
   {id:'parcours',em:'路',c:'red',   n:'Parcours par thème',  d:'Une leçon complète, du début à la fin',wide:1},
   {id:'vocab',   em:'词',c:'clay',  n:'Vocabulaire',         d:'Révision espacée'},
   {id:'chars',   em:'字',c:'indigo',n:'Caractères',          d:'Ordre des traits'},
-  {id:'gram',    em:'法',c:'jade',  n:'Grammaire',           d:'Fiches et exercices'},
+  {id:'gram',    em:'法',c:'jade',  n:'Grammaire',           d:'Fiches et exercices',page:'grammaire.html'},
   {id:'co',      em:'听',c:'plum',  n:'Compréhension orale', d:'Écouter puis répondre'},
   {id:'ce',      em:'读',c:'gold',  n:'Compréhension écrite',d:'Lire puis répondre'},
   {id:'prod',    em:'写',c:'clay',  n:'Production écrite',   d:'Guidée, puis libre'},
@@ -1286,6 +1287,9 @@ function ico(k,cls){
 
 let view='home',ctx={},stack=[];
 function go(v,c){stopSpeech();stack.push([view,ctx]);view=v;ctx=c||{};render();scrollTo(0,0);}
+/* Sortie vers une page de module. La progression est partagée par
+   localStorage : elle est enregistrée avant de quitter. */
+function goPage(p){stopSpeech();save();location.href=p;}
 function back(){stopSpeech();const p=stack.pop();if(p){view=p[0];ctx=p[1];}else{view='home';ctx={};}render();scrollTo(0,0);}
 function tab(v){stopSpeech();stack=[];view=v;ctx={};render();scrollTo(0,0);}
 
@@ -1305,6 +1309,7 @@ function render(){
            hsk:vHSK,parcours:vParcours,lecon:vLecon,mots:vQuiz,bilan:vQuiz,
            progres:vProgres,reglages:vReglages,exo:vExo,decouv:vDecouv,chat:vChat};
   document.getElementById('app').innerHTML=(V[view]||vHome)();
+  if(view==='reglages')stampVersion();
   if(view==='chars')mountWriter();
   if(view==='vocab'&&ctx.d&&ctx.d.kind==='trace')mountTrace();
   if(ctx.scrollTo){
@@ -1327,7 +1332,7 @@ function levelPills(){
     `<button class="pill ${S.settings.level===l?'on':''} ${n(l)?'':'void'}" onclick="setLevel(${l})">HSK ${l}</button>`).join('')}</div>`;
 }
 function themeSelect(){
-  return `<div class="selwrap"><select onchange="setTheme(this.value)">
+  return `<div class="selwrap theme"><select onchange="setTheme(this.value)">
     <option value="all">Tous les thèmes</option>
     ${THEMES.map((t,i)=>`<option value="${t.id}" ${S.settings.theme===t.id?'selected':''}>${i+1}. ${esc(t.n)}</option>`).join('')}
   </select></div>`;
@@ -1378,16 +1383,17 @@ function vHome(){
   <div class="grid">
   ${MODULES.map(m=>{
     let sub=m.d,frac=null;
+    const act=m.page?`goPage('${m.page}')`:`go('${m.id}')`;
     if(m.id==='vocab'){sub=todo?todo+' à réviser':'À jour';frac=P.length?ma/P.length:0;}
     if(m.id==='parcours'){const l=currentLesson();const p=l?lessonProgress(l):0;
       sub=l?`${themeName(l.theme)} · ${p} / ${l.steps.length} étapes`:'Aucun parcours à ce niveau';
       frac=l?p/l.steps.length:0;}
-    if(m.wide)return `<button class="mod wide c-${m.c}" onclick="go('${m.id}')">
+    if(m.wide)return `<button class="mod wide c-${m.c}" data-em="${m.em}" onclick="${act}">
       <span class="emb">${m.em}</span>
       <span class="col"><b>${esc(m.n)}</b><span>${esc(sub)}</span>
         ${frac!==null?`<span class="bar" style="margin-top:7px"><i style="width:${Math.round(frac*100)}%"></i></span>`:''}</span>
       </button>`;
-    return `<button class="mod c-${m.c}" onclick="go('${m.id}')">
+    return `<button class="mod c-${m.c}" data-em="${m.em}" onclick="${act}">
       <span class="emb">${m.em}</span>
       <b>${esc(m.n)}</b><span>${esc(sub)}</span>
       ${frac!==null?`<span class="bar"><i style="width:${Math.round(frac*100)}%"></i></span>`:''}
@@ -2421,7 +2427,8 @@ function openStep(lid,i){
   const from={l:lid,i:i};
   if(s.k==='mots')return startQuiz(lid,'mots',i);
   if(s.k==='bilan')return startQuiz(lid,'bilan',i);
-  if(s.k==='gram')return go('gram',{g:s.ref,from:from});
+  if(s.k==='gram')return goPage('grammaire.html?g='+encodeURIComponent(s.ref)
+    +'&l='+encodeURIComponent(lid)+'&i='+i+'&n='+l.steps.length);
   if(s.k==='prod')return go('prod',{p:s.ref,from:from});
   if(s.k==='chat')return go('chat',{from:from,lesson:lid});
   const t=TEXTS.find(x=>x.id===s.ref);
@@ -3021,7 +3028,38 @@ function vReglages(){
     <button class="btn pale mt" style="color:var(--red)" onclick="wipe()">Tout effacer</button>
     <input type="file" id="imp" accept="application/json" class="hidden" onchange="importJSON(this)">
     <p class="mut sm mt">Exportez avant de changer d’appareil : la progression est stockée dans ce navigateur uniquement.</p>
+  </div>
+
+  <h2 class="sec">Version</h2>
+  <div class="box">
+    <p class="sm" style="margin:0"><b>Page</b> — ${esc(BUILD)}</p>
+    <p class="sm" style="margin:5px 0 0"><b>Feuille de style</b> — <span id="cssbuild">…</span></p>
+    <p class="mut sm mt" id="vdiag" style="margin-bottom:0">…</p>
   </div>`;
+}
+/* Deux fichiers peuvent vieillir séparément dans le cache de Chrome :
+   on affiche le marqueur de chacun et on compare. */
+function cssBuild(){
+  try{
+    const v=getComputedStyle(document.documentElement).getPropertyValue('--build');
+    return String(v||'').trim().replace(/^["']|["']$/g,'');
+  }catch(e){return '';}
+}
+function stampVersion(){
+  const el=document.getElementById('cssbuild'),d=document.getElementById('vdiag');
+  if(!el||!d)return;
+  const c=cssBuild();
+  el.textContent=c||'absente';
+  if(!c){
+    el.style.color='var(--red)';
+    d.textContent='core.css n’a pas été chargée, ou elle est antérieure à ce marqueur. Vérifiez que le fichier est bien à la racine du dépôt, à côté d’index.html.';
+  }else if(c!==BUILD){
+    el.style.color='var(--red)';
+    d.textContent='Les deux fichiers ne sont pas de la même livraison. Videz les données du site dans Chrome, puis rechargez.';
+  }else{
+    el.style.color='var(--jade-d)';
+    d.textContent='Les deux fichiers sont de la même livraison : vous regardez bien la version en cours.';
+  }
 }
 function exportJSON(){
   const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
@@ -3042,7 +3080,24 @@ function wipe(){
   S.items={};S.written=[];S.lessons={};S.streak={n:0,last:''};save();render();toast('Progression effacée.');
 }
 
-render();
+/* =====================================================================
+   DÉMARRAGE
+   Les pages de module renvoient ici en passant l’onglet visé
+   (index.html?tab=…) ou la leçon à rouvrir (index.html?lecon=…).
+   Le paramètre est consommé puis effacé de la barre d’adresse, pour
+   qu’un rechargement ne le rejoue pas.
+   ===================================================================== */
+(function(){
+  let t=null,le=null;
+  try{
+    const q=new URLSearchParams(location.search);
+    t=q.get('tab'); le=q.get('lecon');
+  }catch(e){}
+  if(le&&LESSONS.some(x=>x.id===le)){view='lecon';ctx={l:le};}
+  else if(t&&TABS.some(x=>x.id===t)){view=t;ctx={};}
+  if(t||le){try{history.replaceState(null,'',location.pathname);}catch(e){}}
+  render();
+})();
 </script>
 </body>
 </html>
