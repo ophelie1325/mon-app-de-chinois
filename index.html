@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="core.css?v=20260730c">
+<link rel="stylesheet" href="core.css?v=20260730d">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -19,7 +19,7 @@
 /* =====================================================================
    1. PERSISTANCE
    ===================================================================== */
-const BUILD='20260730c';   /* même valeur que --build dans core.css */
+const BUILD='20260730d';   /* même valeur que --build dans core.css */
 const KEY='coach-chinois-v2';
 let memoryOnly=false;
 function loadState(){
@@ -31,7 +31,13 @@ function loadState(){
     const raw=localStorage.getItem(KEY);
     if(!raw)return base;
     const p=JSON.parse(raw);
-    return Object.assign(base,p,{settings:Object.assign(base.settings,p.settings||{})});
+    const S2=Object.assign(base,p,{settings:Object.assign(base.settings,p.settings||{})});
+    /* Une sauvegarde ancienne peut porter le niveau en chaîne : les
+       comparaisons strictes échoueraient et tout paraîtrait verrouillé. */
+    S2.settings.level=Number(S2.settings.level)||2;
+    if(!S2.lessons||typeof S2.lessons!=='object')S2.lessons={};
+    if(!S2.items||typeof S2.items!=='object')S2.items={};
+    return S2;
   }catch(e){memoryOnly=true;return base;}
 }
 function save(){
@@ -1089,6 +1095,10 @@ let voices=[];
    n’émet pas toujours l’événement. On redessine l’écran des réglages
    dès que la liste arrive, et on réessaie quelques secondes. */
 let voicesHook=null;
+if(typeof window!=='undefined'){window.onerror=function(m,src,li){
+  lastError=(m||'')+(li?(' — ligne '+li):'');
+  try{toast('Erreur : '+lastError);}catch(e){}
+};}
 function loadVoices(){
   try{voices=speechSynthesis.getVoices()||[];}catch(e){voices=[];}
   if(voices.length&&voicesHook)voicesHook();
@@ -1311,7 +1321,22 @@ const TABS=[
   {id:'reglages',k:'gear', n:'Réglages'}
 ];
 
+let lastError='';
+/* Une erreur pendant le rendu laissait l’écran inchangé : on croyait
+   que le bouton ne faisait rien. On affiche le message à la place. */
 function render(){
+  try{renderView();}
+  catch(e){
+    lastError=(e&&e.message)||String(e);
+    try{
+      document.getElementById('app').innerHTML=
+        `<div class="top"><div class="htitle">Écran indisponible<small>Une erreur a interrompu l’affichage</small></div></div>
+        <div class="box"><p class="sm">Message : <b>${esc(lastError)}</b></p>
+        <p class="mut sm">Notez ce message et signalez-le. Vous pouvez changer d’onglet pour repartir.</p></div>`;
+    }catch(e2){}
+  }
+}
+function renderView(){
   applyFont();
   document.getElementById('tabs').innerHTML=TABS.map(t=>
     `<button class="${view===t.id?'on':''}" onclick="tab('${t.id}')">${ico(t.k)}${t.n}</button>`).join('');
@@ -1349,7 +1374,7 @@ function themeSelect(){
     ${THEMES.map((t,i)=>`<option value="${t.id}" ${S.settings.theme===t.id?'selected':''}>${i+1}. ${esc(t.n)}</option>`).join('')}
   </select></div>`;
 }
-function setLevel(l){S.settings.level=l;save();ctx={};render();}
+function setLevel(l){S.settings.level=Number(l)||2;save();ctx={};render();}
 function setTheme(t){S.settings.theme=t;save();ctx={};render();}
 function nothing(){
   return `<div class="void"><span class="em">空</span>
@@ -1753,7 +1778,7 @@ function vVocab(){
 
 function vocabHome(P){
   const q=P.filter(w=>due(w.id)),ma=P.filter(w=>mastered(w.id)).length;
-  return header('Vocabulaire',`${q.length} à réviser · ${ma} acquis sur ${P.length}`)+ribbon()+`
+  return header('Vocabulaire',`${q.length} à réviser · ${ma} acquis sur ${P.length}`)+levelPills(1)+ribbon()+`
   <div class="box">
     <p class="sm" style="margin:0 0 4px"><b>Une épreuve différente à chaque étage</b></p>
     <p class="mut sm">La boîte d’un mot ne décide plus seulement de la date à laquelle il revient, mais de ce qu’on vous demande d’en faire. Chaque réponse est jugée, plus rien n’est déclaratif.</p>
@@ -1907,7 +1932,7 @@ function vChars(){
   if(!P.length)return header('Caractères')+levelPills(1)+nothing();
   ctx.c=ctx.c||P[0].id;
   const c=P.find(x=>x.id===ctx.c)||P[0];
-  return header('Caractères','Ordre des traits et tracé')+ribbon()+`
+  return header('Caractères','Ordre des traits et tracé')+levelPills(1)+ribbon()+`
   <div class="box" style="text-align:center">
     <div id="tian" style="width:232px;height:232px;margin:0 auto;border-radius:20px;background:#FEFCF8;border:2px solid var(--line)"></div>
     <div class="hz" style="font-size:29px;font-weight:700;margin-top:12px">${esc(c.hz)}</div>
@@ -2130,7 +2155,7 @@ function comp(mode,titre,sub){
   const dialogue=t.lines.some(l=>l.who);
   const replie=ctx.doc===false;
   const seq=seqOf(t);
-  return header(titre,sub)+ribbon()+`
+  return header(titre,sub)+levelPills(1)+ribbon()+`
   <div class="box">
     <p><b>${esc(t.title)}</b> <span class="mut sm">${esc(t.fr)}</span></p>
     <button class="btn jade" onclick='speakSeq(${seq})'>Écouter en entier</button>
@@ -2156,7 +2181,7 @@ function vProd(){
   ctx.p=ctx.p||P[0].id;
   const p=P.find(x=>x.id===ctx.p)||P[0];
   const lbl={ordre:'Remettre en ordre',trad:'Traduire',libre:'Écrire librement'};
-  return header('Production écrite',lbl[p.type])+ribbon()+`
+  return header('Production écrite',lbl[p.type])+levelPills(1)+ribbon()+`
   <div class="pills">${P.map((x,i)=>`<button class="pill ${x.id===p.id?'on':''}"
     onclick="ctx.p='${x.id}';ctx.built=[];ctx.res=null;ctx.aiout=null;render()">${i+1}. ${lbl[x.type]}</button>`).join('')}</div>
   ${p.type==='ordre'?pOrdre(p):p.type==='trad'?pTrad(p):pLibre(p)}
@@ -2264,7 +2289,7 @@ function vHSK(){
   ctx.ans=ctx.ans||{};
   const answered=h.items.filter((_,i)=>ctx.ans[h.id+':'+i]!=null).length;
   const right=h.items.filter((it,i)=>ctx.ans[h.id+':'+i]===it.ok).length;
-  return header('Entraînement HSK',h.format)+ribbon()+`
+  return header('Entraînement HSK',h.format)+levelPills(1)+ribbon()+`
   ${P.length>1?`<div class="pills">${P.map(x=>`<button class="pill ${x.id===h.id?'on':''}"
     onclick="ctx.h='${x.id}';ctx.ans={};render()">${esc(x.section)}</button>`).join('')}</div>`:''}
   <div class="box"><p class="sm" style="margin:0"><b>${esc(h.consigne)}</b></p></div>
@@ -3064,7 +3089,8 @@ function vReglages(){
   <div class="box">
     <p class="sm" style="margin:0"><b>Page</b> — ${esc(BUILD)}</p>
     <p class="sm" style="margin:5px 0 0"><b>Feuille de style</b> — <span id="cssbuild">…</span></p>
-    <p class="mut sm mt" id="vdiag" style="margin-bottom:0">…</p>
+    <p class="mut sm mt" id="vdiag">…</p>
+    <p class="sm" style="margin-bottom:0">${lastError?`<b style="color:var(--red)">Dernière erreur</b> — ${esc(lastError)}`:'<span class="mut">Aucune erreur enregistrée.</span>'}</p>
   </div>`;
 }
 /* Deux fichiers peuvent vieillir séparément dans le cache de Chrome :
