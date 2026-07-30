@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20260730b
+   core.css — livraison 20260730c
 
    Deux registres, et rien entre les deux.
 
@@ -22,7 +22,7 @@
    0. SOCLE COMMUN
    ===================================================================== */
 :root{
-  --build:'20260730b';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20260730c';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -90,52 +90,56 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
    les lanternes en haut à droite, la frise d’écailles en pied, le
    treillis de fenêtre en diagonale, puis l’aplat. */
 .hero{
-  position:relative;overflow:hidden;border-radius:28px;padding:26px 20px 22px;margin:14px 0 6px;
-  color:#FFF6EC;
+  position:relative;overflow:hidden;border-radius:28px;padding:22px 20px 20px;margin:14px 0 6px;
+  color:#FBEFE0;
   background-color:var(--panneau);
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='104' viewBox='0 0 96 104'%3E%3Cg stroke='%23F0D08A' stroke-width='1.6' fill='none' opacity='.85'%3E%3Cpath d='M30 0v14M66 0v24'/%3E%3C/g%3E%3Cg opacity='.92'%3E%3Crect x='21' y='14' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cellipse cx='30' cy='29' rx='15' ry='12' fill='%23D9483C' stroke='%23F0D08A' stroke-width='1.2'/%3E%3Crect x='21' y='40' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cpath d='M25 44v8M30 44v10M35 44v8' stroke='%23F0D08A' stroke-width='1.6'/%3E%3C/g%3E%3Cg opacity='.92'%3E%3Crect x='57' y='24' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cellipse cx='66' cy='39' rx='15' ry='12' fill='%23D9483C' stroke='%23F0D08A' stroke-width='1.2'/%3E%3Crect x='57' y='50' width='18' height='3.4' rx='1.4' fill='%23F0D08A'/%3E%3Cpath d='M61 54v8M66 54v10M71 54v8' stroke='%23F0D08A' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E"),
-    radial-gradient(circle at 50% 100%,transparent 8.5px,rgba(240,208,138,.5) 8.5px,rgba(240,208,138,.5) 10px,transparent 10px),
-    repeating-linear-gradient(45deg,rgba(255,246,236,.09) 0 1px,transparent 1px 15px),
-    repeating-linear-gradient(-45deg,rgba(255,246,236,.09) 0 1px,transparent 1px 15px);
-  background-repeat:no-repeat,repeat-x,repeat,repeat;
-  background-position:top -2px right 10px,bottom left,0 0,0 0;
-  background-size:96px 104px,22px 12px,auto,auto;
+    radial-gradient(circle at 50% 100%,transparent 8.5px,rgba(240,208,138,.45) 8.5px,rgba(240,208,138,.45) 10px,transparent 10px),
+    repeating-linear-gradient(45deg,rgba(243,217,166,.09) 0 1px,transparent 1px 14px),
+    repeating-linear-gradient(-45deg,rgba(243,217,166,.09) 0 1px,transparent 1px 14px);
+  background-repeat:repeat-x,repeat,repeat;
+  background-position:bottom left,0 0,0 0;
+  background-size:22px 12px,auto,auto;
+  box-shadow:inset 0 0 0 1.5px rgba(198,160,83,.7);
 }
-/* Les cornières or, aux deux angles supérieurs. */
-.hero::before,.hero::after{
-  content:'';position:absolute;top:11px;width:27px;height:27px;pointer-events:none;
-  border-top:1.5px solid var(--or-clair);opacity:.9;
-}
-.hero::before{left:11px;border-left:1.5px solid var(--or-clair);border-top-left-radius:6px}
-.hero::after{right:11px;border-right:1.5px solid var(--or-clair);border-top-right-radius:6px}
+/* Les deux lanternes suspendues, qui se balancent en décalé.
+   transform-box:view-box est indispensable : sans lui le pivot est faux. */
+.hero .lant{position:absolute;right:8px;top:-4px;width:60px;height:92px;pointer-events:none}
+@keyframes sw2{from{transform:rotate(-4.5deg)}to{transform:rotate(4.5deg)}}
+.hero .lant .c1{transform-box:view-box;transform-origin:20px 3px;
+  animation:sw2 2.3s ease-in-out infinite alternate}
+.hero .lant .c2{transform-box:view-box;transform-origin:44px 3px;
+  animation:sw2 2.7s ease-in-out infinite alternate;animation-delay:-.5s}
 
 /* Le filigrane 汉, en bas à gauche. */
 .hero .mark{
-  position:absolute;left:-18px;bottom:-46px;font-family:var(--han-serif);font-weight:700;
-  font-size:152px;line-height:1;color:#fff;opacity:.13;pointer-events:none;
+  position:absolute;left:-16px;bottom:-40px;font-family:var(--han-serif);font-weight:700;
+  font-size:132px;line-height:1;color:#F3D9A6;opacity:.13;pointer-events:none;
 }
 /* 汉语 annonce le bonjour. Le texte reste à distance des lanternes. */
 .hero h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.01em;position:relative;z-index:1;
   max-width:calc(100% - 92px)}
 .hero h1::before{
   content:'汉语';display:block;font-family:var(--han-serif);font-weight:500;
-  font-size:15px;letter-spacing:.34em;color:var(--or-clair);opacity:.92;margin-bottom:8px;
+  font-size:14px;letter-spacing:.34em;color:#F3D9A6;opacity:.92;margin-bottom:7px;
 }
 .hero .sub{font-size:14px;opacity:.86;margin-top:3px;position:relative;z-index:1;
   max-width:calc(100% - 92px)}
 /* Le séparateur à losange. */
 .hero .rule{
   position:relative;height:1.5px;border-radius:0;margin:16px 0 14px;
-  background:linear-gradient(90deg,transparent,rgba(240,208,138,.72) 20%,rgba(240,208,138,.72) 80%,transparent);
+  background:linear-gradient(90deg,rgba(243,217,166,.35),rgba(243,217,166,.35));
 }
 .hero .rule::after{
-  content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-4px 0 0 -3.5px;
-  background:var(--or-clair);transform:rotate(45deg);
+  content:'';position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-3px 0 0 -2.5px;
+  background:#F3D9A6;transform:rotate(45deg);
 }
-.hero .figs{display:flex;gap:24px;position:relative;z-index:1}
-.hero .fig b{display:block;font-size:27px;line-height:1.1}
-.hero .fig span{display:block;font-size:11.5px;opacity:.82;letter-spacing:.04em}
+.hero .figs{display:flex;position:relative;z-index:1}
+.hero .fig{padding:0 14px;border-left:1px solid rgba(243,217,166,.28)}
+.hero .fig:first-child{padding-left:0;border-left:0}
+.hero .fig b{display:block;font-size:24px;line-height:1.1}
+.hero .fig:first-child b{color:#F3D9A6}
+.hero .fig span{display:block;font-size:10.5px;opacity:.72;letter-spacing:.03em}
 .hero .cta{
   display:block;width:100%;margin-top:16px;padding:15px;border-radius:17px;
   background:#FFF6EC;color:var(--red-d);font-size:16.5px;
@@ -201,22 +205,19 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
 /* ---------- Le sélecteur de niveau, en six sceaux ----------
    Actif en rouge plein, disponible en contour or, verrouillé en
    pointillé pâle. La variante compacte sert sur les écrans de module. */
-.hsk{display:flex;gap:7px;padding:9px 0 4px}
-.hsk button{flex:1;padding:0;min-width:0;text-align:center}
-.hsk .sq{
-  width:46px;height:46px;margin:0 auto;border-radius:5px;
-  border:1.5px solid var(--or-filet);background:transparent;color:var(--gold-d);
-  display:grid;place-items:center;font-family:var(--han-serif);font-size:20px;font-weight:700;
+.hsk{display:flex;gap:5px;padding:10px 0 4px}
+.sk{
+  flex:1;min-width:0;text-align:center;padding:7px 0;border-radius:3px;
+  font-family:var(--han-serif);font-weight:700;font-size:16px;
+  border:1px solid var(--or-filet);color:var(--gold-d);background:transparent;
 }
-.hsk .lb{display:block;font-size:10.5px;font-weight:700;color:var(--muted);
-  letter-spacing:.03em;margin-top:5px}
-.hsk .on .sq{background:var(--red);border-color:var(--red);color:#FBF6EE}
-.hsk .on .lb{color:var(--red)}
-.hsk .off .sq{border-style:dashed;border-color:var(--line2);color:var(--line2)}
-.hsk .off .lb{color:var(--line2)}
-.hsk.mini{gap:6px;padding:6px 0 2px}
-.hsk.mini .sq{width:35px;height:35px;font-size:16px;border-radius:4px}
-.hsk.mini .lb{font-size:9.5px;margin-top:3px}
+.sk .sub{display:block;font-family:var(--ui);font-size:9px;font-weight:600;
+  opacity:.65;margin-top:1px;letter-spacing:.02em}
+.sk.on{background:var(--red);border-color:var(--red);color:#FFF6EC}
+.sk.off{border:1px dashed #DFCFA8;color:#BCAF9A}
+.hsk.mini{gap:4px;padding:7px 0 2px}
+.hsk.mini .sk{font-size:14px;padding:5px 0}
+.hsk.mini .sk .sub{font-size:8.5px}
 
 /* ---------- Le sélecteur de thème ----------
    Le caractère 题 en rouge, le nom du thème en clair, un chevron
@@ -625,5 +626,6 @@ body.exo{padding-bottom:24px}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
+  .hero .lant .c1,.hero .lant .c2{transform:none!important}
   ::view-transition-old(root),::view-transition-new(root){animation:none!important}
 }

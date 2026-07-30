@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="core.css?v=20260730b">
+<link rel="stylesheet" href="core.css?v=20260730c">
 </head>
 <body>
 <div class="wrap" id="app"></div>
@@ -19,7 +19,7 @@
 /* =====================================================================
    1. PERSISTANCE
    ===================================================================== */
-const BUILD='20260730b';   /* même valeur que --build dans core.css */
+const BUILD='20260730c';   /* même valeur que --build dans core.css */
 const KEY='coach-chinois-v2';
 let memoryOnly=false;
 function loadState(){
@@ -1085,8 +1085,18 @@ function currentLesson(){
 
 /* --- Voix : sélection, locuteurs, pauses --- */
 let voices=[];
-function loadVoices(){try{voices=speechSynthesis.getVoices()||[];}catch(e){voices=[];}}
-if(typeof speechSynthesis!=='undefined'&&speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+/* Android ne remplit la liste des voix qu’après le chargement, et
+   n’émet pas toujours l’événement. On redessine l’écran des réglages
+   dès que la liste arrive, et on réessaie quelques secondes. */
+let voicesHook=null;
+function loadVoices(){
+  try{voices=speechSynthesis.getVoices()||[];}catch(e){voices=[];}
+  if(voices.length&&voicesHook)voicesHook();
+}
+if(typeof speechSynthesis!=='undefined'&&speechSynthesis){
+  loadVoices();
+  try{speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
+}
 function zhVoices(){return voices.filter(v=>/^zh/i.test(v.lang));}
 function zhVoice(){return zhVoices()[0];}
 function byName(n){return voices.find(v=>v.name===n);}
@@ -1326,10 +1336,12 @@ function header(title,sub){
     <div class="htitle">${esc(title)}${sub?`<small>${esc(sub)}</small>`:''}</div>
   </div>`;
 }
-function levelPills(){
+function levelPills(mini){
   const n=l=>WORDS.filter(w=>w.hsk===l).length+TEXTS.filter(t=>t.hsk===l).length+GRAMMAR.filter(g=>g.hsk===l).length;
-  return `<div class="pills">${[1,2,3,4,5,6].map(l=>
-    `<button class="pill ${S.settings.level===l?'on':''} ${n(l)?'':'void'}" onclick="setLevel(${l})">HSK ${l}</button>`).join('')}</div>`;
+  const CH=['一','二','三','四','五','六'];
+  return `<div class="hsk${mini?' mini':''}">${[1,2,3,4,5,6].map(l=>
+    `<button class="sk ${S.settings.level===l?'on':n(l)?'':'off'}" onclick="setLevel(${l})"
+      >${CH[l-1]}<span class="sub">HSK ${l}</span></button>`).join('')}</div>`;
 }
 function themeSelect(){
   return `<div class="selwrap theme"><select onchange="setTheme(this.value)">
@@ -1368,6 +1380,24 @@ function vHome(){
   const ma=P.filter(w=>mastered(w.id)).length;
   return `<div class="hero">
     <span class="mark">汉</span>
+    <svg class="lant" viewBox="0 0 60 92" aria-hidden="true">
+      <g class="c1">
+        <line x1="20" y1="0" x2="20" y2="16" stroke="#F0D08A" stroke-width="1.1"/>
+        <path d="M12 16 H28 L26 21 H14 Z" fill="#EBC578"/>
+        <ellipse cx="20" cy="35" rx="14" ry="14.5" fill="#D9483C" stroke="#F0D08A" stroke-width="1.4"/>
+        <path d="M13 24 Q10 35 13 46 M27 24 Q30 35 27 46" stroke="#F0D08A" stroke-width=".9" fill="none" opacity=".8"/>
+        <path d="M14 49 H26 L28 54 H12 Z" fill="#EBC578"/>
+        <path d="M16 55 L15 66 M20 56 L20 68 M24 55 L25 66" stroke="#F0D08A" stroke-width="1.3" stroke-linecap="round"/>
+      </g>
+      <g class="c2">
+        <line x1="44" y1="0" x2="44" y2="30" stroke="#F0D08A" stroke-width="1.1"/>
+        <path d="M37 30 H51 L49 35 H39 Z" fill="#EBC578"/>
+        <ellipse cx="44" cy="48" rx="12.5" ry="13" fill="#D9483C" stroke="#F0D08A" stroke-width="1.4"/>
+        <path d="M38 38 Q35 48 38 58 M50 38 Q53 48 50 58" stroke="#F0D08A" stroke-width=".9" fill="none" opacity=".8"/>
+        <path d="M38 60 H50 L52 65 H36 Z" fill="#EBC578"/>
+        <path d="M40 66 L39 76 M44 67 L44 78 M48 66 L49 76" stroke="#F0D08A" stroke-width="1.3" stroke-linecap="round"/>
+      </g>
+    </svg>
     <h1>Bonjour Ophélie</h1>
     <div class="sub">HSK ${S.settings.level}${S.settings.theme!=='all'?' · '+esc(themeName(S.settings.theme)):''}</div>
     <div class="rule"></div>
@@ -1715,7 +1745,7 @@ function exoGrid(x,st){
 
 function vVocab(){
   const P=pool();
-  if(!P.length)return header('Vocabulaire')+levelPills()+nothing();
+  if(!P.length)return header('Vocabulaire')+levelPills(1)+nothing();
   if(!ctx.session)return vocabHome(P);
   if(ctx.session.done)return vocabScore();
   return ctx.session.quick?vocabFlash():vocabDrill();
@@ -1874,7 +1904,7 @@ function vocabScore(){
 /* ---------- Caractères ---------- */
 function vChars(){
   const P=CHARS.filter(fits);
-  if(!P.length)return header('Caractères')+levelPills()+nothing();
+  if(!P.length)return header('Caractères')+levelPills(1)+nothing();
   ctx.c=ctx.c||P[0].id;
   const c=P.find(x=>x.id===ctx.c)||P[0];
   return header('Caractères','Ordre des traits et tracé')+ribbon()+`
@@ -1945,7 +1975,7 @@ function pick(key,j,ok,nextKey){
 /* ---------- Grammaire ---------- */
 function vGram(){
   const P=GRAMMAR.filter(fits);
-  if(!P.length)return header('Grammaire')+levelPills()+nothing();
+  if(!P.length)return header('Grammaire')+levelPills(1)+nothing();
   ctx.g=ctx.g||P[0].id;
   const g=P.find(x=>x.id===ctx.g)||P[0];
   return header('Grammaire',g.title)+ribbon()+`
@@ -2093,7 +2123,7 @@ function versQuestions(){
    ===================================================================== */
 function comp(mode,titre,sub){
   const P=TEXTS.filter(t=>fits(t)&&t.mode===mode);
-  if(!P.length)return header(titre)+levelPills()+nothing();
+  if(!P.length)return header(titre)+levelPills(1)+nothing();
   ctx.t=ctx.t||P[0].id;
   const t=P.find(x=>x.id===ctx.t)||P[0];
   const masked=(mode==='CO'&&!ctx.hz);
@@ -2122,7 +2152,7 @@ function comp(mode,titre,sub){
 /* ---------- Production écrite ---------- */
 function vProd(){
   const P=PROD.filter(fits);
-  if(!P.length)return header('Production écrite')+levelPills()+nothing();
+  if(!P.length)return header('Production écrite')+levelPills(1)+nothing();
   ctx.p=ctx.p||P[0].id;
   const p=P.find(x=>x.id===ctx.p)||P[0];
   const lbl={ordre:'Remettre en ordre',trad:'Traduire',libre:'Écrire librement'};
@@ -2228,7 +2258,7 @@ async function askAI(pid){
 /* ---------- Entraînement HSK ---------- */
 function vHSK(){
   const P=HSKX.filter(fits);
-  if(!P.length)return header('Entraînement HSK')+levelPills()+nothing();
+  if(!P.length)return header('Entraînement HSK')+levelPills(1)+nothing();
   ctx.h=ctx.h||P[0].id;
   const h=P.find(x=>x.id===ctx.h)||P[0];
   ctx.ans=ctx.ans||{};
@@ -2374,7 +2404,7 @@ function vQuiz(){
 /* ---------- Parcours ---------- */
 function vParcours(){
   return `<div class="top"><div class="htitle">Parcours<small>Une leçon complète par thème et par niveau</small></div></div>
-  ${levelPills()}
+  ${levelPills(1)}
   <div class="grid" style="grid-template-columns:1fr">
   ${THEMES.map((th,i)=>{
     const l=LESSONS.find(x=>x.theme===th.id&&x.hsk===S.settings.level);
@@ -2863,9 +2893,9 @@ function chatSetup(){
   const dispo=th.filter(t=>chatWords(t.id,h).length>=6||CHATSC.some(x=>x.theme===t.id&&x.hsk===h));
   ctx.creg=ctx.creg||(h<=2?'reg2':'reg3');
   ctx.cth=ctx.cth||(dispo.some(t=>t.id===S.settings.theme)?S.settings.theme:(dispo[0]||{}).id);
-  if(!dispo.length)return header('聊 — Conversation')+levelPills()+nothing();
+  if(!dispo.length)return header('聊 — Conversation')+levelPills(1)+nothing();
   return header('聊 — Conversation','Dialoguer sur un thème, puis faire le point')+ribbon()+`
-  ${levelPills()}
+  ${levelPills(1)}
   <div class="box">
     <p class="mut sm" style="margin:0 0 8px">Thème</p>
     <div class="selwrap"><select onchange="ctx.cth=this.value;render()">
@@ -3097,6 +3127,16 @@ function wipe(){
   else if(t&&TABS.some(x=>x.id===t)){view=t;ctx={};}
   if(t||le){try{history.replaceState(null,'',location.pathname);}catch(e){}}
   render();
+  /* Maintenant que render existe, la liste des voix peut rafraîchir
+     l’écran des réglages quand elle arrive en retard. */
+  voicesHook=function(){if(view==='reglages')render();};
+  if(!voices.length&&typeof speechSynthesis!=='undefined'&&speechSynthesis){
+    let essais=0;
+    const t2=setInterval(function(){
+      loadVoices();
+      if(voices.length||++essais>12)clearInterval(t2);
+    },400);
+  }
 })();
 </script>
 </body>
