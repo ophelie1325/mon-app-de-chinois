@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260731a';
+const BUILD='20260731b';
 
 
 const KEY='coach-chinois-v2';
@@ -241,9 +241,9 @@ function pyLearn(hz,py){
 }
 
 function buildPyDict(){
-  WORDS.forEach(w=>pyLearn(w.hz,w.py));
-  CHARS.forEach(c=>pyLearn(c.hz,c.py));
-  SENT.forEach(s=>{if(s.py)pyLearn(s.hz,s.py);});
+  DATA('WORDS').forEach(w=>pyLearn(w.hz,w.py));
+  DATA('CHARS').forEach(c=>pyLearn(c.hz,c.py));
+  DATA('SENT').forEach(s=>{if(s.py)pyLearn(s.hz,s.py);});
 }
 
 /* ---- Garde-fou : le pinyin non conforme n’est pas affiché ---- */
@@ -343,7 +343,7 @@ function fits(o){
   return true;
 }
 
-function pool(){return WORDS.filter(fits);}
+function pool(){return DATA('WORDS').filter(fits);}
 
 function themeName(id){const t=THEMES.find(x=>x.id===id);return t?t.n:'';}
 
@@ -352,7 +352,7 @@ function lessonProgress(l){return (S.lessons[l.id]||[]).length;}
 /* Parcours mis en avant sur l’accueil : le dernier ouvert s’il est en cours,
    sinon le premier commencé mais non terminé, sinon le premier non entamé. */
 function currentLesson(){
-  const lp=LESSONS.filter(l=>l.hsk===S.settings.level);
+  const lp=DATA('LESSONS').filter(l=>l.hsk===S.settings.level);
   if(!lp.length)return null;
   const running=lp.filter(l=>{const p=lessonProgress(l);return p>0&&p<l.steps.length;});
   if(running.length){
@@ -708,7 +708,7 @@ function nothing(){
 
 function ribbon(){
   if(!ctx.from)return '';
-  const l=LESSONS.find(x=>x.id===ctx.from.l);if(!l)return '';
+  const l=DATA('LESSONS').find(x=>x.id===ctx.from.l);if(!l)return '';
   return `<div class="ribbon"><span class="rs">路</span>
     <span>Étape ${ctx.from.i+1} sur ${l.steps.length}</span>
     <button onclick="finishStep()">Terminé</button></div>`;

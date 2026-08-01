@@ -1,4 +1,5 @@
 /* data-words.js — thèmes, mots et caractères. */
+
 const THEMES=[
   {id:'presenter',      n:'Se présenter'},
   {id:'decrire',        n:'Présenter et décrire quelqu\u2019un'},
@@ -115,3 +116,10 @@ const CHARS=[
   {id:'c15',hz:'眼',py:'yǎn',fr:'œil',hsk:3,th:['decrire']},
   {id:'c16',hz:'帅',py:'shuài',fr:'beau, élégant',hsk:3,th:['decrire']}
 ];
+
+/* Publication explicite : les scripts sont classiques, une
+   déclaration const ne rejoint pas window. Sans ces lignes, les
+   lectures tolérantes de core.js ne trouvent rien. */
+window.THEMES=THEMES;
+window.WORDS=WORDS;
+window.CHARS=CHARS;

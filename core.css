@@ -1,4 +1,5 @@
 :root{
+  --build:"20260731b";   /* marqueur de version, lisible dans Réglages */
   --bg:#FBF6EE;
   --card:#FFFFFF;
   --ink:#2C2723;

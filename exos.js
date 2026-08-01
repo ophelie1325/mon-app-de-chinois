@@ -27,6 +27,9 @@ function buildSENT(){
   });
   /* On ne remplace pas le tableau : d’autres scripts en tiennent la
      référence. On le vide et on le recharge. */
+  /* La page ne charge pas forcément data-corpus.js : dans ce cas il n’y
+     a pas de tableau SENT, et il n’y a rien à reconstruire. */
+  if(typeof SENT==='undefined')return 0;
   SENT.length=0;
   out.forEach(x=>SENT.push(x));
   return SENT.length;
@@ -84,8 +87,8 @@ function sentsFor(w){
 
 function distract(w,n){
   let c=pool().filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
-  if(c.length<n)c=WORDS.filter(x=>x.hsk===w.hsk&&x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
-  if(c.length<n)c=WORDS.filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
+  if(c.length<n)c=DATA('WORDS').filter(x=>x.hsk===w.hsk&&x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
+  if(c.length<n)c=DATA('WORDS').filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
   return shuffle(c).slice(0,n);
 }
 
@@ -121,7 +124,7 @@ function makeDrill(w){
 }
 
 function exoAt(kind,ref){
-  return EXOS.filter(x=>x.kind===kind&&fits(x)&&(!ref||x.ref===ref));
+  return DATA('EXOS').filter(x=>x.kind===kind&&fits(x)&&(!ref||x.ref===ref));
 }
 
 /* ---- Vrai ou faux : en ligne dans les écrans de compréhension ---- */
@@ -192,7 +195,7 @@ function gridGaps(x){
 }
 
 function openExo(id){
-  const x=EXOS.find(e=>e.id===id);if(!x)return;
+  const x=DATA('EXOS').find(e=>e.id===id);if(!x)return;
   const st={id:id};
   if(x.kind==='match'){st.order=shuffle(x.pairs.map((p,i)=>i));st.sel=null;st.done=[];st.ko=0;st.bad=null;}
   if(x.kind==='grid'){st.cell=null;st.fill={};st.checked=false;st.bank=shuffle(gridGaps(x).concat(x.extra||[]));}
@@ -360,10 +363,10 @@ function docTools(t,mode){
 
 function makeRep(t){
   const txt=t.lines.map(l=>l.hz).join('');
-  const dansTh=WORDS.filter(w=>w.hsk===t.hsk&&(w.th||[]).some(x=>(t.th||[]).includes(x))&&txt.includes(w.hz));
-  const dansTout=WORDS.filter(w=>w.hsk===t.hsk&&txt.includes(w.hz));
+  const dansTh=DATA('WORDS').filter(w=>w.hsk===t.hsk&&(w.th||[]).some(x=>(t.th||[]).includes(x))&&txt.includes(w.hz));
+  const dansTout=DATA('WORDS').filter(w=>w.hsk===t.hsk&&txt.includes(w.hz));
   const dedans=shuffle(dansTh.length>=5?dansTh:dansTout).slice(0,5);
-  const dehors=shuffle(WORDS.filter(w=>w.hsk===t.hsk&&!txt.includes(w.hz))).slice(0,3);
+  const dehors=shuffle(DATA('WORDS').filter(w=>w.hsk===t.hsk&&!txt.includes(w.hz))).slice(0,3);
   return {items:shuffle(dedans.concat(dehors)).map(w=>({hz:w.hz,py:w.py,fr:w.fr,dans:txt.includes(w.hz)})),
           sel:{},checked:false};
 }
@@ -401,7 +404,7 @@ function repBlock(){
 }
 
 function comp(mode,titre,sub){
-  const P=TEXTS.filter(t=>fits(t)&&t.mode===mode);
+  const P=DATA('TEXTS').filter(t=>fits(t)&&t.mode===mode);
   if(!P.length)return header(titre)+levelPills()+nothing();
   ctx.t=ctx.t||P[0].id;
   const t=P.find(x=>x.id===ctx.t)||P[0];
@@ -446,7 +449,7 @@ function vocabQuestions(words,n){
 }
 
 function lessonQuiz(l,mode){
-  const words=WORDS.filter(w=>w.hsk===l.hsk&&w.th.includes(l.theme));
+  const words=DATA('WORDS').filter(w=>w.hsk===l.hsk&&(w.th||[]).includes(l.theme));
   if(mode==='mots')return vocabQuestions(words,Math.min(8,words.length));
   const qs=vocabQuestions(words,4);
   const g=DATA('GRAMMAR').find(x=>l.steps.some(s=>s.k==='gram'&&s.ref===x.id));
@@ -458,7 +461,7 @@ function lessonQuiz(l,mode){
 }
 
 function startQuiz(lid,mode,stepIndex){
-  const l=LESSONS.find(x=>x.id===lid);
+  const l=DATA('LESSONS').find(x=>x.id===lid);
   const qs=lessonQuiz(l,mode);
   if(!qs.length){toast('Pas assez de contenu pour cet exercice à ce niveau.');return;}
   go(mode,{quiz:{lid:lid,mode:mode,qs:qs,i:0,ans:[]},from:{l:lid,i:stepIndex}});
@@ -484,7 +487,7 @@ function qNext(){
 
 function qRestart(){
   const Q=ctx.quiz;
-  const l=LESSONS.find(x=>x.id===Q.lid);
+  const l=DATA('LESSONS').find(x=>x.id===Q.lid);
   ctx.quiz={lid:Q.lid,mode:Q.mode,qs:lessonQuiz(l,Q.mode),i:0,ans:[]};
   render();scrollTo(0,0);
 }
@@ -494,7 +497,7 @@ function vQuiz(){
   if(!Q)return `${header('Série terminée')}
     <div class="card"><p class="note">Il n’y a plus de question à afficher.</p>
     <button class="btn" onclick="back()">Revenir</button></div>`;
-  const l=LESSONS.find(x=>x.id===Q.lid);
+  const l=DATA('LESSONS').find(x=>x.id===Q.lid);
   const titre=Q.mode==='mots'?'Les mots du texte':'Bilan noté';
   const right=Q.ans.filter((a,k)=>a===Q.qs[k].ok).length;
 

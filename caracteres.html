@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="google" content="notranslate">
 <meta name="theme-color" content="#FBF6EE">
-<title>Accueil — Coach de chinois</title>
+<title>Caractères — Coach de chinois</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="core.css?v=20260731b">
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3/dist/hanzi-writer.min.js"></script>
 </head>
 <body>
 <div id="app" class="wrap"></div>
@@ -18,11 +19,10 @@
 <script src="core.js?v=20260731b"></script>
 <script src="speech.js?v=20260731b"></script>
 <script src="data-words.js?v=20260731b"></script>
-<script src="data-gram.js?v=20260731b"></script>
-<script src="data-corpus.js?v=20260731b"></script>
-<script src="page-accueil.js?v=20260731b"></script>
+<script src="page-caracteres.js?v=20260731b"></script>
 <script>
-window.VIEWS={home:vHome};
+window.VIEWS={chars:vChars};
+window.MOUNT=function(){mountWriter();};
 </script>
 </body>
 </html>

@@ -823,3 +823,7 @@ const GRAMMAR=[
 }
 
 ];
+
+/* Publication explicite : les scripts sont classiques, une déclaration
+   const ne rejoint pas window. */
+window.GRAMMAR=GRAMMAR;
