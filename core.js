@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260731c';
+const BUILD='20260731d';
 
 
 const KEY='coach-chinois-v2';

@@ -1,23 +1,26 @@
-/* Les deux lanternes suspendues du panneau d’accueil. Le balancement
-   et le décalage entre les deux sont dans core.css ; ici, seul le
-   dessin. Les classes c1 et c2 sont les points d’accroche des cordes. */
-const LANTERNES=`<svg class="lant" viewBox="0 0 60 92" fill="none" aria-hidden="true">
-  <path d="M20 0v14M44 0v10" stroke="#F3D9A6" stroke-width="1.2" opacity=".55"/>
-  <g class="c1">
-    <ellipse cx="20" cy="26" rx="11" ry="12.5" fill="#C9302B" stroke="#F3D9A6" stroke-width="1.2"/>
-    <path d="M13 20h14M13 32h14" stroke="#F3D9A6" stroke-width=".8" opacity=".5"/>
-    <rect x="16" y="12.5" width="8" height="2.6" rx="1" fill="#F3D9A6"/>
-    <rect x="16" y="37.5" width="8" height="2.6" rx="1" fill="#F3D9A6"/>
-    <path d="M20 40v7" stroke="#F3D9A6" stroke-width="1.2"/>
-  </g>
-  <g class="c2">
-    <ellipse cx="44" cy="21" rx="8.5" ry="9.8" fill="#C9302B" stroke="#F3D9A6" stroke-width="1.1"/>
-    <path d="M38.5 16.5h11M38.5 25.5h11" stroke="#F3D9A6" stroke-width=".7" opacity=".5"/>
-    <rect x="41" y="9.6" width="6" height="2.2" rx="1" fill="#F3D9A6"/>
-    <rect x="41" y="30.2" width="6" height="2.2" rx="1" fill="#F3D9A6"/>
-    <path d="M44 32.4v5.5" stroke="#F3D9A6" stroke-width="1.1"/>
-  </g>
-</svg>`;
+/* Les deux lanternes suspendues du panneau d’accueil, telles que
+   validées : corps vermillon #D9483C, armature et franges or #F0D08A,
+   la seconde plus petite et pendue plus bas. Le balancement de 4,5°
+   et le décalage entre les deux sont dans core.css ; ici, le dessin
+   seul. Les groupes c1 et c2 sont les points de pivot. */
+const LANTERNES=`<svg class="lant" viewBox="0 0 60 92" aria-hidden="true">
+      <g class="c1">
+        <line x1="20" y1="0" x2="20" y2="16" stroke="#F0D08A" stroke-width="1.1"/>
+        <path d="M12 16 H28 L26 21 H14 Z" fill="#EBC578"/>
+        <ellipse cx="20" cy="35" rx="14" ry="14.5" fill="#D9483C" stroke="#F0D08A" stroke-width="1.4"/>
+        <path d="M13 24 Q10 35 13 46 M27 24 Q30 35 27 46" stroke="#F0D08A" stroke-width=".9" fill="none" opacity=".8"/>
+        <path d="M14 49 H26 L28 54 H12 Z" fill="#EBC578"/>
+        <path d="M16 55 L15 66 M20 56 L20 68 M24 55 L25 66" stroke="#F0D08A" stroke-width="1.3" stroke-linecap="round"/>
+      </g>
+      <g class="c2">
+        <line x1="44" y1="0" x2="44" y2="30" stroke="#F0D08A" stroke-width="1.1"/>
+        <path d="M37 30 H51 L49 35 H39 Z" fill="#EBC578"/>
+        <ellipse cx="44" cy="48" rx="12.5" ry="13" fill="#D9483C" stroke="#F0D08A" stroke-width="1.4"/>
+        <path d="M38 38 Q35 48 38 58 M50 38 Q53 48 50 58" stroke="#F0D08A" stroke-width=".9" fill="none" opacity=".8"/>
+        <path d="M38 60 H50 L52 65 H36 Z" fill="#EBC578"/>
+        <path d="M40 66 L39 76 M44 67 L44 78 M48 66 L49 76" stroke="#F0D08A" stroke-width="1.3" stroke-linecap="round"/>
+      </g>
+    </svg>`;
 
 function vHome(){
   const P=pool();
@@ -31,8 +34,8 @@ function vHome(){
   const todo=P.filter(w=>due(w.id)).length;
   const ma=P.filter(w=>mastered(w.id)).length;
   return `<div class="hero">
-    ${LANTERNES}
     <span class="mark">汉</span>
+    ${LANTERNES}
     <h1>Bonjour Ophélie</h1>
     <div class="sub">HSK ${S.settings.level}${S.settings.theme!=='all'?' · '+esc(themeName(S.settings.theme)):''}</div>
     <div class="rule"></div>
