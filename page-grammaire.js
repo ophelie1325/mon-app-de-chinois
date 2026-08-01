@@ -36,7 +36,7 @@ function vGramHome(){
   ${themeSelect()}
 
   <div class="gsub">Les fiches de mon niveau</div>
-  ${dispo.length?dispo.map(ligneFiche).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. Les quatre fiches écrites couvrent « Se présenter » et « Présenter et décrire quelqu’un », en HSK 2 et HSK 3.')}
+  ${dispo.length?dispo.map(g=>ligneFiche(g)).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. Les quatre fiches écrites couvrent « Se présenter » et « Présenter et décrire quelqu’un », en HSK 2 et HSK 3.')}
 
   <div class="gsub">Explorer</div>
   <button class="grow c-indigo" onclick="go('index')">
@@ -50,14 +50,14 @@ function vGramHome(){
   </button>`;
 }
 
-function ligneFiche(g){
+function ligneFiche(g,verrou){
   const f=famOf(g.fam), r=gRec(g.id), b=boxOf(g.id);
   let etat='', cls='';
   if(!r.vu){etat='À découvrir';}
   else if(S.items[g.id]&&due(g.id)){etat='À revoir';cls='due';}
   else if(mastered(g.id)){etat='Acquis';cls='ok';}
   else{etat='Boîte '+b;}
-  return `<button class="grow ${FAMCLASS[g.fam]||''}" onclick="ouvrir('${g.id}')">
+  return `<button class="grow ${FAMCLASS[g.fam]||''}${verrou?' glock':''}" onclick="ouvrir('${g.id}')">
     <span class="em">${f.em}</span>
     <span class="tx"><b>${esc(g.title)}</b><small>HSK ${g.hsk} · ${esc(f.n.toLowerCase())}</small></span>
     <span class="st ${cls}">${etat}</span>
@@ -77,7 +77,7 @@ function vIndex(){
   ${FAM.map(f=>{
     const l=GRAMMAR.filter(g=>g.fam===f.k).sort((a,b)=>a.hsk-b.hsk);
     if(!l.length)return '';
-    return `<div class="gsub">${esc(f.n)}</div>${l.map(ligneFiche).join('')}`;
+    return `<div class="gsub">${esc(f.n)}</div>${l.map(g=>ligneFiche(g,g.hsk>S.settings.level)).join('')}`;
   }).join('')}
   <p class="sm mt">Trente-deux fiches restent à écrire pour couvrir le programme jusqu’au HSK 6.</p>`;
 }
@@ -85,7 +85,7 @@ function vIndex(){
 function vRevoir(){
   const l=GRAMMAR.filter(g=>S.items[g.id]&&due(g.id));
   return `${header('Points à revoir','Les fiches dont les exercices ont échoué')}
-  ${l.length?l.map(ligneFiche).join(''):
+  ${l.length?l.map(g=>ligneFiche(g)).join(''):
     `<div class="void"><span class="em">净</span><p><b>Rien à reprendre</b></p>
      <p class="sm">Une fiche revient ici quand ses exercices tombent sous 75 %, puis à chaque échéance de sa boîte.</p></div>`}`;
 }

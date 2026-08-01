@@ -333,6 +333,15 @@ function grade(id,g){
   touchStreak();save();
 }
 
+/* Rouge : l’échéance est passée. Jade : la boîte 4 ou plus, donc acquis.
+   Ocre : en cours d’installation. Neutre : jamais vu. */
+function etatDot(id){
+  if(due(id))return 'due';
+  const b=boxOf(id);
+  if(b>=4)return 'ok';
+  return b>=1?'mid':'';
+}
+
 function mastered(id){const r=S.items[id];return !!r&&r.box>=4;}
 
 /* --- Filtres --- */
@@ -579,6 +588,7 @@ const STEPMARK={text:'读',qcm:'问',mots:'词',gram:'法',prod:'写',chat:'聊'
 
 const SVG={
   back:'<path d="M15 5l-7 7 7 7"/>',
+  close:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   home:'<path d="M3.5 11L12 3.5 20.5 11"/><path d="M5.5 9.6V20h13V9.6"/><path d="M10 20v-5.5h4V20"/>',
   cards:'<rect x="3" y="7.5" width="13" height="12.5" rx="2.5"/><path d="M7.5 7.5V6A2 2 0 0 1 9.5 4h9A2 2 0 0 1 20.5 6v9a2 2 0 0 1-2 2h-1.5"/>',
   flag:'<path d="M5.5 21V3.5"/><path d="M5.5 4.5h12l-2.4 4 2.4 4h-12"/>',
@@ -630,11 +640,23 @@ const TABS=[
    registre window.VIEWS, et éventuellement window.MOUNT pour ce qui doit
    être branché après le dessin (HanziWriter, zones de tracé). */
 let view='',ctx={},stack=[];
-function go(v,c){stopSpeech();stack.push([view,ctx]);view=v;ctx=c||{};render();scrollTo(0,0);}
+/* Le sens d’entrée de la prochaine vue. Vide : aucune animation, ce qui
+   évite de faire clignoter l’écran à chaque redessin d’un exercice. */
+let NAVDIR='';
+/* Les vues où l’on est en train de faire quelque chose, par opposition à
+   celles où l’on consulte : la barre d’onglets s’y efface et le bouton
+   de tête devient une croix de fermeture. */
+const EXOVIEWS=['exo','mots','bilan'];
+function isExoView(){
+  if(EXOVIEWS.indexOf(view)>=0)return true;
+  if(view==='vocab'&&ctx&&ctx.session)return true;
+  return false;
+}
+function go(v,c){stopSpeech();stack.push([view,ctx]);view=v;ctx=c||{};NAVDIR='in-r';render();scrollTo(0,0);}
 function back(){
   stopSpeech();
   const p=stack.pop();
-  if(p){view=p[0];ctx=p[1];render();scrollTo(0,0);return;}
+  if(p){view=p[0];ctx=p[1];NAVDIR='in-l';render();scrollTo(0,0);return;}
   nav('home');
 }
 function tab(id){nav(id);}
@@ -649,12 +671,19 @@ function render(){
   const V=window.VIEWS||{};
   if(!view||!V[view])view=window.HOMEVIEW||Object.keys(V)[0]||'';
   const f=V[view];
+  document.body.classList.toggle('exo',isExoView());
   try{app.innerHTML=f?f():'';}
   catch(e){
     app.innerHTML=`<div class="box"><h2>Cet écran n’a pas pu s’afficher</h2>
       <p class="mut sm">${esc(e.message||String(e))}</p>
       <button class="btn" onclick="nav('home')">Revenir à l’accueil</button></div>`;
     try{console.error(e);}catch(_){}
+  }
+  if(NAVDIR){
+    const d=NAVDIR;NAVDIR='';
+    app.classList.remove('in','in-r','in-l');
+    void app.offsetWidth;
+    app.classList.add(d);
   }
   if(typeof window.MOUNT==='function'){try{window.MOUNT();}catch(e){}}
   if(ctx.scrollTo){
@@ -673,8 +702,9 @@ document.addEventListener('DOMContentLoaded',boot);
 
 /* --- Fragments --- */
 function header(title,sub){
+  const x=isExoView();
   return `<div class="top">
-    <button class="back" onclick="back()" aria-label="Retour">${ico('back')}</button>
+    <button class="${x?'xclose':'back'}" onclick="back()" aria-label="${x?'Fermer':'Retour'}">${ico(x?'close':'back')}</button>
     <div class="htitle">${esc(title)}${sub?`<small>${esc(sub)}</small>`:''}</div>
   </div>`;
 }

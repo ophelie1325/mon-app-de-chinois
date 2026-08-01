@@ -24,12 +24,13 @@ function vocabHome(P){
     onclick="openExo('${x.id}')">
     <span class="g" style="font-family:var(--han);font-size:23px;color:var(--clay)">${x.kind==='match'?'配':'表'}</span>
     <span class="m"><b>${esc(x.titre)}</b><span class="mut">${esc(x.consigne)}</span></span></button>`).join('')}
-  <p class="mut sm mt">La révision rapide ne fait pas monter les boîtes : elle sert aux trajets, quand vous ne pouvez ni tracer ni taper.</p>
+  <p class="mut sm mt">La révision rapide se juge à la main : oublié renvoie le mot à la boîte 0, hésité le fait redescendre d’un cran, su le fait monter.</p>
   <h2 class="sec">Les mots de ce filtre</h2>
   ${P.map(x=>`<div class="wrow">
     <span class="g">${esc(x.hz)}</span>
     <span class="m"><b>${esc(x.fr)}</b><span class="py">${pinyin(x.py)}</span></span>
-    ${mastered(x.id)?'<span class="seal">印</span>':`<span class="st">boîte ${boxOf(x.id)}</span>`}
+    <span class="st">${mastered(x.id)?'acquis':'boîte '+boxOf(x.id)}</span>
+    <span class="dot ${etatDot(x.id)}"></span>
   </div>`).join('')}`;
 }
 
@@ -125,7 +126,7 @@ function vocabFlash(){
   const rev=ctx.dir==='hz-fr'
     ?`<div class="py">${pinyin(w.py)}</div><div class="fr" style="margin-top:6px">${esc(w.fr)}</div>`
     :`<div class="glyph sm">${esc(w.hz)}</div><div class="py">${pinyin(w.py)}</div>`;
-  return header('Révision rapide','Les boîtes ne bougent pas')+vocabProg()+`
+  return header('Révision rapide','Auto-évaluation, boîte par boîte')+vocabProg()+`
   <div class="row" style="margin-bottom:12px">
     <button class="btn ${ctx.dir==='hz-fr'?'':'pale'} sm" onclick="ctx.dir='hz-fr';ctx.show=0;render()">汉字 → fr</button>
     <button class="btn ${ctx.dir==='fr-hz'?'':'pale'} sm" onclick="ctx.dir='fr-hz';ctx.show=0;render()">fr → 汉字</button>
@@ -134,16 +135,20 @@ function vocabFlash(){
     ${front}
     ${ctx.show?`<hr>${rev}<button class="btn pale tiny mt" onclick="speak('${jq(w.hz)}')">Écouter</button>`:''}
   </div>
-  ${ctx.show?`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Mot suivant':'Terminer'}</button>`
+  ${ctx.show?`<div class="judge">
+      <button class="btn pale" onclick="vJudge(0)">Oublié</button>
+      <button class="btn gold" onclick="vJudge(1)">Hésité</button>
+      <button class="btn jade" onclick="vJudge(2)">Su</button>
+    </div>`
             :`<button class="btn mt" onclick="ctx.show=1;render()">Voir la réponse</button>`}`;
 }
 
 function vocabScore(){
   const Z=ctx.session,n=Z.ids.length;
   if(Z.quick)return header('Révision rapide')+`
-    <div class="box"><div class="score"><div class="n">${n}</div><div class="lbl">mot${n>1?'s':''} passé${n>1?'s':''} en revue</div></div>
-    <p class="mut sm">Aucune boîte n’a bougé : c’était une lecture, pas une épreuve.</p></div>
-    <button class="btn" onclick="ctx.session=null;ctx.d=null;render()">Retour au vocabulaire</button>`;
+    <div class="box"><div class="score"><div class="n">${Z.right}<small> / ${n}</small></div><div class="lbl">mot${n>1?'s':''} jugé${n>1?'s':''} su</div></div>
+    <p class="mut sm">Les boîtes ont suivi vos jugements. Ce que vous avez déclaré oublié revient dès la prochaine séance.</p></div>
+    <button class="btn" onclick="back()">Retour au vocabulaire</button>`;
   const pct=Math.round(Z.right/n*100);
   const monte=Z.ids.filter(id=>boxOf(id)>0).length;
   return header('Séance terminée')+`
@@ -152,8 +157,8 @@ function vocabScore(){
     <div class="bar" style="margin:14px 0"><i style="width:${pct}%;background:${pct>=75?'var(--jade)':'var(--red)'}"></i></div>
     <p class="mut sm">${monte} mot${monte>1?'s':''} au-dessus de la boîte 0. Les mots ratés reviendront dès la prochaine séance, au même étage.</p>
   </div>
-  <button class="btn" onclick="startVocab(0)">Nouvelle séance</button>
-  <button class="btn pale mt" onclick="ctx.session=null;ctx.d=null;render()">Retour au vocabulaire</button>`;
+  <button class="btn" onclick="back();startVocab(0)">Nouvelle séance</button>
+  <button class="btn pale mt" onclick="back()">Retour au vocabulaire</button>`;
 }
 
 function startVocab(quick){
@@ -162,13 +167,26 @@ function startVocab(quick){
   const q=P.filter(w=>due(w.id));
   const src=(q.length?q:P).slice().sort((a,b)=>boxOf(a.id)-boxOf(b.id));
   const list=shuffle(src.slice(0,Math.min(src.length,12)));
-  ctx.session={ids:list.map(x=>x.id),i:0,right:0,quick:!!quick,rappel:!q.length};
-  ctx.show=0;
-  ctx.d=quick?null:makeDrill(list[0]);
-  render();scrollTo(0,0);
+  /* La séance est empilée comme une vue à part entière : la croix de
+     fermeture ramène ainsi à la liste, et non à l’accueil. */
+  go('vocab',{
+    session:{ids:list.map(x=>x.id),i:0,right:0,quick:!!quick,rappel:!q.length},
+    show:0,
+    d:quick?null:makeDrill(list[0])
+  });
 }
 
 function curWord(){return WORDS.find(x=>x.id===ctx.session.ids[ctx.session.i]);}
+
+/* L’auto-évaluation appelle directement l’échelle à trois niveaux de
+   grade() : 0 oublié, 1 hésité, 2 su. */
+function vJudge(g){
+  const w=curWord();
+  if(w)grade(w.id,g);
+  if(g===2)ctx.session.right++;
+  beep(g===0?'no':'ok');
+  vNext();
+}
 
 function vNext(){
   const Z=ctx.session;

@@ -28,7 +28,7 @@ function vHome(){
      travail en cours. Le parcours prime, sinon les mots à réviser. */
   const enCours=(function(){
     const l=currentLesson();
-    if(l&&lessonProgress(l)>0&&lessonProgress(l)<l.steps.length)return 'parcours';
+    if(l&&lessonProgress(l)<l.steps.length)return 'parcours';
     return P.filter(w=>due(w.id)).length?'vocab':'parcours';
   })();
   const todo=P.filter(w=>due(w.id)).length;

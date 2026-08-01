@@ -22,7 +22,7 @@
    0. SOCLE COMMUN
    ===================================================================== */
 :root{
-  --build:'20260731d';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20260801a';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -164,12 +164,17 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
   color:#B8342E;opacity:.12;pointer-events:none;
 }
 .mod:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
-.mod .emb{position:relative;z-index:1;font-size:32px;font-weight:700;line-height:1}
+.mod .emb{
+  position:relative;z-index:1;width:46px;height:46px;flex:none;border-radius:8px;
+  display:grid;place-items:center;line-height:1;
+  font-family:var(--han-serif);font-weight:700;font-size:26px;
+  border:1.5px solid transparent;background:transparent;
+}
 .mod b{position:relative;z-index:1;font-size:15px;font-weight:700;line-height:1.25;margin-top:auto}
 .mod span{position:relative;z-index:1;font-size:11.5px;color:var(--muted);line-height:1.3}
 .mod.wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:14px;min-height:0}
 .mod.wide::before{font-size:62px;top:-14px;right:-8px}
-.mod.wide .emb{font-size:38px}
+.mod.wide .emb{width:44px;height:44px;font-size:24px}
 .mod.wide .col{position:relative;z-index:1;flex:1;min-width:0}
 .mod.wide b{margin-top:0;display:block;font-size:17px}
 
@@ -180,10 +185,19 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
 .c-plum{border-color:#E6C9D6}   .c-plum .emb,.c-plum b{color:var(--plum)}       .c-plum .bar i{background:var(--plum)}
 .c-clay{border-color:#EFD2BC}   .c-clay .emb,.c-clay b{color:var(--clay)}       .c-clay .bar i{background:var(--clay)}
 
+/* Le sceau au repos : le fond pâle et le filet de la couleur du module.
+   Seul le remplissage distingue les états ; la géométrie ne bouge pas. */
+.c-red .emb{background:var(--red-s);border-color:#F0CFCB}
+.c-gold .emb{background:var(--gold-s);border-color:#F0DDB4}
+.c-jade .emb{background:var(--jade-s);border-color:#C6DFD8}
+.c-indigo .emb{background:var(--indigo-s);border-color:#C9D5E7}
+.c-plum .emb{background:var(--plum-s);border-color:#E6C9D6}
+.c-clay .emb{background:var(--clay-s);border-color:#EFD2BC}
+
 /* La tuile du module en cours : coins presque vifs, quatre cornières
    or, et l’emblème en sceau rouge plein, caractère réservé en crème.
    Ces règles viennent après les couleurs de module, pour les couvrir. */
-.mod.cur{border-radius:6px 3px 6px 3px;border-color:var(--or-filet)}
+.mod.cur{border-color:var(--or-filet)}
 .mod.cur::after{
   content:'';position:absolute;inset:6px;pointer-events:none;
   --tr:linear-gradient(var(--or-filet),var(--or-filet));
@@ -192,14 +206,12 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
   background-size:14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px;
   background-repeat:no-repeat;
 }
-.mod.cur .emb{
-  width:46px;height:46px;border-radius:8px;background:var(--red);color:#FBF6EE;
-  display:grid;place-items:center;font-size:26px;font-family:var(--han-serif);
+.mod.cur .emb,.mod.cur.wide .emb{
+  background:var(--red);border-color:var(--red);color:#FBF6EE;
 }
-.mod.cur.wide .emb{width:44px;height:44px;font-size:24px}
 
 /* La barre d’avancement des tuiles. */
-.bar{position:relative;z-index:1;height:9px;border-radius:99px;background:#F0E9DE;overflow:hidden}
+.bar{display:block;position:relative;z-index:1;height:9px;border-radius:99px;background:#F0E9DE;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:99px}
 
 /* ---------- Le sélecteur de niveau, en six sceaux ----------
@@ -207,14 +219,14 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
    pointillé pâle. La variante compacte sert sur les écrans de module. */
 .hsk{display:flex;gap:5px;padding:10px 0 4px}
 .sk{
-  flex:1;min-width:0;text-align:center;padding:7px 0;border-radius:3px;
+  flex:1;min-width:0;text-align:center;padding:7px 0;border-radius:8px;
   font-family:var(--han-serif);font-weight:700;font-size:16px;
-  border:1px solid var(--or-filet);color:var(--gold-d);background:transparent;
+  border:1.5px solid var(--or-filet);color:var(--gold-d);background:var(--gold-s);
 }
 .sk .sub{display:block;font-family:var(--ui);font-size:9px;font-weight:600;
   opacity:.65;margin-top:1px;letter-spacing:.02em}
 .sk.on{background:var(--red);border-color:var(--red);color:#FFF6EC}
-.sk.off{border:1px dashed #DFCFA8;color:#BCAF9A}
+.sk.off{border-color:#E3CFA0;color:#BCAF9A;background:transparent}
 .hsk.mini{gap:4px;padding:7px 0 2px}
 .hsk.mini .sk{font-size:14px;padding:5px 0}
 .hsk.mini .sk .sub{font-size:8.5px}
@@ -622,7 +634,7 @@ body.exo{padding-bottom:24px}
    ===================================================================== */
 @media (max-width:340px){
   .grid{grid-template-columns:1fr}
-  .hsk .sq{width:40px;height:40px;font-size:18px}
+  .hsk .sk{padding:5px 0;font-size:14px}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
