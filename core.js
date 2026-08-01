@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260801c';
+const BUILD='20260801e';
 
 /* --- Cohérence de la livraison ---------------------------------------
    Le marqueur figure à trois endroits : la constante ci-dessus, la
@@ -63,7 +63,7 @@ const KEY='coach-chinois-v2';
 let memoryOnly=false;
 
 function loadState(){
-  const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',
+  const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',fav:[],enrich:{},
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
       pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,chatOneQ:true,chatTurns:7,chatDemote:true,
       voices:{d:'',A:'',B:'',C:''}}};
@@ -78,7 +78,7 @@ function loadState(){
 
 /* Un état enregistré par une version antérieure, ou abîmé, ne doit
    jamais faire tomber un écran : on le remet en forme au chargement,
-   silencieusement, plutôt que de faire confiance à ce qu'on relit. */
+   silencieusement, plutôt que de faire confiance à ce qu’on relit. */
 function normState(S){
   const obj=v=>(v&&typeof v==='object'&&!Array.isArray(v))?v:{};
   S.items=obj(S.items);
@@ -88,7 +88,24 @@ function normState(S){
     r.box=Math.min(5,Math.max(0,Number(r.box)||0));
     r.due=Number(r.due)||0;
     r.seen=Number(r.seen)||0;r.ok=Number(r.ok)||0;r.ko=Number(r.ko)||0;
+    r.kos=Number(r.kos)||0;
+    r.last=typeof r.last==='string'?r.last:'';
   }
+  /* Les favoris du traducteur. Ils sont du contenu, pas de la
+     progression : wipe() ne doit pas y toucher, l’export les emporte. */
+  S.fav=Array.isArray(S.fav)?S.fav.filter(f=>f&&typeof f==='object'&&f.id&&f.hz):[];
+  S.fav.forEach(f=>{
+    f.py=String(f.py||'');f.fr=String(f.fr||'');
+    if(['mot','morceau','phrase'].indexOf(f.type)<0)f.type='mot';
+    f.exs=Array.isArray(f.exs)?f.exs.filter(x=>x&&x.hz):[];
+    f.syn=Array.isArray(f.syn)?f.syn.filter(x=>x&&x.hz):[];
+    f.vois=Array.isArray(f.vois)?f.vois.filter(x=>x&&x.hz):[];
+    f.decomp=Array.isArray(f.decomp)?f.decomp.filter(x=>x&&x.c):[];
+    if(!f.faute||typeof f.faute!=='object'||!f.faute.hz)f.faute=null;
+    f.t=Number(f.t)||0;
+  });
+  /* Données d’exercice ajoutées après coup aux mots du corpus. */
+  S.enrich=obj(S.enrich);
   /* Les étapes franchies ont été enregistrées en objet par une version
      ancienne : les méthodes de tableau cassaient dessus. */
   S.lessons=obj(S.lessons);
@@ -364,7 +381,10 @@ function touchStreak(){
 }
 
 /* --- Répétition espacée (Leitner) --- */
-const BOXES=[0,1,3,7,21,60];
+/* Intervalles en jours. Le démarrage est volontairement serré : un mot
+   neuf doit revenir le jour même, puis le lendemain. La queue reste
+   longue pour ne pas encombrer les séances une fois le mot installé. */
+const BOXES=[0,0.25,1,4,14,45];
 
 function rec(id){if(!S.items[id])S.items[id]={box:0,due:0,seen:0,ok:0,ko:0};return S.items[id];}
 
@@ -372,11 +392,27 @@ function boxOf(id){return (S.items[id]||{box:0}).box;}
 
 function due(id){const r=S.items[id];return !r||r.due<=Date.now();}
 
+/* Trois verdicts : 0 raté ou oublié, 1 hésité ou approximatif, 2 su.
+   Un raté fait reculer d’un seul cran. Renvoyer à la boîte 0 un mot
+   acquis depuis des semaines parce qu’il a été manqué une fois est
+   punitif et faux : rater n’est pas n’avoir jamais su. Deux échecs
+   consécutifs font en revanche reculer de deux crans, parce que là
+   c’est bien le mot qui n’est pas installé. */
 function grade(id,g){
   const r=rec(id);r.seen++;
-  if(g===0){r.box=0;r.ko++;}
-  else if(g===1){r.box=Math.max(0,r.box-1);r.ko++;}
-  else{r.box=Math.min(BOXES.length-1,r.box+1);r.ok++;}
+  if(g===0){
+    const chaine=(r.kos||0)+1;
+    r.kos=chaine;
+    r.box=Math.max(0,r.box-(chaine>=2?2:1));
+    r.ko++;
+  }else if(g===1){
+    r.kos=0;r.ko++;
+    /* L’hésitation ne fait pas reculer, mais ne fait pas monter non
+       plus : le mot revient à l’échéance qu’il avait déjà. */
+  }else{
+    r.kos=0;
+    r.box=Math.min(BOXES.length-1,r.box+1);r.ok++;
+  }
   r.due=Date.now()+BOXES[r.box]*864e5;
   touchStreak();save();
 }
@@ -401,6 +437,19 @@ function fits(o){
 }
 
 function pool(){return DATA('WORDS').filter(fits);}
+
+/* Les favoris ne portent ni niveau ni thème : ils ne passent donc pas
+   par fits(). C’est voulu — en révision, le niveau et le thème ne
+   servent à rien, seule la boîte compte. Ils sortent toujours. */
+function favPool(){return (S.fav||[]).slice().sort((a,b)=>b.t-a.t);}
+function favFind(id){return (S.fav||[]).find(f=>f.id===id)||null;}
+/* Un mot, d’où qu’il vienne : corpus ou carnet. */
+function anyWord(id){
+  return DATA('WORDS').find(w=>w.id===id)||favFind(id)||null;
+}
+/* Les données d’exercice d’un mot du corpus, ajoutées après coup. */
+function enrichOf(w){return (S.enrich&&S.enrich[w.id])||{};}
+function favDue(){return favPool().filter(f=>due(f.id)).length;}
 
 function themeName(id){const t=THEMES.find(x=>x.id===id);return t?t.n:'';}
 
@@ -460,6 +509,33 @@ Pas de préambule ni de conclusion.`;
   if(!r.ok)throw new Error('erreur '+r.status);
   const d=await r.json();
   return ((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('\n');
+}
+
+/* ---- Un appel qui rapporte un objet, quel que soit le fournisseur ----
+   correct() n’est pas un tuyau neutre : elle enrobe sa consigne dans un
+   gabarit de correction de copie. Lui demander du JSON revenait à donner
+   au modèle deux ordres contradictoires, et la lecture échouait presque
+   toujours. Tout ce qui attend une structure passe donc par ici. */
+async function askJSON(sys,user,schema){
+  const p=S.settings.provider,k=(S.settings.apikey||'').trim();
+  if(p==='none'||!k)throw new Error('aucune clé');
+  if(p==='anthropic'){
+    let r;
+    try{
+      r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4000,
+          system:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balise de code ni commentaire.',
+          messages:[{role:'user',content:user}]})});
+    }catch(e){throw new Error('réseau injoignable, ou requête bloquée par le navigateur');}
+    if(!r.ok)throw new Error('erreur '+r.status);
+    const d=await r.json();
+    const txt=(d.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n');
+    try{return JSON.parse(String(txt).replace(/```json|```/g,'').trim());}
+    catch(e){throw new Error('Réponse illisible du modèle.');}
+  }
+  return await gemJSON(sys,[{parts:[{text:user}]}],schema);
 }
 
 /* ---- Essai de la clé : sonder les quatre combinaisons et tout rapporter ---- */
@@ -623,6 +699,7 @@ async function testAnthropic(k,fin){
 const MODULES=[
   {id:'parcours',em:'路',c:'red',   n:'Parcours par thème',  d:'Une leçon complète, du début à la fin',wide:1},
   {id:'vocab',   em:'词',c:'clay',  n:'Vocabulaire',         d:'Révision espacée'},
+  {id:'trad',    em:'译',c:'gold',  n:'Traducteur',          d:'Traduire, puis garder au carnet'},
   {id:'chars',   em:'字',c:'indigo',n:'Caractères',          d:'Ordre des traits'},
   {id:'gram',    em:'法',c:'jade',  n:'Grammaire',           d:'Fiches et exercices'},
   {id:'co',      em:'听',c:'plum',  n:'Compréhension orale', d:'Écouter puis répondre'},
@@ -760,7 +837,7 @@ function header(title,sub){
 
 /* Six sceaux carrés : actif en rouge plein, disponible en contour or,
    vide en pointillé pâle. La variante compacte sert sur les écrans de
-   module, où le panneau d'accueil n'est pas là pour donner le contexte.
+   module, où le panneau d’accueil n’est pas là pour donner le contexte.
    Lecture tolérante : une page qui ne charge pas tous les fichiers de
    données compte les absents pour zéro. */
 function levelPills(mini){
@@ -774,7 +851,7 @@ function levelPills(mini){
   }).join('')}</div>`;
 }
 
-/* Le sélecteur de thème de l'accueil porte la classe « theme » : le
+/* Le sélecteur de thème de l’accueil porte la classe « theme » : le
    caractère 题 en rouge, le chevron or, le filet dégradé en soulignement.
    Ailleurs, un selwrap nu suffit. */
 function themeSelect(nu){

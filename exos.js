@@ -70,56 +70,245 @@ function gramQuiz(g,n){
    ===================================================================== */
 
 
-const LADDER=[
-  {k:'reco',  n:'Reconnaître', d:'汉字 → français'},
-  {k:'prod',  n:'Produire',    d:'français → 汉字'},
-  {k:'tons',  n:'Tons',        d:'retrouver le pinyin exact'},
-  {k:'trou',  n:'En contexte', d:'compléter la phrase'},
-  {k:'trace', n:'Tracer',      d:'écrire de mémoire, sans modèle'},
-  {k:'saisie',n:'Traduire',    d:'au clavier chinois'}
-];
+/* =====================================================================
+   LES TYPES D’EXERCICE
 
-function sentsFor(w){
-  const c=(w.ex?[{hz:w.ex.hz,py:w.ex.py||'',fr:w.ex.fr,hsk:w.hsk,th:w.th}]:[]).concat(SENT);
-  return c.filter(x=>x.hz.indexOf(w.hz)>=0)
-          .sort((a,b)=>((a.hsk===w.hsk?0:1)-(b.hsk===w.hsk?0:1))||(a.hz.length-b.hz.length));
+   Quatorze en tout. Ce ne sont plus des échelons imposés un par boîte,
+   mais une réserve dans laquelle chaque palier pioche. Deux raisons :
+   l’échelle rigide se devinait — boîte 2 voulait toujours dire les tons,
+   et l’attention tombait ; et surtout tous les types ne s’appliquent pas
+   à tout. Un mot vit à l’intérieur d’une phrase, une phrase se suffit :
+   les deux ne se travaillent pas de la même façon.
+
+   Le champ « be » dit de quoi le type a besoin. Un type dont la donnée
+   manque n’est pas proposé, il n’y a jamais d’exercice à vide.
+   ===================================================================== */
+const TYPES=[
+  {k:'reco',   n:'Reconnaître',      d:'汉字 → français',              be:''},
+  {k:'prod',   n:'Produire',         d:'français → 汉字',              be:''},
+  {k:'ecoute', n:'À l’oreille',      d:'entendre, puis reconnaître',   be:'voix'},
+  {k:'tons',   n:'Tons',             d:'retrouver le pinyin exact',    be:'py'},
+  {k:'pyw',    n:'Écrire le pinyin',  d:'au clavier, tons chiffrés',    be:'py'},
+  {k:'trou',   n:'En contexte',      d:'compléter la phrase',          be:'ex'},
+  {k:'trouw',  n:'À l’aveugle',       d:'compléter sans proposition',  be:'ex'},
+  {k:'ordre',  n:'Remettre en ordre',d:'reconstruire la phrase',       be:'seg'},
+  {k:'trace',  n:'Tracer',           d:'écrire de mémoire, sans modèle', be:'trait'},
+  {k:'saisie', n:'Traduire',         d:'au clavier chinois',           be:'ex'},
+  {k:'dictee', n:'Dictée',           d:'entendre, puis écrire',        be:'dictee'},
+  {k:'mjuste', n:'Le mot juste',     d:'trancher entre deux voisins',  be:'vois'},
+  {k:'faute',  n:'Repérer la faute',  d:'laquelle des deux est juste',  be:'faute'},
+  {k:'decomp', n:'Composition',      d:'de quoi le caractère est fait', be:'decomp'},
+  {k:'remploi',n:'Réemploi',         d:'produire, et faire corriger',  be:'cle'}
+];
+/* Conservé sous son ancien nom : d’autres écrans le lisent. */
+const LADDER=TYPES;
+function typeOf(k){return TYPES.find(t=>t.k===k)||{k:k,n:k,d:''};}
+
+/* Quatre paliers. La courbe voulue : au début beaucoup et souvent, sous
+   des formes variées ; au milieu on ne choisit plus, on produit ; puis on
+   réemploie ; puis on ne fait plus que vérifier, de loin en loin, que
+   c’est bien resté. */
+const PALIERS=[
+  {n:'Installation',   b:[0,1],
+   mot:['reco','ecoute','tons','ordre','trou'],
+   phr:['reco','ordre','dictee']},
+  {n:'Affermissement', b:[2,3],
+   mot:['pyw','prod','trouw','mjuste','faute','decomp','trace','trou'],
+   phr:['trouw','prod','faute','ordre','dictee']},
+  {n:'Réemploi',       b:[4],
+   mot:['saisie','remploi','trouw','mjuste'],
+   phr:['saisie','remploi','dictee']},
+  {n:'Vérification',   b:[5],
+   mot:['reco','ecoute'],
+   phr:['reco','dictee']}
+];
+function palierOf(b){
+  return PALIERS.find(p=>p.b.indexOf(Math.min(5,Math.max(0,b|0)))>=0)||PALIERS[0];
 }
 
-function distract(w,n){
-  let c=pool().filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
-  if(c.length<n)c=DATA('WORDS').filter(x=>x.hsk===w.hsk&&x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
-  if(c.length<n)c=DATA('WORDS').filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz);
-  return shuffle(c).slice(0,n);
+/* Mot, morceau de phrase ou phrase entière. Les mots du corpus n’ont pas
+   de champ « type » : ce sont des mots. Le modèle étiquette les favoris,
+   parce que compter les caractères ne dit rien — 中华人民共和国 en fait
+   sept et c’est un mot, 我去 en fait deux et c’est une phrase. */
+function unitOf(w){return w&&w.type==='phrase'?'phr':'mot';}
+
+/* Tout ce dont les exercices ont besoin, d’où que ça vienne : le mot
+   lui-même, l’enrichissement ajouté après coup pour le corpus, ou la
+   capture faite au moment de la mise en favori. */
+function dataOf(w){
+  const e=(typeof enrichOf==='function')?enrichOf(w):{};
+  const exs=[].concat(w.exs||[],w.ex?[w.ex]:[],e.exs||[]).filter(x=>x&&x.hz);
+  return {
+    exs:exs,
+    vois:[].concat(w.vois||[],e.vois||[]).filter(x=>x&&x.hz),
+    faute:w.faute||e.faute||null,
+    decomp:[].concat(w.decomp||[],e.decomp||[]).filter(x=>x&&x.c),
+    seg:Array.isArray(w.seg)&&w.seg.length?w.seg:null
+  };
+}
+
+/* Les phrases où le mot apparaît : celles capturées avec lui d’abord,
+   puis celles du corpus. On préfère toujours une phrase où il ne figure
+   qu’une fois, sans quoi le trou laisserait lire la réponse à côté. */
+function sentsFor(w){
+  if(unitOf(w)==='phr')return [{hz:w.hz,py:w.py||'',fr:w.fr,seg:w.seg||null,hsk:w.hsk,th:w.th}];
+  const D=dataOf(w);
+  const c=D.exs.map(x=>({hz:x.hz,py:x.py||'',fr:x.fr,seg:x.seg||null,hsk:w.hsk,th:w.th}))
+           .concat(SENT);
+  return c.filter(x=>x.hz.indexOf(w.hz)>=0)
+          .sort((a,b)=>((a.hz.split(w.hz).length===2?0:1)-(b.hz.split(w.hz).length===2?0:1))
+                     ||((a.hsk===w.hsk?0:1)-(b.hsk===w.hsk?0:1))
+                     ||(a.hz.length-b.hz.length));
+}
+
+/* ---- Leurres proches ------------------------------------------------
+   Trois mots tirés au hasard se distinguent par invraisemblance : on
+   élimine sans rien savoir, et le quiz mesure le bon sens plutôt que la
+   mémoire. On note donc la proximité — même premier caractère, même
+   première syllabe, même silhouette de tons, sens français voisin — et
+   on tire parmi les plus proches. Ce qui reste aléatoire, c’est lequel
+   des huit plus proches sort, pour ne pas revoir toujours le même trio. */
+function frMots(t){
+  return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .split(/[^a-z]+/).filter(x=>x.length>3);
+}
+function proximite(w,x){
+  let n=0;
+  const a=String(w.hz||''),b=String(x.hz||'');
+  if(a&&b&&a.charAt(0)===b.charAt(0))n+=4;
+  else if(a&&b&&[...a].some(c=>b.indexOf(c)>=0))n+=2;
+  const pa=pySyls(w.py),pb=pySyls(x.py);
+  if(pa.length&&pb.length){
+    if(pyBare(pa[0])===pyBare(pb[0]))n+=4;
+    if(pa.length===pb.length)n+=1;
+    if(pa.map(toneOf).join()===pb.map(toneOf).join())n+=1;
+  }
+  const fa=frMots(w.fr),fb=frMots(x.fr);
+  if(fa.some(m=>fb.indexOf(m)>=0))n+=3;
+  if(w.hsk&&x.hsk&&w.hsk===x.hsk)n+=1;
+  return n;
+}
+function distract(w,n,mode){
+  const tous=DATA('WORDS').concat((typeof favPool==='function')?favPool():[]);
+  let c=tous.filter(x=>x.id!==w.id&&x.fr!==w.fr&&x.hz!==w.hz&&x.hz&&x.fr);
+  if(!c.length)return [];
+  /* « son » : on cherche des voisins à l’oreille, pas au sens. */
+  const sc=c.map(x=>({x:x,n:proximite(w,x)+(mode==='son'?(pyBare(pySyls(x.py)[0]||'')===pyBare(pySyls(w.py)[0]||'')?5:0):0)}));
+  sc.sort((a,b)=>b.n-a.n);
+  const proches=sc.slice(0,Math.max(n,Math.min(8,sc.length))).map(o=>o.x);
+  const tire=shuffle(proches).slice(0,n);
+  if(tire.length>=n)return tire;
+  return tire.concat(shuffle(c.filter(x=>tire.indexOf(x)<0)).slice(0,n-tire.length));
 }
 
 function hanOf(t){return [...String(t)].filter(c=>/[\u4e00-\u9fff]/.test(c));}
 
-function makeDrill(w){
-  const ss=sentsFor(w);
-  let kind=LADDER[Math.min(boxOf(w.id),LADDER.length-1)].k;
-  if((kind==='trou'||kind==='saisie')&&!ss.length)kind='prod';
-  if(kind==='trace'&&typeof HanziWriter==='undefined')kind='prod';
-  const d={kind:kind,w:w,ans:null,mist:0,neuf:!S.items[w.id]};
+/* Y a-t-il de quoi construire cet exercice pour ce mot ? */
+function possible(k,w,D,ss){
+  const t=typeOf(k);
+  switch(t.be){
+    case '':      return true;
+    case 'py':    return pySyls(w.py).length>0&&pySyls(w.py).length===hanOf(w.hz).length;
+    case 'voix':  return typeof speechSynthesis!=='undefined';
+    case 'dictee':return typeof speechSynthesis!=='undefined'&&(unitOf(w)==='phr'||ss.length>0);
+    case 'ex':    return ss.length>0&&(unitOf(w)==='mot'||!!ss[0].fr);
+    case 'seg':   return ss.some(x=>Array.isArray(x.seg)&&x.seg.length>2);
+    case 'trait': return typeof HanziWriter!=='undefined'&&hanOf(w.hz).length>0&&hanOf(w.hz).length<=4;
+    case 'vois':  return D.vois.length>0&&ss.length>0;
+    case 'faute': return !!(D.faute&&D.faute.hz);
+    case 'decomp':return D.decomp.length>0;
+    case 'cle':   return S.settings.provider!=='none'&&!!(S.settings.apikey||'').trim();
+  }
+  return false;
+}
+
+/* Le trou : on masque toutes les occurrences, sinon la réponse se lit
+   juste à côté du trou. */
+function creuse(hz,quoi){return String(hz).split(quoi).join('（\u3000）');}
+
+/* Pour une phrase, on ne peut pas creuser la phrase entière : on choisit
+   dedans un mot du corpus, le plus long qu’on y trouve. */
+function motDedans(hz){
+  const c=DATA('WORDS').filter(x=>x.hz&&x.hz.length>=2&&hz.indexOf(x.hz)>=0);
+  c.sort((a,b)=>b.hz.length-a.hz.length);
+  if(c.length)return c[0];
+  const h=hanOf(hz);
+  return h.length>2?{hz:h[Math.floor(h.length/2)],fr:'',py:''}:null;
+}
+
+/* ---- Fabrication d’un exercice ------------------------------------- */
+function makeDrill(w,force){
+  const D=dataOf(w),ss=sentsFor(w),u=unitOf(w);
+  const P=palierOf(boxOf(w.id));
+  let cand=(u==='phr'?P.phr:P.mot).filter(k=>possible(k,w,D,ss));
+  /* Rien de ce palier n’est faisable : on retombe sur ce qui l’est
+     toujours, plutôt que d’afficher un écran vide. */
+  if(!cand.length)cand=['reco','prod'].filter(k=>possible(k,w,D,ss));
+  if(!cand.length)cand=['reco'];
+  /* Ne pas resservir le même type que la fois précédente pour ce mot. */
+  const der=(S.items[w.id]||{}).last||'';
+  const frais=cand.filter(k=>k!==der);
+  let kind=force&&cand.indexOf(force)>=0?force
+          :(frais.length?frais:cand)[Math.random()*(frais.length?frais.length:cand.length)|0];
+
+  const d={kind:kind,w:w,ans:null,mist:0,neuf:!S.items[w.id],unit:u,D:D};
+
   if(kind==='reco'||kind==='prod'){
     const hz=(kind==='prod'),good=hz?w.hz:w.fr;
     d.a=shuffle([good].concat(distract(w,3).map(x=>hz?x.hz:x.fr)));
     d.ok=d.a.indexOf(good);d.han=hz;
     d.prompt=hz?w.fr:w.hz;d.promptHan=!hz;
   }
+  if(kind==='ecoute'){
+    d.a=shuffle([w.hz].concat(distract(w,3,'son').map(x=>x.hz)));
+    d.ok=d.a.indexOf(w.hz);d.han=true;d.audio=w.hz;
+  }
   if(kind==='tons'){
     d.a=shuffle(tonVariants(w.py));d.ok=d.a.indexOf(w.py);
     d.prompt=w.hz;d.promptHan=true;d.han=false;
   }
-  if(kind==='trou'){
-    /* on préfère une phrase où le mot n’apparaît qu’une fois ; sinon on masque
-       toutes ses occurrences, sans quoi la réponse resterait lisible. */
-    const uniq=ss.filter(x=>x.hz.split(w.hz).length===2);
-    d.s=uniq[0]||ss[0];
-    d.a=shuffle([w.hz].concat(distract(w,3).map(x=>x.hz)));
-    d.ok=d.a.indexOf(w.hz);d.han=true;
-    d.gap=d.s.hz.split(w.hz).join('（\u3000）');
+  if(kind==='pyw'){d.prompt=w.hz;d.promptHan=true;}
+  if(kind==='trou'||kind==='trouw'){
+    d.s=ss[0];
+    const cible=(u==='phr')?motDedans(d.s.hz):w;
+    d.cible=cible||w;
+    d.gap=creuse(d.s.hz,d.cible.hz);
+    if(kind==='trou'){
+      d.a=shuffle([d.cible.hz].concat(distract(d.cible,3).map(x=>x.hz)));
+      d.ok=d.a.indexOf(d.cible.hz);d.han=true;
+    }
   }
-  if(kind==='saisie')d.s=ss[0];
+  if(kind==='ordre'){
+    d.s=ss.filter(x=>Array.isArray(x.seg)&&x.seg.length>2)[0]||ss[0];
+    d.seg=d.s.seg.slice();
+    d.bag=shuffle(d.seg);d.built=[];
+  }
+  if(kind==='saisie'||kind==='dictee')d.s=ss[0]||{hz:w.hz,py:w.py,fr:w.fr};
+  if(kind==='mjuste'){
+    d.s=ss[0];
+    const v=shuffle(D.vois).slice(0,2);
+    d.a=shuffle([w.hz].concat(v.map(x=>x.hz)));
+    d.ok=d.a.indexOf(w.hz);d.han=true;
+    d.gap=creuse(d.s.hz,w.hz);
+    d.notes=v;
+  }
+  if(kind==='faute'){
+    const bon={hz:(ss[0]&&ss[0].hz)||w.hz,ok:1},mauvais={hz:D.faute.hz,ok:0};
+    d.a2=shuffle([bon,mauvais]);
+    d.ok=d.a2.findIndex(x=>x.ok===1);
+    d.note=D.faute.note||'';
+  }
+  if(kind==='decomp'){
+    const c=D.decomp[Math.random()*D.decomp.length|0];
+    d.dc=c;
+    const bonnes=(c.parts||[]).map(p=>p.sens).filter(Boolean);
+    d.a=shuffle([bonnes[0]||''].concat(
+      shuffle(D.decomp.concat([])).flatMap(x=>(x.parts||[]).map(p=>p.sens))
+        .filter(x=>x&&x!==bonnes[0]).slice(0,3)));
+    if(d.a.length<2)d.a=null;
+    else d.ok=d.a.indexOf(bonnes[0]||'');
+  }
+  if(kind==='remploi')d.consigne='Écrivez une phrase qui emploie '+w.hz+'.';
   return d;
 }
 
@@ -235,7 +424,7 @@ function gCheck(){
 
 function vExo(){
   /* Ces écrans sont partagés : la vue de repli ne peut pas être celle
-     d'un module en particulier, qui n'existe pas sur toutes les pages. */
+     d’un module en particulier, qui n’existe pas sur toutes les pages. */
   const perdu=()=>`${header('Exercice introuvable')}
     <div class="box"><p class="mut sm">Cet exercice n’est plus disponible.</p>
     <button class="btn" onclick="back()">Revenir</button></div>`;

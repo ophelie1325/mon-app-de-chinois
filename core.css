@@ -22,7 +22,7 @@
    0. SOCLE COMMUN
    ===================================================================== */
 :root{
-  --build:'20260801c';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20260801e';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -449,6 +449,9 @@ body.exo{padding-bottom:24px}
 .opt.pick.long .s1{color:#2F72A8} .opt.pick.long .s2{color:#3D8A46}
 .opt.pick.long .s3{color:#B98526} .opt.pick.long .s4{color:#B8342E}
 .opt.pick.long .s0{color:#8E857D}
+/* Repérer la faute met deux phrases entières en proposition : la ligne
+   doit pouvoir revenir, et le corps rester lisible. */
+.opt.long{font-family:var(--han);font-size:19px;line-height:1.65;white-space:normal;padding:16px 17px}
 .opt.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:0 5px 0 #C6DFD8}
 .opt.no{border-color:var(--red);background:var(--red-s);color:var(--red-d);box-shadow:0 5px 0 #F0CFCB}
 
@@ -650,3 +653,43 @@ body.exo{padding-bottom:24px}
   .hero .lant .c1,.hero .lant .c2{transform:none!important}
   ::view-transition-old(root),::view-transition-new(root){animation:none!important}
 }
+
+
+/* =====================================================================
+   TRADUCTEUR
+   Registre atelier, sous-registre consultation : filets fins, aucune
+   ombre, rien qui distraie de la lecture. La seule chose qui attire
+   l’œil est l’étoile, parce que c’est la seule chose sur laquelle il y
+   ait à décider.
+   ===================================================================== */
+
+/* Le sens, choisi explicitement. Deux côtés et la permutation au milieu,
+   comme sur un traducteur ordinaire — on ne devine pas à la place de
+   l’utilisatrice ce qu’elle veut traduire. */
+.tsens{display:flex;align-items:stretch;gap:8px;margin-bottom:11px}
+.tsens>button{flex:1;min-height:48px;border-radius:15px;font-family:var(--ui);font-weight:700;
+  font-size:15.5px;background:var(--card);color:var(--muted);border:1.5px solid var(--line2)}
+.tsens>button.on{background:var(--gold-s);color:var(--gold-d);border-color:var(--or-filet)}
+.tsens>button:active{transform:translateY(2px)}
+.tsens .swap{flex:none;width:48px;background:transparent;border:none;color:var(--gold-d);
+  display:grid;place-items:center;padding:0}
+.tsens .swap svg{width:23px;height:23px}
+.tsens .swap:active{transform:rotate(180deg)}
+
+/* Une ligne de résultat : le contenu à gauche, l’étoile à droite,
+   alignée sur la première ligne de texte et non centrée verticalement. */
+.trow{display:flex;align-items:flex-start;gap:12px}
+.trow .tl{flex:1;min-width:0}
+.tl .hz{font-size:24px;font-weight:700;line-height:1.35}
+.tl .py{font-size:16px;margin-top:2px}
+.tl .fr{font-size:15.5px;font-weight:600;margin-top:3px}
+.tl .tg{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:5px}
+
+/* L’étoile. Creuse tant que rien n’est gardé, pleine et or une fois au
+   carnet : l’état doit se lire d’un coup d’œil, sans légende. */
+.fav{flex:none;width:46px;height:46px;border-radius:14px;background:transparent;
+  border:1.5px solid var(--line2);color:var(--muted);display:grid;place-items:center;padding:0}
+.fav svg{width:24px;height:24px}
+.fav.on{background:var(--gold-s);border-color:var(--or-filet);color:var(--gold-d)}
+.fav:active{transform:translateY(2px)}

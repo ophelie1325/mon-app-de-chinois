@@ -85,6 +85,31 @@ function vReglages(){
     <p class="mut sm mt">Les dix derniers échanges sont conservés à part, hors de la sauvegarde de progression.</p>
   </div>
 
+  <h2 class="sec">Données d’exercice</h2>
+  <div class="box">
+    ${(function(){
+      const P=DATA('WORDS'),faits=P.filter(w=>S.enrich&&S.enrich[w.id]).length;
+      const cle=S.settings.provider!=='none'&&!!(S.settings.apikey||'').trim();
+      return `<p class="sm" style="margin:0 0 6px"><b>Compléter le corpus</b></p>
+      <p class="mut sm">Quatre épreuves — le mot juste, repérer la faute, la composition du caractère, la complétion à l’aveugle — ont besoin de données que les mots du corpus ne portent pas : voisins confondables, version fautive, décomposition, phrases d’exemple découpées. Le carnet les capte tout seul à la mise en favori. Pour les ${P.length} mots déjà en place, il faut les demander une fois.</p>
+      <p class="mut sm"><b>${faits}</b> mot${faits>1?'s':''} sur ${P.length} déjà complété${faits>1?'s':''}.</p>
+      ${ctx.enr&&ctx.enr.busy
+        ?`<div class="bar" style="margin:10px 0"><i style="width:${Math.round(ctx.enr.fait/Math.max(1,ctx.enr.total)*100)}%"></i></div>
+          <p class="mut sm">${ctx.enr.fait} sur ${ctx.enr.total}… ${esc(ctx.enr.mot||'')}</p>
+          <button class="btn pale sm" onclick="enrStop()">Arrêter</button>`
+        :`<button class="btn pale mt" onclick="enrGo()" ${cle?'':'disabled'}>${faits?'Reprendre':'Lancer'} — par lots de dix</button>
+          ${cle?'':'<p class="mut sm mt">Une clé est nécessaire.</p>'}
+          ${faits?`<button class="btn pale sm mt" onclick="enrWipe()">Effacer ces données</button>`:''}`}
+      ${ctx.enr&&ctx.enr.msg?`<p class="mut sm mt">${esc(ctx.enr.msg)}</p>`:''}`;
+    })()}
+  </div>
+
+  <h2 class="sec">Le carnet</h2>
+  <div class="box">
+    <p class="mut sm" style="margin:0 0 10px">${(S.fav||[]).length} entrée${(S.fav||[]).length>1?'s':''} mise${(S.fav||[]).length>1?'s':''} de côté depuis le traducteur. Elles voyagent dans l’export avec le reste, et « Tout effacer » ne les touche pas : c’est du contenu, pas de la progression.</p>
+    ${(S.fav||[]).length?`<button class="btn pale sm" onclick="favWipe()" style="color:var(--red)">Vider le carnet</button>`:''}
+  </div>
+
   <h2 class="sec">Ma progression</h2>
   <div class="box">
     <button class="btn pale" onclick="exportJSON()">Exporter dans un fichier</button>
@@ -127,4 +152,115 @@ function sw(k,label,help){
   return `<div class="sw ${S.settings[k]?'on':''}" onclick="toggle('${k}')" role="button">
     <span class="lb">${esc(label)}${help?`<br><span class="mut sm">${esc(help)}</span>`:''}</span>
     <span class="kn"></span></div>`;
+}
+
+
+/* =====================================================================
+   COMPLÉTER LES DONNÉES DU CORPUS
+
+   Les mots saisis avant que ces épreuves n’existent ne portent ni
+   voisins confondables, ni version fautive, ni décomposition. Sans ces
+   données, les épreuves correspondantes ne sont tout simplement pas
+   proposées — il n’y a jamais d’exercice à vide — mais le corpus reste
+   alors sur les anciens types. On les demande donc une fois, par lots
+   de dix, et on les garde. Ensuite ça ne dépend plus de la connexion.
+   ===================================================================== */
+const T_=  {type:'STRING'};
+const ENRSCHEMA={type:'OBJECT',properties:{mots:{type:'ARRAY',items:{type:'OBJECT',properties:{
+  hz:T_,
+  exs:{type:'ARRAY',items:{type:'OBJECT',properties:{hz:T_,py:T_,fr:T_,
+    seg:{type:'ARRAY',items:T_}}}},
+  vois:{type:'ARRAY',items:{type:'OBJECT',properties:{hz:T_,py:T_,fr:T_,note:T_}}},
+  faute:{type:'OBJECT',properties:{hz:T_,note:T_}},
+  decomp:{type:'ARRAY',items:{type:'OBJECT',properties:{c:T_,note:T_,
+    parts:{type:'ARRAY',items:{type:'OBJECT',properties:{p:T_,role:T_,sens:T_}}}}}}
+}}}}};
+
+function enrStop(){if(ctx.enr)ctx.enr.stop=true;}
+
+function enrWipe(){
+  if(!confirm('Effacer les données complémentaires du corpus ? Les épreuves qui en dépendent ne seront plus proposées.'))return;
+  S.enrich={};save();ctx.enr=null;render();toast('Données effacées.');
+}
+
+function favWipe(){
+  if(!confirm('Vider le carnet ? Les favoris et leur progression seront perdus.'))return;
+  (S.fav||[]).forEach(f=>{delete S.items[f.id];});
+  S.fav=[];save();render();toast('Carnet vidé.');
+}
+
+async function enrGo(){
+  if(ctx.enr&&ctx.enr.busy)return;
+  const reste=DATA('WORDS').filter(w=>!(S.enrich&&S.enrich[w.id]));
+  if(!reste.length){ctx.enr={msg:'Tout est déjà complété.'};return render();}
+  ctx.enr={busy:true,fait:0,total:reste.length,stop:false,msg:'',mot:''};
+  render();
+  for(let i=0;i<reste.length;i+=10){
+    if(ctx.enr.stop)break;
+    const lot=reste.slice(i,i+10);
+    ctx.enr.mot=lot[0].hz;render();
+    try{
+      const o=await askJSON(enrSys(),enrPrompt(lot),ENRSCHEMA);
+      ((o&&o.mots)||[]).forEach(m=>{
+        const w=lot.find(x=>x.hz===m.hz);if(!w)return;
+        S.enrich[w.id]=enrNettoie(m);
+      });
+      save();
+    }catch(e){
+      ctx.enr.busy=false;
+      ctx.enr.msg='Interrompu : '+((e&&e.message)||e)+' — ce qui a déjà été obtenu est conservé.';
+      return render();
+    }
+    ctx.enr.fait=Math.min(reste.length,i+10);render();
+  }
+  ctx.enr.busy=false;
+  ctx.enr.msg=ctx.enr.stop?'Arrêté. Reprenez quand vous voulez.':'Corpus complété.';
+  render();
+}
+
+function enrSys(){
+  return `Tu es professeur de chinois pour une apprenante francophone de niveau HSK${S.settings.level}.
+
+Règles absolues sur le pinyin : syllabe par syllabe, séparées par des espaces
+(« míng zi », jamais « míngzi ») ; accents de ton, jamais de chiffres ; ton
+neutre non marqué ; exactement autant de syllabes que de caractères. Si tu
+n’es pas certain d’un ton, laisse le pinyin vide plutôt que de deviner.
+
+Le champ « seg » découpe la phrase en mots : recollés, ils la redonnent
+exactement. Apostrophes typographiques dans tout le français.`;
+}
+
+function enrPrompt(lot){
+  return `Pour chacun de ces mots, fournis de quoi fabriquer des exercices.
+
+${lot.map(w=>'· '+w.hz+' — '+w.py+' — '+w.fr).join('\n')}
+
+Pour chaque mot :
+· exs — deux phrases courtes contenant exactement le mot, avec pinyin,
+  traduction française et découpage.
+· vois — deux mots réellement confondables avec lui par une francophone,
+  qui se traduisent pareil en français mais ne s’emploient pas dans les
+  mêmes cas. « note » énonce la règle qui les sépare. Tableau vide s’il
+  n’en existe pas de vraiment confondable : ne force pas.
+· faute — une version fautive mais plausible de la première phrase, du
+  genre d’erreur que fait une francophone, et la note qui l’explique.
+· decomp — pour un ou deux caractères du mot : leurs composants, le rôle
+  de chacun, ce que le composant signifie, et comment cela aide à retenir.
+
+Renvoie le champ hz exactement tel qu’il est écrit ci-dessus.`;
+}
+
+function enrNettoie(m){
+  const pyv=(hz,py)=>{try{return (py&&pinyinCheck(hz,py).ok)?py:'';}catch(e){return '';}};
+  const seg=(x,hz)=>(Array.isArray(x)&&x.join('')===hz)?x.map(String):null;
+  return {
+    exs:(m.exs||[]).filter(x=>x&&x.hz).map(x=>({hz:String(x.hz),py:pyv(String(x.hz),String(x.py||'')),
+      fr:String(x.fr||''),seg:seg(x.seg,String(x.hz))})),
+    vois:(m.vois||[]).filter(x=>x&&x.hz).map(x=>({hz:String(x.hz),py:pyv(String(x.hz),String(x.py||'')),
+      fr:String(x.fr||''),note:String(x.note||'')})),
+    faute:(m.faute&&m.faute.hz)?{hz:String(m.faute.hz),note:String(m.faute.note||'')}:null,
+    decomp:(m.decomp||[]).filter(c=>c&&c.c).map(c=>({c:String(c.c),note:String(c.note||''),
+      parts:(c.parts||[]).filter(p=>p&&p.p).map(p=>({p:String(p.p),role:String(p.role||''),
+        sens:String(p.sens||'')}))}))
+  };
 }

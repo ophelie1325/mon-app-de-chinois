@@ -1,37 +1,73 @@
+/* Deux réserves, jamais mélangées : le corpus, filtré par niveau et par
+   thème, et le carnet, qui ne l’est par rien. En révision le niveau et le
+   thème ne servent à rien de toute façon — seule la boîte compte — mais
+   les mélanger fausserait les compteurs de progression par thème. */
+function vocabSrc(){return ctx.src==='fav'?'fav':'corpus';}
+function setVocabSrc(v){ctx={src:v};render();}
+function vocabPool(){return vocabSrc()==='fav'?favPool():pool();}
+
 function vVocab(){
-  const P=pool();
-  if(!P.length)return header('Vocabulaire')+levelPills()+nothing();
-  if(!ctx.session)return vocabHome(P);
-  if(ctx.session.done)return vocabScore();
-  return ctx.session.quick?vocabFlash():vocabDrill();
+  if(ctx.session){
+    if(ctx.session.done)return vocabScore();
+    return ctx.session.quick?vocabFlash():vocabDrill();
+  }
+  return vocabHome(vocabPool());
+}
+
+function srcPills(){
+  const v=vocabSrc(),nf=favPool().length;
+  return `<div class="pills">
+    <button class="pill ${v==='corpus'?'on':''}" onclick="setVocabSrc('corpus')">Corpus</button>
+    <button class="pill ${v==='fav'?'on':''}" onclick="setVocabSrc('fav')">Mes favoris${nf?' · '+nf:''}</button>
+  </div>`;
+}
+
+/* Les quatre paliers, et ce qui se trouve dans chacun. C’est la carte de
+   la progression : on voit d’un coup ce qui s’installe, ce qui s’affermit
+   et ce qui n’est plus là que pour vérification. */
+function palierTable(P){
+  return PALIERS.map(pa=>{
+    const dedans=P.filter(w=>pa.b.indexOf(boxOf(w.id))>=0);
+    const types=pa.mot.map(k=>typeOf(k).n).join(' · ');
+    return `<div class="ladder">
+      <span class="bx ${dedans.length?'on':''}">${pa.b.join('–')}</span>
+      <span class="tx"><b>${esc(pa.n)}</b><br><span class="mut sm">${esc(types)}</span></span>
+      <span class="st mut sm">${dedans.length}</span>
+    </div>`;
+  }).join('');
 }
 
 function vocabHome(P){
+  const src=vocabSrc();
+  if(src==='corpus'&&!P.length)return header('Vocabulaire')+srcPills()+levelPills()+nothing();
+  if(src==='fav'&&!P.length)return header('Vocabulaire','Le carnet est vide')+srcPills()+`
+    <div class="void"><span class="em">星</span>
+    <p><b>Aucun favori pour l’instant</b></p>
+    <p class="sm">L’étoile, dans le Traducteur, range ici ce que vous voulez retenir. Chaque favori devient révisable immédiatement.</p></div>
+    <button class="btn" onclick="nav('trad')">Ouvrir le traducteur</button>`;
   const q=P.filter(w=>due(w.id)),ma=P.filter(w=>mastered(w.id)).length;
-  return header('Vocabulaire',`${q.length} à réviser · ${ma} acquis sur ${P.length}`)+ribbon()+`
+  const n=Math.min(q.length||12,12);
+  return header('Vocabulaire',`${q.length} à réviser · ${ma} acquis sur ${P.length}`)+srcPills()+ribbon()+`
   <div class="box">
-    <p class="sm" style="margin:0 0 4px"><b>Une épreuve différente à chaque étage</b></p>
-    <p class="mut sm">La boîte d’un mot ne décide plus seulement de la date à laquelle il revient, mais de ce qu’on vous demande d’en faire. Chaque réponse est jugée, plus rien n’est déclaratif.</p>
-    ${LADDER.map((L,i)=>`<div class="ladder">
-      <span class="bx ${P.some(w=>boxOf(w.id)===i)?'on':''}">${i}</span>
-      <span class="tx"><b>${esc(L.n)}</b> — <span class="mut">${esc(L.d)}</span></span>
-      <span class="st mut sm">${P.filter(w=>boxOf(w.id)===i).length}</span>
-    </div>`).join('')}
+    <p class="sm" style="margin:0 0 4px"><b>Quatre paliers, et une réserve d’épreuves à chacun</b></p>
+    <p class="mut sm">La boîte d’un mot ne décide plus seulement de la date à laquelle il revient, mais de ce qu’on vous demande d’en faire. Le type d’épreuve est tiré dans le palier, jamais deux fois le même d’affilée sur un même mot.</p>
+    ${palierTable(P)}
   </div>
-  <button class="btn" onclick="startVocab(0)">${q.length?`Séance — ${Math.min(q.length,12)} mot${Math.min(q.length,12)>1?'s':''}`:'Séance libre — 12 mots'}</button>
+  <button class="btn" onclick="startVocab(0)">${q.length?`Séance — ${n} mot${n>1?'s':''}`:'Séance libre — 12 mots'}</button>
   <button class="btn pale mt" onclick="startVocab(1)">Révision rapide — cartes à retourner</button>
-  ${exoAt('match').concat(exoAt('grid')).map(x=>`<button class="wrow" style="width:100%;text-align:left;margin-top:9px"
+  ${src==='corpus'?exoAt('match').concat(exoAt('grid')).map(x=>`<button class="wrow" style="width:100%;text-align:left;margin-top:9px"
     onclick="openExo('${x.id}')">
     <span class="g" style="font-family:var(--han);font-size:23px;color:var(--clay)">${x.kind==='match'?'配':'表'}</span>
-    <span class="m"><b>${esc(x.titre)}</b><span class="mut">${esc(x.consigne)}</span></span></button>`).join('')}
-  <p class="mut sm mt">La révision rapide se juge à la main : oublié renvoie le mot à la boîte 0, hésité le fait redescendre d’un cran, su le fait monter.</p>
-  <h2 class="sec">Les mots de ce filtre</h2>
+    <span class="m"><b>${esc(x.titre)}</b><span class="mut">${esc(x.consigne)}</span></span></button>`).join(''):''}
+  <p class="mut sm mt">Un mot raté revient dans la séance même, quelques items plus loin, puis une dernière fois à la fin. Il ne recule que d’une boîte — de deux si c’est le second échec de suite.</p>
+  <h2 class="sec">${src==='fav'?'Le carnet':'Les mots de ce filtre'}</h2>
   ${P.map(x=>`<div class="wrow">
     <span class="g">${esc(x.hz)}</span>
     <span class="m"><b>${esc(x.fr)}</b><span class="py">${pinyin(x.py)}</span></span>
     <span class="st">${mastered(x.id)?'acquis':'boîte '+boxOf(x.id)}</span>
     <span class="dot ${etatDot(x.id)}"></span>
-  </div>`).join('')}`;
+  </div>`).join('')}
+  ${src==='fav'?`<button class="btn pale sm mt" onclick="nav('trad')">Ajouter au carnet</button>`:''}`;
 }
 
 function vocabProg(){
@@ -44,43 +80,150 @@ function vocabProg(){
 
 function vocabDrill(){
   const d=ctx.d,w=d.w,rep=d.ans!=null;
+  const T=typeOf(d.kind);
   const fiche=`<div class="box" style="text-align:center">
-      <div class="hz" style="font-size:44px;font-weight:700;line-height:1.2">${esc(w.hz)}</div>
+      <div class="hz" style="font-size:${d.unit==='phr'?26:44}px;font-weight:700;line-height:1.2">${esc(w.hz)}</div>
       <div class="py" style="font-size:19px">${pinyin(w.py)}</div>
       <p class="mut" style="margin:4px 0 10px">${esc(w.fr)}</p>
       <button class="btn pale tiny" onclick="speak('${jq(w.hz)}')">Écouter</button>
     </div>`;
-  const suite=rep?`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Mot suivant':'Voir le bilan'}</button>`:'';
+  const suite=rep?`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Suivant':'Voir le bilan'}</button>`:'';
+  /* Le rappel de la réponse, identique partout : c’est le moment où la
+     mémoire se fixe, il ne doit jamais manquer. */
+  const rappel=`${esc(w.hz)}${w.py?' — '+esc(w.py):''} — ${esc(w.fr)}`;
+  const tete=(sub)=>header('Vocabulaire',sub||' ')+vocabProg();
 
-  /* --- QCM : reconnaître, produire, tons, phrase à trou --- */
-  if(d.kind==='reco'||d.kind==='prod'||d.kind==='tons'||d.kind==='trou'){
-    const consigne={reco:'Que signifie ce mot ?',prod:'Quel mot correspond ?',
+  /* ---------- Les épreuves à quatre propositions ---------- */
+  if(d.a&&['reco','prod','tons','trou','ecoute','mjuste','decomp'].indexOf(d.kind)>=0){
+    const consigne={
+      reco:'Que signifie ce mot ?',
+      prod:'Quel mot correspond ?',
       tons:'Quel pinyin est exact ? Les tons seuls diffèrent.',
-      trou:'Complétez la phrase.'}[d.kind];
-    return header('Vocabulaire',w.fr&&d.kind!=='reco'?'':' ')+vocabProg()+
+      trou:'Complétez la phrase.',
+      ecoute:'Écoutez, puis reconnaissez ce qui a été dit.',
+      mjuste:'Lequel des trois convient ici ? Ils se traduisent pareil en français.',
+      decomp:'Que signifie cet élément du caractère ?'
+    }[d.kind];
+    return tete(w.fr&&d.kind!=='reco'?'':' ')+
     (d.neuf&&d.kind==='reco'&&!rep?`<div class="verdict ok">Premier passage sur ce mot — regardez-le, puis répondez.</div>`+fiche:'')+`
     <div class="box">
       <p class="mut sm" style="margin:0 0 6px">${esc(consigne)}</p>
-      ${d.kind==='trou'
+      ${d.kind==='trou'||d.kind==='mjuste'
         ?`<div class="sentence">${esc(d.gap)}</div>
-          <p class="mut sm" style="margin:6px 0 0">${esc(d.s.fr)}</p>`
+          ${d.s&&d.s.fr?`<p class="mut sm" style="margin:6px 0 0">${esc(d.s.fr)}</p>`:''}`
+        :d.kind==='ecoute'
+        ?`<div style="text-align:center;padding:6px 0 2px">
+            <button class="btn jade" onclick="speak('${jq(d.audio)}')">Écouter</button>
+            <p class="mut sm mt">Rien n’est affiché : tout se joue à l’oreille.</p>
+          </div>`
+        :d.kind==='decomp'
+        ?`<div class="prompt"><div class="big">${esc(d.dc.c)}</div></div>
+          ${d.dc.parts&&d.dc.parts[0]?`<p class="mut sm" style="text-align:center;margin:6px 0 0">Élément : <b class="hz">${esc(d.dc.parts[0].p||'')}</b>${d.dc.parts[0].role?' — '+esc(d.dc.parts[0].role):''}</p>`:''}`
         :`<div class="prompt"><div class="${d.promptHan?'big':'med'}">${esc(d.prompt)}</div></div>`}
       ${d.kind==='tons'?`<div style="text-align:center"><button class="btn pale tiny" onclick="speak('${jq(w.hz)}')">Écouter</button></div>`:''}
       <div class="opts">${d.a.map((opt,j)=>{
         let cl='';if(rep)cl=(j===d.ok)?'ok':(j===d.ans?'no':'');
         return `<button class="opt ${d.han?'han':''} ${cl}" onclick="vAnswer(${j})">${d.kind==='tons'?pinyin(opt):esc(opt)}</button>`;
       }).join('')}</div>
-      ${rep?`<div class="verdict ${d.ans===d.ok?'ok':'no'}">${d.ans===d.ok?'Juste.':'Réponse attendue : '+esc(d.a[d.ok])+'.'} ${esc(w.hz)} — ${esc(w.py)} — ${esc(w.fr)}</div>
-        <button class="btn pale sm" onclick="speak('${jq(d.kind==='trou'?d.s.hz:w.hz)}')">Écouter</button>`:''}
+      ${rep?`<div class="verdict ${d.ans===d.ok?'ok':'no'}">${d.ans===d.ok?'Juste.':'Réponse attendue : '+esc(d.a[d.ok])+'.'} ${rappel}</div>
+        ${d.kind==='mjuste'&&d.notes&&d.notes.length?`<div class="box" style="margin-top:10px">
+          <p class="mut sm" style="margin:0 0 6px"><b>Ce qui les sépare</b></p>
+          ${d.notes.map(v=>`<p class="sm" style="margin:0 0 5px"><b class="hz">${esc(v.hz)}</b>${v.py?' <span class="py">'+pinyin(v.py)+'</span>':''} — ${esc(v.note||v.fr||'')}</p>`).join('')}
+        </div>`:''}
+        ${d.kind==='decomp'&&d.dc.note?`<p class="sm mt">${esc(d.dc.note)}</p>`:''}
+        <button class="btn pale sm mt" onclick="speak('${jq(d.kind==='trou'||d.kind==='mjuste'?d.s.hz:w.hz)}')">Écouter</button>`:''}
     </div>
     ${suite}`;
   }
 
-  /* --- Tracé de mémoire --- */
+  /* ---------- Repérer la faute : deux phrases, une seule tient ---------- */
+  if(d.kind==='faute'){
+    return tete(' ')+`
+    <div class="box">
+      <p class="mut sm" style="margin:0 0 6px">Laquelle des deux est correcte ?</p>
+      <div class="opts">${d.a2.map((o,j)=>{
+        let cl='';if(rep)cl=(j===d.ok)?'ok':(j===d.ans?'no':'');
+        return `<button class="opt han long ${cl}" onclick="vFaute(${j})">${esc(o.hz)}</button>`;
+      }).join('')}</div>
+      ${rep?`<div class="verdict ${d.ans===d.ok?'ok':'no'}">${d.ans===d.ok?'Juste.':'C’est l’autre qui est correcte.'}</div>
+        ${d.note?`<p class="sm">${esc(d.note)}</p>`:''}
+        <button class="btn pale sm mt" onclick="speak('${jq(d.a2[d.ok].hz)}')">Écouter la bonne</button>`:''}
+    </div>
+    ${suite}`;
+  }
+
+  /* ---------- Écrire le pinyin, tons chiffrés ---------- */
+  if(d.kind==='pyw'){
+    const att=pySyls(w.py).map(pyRead).join(' ');
+    return tete(' ')+`
+    <div class="box">
+      <p class="mut sm" style="margin:0 0 6px">Écrivez le pinyin de ce mot. Les tons se notent en chiffres : <b>hao3</b>, <b>ma5</b> pour le ton neutre.</p>
+      <div class="prompt"><div class="big">${esc(w.hz)}</div></div>
+      ${rep?'':`<input id="pyin" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="ni3 hao3">
+        <div class="row mt">
+          <button class="btn jade sm" onclick="vPy()">Valider</button>
+          <button class="btn pale sm" onclick="vSkip()">Je passe</button>
+        </div>`}
+      ${rep?`<div class="verdict ${d.ans===1?'ok':'no'}">${
+          d.ans===1?'Exact, tons compris.'
+          :(d.memeSyl?'Les syllabes sont bonnes, mais pas les tons.':'Ce n’est pas ça.')}</div>
+        ${d.txt?`<p class="mut sm" style="margin:0 0 2px">Vous avez écrit</p>
+          <div class="diff" style="color:var(--red-d)">${esc(d.txt)}</div>`:''}
+        <p class="mut sm" style="margin:10px 0 2px">Attendu</p>
+        <div class="py" style="font-size:20px">${pinyin(w.py)}</div>
+        <p class="mut sm">soit <b>${esc(att)}</b> — ${esc(w.fr)}</p>
+        <button class="btn pale sm mt" onclick="speak('${jq(w.hz)}')">Écouter</button>`:''}
+    </div>
+    ${suite}`;
+  }
+
+  /* ---------- Complétion à l’aveugle ---------- */
+  if(d.kind==='trouw'){
+    return tete(' ')+`
+    <div class="box">
+      <p class="mut sm" style="margin:0 0 6px">Complétez, sans proposition. Clavier chinois.</p>
+      <div class="sentence">${esc(d.gap)}</div>
+      ${d.s&&d.s.fr?`<p class="mut sm" style="margin:6px 0 10px">${esc(d.s.fr)}</p>`:''}
+      ${rep?'':`<textarea id="zi" rows="1" placeholder="汉字…"></textarea>
+        <div class="row mt">
+          <button class="btn jade sm" onclick="vTrouW()">Valider</button>
+          <button class="btn pale sm" onclick="vSkip()">Je passe</button>
+        </div>`}
+      ${rep?`<div class="verdict ${d.ans===1?'ok':'no'}">${d.ans===1?'Juste.':'Attendu : '+esc(d.cible.hz)+'.'}</div>
+        ${d.txt&&d.ans!==1?`<p class="mut sm" style="margin:0 0 2px">Vous avez écrit</p>
+          <div class="diff" style="color:var(--red-d)">${esc(d.txt)}</div>`:''}
+        <p class="mut sm" style="margin:10px 0 2px">Phrase complète</p>
+        <div class="diff" style="color:var(--jade-d)">${esc(d.s.hz)}</div>
+        ${d.s.py?`<p class="py sm" style="margin-top:6px">${pinyin(d.s.py)}</p>`:''}
+        <button class="btn pale sm mt" onclick="speak('${jq(d.s.hz)}')">Écouter</button>`:''}
+    </div>
+    ${suite}`;
+  }
+
+  /* ---------- Remise en ordre ---------- */
+  if(d.kind==='ordre'){
+    return tete(' ')+`
+    <div class="box">
+      <p class="mut sm" style="margin:0 0 6px">Remettez la phrase dans l’ordre. En chinois, l’ordre est la grammaire.</p>
+      ${d.s.fr?`<p style="font-size:17px;font-weight:700;margin:0 0 10px">${esc(d.s.fr)}</p>`:''}
+      <div class="drop">${d.built.map((t,i)=>`<button class="tile" onclick="vOrdBack(${i})">${esc(t)}</button>`).join('')
+        ||'<span class="mut sm" style="padding:0 6px">Touchez les mots dans l’ordre</span>'}</div>
+      ${d.bag.length?`<div class="tiles mt">${d.bag.map((t,i)=>`<button class="tile" onclick="vOrdTap(${i})">${esc(t)}</button>`).join('')}</div>`:''}
+      ${rep?`<div class="verdict ${d.ans===1?'ok':'no'} mt">${d.ans===1?'Phrase juste !':'Ordre incorrect.'}</div>
+        <p class="mut sm" style="margin:10px 0 2px">Phrase attendue</p>
+        <div class="diff" style="color:var(--jade-d)">${esc(d.seg.join(''))}</div>
+        ${d.s.py?`<p class="py sm" style="margin-top:6px">${pinyin(d.s.py)}</p>`:''}
+        <button class="btn pale sm mt" onclick="speak('${jq(d.seg.join(''))}')">Écouter</button>`
+       :`<button class="btn pale sm mt" onclick="vOrdReset()">Recommencer</button>`}
+    </div>
+    ${suite}`;
+  }
+
+  /* ---------- Tracé de mémoire ---------- */
   if(d.kind==='trace'){
     const chars=hanOf(w.hz);
     const size=chars.length>2?102:(chars.length===2?138:196);
-    return header('Vocabulaire',' ')+vocabProg()+`
+    return tete(' ')+`
     <div class="box" style="text-align:center">
       <p class="mut sm" style="margin:0 0 4px">Écrivez ce mot de mémoire. Aucun contour n’est affiché.</p>
       <div class="fr" style="font-size:20px;font-weight:700">${esc(w.fr)}</div>
@@ -89,20 +232,49 @@ function vocabDrill(){
         ${chars.map((c,k)=>`<div id="tw${k}" class="tbox" style="width:${size}px;height:${size}px"></div>`).join('')}
       </div>
       ${rep?`<div class="verdict ${d.ans===-1?'no':(d.mist===0?'ok':'no')} mt">${
-          d.ans===-1?'Tracé révélé — le mot revient en boîte 0.'
+          d.ans===-1?'Tracé révélé — le mot recule d’un cran.'
           :(d.mist===0?'Sans une seule erreur de tracé.':d.mist+' erreur(s) de tracé.')
-        } ${esc(w.hz)} — ${esc(w.py)}</div>`
+        } ${rappel}</div>`
        :`<button class="btn pale sm mt" onclick="vReveal()">Je ne m’en souviens pas — montrer</button>`}
     </div>
     ${suite}`;
   }
 
-  /* --- Saisie au clavier chinois --- */
+  /* ---------- Réemploi corrigé ---------- */
+  if(d.kind==='remploi'){
+    return tete(' ')+`
+    <div class="box">
+      <p class="mut sm" style="margin:0 0 6px">À vous. Le modèle corrigera ensuite.</p>
+      <p style="font-size:18px;font-weight:700;margin:0 0 4px">${esc(d.consigne)}</p>
+      <p class="mut sm" style="margin:0 0 10px">${esc(w.hz)}${w.py?' — '+esc(w.py):''} — ${esc(w.fr)}</p>
+      ${rep?'':`<textarea id="zi" rows="2" placeholder="汉字…"></textarea>
+        <div class="row mt">
+          <button class="btn jade sm" onclick="vRemploi()" ${d.busy?'disabled':''}>${d.busy?'Correction en cours…':'Valider'}</button>
+          <button class="btn pale sm" onclick="vSkip()">Je passe</button>
+        </div>`}
+      ${rep?`<p class="mut sm" style="margin:0 0 2px">Votre phrase</p>
+        <div class="sentence" style="font-size:19px">${esc(d.txt||'')}</div>
+        ${d.err?`<p class="mut sm mt">${esc(d.err)}</p>`:''}
+        ${d.corr?`<p class="sm" style="white-space:pre-wrap;border-top:2px dashed var(--line);padding-top:10px;margin-top:10px">${esc(d.corr)}</p>`:''}
+        <p class="mut sm mt">Vous seule pouvez trancher : la correction lue, le mot est-il acquis ?</p>
+        <div class="row mt">
+          <button class="btn pale sm" onclick="vRemploiJuge(0)">Non</button>
+          <button class="btn jade sm" onclick="vRemploiJuge(2)">Oui</button>
+        </div>`:''}
+    </div>`;
+  }
+
+  /* ---------- Dictée, et saisie au clavier ---------- */
+  const dictee=(d.kind==='dictee');
   const dz=rep?diffZh(d.txt||'',d.s.hz):null;
-  return header('Vocabulaire',' ')+vocabProg()+`
+  return tete(' ')+`
   <div class="box">
-    <p class="mut sm" style="margin:0 0 6px">Écrivez cette phrase en chinois, au clavier. Elle contient ${esc(w.hz)}.</p>
-    <p style="font-size:18px;font-weight:700;margin:0 0 12px">${esc(d.s.fr)}</p>
+    ${dictee
+      ?`<p class="mut sm" style="margin:0 0 8px">Écoutez, puis écrivez ce que vous entendez. Rien n’est affiché.</p>
+        <button class="btn jade" onclick="speak('${jq(d.s.hz)}')">Écouter</button>
+        <div class="mt"></div>`
+      :`<p class="mut sm" style="margin:0 0 6px">Écrivez cette phrase en chinois, au clavier.${d.unit==='mot'?' Elle contient '+esc(w.hz)+'.':''}</p>
+        <p style="font-size:18px;font-weight:700;margin:0 0 12px">${esc(d.s.fr||w.fr)}</p>`}
     ${rep?'':`<textarea id="zi" rows="2" placeholder="汉字…"></textarea>
       <div class="row mt">
         <button class="btn jade sm" onclick="vSubmit()">Valider</button>
@@ -114,6 +286,7 @@ function vocabDrill(){
         <p class="mut sm" style="margin:10px 0 2px">Attendu</p>`:'<p class="mut sm" style="margin:0 0 2px">Modèle</p>'}
       <div class="diff" style="color:var(--jade-d)">${dz.exp}</div>
       ${d.s.py?`<p class="py sm" style="margin-top:6px">${pinyin(d.s.py)}</p>`:''}
+      ${d.s.fr?`<p class="mut sm">${esc(d.s.fr)}</p>`:''}
       <button class="btn pale sm mt" onclick="speak('${jq(d.s.hz)}')">Écouter</button>`:''}
   </div>
   ${suite}`;
@@ -162,21 +335,50 @@ function vocabScore(){
 }
 
 function startVocab(quick){
-  const P=pool();
-  if(!P.length)return toast('Aucun mot à ce filtre.');
+  const P=vocabPool(),origine=vocabSrc();
+  if(!P.length)return toast(origine==='fav'?'Le carnet est vide.':'Aucun mot à ce filtre.');
   const q=P.filter(w=>due(w.id));
-  const src=(q.length?q:P).slice().sort((a,b)=>boxOf(a.id)-boxOf(b.id));
-  const list=shuffle(src.slice(0,Math.min(src.length,12)));
+  const lot=(q.length?q:P).slice().sort((a,b)=>boxOf(a.id)-boxOf(b.id));
+  const list=shuffle(lot.slice(0,Math.min(lot.length,12)));
   /* La séance est empilée comme une vue à part entière : la croix de
      fermeture ramène ainsi à la liste, et non à l’accueil. */
   go('vocab',{
-    session:{ids:list.map(x=>x.id),i:0,right:0,quick:!!quick,rappel:!q.length},
+    src:origine,
+    session:{ids:list.map(x=>x.id),i:0,right:0,vus:0,quick:!!quick,rappel:!q.length,repush:{}},
     show:0,
     d:quick?null:makeDrill(list[0])
   });
 }
 
-function curWord(){return WORDS.find(x=>x.id===ctx.session.ids[ctx.session.i]);}
+function curWord(){return anyWord(ctx.session.ids[ctx.session.i]);}
+
+/* ---- Rappel espacé à l’intérieur de la séance ----------------------
+   Un mot raté qui disparaît jusqu’au lendemain n’est pas retravaillé : il
+   est renvoyé au moment où il sera déjà oublié. On le réinsère donc
+   quelques items plus loin, puis une dernière fois en fin de séance. Au
+   plus deux retours, sans quoi une séance ratée ne finirait jamais. */
+function replanifie(id,ok){
+  const Z=ctx.session;
+  if(ok||!Z)return;
+  Z.repush=Z.repush||{};
+  const déjà=Z.repush[id]||0;
+  if(déjà>=2)return;
+  Z.repush[id]=déjà+1;
+  const pos=déjà===0?Math.min(Z.ids.length,Z.i+3+(Math.random()*2|0)):Z.ids.length;
+  Z.ids.splice(pos,0,id);
+}
+
+/* Une seule porte pour noter, quel que soit le type d’épreuve : elle
+   retient aussi le type servi, pour ne pas le resservir aussitôt. */
+function vGrade(g){
+  const d=ctx.d;if(!d)return;
+  grade(d.w.id,g);
+  const r=S.items[d.w.id];if(r){r.last=d.kind;save();}
+  if(g===2)ctx.session.right++;
+  ctx.session.vus=(ctx.session.vus||0)+1;
+  replanifie(d.w.id,g===2);
+  beep(g===2?'ok':'no');
+}
 
 /* L’auto-évaluation appelle directement l’échelle à trois niveaux de
    grade() : 0 oublié, 1 hésité, 2 su. */
@@ -200,10 +402,7 @@ function vNext(){
 function vAnswer(j){
   const d=ctx.d;if(!d||d.ans!=null)return;
   d.ans=j;
-  const good=(j===d.ok);
-  beep(good?'ok':'no');
-  grade(d.w.id,good?2:0);
-  if(good)ctx.session.right++;
+  vGrade(j===d.ok?2:0);
   render();
 }
 
@@ -215,26 +414,124 @@ function vSubmit(){
   d.txt=txt;
   const good=(normZh(txt)===normZh(d.s.hz));
   d.ans=good?1:0;
-  beep(good?'ok':'no');
-  grade(d.w.id,good?2:1);
-  if(good)ctx.session.right++;
+  vGrade(good?2:1);
   render();
 }
 
 function vSkip(){
   const d=ctx.d;if(!d||d.ans!=null)return;
   d.ans=-1;d.txt=(document.getElementById('zi')||{}).value||'';
-  beep('no');grade(d.w.id,0);render();
+  vGrade(0);render();
 }
 
 function vTraceDone(){
   const d=ctx.d;if(!d||d.ans!=null)return;
   d.ans=1;
-  const good=(d.mist===0);
-  beep(good?'ok':'no');
-  grade(d.w.id,good?2:(d.mist<=2?1:0));
-  if(good)ctx.session.right++;
+  vGrade(d.mist===0?2:(d.mist<=2?1:0));
   render();
+}
+
+/* ---- Pinyin écrit au clavier, tons chiffrés ------------------------
+   Le seul exercice qui force à produire le ton au lieu de le reconnaître.
+   On accepte les chiffres comme les accents, et le u tréma écrit « v ». */
+function pyNorm(t){
+  return String(t||'').trim().toLowerCase()
+    .replace(/([a-zü]+)\s*([0-5])/g,'$1$2 ')
+    .split(/[\s,’']+/).filter(Boolean)
+    .map(x=>{
+      const m=x.match(/^([a-züv]+)([0-5])$/);
+      if(m)return pyBare(m[1])+(m[2]==='5'?0:Number(m[2]));
+      return pyRead(x);
+    }).join(' ');
+}
+function vPy(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  const el=document.getElementById('pyin');
+  const txt=el?el.value:'';
+  if(!txt.trim())return toast('Écrivez le pinyin avant de valider.');
+  d.txt=txt;
+  const att=pySyls(d.w.py).map(pyRead).join(' ');
+  const don=pyNorm(txt);
+  const bon=(don===att);
+  /* Bonnes syllabes, mauvais tons : c’est une hésitation, pas un échec. */
+  const memeSyl=don.replace(/[0-9]/g,'')===att.replace(/[0-9]/g,'');
+  d.ans=bon?1:0;d.memeSyl=memeSyl;
+  vGrade(bon?2:(memeSyl?1:0));
+  render();
+}
+
+/* ---- Complétion à l’aveugle : même trou, mais rien à choisir ------- */
+function vTrouW(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  const el=document.getElementById('zi');
+  const txt=el?el.value:'';
+  if(!normZh(txt))return toast('Écrivez le mot manquant.');
+  d.txt=txt;
+  const bon=(normZh(txt)===normZh(d.cible.hz));
+  d.ans=bon?1:0;
+  vGrade(bon?2:0);
+  render();
+}
+
+/* ---- Remise en ordre ------------------------------------------------- */
+function vOrdTap(i){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.built.push(d.bag[i]);d.bag.splice(i,1);
+  if(!d.bag.length)vOrdCheck();else render();
+}
+function vOrdBack(i){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.bag.push(d.built[i]);d.built.splice(i,1);render();
+}
+function vOrdCheck(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  const bon=(d.built.join('')===d.seg.join(''));
+  d.ans=bon?1:0;
+  vGrade(bon?2:0);
+  render();
+}
+function vOrdReset(){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.bag=shuffle(d.seg);d.built=[];render();
+}
+
+/* ---- Repérer la faute ------------------------------------------------ */
+function vFaute(j){
+  const d=ctx.d;if(!d||d.ans!=null)return;
+  d.ans=j;
+  vGrade(j===d.ok?2:0);
+  render();
+}
+
+/* ---- Réemploi corrigé par le modèle ---------------------------------- */
+async function vRemploi(){
+  const d=ctx.d;if(!d||d.ans!=null||d.busy)return;
+  const el=document.getElementById('zi');
+  const txt=el?el.value:'';
+  if(!normZh(txt))return toast('Écrivez votre phrase avant de valider.');
+  d.txt=txt;d.busy=true;render();
+  try{
+    d.corr=await correct(txt,'La phrase doit employer '+d.w.hz+' ('+d.w.fr+'). Dites si l’emploi est juste.');
+    d.ans=1;
+  }catch(e){
+    d.corr='';d.err=(e&&e.message==='aucune clé')
+      ?'Aucune clé enregistrée : la phrase n’a pas pu être corrigée. Elle compte tout de même comme un réemploi.'
+      :'La correction a échoué : '+((e&&e.message)||e);
+    d.ans=1;
+  }
+  d.busy=false;
+  /* On ne peut pas juger à la place du modèle : le réemploi vaut une
+     hésitation, jamais un échec. La lecture de la correction fait le
+     reste du travail. */
+  vGrade(1);
+  render();
+}
+function vRemploiJuge(g){
+  const d=ctx.d;if(!d)return;
+  grade(d.w.id,g);
+  if(g===2)ctx.session.right++;
+  beep(g===2?'ok':'no');
+  vNext();
 }
 
 /* Tracé de mémoire : un carré par caractère, enchaînés automatiquement. */
