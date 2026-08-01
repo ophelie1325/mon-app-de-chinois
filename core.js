@@ -7,7 +7,55 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260731d';
+const BUILD='20260801c';
+
+/* --- Cohérence de la livraison ---------------------------------------
+   Le marqueur figure à trois endroits : la constante ci-dessus, la
+   variable --build de core.css, et la chaîne ?v= des balises de la page.
+   Servis depuis le cache, ces trois-là peuvent diverger : l’application
+   tourne alors sur un mélange de deux livraisons, des correctifs livrés
+   restent invisibles, et rien ne le signale. C’est ce qui a fait chercher
+   une panne de voix là où il n’y en avait plus.
+   ===================================================================== */
+function buildsVus(){
+  const l=[BUILD];
+  try{
+    const c=getComputedStyle(document.documentElement)
+      .getPropertyValue('--build').replace(/["'\s]/g,'');
+    if(c)l.push(c);
+  }catch(e){}
+  const n=document.querySelectorAll('script[src],link[href]');
+  for(let i=0;i<n.length;i++){
+    const u=n[i].getAttribute('src')||n[i].getAttribute('href')||'';
+    const m=u.match(/[?&]v=([^&]+)/);
+    if(m)l.push(m[1]);
+  }
+  const u=[];
+  for(let i=0;i<l.length;i++) if(l[i]&&u.indexOf(l[i])<0) u.push(l[i]);
+  return u;
+}
+/* Renvoie 'reload' quand la page se recharge : l’appelant s’arrête là. */
+function buildCheck(){
+  const vus=buildsVus();
+  if(vus.length<=1)return 'ok';
+  const cle='coach-build-recharge';
+  let deja='';
+  try{deja=sessionStorage.getItem(cle)||'';}catch(e){}
+  if(!deja){
+    /* C’est le plus souvent la page HTML elle-même qui est périmée et
+       réclame d’anciens fichiers : on la redemande hors cache. */
+    try{sessionStorage.setItem(cle,vus.join(' '));}catch(e){}
+    location.replace(location.pathname+'?r='+Date.now());
+    return 'reload';
+  }
+  const d=document.createElement('div');
+  d.className='bwarn';
+  d.innerHTML='<b>Versions mélangées</b> — '+vus.join(' · ')+
+    '. Le rechargement n’a pas suffi : videz le cache du navigateur, ou '+
+    'supprimez puis réinstallez le raccourci de l’écran d’accueil.';
+  if(document.body)document.body.insertBefore(d,document.body.firstChild);
+  return 'warn';
+}
 
 
 const KEY='coach-chinois-v2';
@@ -694,6 +742,7 @@ function render(){
 }
 /* Démarrage commun : la page n’a plus qu’à publier VIEWS. */
 function boot(){
+  if(buildCheck()==='reload')return;
   try{buildPyDict();}catch(e){}
   render();
 }

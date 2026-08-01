@@ -92,6 +92,19 @@ function vReglages(){
     <button class="btn pale mt" style="color:var(--red)" onclick="wipe()">Tout effacer</button>
     <input type="file" id="imp" accept="application/json" class="hidden" onchange="importJSON(this)">
     <p class="mut sm mt">Exportez avant de changer d’appareil : la progression est stockée dans ce navigateur uniquement.</p>
+  </div>
+
+  <h2 class="sec">Version</h2>
+  <div class="box">
+    ${(function(){
+      const v=buildsVus();
+      return v.length<=1
+        ? `<p class="mut sm">Livraison <b>${esc(v[0]||BUILD)}</b>. Les marqueurs de core.js,
+           de core.css et des balises de la page concordent.</p>`
+        : `<p class="sm"><b>Versions mélangées :</b> ${v.map(esc).join(' · ')}. Le navigateur
+           sert des fichiers de livraisons différentes ; certains correctifs resteront invisibles.</p>`;
+    })()}
+    <button class="btn pale sm mt" onclick="location.replace(location.pathname+'?r='+Date.now())">Forcer le rechargement</button>
   </div>`;
 }
 

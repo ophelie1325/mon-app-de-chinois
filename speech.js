@@ -89,9 +89,14 @@ if(typeof speechSynthesis!=='undefined'&&speechSynthesis){
 }
 
 /* --- 6. Déverrouillage au premier geste ---------------------------- */
+/* Trois tentatives, pas une seule : si la première énonciation muette
+   n’a pas suffi à lier le service de synthèse, le geste suivant retente.
+   Une fois une voix chinoise trouvée, on ne tente plus rien. */
 function unlockSpeech(){
-  if(SPEECH.unlocked||typeof speechSynthesis==='undefined')return;
-  SPEECH.unlocked=true;
+  if(typeof speechSynthesis==='undefined')return;
+  if(zhVoices().length){SPEECH.unlocked=9;return;}
+  if((SPEECH.unlocked|0)>=3)return;
+  SPEECH.unlocked=(SPEECH.unlocked|0)+1;
   /* Le service de synthèse d’Android ne se lie qu’à la première demande,
      et la liste des voix n’existe pas avant cette liaison. On relit donc
      la liste quand l’énonciation muette démarre, finit ou échoue, et pas
@@ -108,7 +113,7 @@ function unlockSpeech(){
 /* Relance manuelle, depuis les Réglages : on repart de zéro, y compris
    le déverrouillage, puisque le geste de l’utilisatrice le permet. */
 function relanceVoix(){
-  SPEECH.unlocked=false;
+  SPEECH.unlocked=0;
   SPEECH.polling=false;
   unlockSpeech();
   refreshVoices();
@@ -138,7 +143,7 @@ function voiceDump(){
   </details>`;
 }
 ['pointerdown','touchstart','keydown'].forEach(ev=>
-  document.addEventListener(ev,unlockSpeech,{once:true,passive:true}));
+  document.addEventListener(ev,unlockSpeech,{passive:true}));
 
 /* --- Voix et timbre par locuteur ------------------------------------ */
 const PITCH={A:1,B:.72,C:1.28};
