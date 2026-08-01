@@ -25,7 +25,7 @@
    ===================================================================== */
 
 const SPEECH={voices:[],ready:false,unlocked:false,token:0,
-              beat:null,guard:null,polls:0,speaking:false};
+              beat:null,guard:null,polls:0,polling:false,speaking:false};
 
 /* --- 1 et 2. Trouver les voix, et les retrouver ---------------------
    On accepte toutes les étiquettes du chinois : zh, cmn (mandarin),
@@ -57,12 +57,20 @@ function zhVoice(){
 }
 function byName(n){return (SPEECH.voices||[]).find(v=>v.name===n);}
 function pollVoices(){
-  if(typeof speechSynthesis==='undefined'||!speechSynthesis)return;
-  if(readVoices())return;
-  if(SPEECH.polls++>60)return;              /* ~18 s puis on renonce */
+  if(typeof speechSynthesis==='undefined'||!speechSynthesis){SPEECH.polling=false;return;}
+  if(readVoices()){SPEECH.polling=false;return;}
+  if(SPEECH.polls++>60){SPEECH.polling=false;return;}   /* ~18 s puis on renonce */
   setTimeout(pollVoices,300);
 }
-function refreshVoices(){SPEECH.polls=0;pollVoices();}
+/* Un seul train de sondages à la fois : sans ce garde-fou, chaque
+   redessin de l’écran Réglages en lançait un nouveau, et ils
+   s’accumulaient. */
+function refreshVoices(){
+  SPEECH.polls=0;
+  if(SPEECH.polling)return;
+  SPEECH.polling=true;
+  pollVoices();
+}
 
 if(typeof speechSynthesis!=='undefined'&&speechSynthesis){
   readVoices();
@@ -84,8 +92,50 @@ if(typeof speechSynthesis!=='undefined'&&speechSynthesis){
 function unlockSpeech(){
   if(SPEECH.unlocked||typeof speechSynthesis==='undefined')return;
   SPEECH.unlocked=true;
-  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}
+  /* Le service de synthèse d’Android ne se lie qu’à la première demande,
+     et la liste des voix n’existe pas avant cette liaison. On relit donc
+     la liste quand l’énonciation muette démarre, finit ou échoue, et pas
+     seulement au moment de la lancer : à cet instant-là, il est trop tôt. */
+  try{
+    const u=new SpeechSynthesisUtterance(' ');
+    u.volume=0;
+    u.onstart=u.onend=u.onerror=function(){SPEECH.polling=false;refreshVoices();};
+    speechSynthesis.speak(u);
+  }catch(e){}
   refreshVoices();
+}
+
+/* Relance manuelle, depuis les Réglages : on repart de zéro, y compris
+   le déverrouillage, puisque le geste de l’utilisatrice le permet. */
+function relanceVoix(){
+  SPEECH.unlocked=false;
+  SPEECH.polling=false;
+  unlockSpeech();
+  refreshVoices();
+  if(typeof toast==='function')toast('Détection relancée. Patientez quelques secondes.');
+}
+
+/* La liste brute, telle que le navigateur la déclare. C’est le seul
+   moyen de distinguer trois pannes qui se ressemblent : aucune voix du
+   tout, des voix mais pas de chinois, ou du chinois que le filtre rate. */
+function voiceDump(){
+  let vs=[];
+  try{vs=speechSynthesis.getVoices()||[];}catch(e){}
+  const e=(typeof esc==='function')?esc:(x=>String(x));
+  if(!vs.length)
+    return `<p class="mut sm mt">Le navigateur ne déclare <b>aucune voix</b>, quelle que soit
+      la langue. Le moteur de synthèse du téléphone n’est pas encore lié au navigateur.
+      Touchez « Relancer la détection », puis patientez quelques secondes.</p>`;
+  const zh=vs.filter(isZh).length;
+  return `<details class="vdump"${zh?'':' open'}>
+    <summary>${vs.length} voix déclarée${vs.length>1?'s':''} par le navigateur, dont ${zh} en chinois</summary>
+    <ol>${vs.map(v=>`<li>${e(v.name||'sans nom')} — <code>${e(v.lang||'?')}</code>${
+      v.default?' · par défaut':''}${isZh(v)?' · <b>chinoise</b>':''}</li>`).join('')}</ol>
+    ${zh?'':`<p class="mut sm">Aucune de ces voix n’est chinoise. Le pack de langue est
+      installé dans un moteur de synthèse différent de celui que le téléphone utilise par
+      défaut. Paramètres → Système → Langues et saisie → Synthèse vocale : vérifiez quel
+      moteur est sélectionné, et ajoutez-y le chinois.</p>`}
+  </details>`;
 }
 ['pointerdown','touchstart','keydown'].forEach(ev=>
   document.addEventListener(ev,unlockSpeech,{once:true,passive:true}));

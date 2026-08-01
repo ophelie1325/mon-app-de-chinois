@@ -1,5 +1,8 @@
 function vReglages(){
   const vs=zhVoices();
+  /* Revenir sur cet écran relance la détection : c’est le geste naturel
+     après avoir installé un pack de langue. */
+  if(!vs.length&&typeof refreshVoices==='function')refreshVoices();
   return `<div class="top"><div class="htitle">Réglages<small>Police, voix, sons, correction, sauvegarde</small></div></div>
   <h2 class="sec">Police des caractères chinois</h2>
   ${Object.keys(FONTS).map(k=>`<button class="wrow" style="width:100%;text-align:left;${S.settings.font===k?'border-color:var(--red)':''}"
@@ -17,7 +20,9 @@ function vReglages(){
     ${voiceSelect('B','Locuteur B')}
     ${voiceSelect('C','Locuteur C')}
     <p class="mut sm">Si vous n’avez qu’une seule voix, laissez « voix par défaut » sur les locuteurs : la hauteur sera décalée pour les distinguer.</p>`
-    :`<p class="sm"><b>Aucune voix chinoise détectée.</b> Ajoutez le pack de langue chinois dans les réglages de votre téléphone, puis rouvrez cette page.</p>`}
+    :`<p class="sm"><b>Aucune voix chinoise détectée.</b> Le détail ci-dessous dit pourquoi.</p>`}
+    ${voiceDump()}
+    <button class="btn pale sm mt" onclick="relanceVoix()">Relancer la détection</button>
     <p class="mut sm mt">Vitesse — ${S.settings.rate.toFixed(2)}×</p>
     <input type="range" min="0.5" max="1.2" step="0.05" value="${S.settings.rate}"
       oninput="S.settings.rate=parseFloat(this.value);save();render()">
