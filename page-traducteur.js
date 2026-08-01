@@ -85,21 +85,21 @@ function vTrad(){
   const h=tradHist();
   return `${header('Traducteur','Chercher dans le corpus, ou traduire')}
   ${speechNotice()}
-  <div class="row2">
+  <div class="row">
     <button class="btn ${sens==='zh-fr'?'':'pale'}" onclick="setSens('zh-fr')">Chinois → français</button>
     <button class="btn ${sens==='fr-zh'?'':'pale'}" onclick="setSens('fr-zh')">Français → chinois</button>
   </div>
-  <div class="card">
+  <div class="box">
     <textarea id="tin" rows="3" oninput="tradGarde()"
       placeholder="${sens==='zh-fr'?'你叫什么名字？':'Comment t’appelles-tu ?'}">${esc(ctx.q||'')}</textarea>
     <button class="btn jade mt" onclick="tradCherche()">Chercher dans le corpus</button>
     <button class="btn mt" onclick="tradAsk()" ${ctx.busy?'disabled':''}>${ctx.busy?'Traduction en cours…':'Traduire'}</button>
-    ${cle?'':`<p class="note">Aucune clé n’est enregistrée : le bouton « Traduire » ne répondra pas.
+    ${cle?'':`<p class="mut sm">Aucune clé n’est enregistrée : le bouton « Traduire » ne répondra pas.
       La recherche dans le corpus, elle, fonctionne toujours.</p>`}
   </div>
-  ${r&&r.err?`<div class="card"><p class="note">${esc(r.err)}</p></div>`:''}
+  ${r&&r.err?`<div class="box"><p class="mut sm">${esc(r.err)}</p></div>`:''}
   ${r&&r.local?(r.local.length
-    ? `<div class="card"><h2>Dans le corpus</h2>
+    ? `<div class="box"><h2>Dans le corpus</h2>
         ${r.local.map(w=>`<div class="box">
           <div class="hz">${esc(w.hz)}</div>
           <div class="py">${pinyin(w.py)}</div>
@@ -107,19 +107,19 @@ function vTrad(){
           <div class="sm">HSK ${w.hsk}${(w.th||[]).length?' · '+esc(themeName(w.th[0])):''}</div>
           <button class="btn pale sm mt" onclick="speak('${jq(w.hz)}')">Écouter</button>
         </div>`).join('')}</div>`
-    : `<div class="card"><p class="note">Rien dans le corpus pour cette recherche.
+    : `<div class="box"><p class="mut sm">Rien dans le corpus pour cette recherche.
         C’est normal tant que les quinze thèmes ne sont pas remplis.</p></div>`):''}
-  ${r&&!r.err&&!r.local?`<div class="card"><h2>Traduction</h2>
+  ${r&&!r.err&&!r.local?`<div class="box"><h2>Traduction</h2>
     ${r.hz?`<div class="hz">${esc(r.hz)}</div>`:''}
     ${r.py?`<div class="py">${pinyin(r.py)}</div>`:''}
-    ${r.pyMasque?`<p class="note">Le pinyin renvoyé ne correspondait pas aux caractères :
+    ${r.pyMasque?`<p class="mut sm">Le pinyin renvoyé ne correspondait pas aux caractères :
       il n’est pas affiché, plutôt que de risquer un ton faux en mémoire.</p>`:''}
     ${r.fr?`<div class="fr">${esc(r.fr)}</div>`:''}
     ${r.note?`<p class="sm">${esc(r.note)}</p>`:''}
     ${r.hz?`<button class="btn jade mt" onclick="speak('${jq(r.hz)}')">Écouter</button>
       <button class="btn pale sm mt" onclick="stopSpeech()">Arrêter</button>`:''}
   </div>`:''}
-  ${h.length?`<div class="card"><h2>Dernières traductions</h2>
+  ${h.length?`<div class="box"><h2>Dernières traductions</h2>
     ${h.slice(0,8).map(e=>`<div class="box">
       <div class="sm">${esc(e.q)}</div>
       ${e.hz?`<div class="hz" style="font-size:19px">${esc(e.hz)}</div>`:''}

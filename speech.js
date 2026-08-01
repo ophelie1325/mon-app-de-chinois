@@ -161,9 +161,9 @@ function canSpeak(silent){
 /* Bandeau discret, plutôt qu’un silence inexpliqué. Chaîne vide si tout va bien. */
 function speechNotice(){
   if(typeof speechSynthesis==='undefined')
-    return `<div class="note">Ce navigateur ne propose pas de lecture à voix haute.</div>`;
+    return `<div class="mut sm">Ce navigateur ne propose pas de lecture à voix haute.</div>`;
   if(zhVoices().length)return '';
-  return `<div class="note">Aucune voix chinoise détectée pour l’instant.
+  return `<div class="mut sm">Aucune voix chinoise détectée pour l’instant.
     Si vous venez d’installer le pack de langue, revenez à cet écran.
     Sinon : Réglages du téléphone → Langues et saisie → Synthèse vocale → ajouter le chinois.</div>`;
 }

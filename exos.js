@@ -237,7 +237,7 @@ function vExo(){
   /* Ces écrans sont partagés : la vue de repli ne peut pas être celle
      d'un module en particulier, qui n'existe pas sur toutes les pages. */
   const perdu=()=>`${header('Exercice introuvable')}
-    <div class="card"><p class="note">Cet exercice n’est plus disponible.</p>
+    <div class="box"><p class="mut sm">Cet exercice n’est plus disponible.</p>
     <button class="btn" onclick="back()">Revenir</button></div>`;
   const st=ctx.exo;if(!st)return perdu();
   const x=DATA('EXOS').find(e=>e.id===st.id);if(!x)return perdu();
@@ -495,7 +495,7 @@ function qRestart(){
 function vQuiz(){
   const Q=ctx.quiz;
   if(!Q)return `${header('Série terminée')}
-    <div class="card"><p class="note">Il n’y a plus de question à afficher.</p>
+    <div class="box"><p class="mut sm">Il n’y a plus de question à afficher.</p>
     <button class="btn" onclick="back()">Revenir</button></div>`;
   const l=DATA('LESSONS').find(x=>x.id===Q.lid);
   const titre=Q.mode==='mots'?'Les mots du texte':'Bilan noté';

@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260731b';
+const BUILD='20260731c';
 
 
 const KEY='coach-chinois-v2';
@@ -651,8 +651,8 @@ function render(){
   const f=V[view];
   try{app.innerHTML=f?f():'';}
   catch(e){
-    app.innerHTML=`<div class="card"><h2>Cet écran n’a pas pu s’afficher</h2>
-      <p class="note">${esc(e.message||String(e))}</p>
+    app.innerHTML=`<div class="box"><h2>Cet écran n’a pas pu s’afficher</h2>
+      <p class="mut sm">${esc(e.message||String(e))}</p>
       <button class="btn" onclick="nav('home')">Revenir à l’accueil</button></div>`;
     try{console.error(e);}catch(_){}
   }
@@ -679,20 +679,29 @@ function header(title,sub){
   </div>`;
 }
 
-function levelPills(){
-  /* Lecture tolérante : toutes les pages ne chargent pas tous les
-     fichiers de données. Une donnée absente compte pour zéro. */
+/* Six sceaux carrés : actif en rouge plein, disponible en contour or,
+   vide en pointillé pâle. La variante compacte sert sur les écrans de
+   module, où le panneau d'accueil n'est pas là pour donner le contexte.
+   Lecture tolérante : une page qui ne charge pas tous les fichiers de
+   données compte les absents pour zéro. */
+function levelPills(mini){
   const n=l=>DATA('WORDS').filter(w=>w.hsk===l).length
             +DATA('TEXTS').filter(t=>t.hsk===l).length
             +DATA('GRAMMAR').filter(g=>g.hsk===l).length;
-  return `<div class="pills">${[1,2,3,4,5,6].map(l=>
-    `<button class="pill ${S.settings.level===l?'on':''} ${n(l)?'':'void'}" onclick="setLevel(${l})">HSK ${l}</button>`).join('')}</div>`;
+  return `<div class="hsk${mini?' mini':''}">${[1,2,3,4,5,6].map(l=>{
+    const vide=!n(l);
+    return `<button class="sk ${S.settings.level===l?'on':vide?'off':''}" onclick="setLevel(${l})">
+      ${l}<span class="sub">HSK</span></button>`;
+  }).join('')}</div>`;
 }
 
-function themeSelect(){
-  return `<div class="selwrap"><select onchange="setTheme(this.value)">
+/* Le sélecteur de thème de l'accueil porte la classe « theme » : le
+   caractère 题 en rouge, le chevron or, le filet dégradé en soulignement.
+   Ailleurs, un selwrap nu suffit. */
+function themeSelect(nu){
+  return `<div class="selwrap${nu?'':' theme'}"><select onchange="setTheme(this.value)">
     <option value="all">Tous les thèmes</option>
-    ${THEMES.map((t,i)=>`<option value="${t.id}" ${S.settings.theme===t.id?'selected':''}>${i+1}. ${esc(t.n)}</option>`).join('')}
+    ${DATA('THEMES').map((t,i)=>`<option value="${t.id}" ${S.settings.theme===t.id?'selected':''}>${i+1}. ${esc(t.n)}</option>`).join('')}
   </select></div>`;
 }
 
