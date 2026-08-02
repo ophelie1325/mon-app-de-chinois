@@ -216,10 +216,24 @@ function possible(k,w,D,ss){
     case 'trait': return typeof HanziWriter!=='undefined'&&hanOf(w.hz).length>0&&hanOf(w.hz).length<=4;
     case 'vois':  return D.vois.length>0&&ss.length>0;
     case 'faute': return !!(D.faute&&D.faute.hz);
-    case 'decomp':return D.decomp.length>0;
+    case 'decomp':return D.decomp.some(c=>(c.parts||[]).some(p=>p&&p.sens))
+                       &&sensPool(D).length>=2;
     case 'cle':   return S.settings.provider!=='none'&&!!(S.settings.apikey||'').trim();
   }
   return false;
+}
+
+/* Les sens de composants connus, toutes sources confondues : ceux du mot
+   lui-même d’abord, puis ceux des autres favoris et des mots complétés.
+   Sans au moins deux sens distincts, l’épreuve de composition n’aurait
+   qu’une seule proposition — elle n’est alors pas proposée. */
+function sensPool(D){
+  const v=[];
+  const ramasse=liste=>(liste||[]).forEach(c=>(c.parts||[]).forEach(p=>{if(p&&p.sens)v.push(p.sens);}));
+  ramasse(D.decomp);
+  (typeof favPool==='function'?favPool():[]).forEach(f=>ramasse(f.decomp));
+  if(typeof S!=='undefined'&&S.enrich)Object.keys(S.enrich).forEach(k=>ramasse(S.enrich[k].decomp));
+  return [...new Set(v)];
 }
 
 /* Le trou : on masque toutes les occurrences, sinon la réponse se lit
@@ -299,14 +313,16 @@ function makeDrill(w,force){
     d.note=D.faute.note||'';
   }
   if(kind==='decomp'){
-    const c=D.decomp[Math.random()*D.decomp.length|0];
-    d.dc=c;
-    const bonnes=(c.parts||[]).map(p=>p.sens).filter(Boolean);
-    d.a=shuffle([bonnes[0]||''].concat(
-      shuffle(D.decomp.concat([])).flatMap(x=>(x.parts||[]).map(p=>p.sens))
-        .filter(x=>x&&x!==bonnes[0]).slice(0,3)));
-    if(d.a.length<2)d.a=null;
-    else d.ok=d.a.indexOf(bonnes[0]||'');
+    /* On ne tire que parmi les caractères dont au moins un composant porte
+       un sens : sinon la question n’a pas de réponse. */
+    const utiles=D.decomp.filter(c=>(c.parts||[]).some(p=>p&&p.sens));
+    const c=utiles[Math.random()*utiles.length|0];
+    const partie=shuffle((c.parts||[]).filter(p=>p&&p.sens))[0];
+    d.dc=c;d.part=partie;
+    const bon=partie.sens;
+    const leurres=shuffle(sensPool(D).filter(x=>x!==bon)).slice(0,3);
+    d.a=shuffle([bon].concat(leurres));
+    d.ok=d.a.indexOf(bon);
   }
   if(kind==='remploi')d.consigne='Écrivez une phrase qui emploie '+w.hz+'.';
   return d;
@@ -321,17 +337,17 @@ function vfBlock(x){
   ctx.ans=ctx.ans||{};
   const L=['对 — vrai','错 — faux'];
   return `<h2 class="sec">${esc(x.titre)}</h2>
-  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  <div class="box"><p class="u-m0 sm"><b>${esc(x.consigne)}</b></p></div>
   ${x.items.map((it,i)=>{
     const key=x.id+':'+i,ch=ctx.ans[key];
     const nx=i+1<x.items.length?`'q-${x.id}-${i+1}'`:'null';
     return `<div class="box" id="q-${x.id}-${i}">
-      <p class="hz" style="font-size:19.5px;font-weight:700;margin:0 0 11px">${esc(it.q)}</p>
+      <p class="u-tx2 u-fw-700 u-mb3 hz">${esc(it.q)}</p>
       <div class="row">${[0,1].map(j=>{
         let cl='';if(ch!=null)cl=(j===it.ok)?'ok':(j===ch?'no':'');
-        return `<button class="opt ${cl}" style="text-align:center" onclick="pick('${key}',${j},${it.ok},${nx})">${L[j]}</button>`;
+        return `<button class="u-ta-center opt ${cl}" onclick="pick('${key}',${j},${it.ok},${nx})">${L[j]}</button>`;
       }).join('')}</div>
-      ${ch!=null?`<div class="verdict ${ch===it.ok?'ok':'no'}" style="margin-top:11px">${ch===it.ok?'Juste.':'Non.'}${it.why?' <span class="hz">'+esc(it.why)+'</span>':''}</div>`:''}
+      ${ch!=null?`<div class="u-mt3 verdict ${ch===it.ok?'ok':'no'}">${ch===it.ok?'Juste.':'Non.'}${it.why?' <span class="hz">'+esc(it.why)+'</span>':''}</div>`:''}
     </div>`;
   }).join('')}`;
 }
@@ -340,7 +356,7 @@ function vfBlock(x){
 function fixBlock(x){
   ctx.fx=ctx.fx||{};
   return `<h2 class="sec">${esc(x.titre)}</h2>
-  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  <div class="box"><p class="u-m0 sm"><b>${esc(x.consigne)}</b></p></div>
   ${x.items.map((it,i)=>{
     const key=x.id+':'+i,st=ctx.fx[key]||{t:null,f:null};
     return `<div class="box" id="q-${x.id}-${i}">
@@ -436,7 +452,7 @@ function vExo(){
 function exoMatch(x,st){
   const n=x.pairs.length,fini=st.done.length===n;
   return header(x.titre,`${st.done.length} / ${n} paires`)+`
-  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  <div class="box"><p class="u-m0 sm"><b>${esc(x.consigne)}</b></p></div>
   <div class="mgrid">
     <div>${x.pairs.map((pr,i)=>{
       const d=st.done.indexOf(i)>=0;
@@ -469,7 +485,7 @@ function exoGrid(x,st){
   }).join('')}</tr>`).join('');
   const reste=Object.keys(st.fill).length;
   return header(x.titre,`${reste} / ${tot} cases remplies`)+`
-  <div class="box"><p class="sm" style="margin:0"><b>${esc(x.consigne)}</b></p></div>
+  <div class="box"><p class="u-m0 sm"><b>${esc(x.consigne)}</b></p></div>
   <div class="box">
     <table class="gtab"><thead><tr>${x.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
     <tbody>${corps}</tbody></table>
@@ -477,7 +493,7 @@ function exoGrid(x,st){
   ${st.checked
     ?`<div class="box"><div class="score"><div class="n">${bon}<small> / ${tot}</small></div>
         <div class="lbl">cases justes</div></div>
-      <div class="bar" style="margin:12px 0"><i style="width:${Math.round(bon/tot*100)}%;background:${bon===tot?'var(--jade)':'var(--red)'}"></i></div>
+      <div class="u-mv33 bar"><i class="${bon===tot?'ok':'no'}" style="width:${Math.round(bon/tot*100)}%"></i></div>
       <p class="mut sm">Les cases en rouge affichent la réponse attendue.</p>
       <button class="btn pale" onclick="openExo('${x.id}')">Recommencer</button></div>`
     :`<h2 class="sec">Étiquettes</h2>
@@ -512,7 +528,7 @@ function setFlow(f){S.settings.flow=f;save();render();}
 
 function flowPills(){
   const f=S.settings.flow==='suivi'?'suivi':'decoupe';
-  return `<div class="pills" style="margin-bottom:12px">
+  return `<div class="u-mbo3 pills">
     <button class="pill ${f==='suivi'?'on':''}" onclick="setFlow('suivi')">Texte suivi</button>
     <button class="pill ${f==='decoupe'?'on':''}" onclick="setFlow('decoupe')">Découpé</button>
   </div>`;
@@ -524,20 +540,20 @@ function docBody(t){
   const dial=t.lines.some(l=>l.who);
   if(S.settings.flow==='suivi'){
     const bloc=k=>dial
-      ? t.lines.map(l=>`<div style="margin:0 0 8px"><span class="mut sm">${esc(l.who)} — </span>${k==='py'?pinyin(l.py):esc(l[k])}</div>`).join('')
+      ? t.lines.map(l=>`<div class="u-mb2"><span class="mut sm">${esc(l.who)} — </span>${k==='py'?pinyin(l.py):esc(l[k])}</div>`).join('')
       : (k==='py'?t.lines.map(l=>pinyin(l.py)).join(' ')
                  :esc(t.lines.map(l=>l[k]).join(k==='hz'?'':' ')));
     return `<div class="box">
-      <div class="sentence" style="line-height:1.95">${bloc('hz')}</div>
-      ${ctx.py?`<div class="py sm" style="margin-top:10px">${bloc('py')}</div>`:''}
-      ${ctx.fr?`<p class="mut sm" style="margin-top:10px">${bloc('fr')}</p>`:''}
+      <div class="u-lh-195 sentence">${bloc('hz')}</div>
+      ${ctx.py?`<div class="u-mt3 py sm">${bloc('py')}</div>`:''}
+      ${ctx.fr?`<p class="u-mt3 mut sm">${bloc('fr')}</p>`:''}
     </div>`;
   }
   return t.lines.map(l=>`<div class="box">
-    ${l.who?`<p class="mut sm" style="margin:0 0 4px">Locuteur ${esc(l.who)}</p>`:''}
+    ${l.who?`<p class="u-mb1 mut sm">Locuteur ${esc(l.who)}</p>`:''}
     <div class="sentence">${esc(l.hz)}</div>
     ${ctx.py?`<div class="py sm">${pinyin(l.py)}</div>`:''}
-    ${ctx.fr?`<p class="mut sm" style="margin:6px 0 0">${esc(l.fr)}</p>`:''}
+    ${ctx.fr?`<p class="u-mh2 mut sm">${esc(l.fr)}</p>`:''}
     <button class="btn pale tiny mt" onclick="speak('${jq(l.hz)}'${l.who?`,'${l.who}'`:''})">Écouter</button>
   </div>`).join('');
 }
@@ -578,7 +594,7 @@ function repBlock(){
   const trouves=r.items.filter((it,i)=>it.dans&&r.sel[i]).length;
   const faux=r.items.filter((it,i)=>!it.dans&&r.sel[i]).length;
   return `<h2 class="sec">Repérage</h2>
-  <div class="box"><p class="sm" style="margin:0"><b>${co?'Quels mots avez-vous entendus ?':'Quels mots trouvez-vous dans le texte ?'}</b>
+  <div class="box"><p class="u-m0 sm"><b>${co?'Quels mots avez-vous entendus ?':'Quels mots trouvez-vous dans le texte ?'}</b>
     <br><span class="mut">Il y en a ${bons} sur ${r.items.length}. Trois sont des intrus.</span></p></div>
   <div class="opts">${r.items.map((it,i)=>{
     let cl='';
@@ -615,9 +631,10 @@ function comp(mode,titre,sub){
     :masked?`<div class="void"><span class="em">听</span><p class="sm">Texte caché. Répondez à l’oreille, puis affichez-le pour vérifier.</p></div>`
     :flowPills()+docBody(t)}
   <h2 class="sec">Questions</h2>
-  ${t.qcm.map((q,i)=>`<div class="box" id="q-${t.id}-${i}"><p class="hz" style="font-size:19px;font-weight:700">${esc(q.q)}</p>
+  ${t.qcm.map((q,i)=>`<div class="box" id="q-${t.id}-${i}"><p class="u-tx2 u-fw-700 hz">${esc(q.q)}</p>
     ${opts(t.id+':'+i,q,true,i+1<t.qcm.length?`q-${t.id}-${i+1}`:null)}</div>`).join('')}
-  ${exoAt('vf',t.id).map(vfBlock).join('')}`;
+  ${exoAt('vf',t.id).map(vfBlock).join('')}
+  ${exoAt('fix',t.id).map(fixBlock).join('')}`;
 }
 
 function vocabQuestions(words,n){
@@ -700,7 +717,7 @@ function vQuiz(){
     <div class="box">
       <div class="score"><div class="n">${right}<small> / ${total}</small></div>
         <div class="lbl">${pct}% de réponses justes</div></div>
-      <div class="bar" style="margin:14px 0"><i style="width:${pct}%;background:${pass?'var(--jade)':'var(--red)'}"></i></div>
+      <div class="u-mv44 bar"><i class="${pass?'ok':'no'}" style="width:${pct}%"></i></div>
       <div class="verdict ${pass?'ok':'no'}">${pass
         ?(Q.mode==='bilan'?'Bilan réussi. Le thème est validé à ce niveau.':'Bien joué, les mots sont en place.')
         :`Il faut ${seuil} bonnes réponses sur ${total} pour valider. Reprenez et recommencez.`}</div>
@@ -712,10 +729,10 @@ function vQuiz(){
     </div>
     ${faibles.length?`<h2 class="sec">Les erreurs</h2>
       ${faibles.map(([q,a])=>`<div class="box">
-        <p class="${q.promptHan?'hz':''}" style="${q.promptHan?'font-size:21px;font-weight:700;':''}margin:0 0 6px">${esc(q.prompt)}</p>
-        <p class="sm" style="margin:0"><span style="color:var(--red)">Votre réponse : ${esc(q.a[a])}</span></p>
-        <p class="sm" style="margin:2px 0 0;color:var(--jade-d)">Attendu : ${esc(q.a[q.ok])}</p>
-        ${q.why?`<p class="mut sm" style="margin:6px 0 0">${esc(q.why)}</p>`:''}
+        <p class="${q.promptHan?'hz u-tx3 u-fw-700':''} u-mb2">${esc(q.prompt)}</p>
+        <p class="u-m0 sm"><span class="u-c-red">Votre réponse : ${esc(q.a[a])}</span></p>
+        <p class="u-mh0 u-c-jade-d sm">Attendu : ${esc(q.a[q.ok])}</p>
+        ${q.why?`<p class="u-mh2 mut sm">${esc(q.why)}</p>`:''}
       </div>`).join('')}`:''}
     <button class="btn pale" onclick="qRestart()">Recommencer l’exercice</button>
     ${pass?`<button class="btn mt" onclick="finishStep()">Valider l’étape</button>`

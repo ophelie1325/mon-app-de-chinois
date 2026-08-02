@@ -358,8 +358,7 @@ function etoile(quoi,i,hz,fr){
   const lbl=on?'Retirer du carnet':'Mettre au carnet';
   return `<button class="fav ${on?'on':''}" onclick="favToggle('${quoi}',${i})"
     aria-label="${lbl}" title="${lbl}">
-    <svg viewBox="0 0 24 24" fill="${on?'currentColor':'none'}" stroke="currentColor"
-      stroke-width="1.8" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" class="ico etoile">
       <path d="M12 3.5l2.6 5.6 6 .8-4.4 4.2 1.1 6.1L12 17.3 6.7 20.2l1.1-6.1L3.4 9.9l6-.8z"/></svg>
   </button>`;
 }
@@ -373,7 +372,7 @@ function ligneZh(hz,py,fr,note,tag){
     <div class="hz">${esc(hz)}</div>
     ${py?`<div class="py">${pinyin(py)}</div>`:''}
     ${fr?`<div class="fr">${esc(fr)}</div>`:''}
-    ${note?`<p class="mut sm" style="margin:6px 0 0">${esc(note)}</p>`:''}
+    ${note?`<p class="u-mh2 mut sm">${esc(note)}</p>`:''}
   </div>`;
 }
 
@@ -386,14 +385,14 @@ function tradResultat(){
   <div class="box">
     <div class="trow">
       <div class="tl">
-        <div class="hz" style="font-size:32px;font-weight:700;line-height:1.25">${esc(R.hz)}</div>
-        ${R.py?`<div class="py" style="font-size:19px">${pinyin(R.py)}</div>`:''}
-        <div class="fr" style="font-size:18px;font-weight:700;margin-top:4px">${esc(R.fr)}</div>
+        <div class="u-tx4 u-fw-700 u-lh-125 hz">${esc(R.hz)}</div>
+        ${R.py?`<div class="u-tx2 py">${pinyin(R.py)}</div>`:''}
+        <div class="u-tx2 u-fw-700 u-mt1 fr">${esc(R.fr)}</div>
       </div>
       ${etoile('main',0,R.hz,R.fr)}
     </div>
     ${R.pyMasque?`<p class="mut sm mt">Le pinyin renvoyé ne correspondait pas aux caractères : il n’est pas affiché, plutôt que de risquer un ton faux en mémoire.</p>`:''}
-    ${R.note?`<p class="sm" style="margin-top:8px">${esc(R.note)}</p>`:''}
+    ${R.note?`<p class="u-mt2 sm">${esc(R.note)}</p>`:''}
     <div class="row mt">
       <button class="btn jade sm" onclick="speak('${jq(R.hz)}')">Écouter</button>
       <button class="btn pale sm" onclick="stopSpeech()">Arrêter</button>
@@ -405,7 +404,7 @@ function tradResultat(){
     const m=lacunes(R);
     if(!m.length)return '';
     return `<div class="box lac">
-      <p class="sm" style="margin:0 0 6px"><b>Résultat incomplet</b></p>
+      <p class="u-mb2 sm"><b>Résultat incomplet</b></p>
       <p class="mut sm">Le modèle n’a pas renvoyé ${m.map(x=>LACLABEL[x]||x).join(', ')}. ${ctx.relance?'La relance automatique n’a pas suffi.':''} Mis au carnet en l’état, ce mot n’aurait pas toutes ses épreuves : sans phrase d’exemple, la complétion, la remise en ordre et la saisie ne peuvent pas se construire.</p>
       <button class="btn pale sm mt" onclick="tradComplete(false)" ${ctx.busy?'disabled':''}>${ctx.busy?'Complément en cours…':'Compléter'}</button>
     </div>`;
@@ -413,7 +412,7 @@ function tradResultat(){
   ${(ctx.src&&ctx.src!==R.hz&&ctx.src!==R.fr)?`<div class="box">
     <div class="trow">
       <div class="tl"><div class="tg">Ma formulation de départ</div>
-        <div class="${zh?'hz':'fr'}" style="font-size:18px">${esc(ctx.src)}</div></div>
+        <div class="u-tx2 ${zh?'hz':'fr'}">${esc(ctx.src)}</div></div>
       ${etoile('saisie',0,zh?ctx.src:R.hz,zh?R.fr:ctx.src)}
     </div>
   </div>`:''}
@@ -437,15 +436,15 @@ function tradResultat(){
     </div>`).join('')}`:''}
 
   ${R.vois.length?`<h2 class="sec">À ne pas confondre</h2>
-    <div class="box">${R.vois.map(v=>`<p class="sm" style="margin:0 0 9px">
+    <div class="box">${R.vois.map(v=>`<p class="u-mb2 sm">
       <b class="hz">${esc(v.hz)}</b>${v.py?' <span class="py">'+pinyin(v.py)+'</span>':''}${v.fr?' — '+esc(v.fr):''}<br>
       <span class="mut">${esc(v.note||'')}</span></p>`).join('')}
-      <p class="mut sm" style="margin:0">Ces voisins servent aussi de leurres : mis au carnet, le mot donnera l’épreuve « le mot juste ».</p>
+      <p class="u-m0 mut sm">Ces voisins servent aussi de leurres : mis au carnet, le mot donnera l’épreuve « le mot juste ».</p>
     </div>`:''}
 
   ${R.decomp.length?`<h2 class="sec">Composition</h2>
-    <div class="box">${R.decomp.map(c=>`<p class="sm" style="margin:0 0 9px">
-      <b class="hz" style="font-size:22px">${esc(c.c)}</b> —
+    <div class="box">${R.decomp.map(c=>`<p class="u-mb2 sm">
+      <b class="u-tx3 hz">${esc(c.c)}</b> —
       ${(c.parts||[]).map(p=>`<b class="hz">${esc(p.p)}</b>${p.role?' <span class="mut">('+esc(p.role)+')</span>':''}${p.sens?' : '+esc(p.sens):''}`).join(' · ')}
       ${c.note?`<br><span class="mut">${esc(c.note)}</span>`:''}</p>`).join('')}
     </div>`:''}`;
@@ -460,8 +459,7 @@ function vTrad(){
   <div class="tsens">
     <button class="${sens==='zh-fr'?'on':''}" onclick="setSens('zh-fr')">Chinois</button>
     <button class="swap" onclick="tradSwap()" aria-label="Inverser le sens">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" class="ico">
         <path d="M7 4.5v14M7 18.5l-3-3M7 18.5l3-3"/><path d="M17 19.5v-14M17 5.5l-3 3M17 5.5l3 3"/></svg>
     </button>
     <button class="${sens==='fr-zh'?'on':''}" onclick="setSens('fr-zh')">Français</button>
@@ -474,17 +472,17 @@ function vTrad(){
     ${cle?'':`<p class="mut sm mt">Aucune clé n’est enregistrée. Le traducteur ne peut pas fonctionner sans elle.</p>
       <button class="btn pale sm mt" onclick="nav('reglages')">Ouvrir les réglages</button>`}
   </div>
-  ${ctx.err?`<div class="box"><p class="mut sm" style="margin:0">${esc(ctx.err)}</p></div>`:''}
-  ${ctx.busy?`<div class="box"><p class="mut sm" style="margin:0">Traduction, synonymes, exemples, voisins et composition sont demandés en une seule fois. Quelques secondes.</p></div>`:''}
+  ${ctx.err?`<div class="box"><p class="u-m0 mut sm">${esc(ctx.err)}</p></div>`:''}
+  ${ctx.busy?`<div class="box"><p class="u-m0 mut sm">Traduction, synonymes, exemples, voisins et composition sont demandés en une seule fois. Quelques secondes.</p></div>`:''}
   ${tradResultat()}
   ${nf?`<h2 class="sec">Le carnet</h2>
     <div class="box">
-      <p class="mut sm" style="margin:0 0 10px">${nf} entrée${nf>1?'s':''} · ${favDue()} à revoir maintenant.</p>
+      <p class="u-mb3 mut sm">${nf} entrée${nf>1?'s':''} · ${favDue()} à revoir maintenant.</p>
       <button class="btn jade sm" onclick="nav('vocab')">Réviser le carnet</button>
     </div>`:''}
   ${h.length?`<h2 class="sec">Récents</h2>
     <div class="box">
-      ${h.slice(0,8).map(e=>`<button class="wrow" style="width:100%;text-align:left"
+      ${h.slice(0,8).map(e=>`<button class="u-w-100pc u-ta-left wrow"
         onclick="tradRappel('${jq(e.q)}','${esc(e.s||'zh-fr')}')">
         <span class="m"><b>${esc(e.q)}</b><span class="mut">${esc(e.fr||e.hz||'')}</span></span>
       </button>`).join('')}

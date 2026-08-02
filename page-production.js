@@ -11,9 +11,9 @@ function vProd(){
   ${p.type==='ordre'?pOrdre(p):p.type==='trad'?pTrad(p):pLibre(p)}
   ${S.written.length?`<h2 class="sec">Mon carnet</h2>
     ${S.written.slice().reverse().slice(0,6).map(e=>`<div class="box">
-      <p class="mut sm" style="margin:0 0 6px">${new Date(e.t).toLocaleDateString('fr-FR')}</p>
-      <div class="sentence" style="font-size:19px">${esc(e.txt)}</div>
-      ${e.corr?`<p class="sm" style="white-space:pre-wrap;border-top:2px dashed var(--line);padding-top:10px;margin-top:10px">${esc(e.corr)}</p>`:''}
+      <p class="u-mb2 mut sm">${new Date(e.t).toLocaleDateString('fr-FR')}</p>
+      <div class="u-tx2 sentence">${esc(e.txt)}</div>
+      ${e.corr?`<p class="u-ws-pre-wrap u-bt-2-dashed-line u-pt3 u-mt3 sm">${esc(e.corr)}</p>`:''}
     </div>`).join('')}`:''}`;
 }
 
@@ -39,7 +39,7 @@ function pOrdre(p){
     <p><b>${esc(p.consigne)}</b></p>
     <p class="mut sm">${esc(p.fr)}</p>
     <div class="drop">${ctx.built.map((w,i)=>`<button class="tile" onclick="unbuild(${i})">${esc(w)}</button>`).join('')
-      ||'<span class="mut sm" style="padding:0 6px">Touchez les mots dans l’ordre</span>'}</div>
+      ||'<span class="u-ph2 mut sm">Touchez les mots dans l’ordre</span>'}</div>
     <div class="tiles mt">${bag.map((w,i)=>`<button class="tile" onclick="build(${i},'${jq(p.id)}')">${esc(w)}</button>`).join('')}</div>
     ${!bag.length?`<div class="verdict ${done?'ok':'no'} mt">${done?'Phrase juste !':'Ordre incorrect. Réponse : '+esc(p.ok)}</div>
       ${done?`<button class="btn jade mt" onclick="speakSeq([{hz:'${jq(p.ok)}'}])">Écouter la phrase</button>`:''}`:''}
@@ -67,10 +67,10 @@ function pTrad(p){
       <button class="btn jade sm" onclick="askAI('${p.id}')">Corriger</button>
     </div>
     <button class="btn pale sm mt" onclick="keep('${p.id}')">Garder dans mon carnet</button>
-    ${ctx.res==='m'?`<div class="verdict ok mt"><div class="sentence" style="font-size:20px">${esc(p.ok)}</div>
-      <p class="sm" style="margin:6px 0 0">Comparez structure par structure : plusieurs formulations sont justes.</p></div>
+    ${ctx.res==='m'?`<div class="verdict ok mt"><div class="u-tx2 sentence">${esc(p.ok)}</div>
+      <p class="u-mh2 sm">Comparez structure par structure : plusieurs formulations sont justes.</p></div>
       <button class="btn pale sm" onclick="speakSeq([{hz:'${jq(p.ok)}'}])">Écouter le modèle</button>`:''}
-    ${ctx.aiout?`<div class="verdict ok mt" style="white-space:pre-wrap">${esc(ctx.aiout)}</div>`:''}
+    ${ctx.aiout?`<div class="u-ws-pre-wrap verdict ok mt">${esc(ctx.aiout)}</div>`:''}
   </div>`;
 }
 
@@ -84,9 +84,9 @@ function pLibre(p){
     </div>
     <button class="btn pale sm mt" onclick="keep('${p.id}')">Garder dans mon carnet</button>
     <p class="mut sm mt">Sans clé de correction, écrivez quand même : le texte est conservé et pourra être corrigé plus tard.</p>
-    ${ctx.res==='m'&&p.modele?`<div class="verdict ok mt"><div class="sentence" style="font-size:19px">${esc(p.modele)}</div></div>
+    ${ctx.res==='m'&&p.modele?`<div class="verdict ok mt"><div class="u-tx2 sentence">${esc(p.modele)}</div></div>
       <button class="btn pale sm" onclick="speakSeq([{hz:'${jq(p.modele||'')}'}])">Écouter le modèle</button>`:''}
-    ${ctx.aiout?`<div class="verdict ok mt" style="white-space:pre-wrap">${esc(ctx.aiout)}</div>`:''}
+    ${ctx.aiout?`<div class="u-ws-pre-wrap verdict ok mt">${esc(ctx.aiout)}</div>`:''}
   </div>`;
 }
 

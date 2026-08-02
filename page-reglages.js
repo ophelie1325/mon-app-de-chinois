@@ -5,10 +5,10 @@ function vReglages(){
   if(!vs.length&&typeof refreshVoices==='function')refreshVoices();
   return `<div class="top"><div class="htitle">Réglages<small>Police, voix, sons, correction, sauvegarde</small></div></div>
   <h2 class="sec">Police des caractères chinois</h2>
-  ${Object.keys(FONTS).map(k=>`<button class="wrow" style="width:100%;text-align:left;${S.settings.font===k?'border-color:var(--red)':''}"
+  ${Object.keys(FONTS).map(k=>`<button class="wrow" class="u-w-100pc u-ta-left ${S.settings.font===k?'choisi-rouge':''}"
     onclick="S.settings.font='${k}';save();render()">
     <span class="g" style="font-family:${FONTS[k].v.replace(/"/g,'&quot;')};font-size:27px">汉字</span>
-    <span class="m"><b style="${S.settings.font===k?'color:var(--red)':''}">${esc(FONTS[k].n)}</b><span class="mut">${esc(FONTS[k].ex)}</span></span>
+    <span class="m"><b class="${S.settings.font===k?'u-c-red':''}">${esc(FONTS[k].n)}</b><span class="mut">${esc(FONTS[k].ex)}</span></span>
     ${S.settings.font===k?'<span class="seal">选</span>':''}
   </button>`).join('')}
 
@@ -41,9 +41,9 @@ function vReglages(){
 
   <h2 class="sec">Affichage des documents</h2>
   <div class="box">
-    <p class="mut sm" style="margin:0 0 10px">Comment se présentent les textes et les dialogues en compréhension.</p>
+    <p class="u-mb3 mut sm">Comment se présentent les textes et les dialogues en compréhension.</p>
     ${flowPills()}
-    <p class="mut sm" style="margin:0">« Texte suivi » affiche le document d’un seul bloc, avec une seule écoute. « Découpé » place chaque phrase sur sa propre carte, avec son bouton d’écoute.</p>
+    <p class="u-m0 mut sm">« Texte suivi » affiche le document d’un seul bloc, avec une seule écoute. « Découpé » place chaque phrase sur sa propre carte, avec son bouton d’écoute.</p>
   </div>
 
   <h2 class="sec">Correction et conversation</h2>
@@ -56,18 +56,18 @@ function vReglages(){
     </select></div>
     ${S.settings.provider!=='none'?`
       <input type="password" placeholder="Collez la clé ici" value="${esc(S.settings.apikey)}"
-        oninput="S.settings.apikey=this.value.trim();save()" style="margin-top:10px">
+        oninput="S.settings.apikey=this.value.trim();save()" class="u-mt3">
       <p class="mut sm">${(S.settings.apikey||'').trim()
         ?`Clé enregistrée : ${(S.settings.apikey||'').trim().length} caractères, se termine par …${esc((S.settings.apikey||'').trim().slice(-4))}.`
         :'Aucune clé enregistrée pour l’instant.'}</p>
       <button class="btn jade mt" onclick="testKey()">Tester la clé</button>
       ${S.settings.gmodel?`<p class="mut sm mt">Modèle actuellement retenu : <b>${esc(S.settings.gmodel)}</b>${S.settings.gjson===false?' — sortie JSON simple':''}</p>`:''}
       <p class="mut sm mt">Si vous restreignez la clé aux sites web, l’adresse à autoriser est celle d’où vous ouvrez cette page : <b>${esc((typeof location!=='undefined'&&location.origin)||'—')}</b></p>
-      ${ctx.test?`<div class="verdict ${ctx.test.busy?'':(ctx.test.ok?'ok':'no')}" style="margin-top:11px">${
+      ${ctx.test?`<div class="u-mt3 verdict ${ctx.test.busy?'':(ctx.test.ok?'ok':'no')}">${
         ctx.test.busy?'Essai en cours…':esc(ctx.test.msg)}</div>
-        ${(ctx.test.det||[]).length?`<div class="box" style="margin-top:10px">
-          <p class="mut sm" style="margin:0 0 6px"><b>Détail des essais</b> — à me recopier si besoin</p>
-          ${ctx.test.det.map(d=>`<p class="mut sm" style="margin:0 0 4px">${esc(d)}</p>`).join('')}</div>`:''}`:''}
+        ${(ctx.test.det||[]).length?`<div class="u-mt3 box">
+          <p class="u-mb2 mut sm"><b>Détail des essais</b> — à me recopier si besoin</p>
+          ${ctx.test.det.map(d=>`<p class="u-mb1 mut sm">${esc(d)}</p>`).join('')}</div>`:''}`:''}
       <p class="mut sm mt">${S.settings.provider==='gemini'
         ?'Clé gratuite via Google AI Studio. Sur le palier gratuit, les données envoyées peuvent servir à entraîner le modèle.'
         :'Clé via la console Anthropic. Facturation à la consommation, indépendante de l’abonnement Claude.'}</p>`:''}
@@ -75,13 +75,13 @@ function vReglages(){
 
   <h2 class="sec">Module 聊</h2>
   <div class="box">
-    <p class="mut sm" style="margin:0 0 6px">Longueur d’un échange — ${S.settings.chatTurns} tours</p>
+    <p class="u-mb2 mut sm">Longueur d’un échange — ${S.settings.chatTurns} tours</p>
     <input type="range" min="4" max="10" step="1" value="${S.settings.chatTurns}"
       oninput="S.settings.chatTurns=parseInt(this.value,10);save();render()">
     ${sw('chatOneQ','Une seule question par tour','Décochez si vous préférez que le partenaire enchaîne deux questions, plus exigeant')}
     ${sw('chatDemote','Rétrograder les mots fautifs','Les mots relevés au débriefing redescendent d’une boîte et reviennent plus tôt en révision')}
     <button class="btn pale mt" onclick="chatExport()">Exporter mes conversations</button>
-    <button class="btn pale sm mt" style="color:var(--red)" onclick="chatLogWipe()">Effacer le journal des conversations</button>
+    <button class="u-c-red btn pale sm mt" onclick="chatLogWipe()">Effacer le journal des conversations</button>
     <p class="mut sm mt">Les dix derniers échanges sont conservés à part, hors de la sauvegarde de progression.</p>
   </div>
 
@@ -90,11 +90,11 @@ function vReglages(){
     ${(function(){
       const P=DATA('WORDS'),faits=P.filter(w=>S.enrich&&S.enrich[w.id]).length;
       const cle=S.settings.provider!=='none'&&!!(S.settings.apikey||'').trim();
-      return `<p class="sm" style="margin:0 0 6px"><b>Compléter le corpus</b></p>
+      return `<p class="u-mb2 sm"><b>Compléter le corpus</b></p>
       <p class="mut sm">Quatre épreuves — le mot juste, repérer la faute, la composition du caractère, la complétion à l’aveugle — ont besoin de données que les mots du corpus ne portent pas : voisins confondables, version fautive, décomposition, phrases d’exemple découpées. Le carnet les capte tout seul à la mise en favori. Pour les ${P.length} mots déjà en place, il faut les demander une fois.</p>
       <p class="mut sm"><b>${faits}</b> mot${faits>1?'s':''} sur ${P.length} déjà complété${faits>1?'s':''}.</p>
       ${ctx.enr&&ctx.enr.busy
-        ?`<div class="bar" style="margin:10px 0"><i style="width:${Math.round(ctx.enr.fait/Math.max(1,ctx.enr.total)*100)}%"></i></div>
+        ?`<div class="u-mv33 bar"><i style="width:${Math.round(ctx.enr.fait/Math.max(1,ctx.enr.total)*100)}%"></i></div>
           <p class="mut sm">${ctx.enr.fait} sur ${ctx.enr.total}… ${esc(ctx.enr.mot||'')}</p>
           <button class="btn pale sm" onclick="enrStop()">Arrêter</button>`
         :`<button class="btn pale mt" onclick="enrGo()" ${cle?'':'disabled'}>${faits?'Reprendre':'Lancer'} — par lots de dix</button>
@@ -106,15 +106,15 @@ function vReglages(){
 
   <h2 class="sec">Le carnet</h2>
   <div class="box">
-    <p class="mut sm" style="margin:0 0 10px">${(S.fav||[]).length} entrée${(S.fav||[]).length>1?'s':''} mise${(S.fav||[]).length>1?'s':''} de côté depuis le traducteur. Elles voyagent dans l’export avec le reste, et « Tout effacer » ne les touche pas : c’est du contenu, pas de la progression.</p>
-    ${(S.fav||[]).length?`<button class="btn pale sm" onclick="favWipe()" style="color:var(--red)">Vider le carnet</button>`:''}
+    <p class="u-mb3 mut sm">${(S.fav||[]).length} entrée${(S.fav||[]).length>1?'s':''} mise${(S.fav||[]).length>1?'s':''} de côté depuis le traducteur. Elles voyagent dans l’export avec le reste, et « Tout effacer » ne les touche pas : c’est du contenu, pas de la progression.</p>
+    ${(S.fav||[]).length?`<button class="u-c-red btn pale sm" onclick="favWipe()">Vider le carnet</button>`:''}
   </div>
 
   <h2 class="sec">Ma progression</h2>
   <div class="box">
     <button class="btn pale" onclick="exportJSON()">Exporter dans un fichier</button>
     <button class="btn pale mt" onclick="document.getElementById('imp').click()">Importer un fichier</button>
-    <button class="btn pale mt" style="color:var(--red)" onclick="wipe()">Tout effacer</button>
+    <button class="u-c-red btn pale mt" onclick="wipe()">Tout effacer</button>
     <input type="file" id="imp" accept="application/json" class="hidden" onchange="importJSON(this)">
     <p class="mut sm mt">Exportez avant de changer d’appareil : la progression est stockée dans ce navigateur uniquement.</p>
   </div>

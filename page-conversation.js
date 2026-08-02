@@ -191,22 +191,22 @@ function chatSetup(){
   return header('聊 — Conversation','Dialoguer sur un thème, puis faire le point')+ribbon()+`
   ${levelPills()}
   <div class="box">
-    <p class="mut sm" style="margin:0 0 8px">Thème</p>
+    <p class="u-mb2 mut sm">Thème</p>
     <div class="selwrap"><select onchange="ctx.cth=this.value;render()">
       ${dispo.map(t=>`<option value="${t.id}" ${ctx.cth===t.id?'selected':''}>${esc(t.n)}</option>`).join('')}
     </select></div>
-    <p class="mut sm" style="margin:14px 0 8px">Registre</p>
-    ${REGISTERS.map(r=>`<button class="wrow" style="width:100%;text-align:left;${ctx.creg===r.id?'border-color:var(--jade)':''}"
+    <p class="u-mv42 mut sm">Registre</p>
+    ${REGISTERS.map(r=>`<button class="wrow" class="u-w-100pc u-ta-left ${ctx.creg===r.id?'choisi-jade':''}"
       onclick="ctx.creg='${r.id}';render()">
-      <span class="m"><b style="${ctx.creg===r.id?'color:var(--jade)':''}">${esc(r.n)}</b><span class="mut">${esc(r.d)}</span></span>
+      <span class="m"><b class="${ctx.creg===r.id?'u-c-jade':''}">${esc(r.n)}</b><span class="mut">${esc(r.d)}</span></span>
       ${ctx.creg===r.id?'<span class="seal">选</span>':''}</button>`).join('')}
   </div>
   <div class="box">
     ${hasKey()
-      ?`<p class="sm" style="margin:0"><b>Conversation libre.</b> <span class="mut">Votre partenaire s’en tient aux ${chatWords(ctx.cth,h).length} mots du thème. ${S.settings.chatTurns} tours, puis le point sur vos phrases.</span></p>`
-      :`<p class="sm" style="margin:0"><b>Dialogue guidé.</b> <span class="mut">Sans clé, l’échange se fait à choix multiples, quatre répliques. Ajoutez une clé Gemini dans les Réglages pour la conversation libre.</span></p>`}
+      ?`<p class="u-m0 sm"><b>Conversation libre.</b> <span class="mut">Votre partenaire s’en tient aux ${chatWords(ctx.cth,h).length} mots du thème. ${S.settings.chatTurns} tours, puis le point sur vos phrases.</span></p>`
+      :`<p class="u-m0 sm"><b>Dialogue guidé.</b> <span class="mut">Sans clé, l’échange se fait à choix multiples, quatre répliques. Ajoutez une clé Gemini dans les Réglages pour la conversation libre.</span></p>`}
   </div>
-  <button class="btn red mt" onclick="chatStart(ctx.cth,ctx.creg)">Commencer</button>`;
+  <button class="btn pale mt u-c-red" onclick="chatStart(ctx.cth,ctx.creg)">Commencer</button>`;
 }
 
 /* ---- Conduite de la conversation ---- */
@@ -282,16 +282,16 @@ function chatBubble(t,i){
   const py=t.pyOk!==false&&!!t.py;
   return `<div class="bub them">
     <div class="sentence">${esc(t.hz)}</div>
-    <div class="row" style="margin-top:10px">
+    <div class="u-mt3 row">
       <button class="btn pale tiny" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
       ${py?`<button class="btn pale tiny" onclick="chatShow(${i},'vpy')">${t.vpy?'Cacher le pinyin':'Pinyin'}</button>`:''}
       <button class="btn pale tiny" onclick="chatShow(${i},'vfr')">${t.vfr?'Cacher la traduction':'Traduction'}</button>
     </div>
-    ${t.pyOk===false?`<p class="mut sm" style="margin:8px 0 0">Pinyin écarté : ${pyMsg(t.pyCode)}.</p>`:''}
-    ${t.vpy&&py?`<div class="py sm" style="margin-top:9px">${pinyin(t.py)}</div>
-      ${t.doute&&t.doute.length?`<p class="mut sm" style="margin:5px 0 0">Lecture à vérifier sur : ${t.doute.map(d=>esc(d.c)).join(' ')}</p>`:''}`:''}
-    ${t.vfr?`<p class="mut sm" style="margin:9px 0 0">${esc(t.fr||'')}</p>
-      ${(t.gloss||[]).length?`<p class="mut sm" style="margin:6px 0 0">${t.gloss.map(g=>esc(g.hz+' — '+g.fr)).join(' · ')}</p>`:''}`:''}
+    ${t.pyOk===false?`<p class="u-mh2 mut sm">Pinyin écarté : ${pyMsg(t.pyCode)}.</p>`:''}
+    ${t.vpy&&py?`<div class="u-mt2 py sm">${pinyin(t.py)}</div>
+      ${t.doute&&t.doute.length?`<p class="u-mh1 mut sm">Lecture à vérifier sur : ${t.doute.map(d=>esc(d.c)).join(' ')}</p>`:''}`:''}
+    ${t.vfr?`<p class="u-mh2 mut sm">${esc(t.fr||'')}</p>
+      ${(t.gloss||[]).length?`<p class="u-mh2 mut sm">${t.gloss.map(g=>esc(g.hz+' — '+g.fr)).join(' · ')}</p>`:''}`:''}
   </div>`;
 }
 
@@ -308,19 +308,19 @@ function chatContents(c,dernier){
 function chatDebriefBlock(c){
   const d=c.debrief||{};
   return `<h2 class="sec">Le point sur cet échange</h2>
-  <div class="box"><p style="margin:0">${esc(d.bilan||'')}</p></div>
+  <div class="box"><p class="u-m0">${esc(d.bilan||'')}</p></div>
   ${(d.erreurs||[]).length?(d.erreurs||[]).map(e=>`<div class="box">
-    <p class="hz" style="margin:0 0 5px"><b>${esc(e.ecrit||'')}</b></p>
-    <p class="hz" style="margin:0 0 7px;color:var(--jade)">${esc(e.attendu||'')}</p>
-    <p class="mut sm" style="margin:0">${esc(e.regle||'')}</p></div>`).join('')
-    :`<div class="box"><p class="mut sm" style="margin:0">Aucune erreur relevée.</p></div>`}
+    <p class="u-mb1 hz"><b>${esc(e.ecrit||'')}</b></p>
+    <p class="u-mb2 u-c-jade hz">${esc(e.attendu||'')}</p>
+    <p class="u-m0 mut sm">${esc(e.regle||'')}</p></div>`).join('')
+    :`<div class="box"><p class="u-m0 mut sm">Aucune erreur relevée.</p></div>`}
   ${(d.reformulations||[]).length?`<h2 class="sec">Plus naturel</h2>
   ${d.reformulations.map(r=>`<div class="box">
-    <p class="mut sm" style="margin:0 0 5px">${esc(r.ecrit||'')}</p>
+    <p class="u-mb1 mut sm">${esc(r.ecrit||'')}</p>
     <div class="sentence">${esc(r.mieux||'')}</div>
     ${r.pyOk&&r.py?`<div class="py sm">${pinyin(r.py)}</div>`:''}
-    ${r.fr?`<p class="mut sm" style="margin:6px 0 0">${esc(r.fr)}</p>`:''}</div>`).join('')}`:''}
-  ${c.retro?`<div class="box"><p class="mut sm" style="margin:0">${c.retro} mot${c.retro>1?'s':''} ${c.retro>1?'redescendus':'redescendu'} d’une boîte pour être revu${c.retro>1?'s':''} plus tôt.</p></div>`:''}
+    ${r.fr?`<p class="u-mh2 mut sm">${esc(r.fr)}</p>`:''}</div>`).join('')}`:''}
+  ${c.retro?`<div class="box"><p class="u-m0 mut sm">${c.retro} mot${c.retro>1?'s':''} ${c.retro>1?'redescendus':'redescendu'} d’une boîte pour être revu${c.retro>1?'s':''} plus tôt.</p></div>`:''}
   <button class="btn pale mt" onclick="ctx.chat=null;render()">Nouvelle conversation</button>`;
 }
 
@@ -331,22 +331,22 @@ function chatGuide(c){
     <div class="box"><p><b>Dialogue terminé.</b></p>
       <p class="mut sm">${justes} réponse${justes>1?'s':''} juste${justes>1?'s':''} sur ${c.sc.turns.length}.</p></div>
     ${c.sc.turns.map((x,i)=>`<div class="bub them"><div class="sentence">${esc(x.hz)}</div>
-      <div class="py sm" style="margin-top:7px">${pinyin(x.py)}</div>
-      <p class="mut sm" style="margin:7px 0 0">${esc(x.fr)}</p></div>
+      <div class="u-mt2 py sm">${pinyin(x.py)}</div>
+      <p class="u-mh2 mut sm">${esc(x.fr)}</p></div>
       <div class="bub me"><div class="sentence">${esc(x.a[c.picks[i]!=null?c.picks[i]:x.a.findIndex(a=>a.ok)].hz)}</div></div>`).join('')}
-    <div class="box"><p class="mut sm" style="margin:0">Avec une clé Gemini dans les Réglages, cette étape devient une vraie conversation libre.</p></div>
+    <div class="box"><p class="u-m0 mut sm">Avec une clé Gemini dans les Réglages, cette étape devient une vraie conversation libre.</p></div>
     <button class="btn pale mt" onclick="ctx.chat=null;render()">Recommencer</button>`;
   return header('聊 — '+esc(c.sc.titre),'Dialogue guidé · réplique '+(c.step+1)+' sur '+c.sc.turns.length)+ribbon()+`
-  <div class="box"><p class="mut sm" style="margin:0">${esc(c.sc.role)}</p></div>
+  <div class="box"><p class="u-m0 mut sm">${esc(c.sc.role)}</p></div>
   <div class="bub them">
     <div class="sentence">${esc(t.hz)}</div>
-    <div class="row" style="margin-top:10px">
+    <div class="u-mt3 row">
       <button class="btn pale tiny" onclick="speak('${jq(t.hz)}','A')">Écouter</button>
       <button class="btn pale tiny" onclick="ctx.gpy=!ctx.gpy;render()">${ctx.gpy?'Cacher le pinyin':'Pinyin'}</button>
       <button class="btn pale tiny" onclick="ctx.gfr=!ctx.gfr;render()">${ctx.gfr?'Cacher la traduction':'Traduction'}</button>
     </div>
-    ${ctx.gpy?`<div class="py sm" style="margin-top:9px">${pinyin(t.py)}</div>`:''}
-    ${ctx.gfr?`<p class="mut sm" style="margin:9px 0 0">${esc(t.fr)}</p>`:''}
+    ${ctx.gpy?`<div class="u-mt2 py sm">${pinyin(t.py)}</div>`:''}
+    ${ctx.gfr?`<p class="u-mh2 mut sm">${esc(t.fr)}</p>`:''}
   </div>
   <h2 class="sec">Que répondez-vous ?</h2>
   <div class="opts">${t.a.map((a,j)=>{
@@ -354,7 +354,7 @@ function chatGuide(c){
     return `<button class="opt han ${cl}" onclick="scPick(${j})">${esc(a.hz)}
       ${pick!=null?`<span class="mut sm"> — ${esc(a.fr)}</span>`:''}</button>`;}).join('')}</div>
   ${pick!=null?`<div class="verdict ${t.a[pick].ok?'ok':'no'}">${t.a[pick].ok?'Juste.':esc(t.a[pick].why||'Ce n’est pas la bonne réponse.')}</div>
-    <button class="btn red mt" onclick="scNext()">${c.step+1<c.sc.turns.length?'Réplique suivante':'Terminer'}</button>`:''}`;
+    <button class="btn pale mt u-c-red" onclick="scNext()">${c.step+1<c.sc.turns.length?'Réplique suivante':'Terminer'}</button>`:''}`;
 }
 
 /* ---- Dialogue guidé, sans clé ---- */
@@ -381,7 +381,7 @@ function vChat(){
   if(c.mode==='guide')return chatGuide(c);
   return header('聊 — '+themeName(c.theme),'HSK '+c.hsk+' · tour '+Math.min(nMoi+1,max)+' sur '+max)+ribbon()+`
   ${c.turns.map(chatBubble).join('')}
-  ${c.busy?`<div class="box"><p class="mut sm" style="margin:0">Votre interlocuteur écrit…</p></div>`:''}
+  ${c.busy?`<div class="box"><p class="u-m0 mut sm">Votre interlocuteur écrit…</p></div>`:''}
   ${c.err?`<div class="verdict no">${esc(c.err)}</div>
     <button class="btn pale sm mt" onclick="chatNext('(Reprends.)')">Réessayer</button>`:''}
   ${c.done?chatDebriefBlock(c):`
@@ -391,7 +391,7 @@ function vChat(){
   <h2 class="sec">Ma réponse</h2>
   <div class="box">
     <textarea rows="2" placeholder="Écrivez en chinois, au clavier" oninput="ctx.chat.draft=this.value">${esc(c.draft||'')}</textarea>
-    <button class="btn red mt" onclick="chatSend()">Envoyer</button>
+    <button class="btn pale mt u-c-red" onclick="chatSend()">Envoyer</button>
     ${nMoi>=4?`<button class="btn pale sm mt" onclick="chatFinish()">Terminer et faire le point</button>`:''}
   </div>`}`;
 }

@@ -267,7 +267,7 @@ function exRep(q){
     let cl='';
     if(fait)cl=k===q.s.cle?'bon':(k===ctx.rep?'mauvais':'');
     return t.p?`<button class="tile tok ${cl}" ${fait?'disabled':''} onclick="repRep(${k},${q.s.cle})">${esc(t.h)}</button>`
-              :`<span class="tile" style="border-color:transparent;box-shadow:none">${esc(t.h)}</span>`;
+              :`<span class="u-bc-transparent u-bs-none tile">${esc(t.h)}</span>`;
   }).join('')}</div>
   <p class="sm mt">${esc(q.s.fr)}</p>
   ${fait?`<div class="verdict ${ctx.res[ctx.i]?'ok':'no'}">
@@ -299,13 +299,13 @@ function assemblage(mots,seg,consigne){
   return `<p>${consigne}</p>
   <div class="drop">${bac.length?bac.map((x,p)=>
     `<button class="tile" ${fait?'disabled':''} onclick="retirer(${p})">${esc(x.m.h)}</button>`).join(''):
-    '<span class="sm" style="color:var(--line2)">Touchez les étiquettes ci-dessous</span>'}</div>
+    '<span class="u-c-line2 sm">Touchez les étiquettes ci-dessous</span>'}</div>
   <div class="tiles mt">${reste.map(x=>
     `<button class="tile" ${fait?'disabled':''} onclick="poser(${x.k})">${esc(x.m.h)}</button>`).join('')}</div>
   ${!fait&&bac.length===mots.length?`<button class="btn mt" onclick="verifAssemblage()">Vérifier</button>`:''}
   ${fait?`<div class="verdict ${ctx.res[ctx.i]?'ok':'no'}">
     ${ctx.res[ctx.i]?'Exact.':'La phrase attendue était :'}
-    <div class="hz mt" style="font-size:20px">${esc(segHz(seg))}</div>
+    <div class="u-tx2 hz mt">${esc(segHz(seg))}</div>
     <div class="gpy">${pinyin(segPy(seg))}</div></div>${boutonSuite()}`:''}`;
 }
 function poser(k){
@@ -331,9 +331,9 @@ function exComp(q,g){
   }
   const opts=ctx.choix[ctx.i];
   return `<p>Complétez la phrase.</p>
-  <div class="sentence" style="font-size:23px;font-weight:700;line-height:1.6">
+  <div class="u-tx3 u-fw-700 u-lh-16 sentence">
     ${q.s.seg.map((t,k)=>k===q.s.cle
-      ?`<span style="border-bottom:3px solid var(--gold);padding:0 14px">${fait?esc(bon):'&nbsp;'}</span>`
+      ?`<span class="u-bb-3-solid-gold u-ph4">${fait?esc(bon):'&nbsp;'}</span>`
       :esc(t.h)).join('')}
   </div>
   <p class="sm">${esc(q.s.fr)}</p>
@@ -355,11 +355,11 @@ function exFix(q){
     let cl='';
     if(fait&&k===q.d.bad)cl='mauvais';
     return t.p?`<button class="tile tok ${cl}" ${fait?'disabled':''} onclick="repFix(${k},${q.d.bad})">${esc(t.h)}</button>`
-              :`<span class="tile" style="border-color:transparent;box-shadow:none">${esc(t.h)}</span>`;
+              :`<span class="u-bc-transparent u-bs-none tile">${esc(t.h)}</span>`;
   }).join('')}</div>
   ${fait?`<div class="verdict ${ctx.res[ctx.i]?'ok':'no'}">
     ${ctx.res[ctx.i]?'C’est bien là que ça coince.':'La faute portait sur '+esc(q.d.seg[q.d.bad].h)+'.'}
-    <div class="hz mt" style="font-size:20px;color:var(--jade-d)">${esc(q.d.bon)}</div>
+    <div class="u-tx2 u-c-jade-d hz mt">${esc(q.d.bon)}</div>
     <div class="sm mt">${esc(q.d.why)}</div></div>${boutonSuite()}`:''}`;
 }
 function repFix(k,bad){ctx.rep=k;noter(k===bad);}
@@ -399,7 +399,7 @@ function blocReu(r){
     <h3>Réponses possibles</h3>
     <p class="sm">Il existe presque toujours plusieurs façons de dire la même chose. Ces modèles ne sont pas <i>la</i> réponse : comparez la vôtre point par point avec les critères qui suivent.</p>
     ${r.modeles.map(exBloc).join('')}
-    <h3 style="margin-top:14px">À vérifier dans votre phrase</h3>
+    <h3 class="u-mt4">À vérifier dans votre phrase</h3>
     <ul class="gcrit">${r.criteres.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
   </div>
   ${boutonSuite()}`;

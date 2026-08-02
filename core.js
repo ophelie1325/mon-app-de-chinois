@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260801f';
+const BUILD='20260801j';
 
 /* --- Cohérence de la livraison ---------------------------------------
    Le marqueur figure à trois endroits : la constante ci-dessus, la
@@ -473,12 +473,6 @@ function currentLesson(){
    data-corpus.js doit rendre un tableau vide, pas casser. */
 function param(n){try{return new URLSearchParams(location.search).get(n);}catch(e){return null;}}
 function DATA(n){return (typeof window!=='undefined'&&window[n])||[];}
-function dueIn(list){return list.filter(o=>due(o.id)).length;}
-function masteredIn(list){return list.filter(o=>mastered(o.id)).length;}
-function vocabDue(){return dueIn(pool());}
-function gramPool(){return DATA('GRAMMAR').filter(fits);}
-function gramDue(){return dueIn(gramPool().filter(g=>S.items[g.id]));}
-function gramSeen(g){return !!S.items[g.id];}
 
 
 /* --- Correction assistée (facultative) --- */
@@ -509,6 +503,25 @@ Pas de préambule ni de conclusion.`;
   if(!r.ok)throw new Error('erreur '+r.status);
   const d=await r.json();
   return ((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('\n');
+}
+
+/* ---- Teintes du tracé -----------------------------------------------
+   HanziWriter attend des couleurs en paramètres JavaScript, pas en CSS.
+   Plutôt que de les recopier ici — où elles ne suivraient pas un
+   changement de palette —, on lit les variables de la feuille au moment
+   du montage. core.css reste seul maître de l’apparence. */
+function cssVar(nom){
+  try{return getComputedStyle(document.documentElement).getPropertyValue(nom).trim();}
+  catch(e){return '';}
+}
+/* Aucune couleur de repli n’est écrite ici : ce serait une seconde
+   source de vérité, et elle finirait par diverger. Si une variable
+   manque, la clé n’est pas transmise et HanziWriter garde la sienne. */
+function teintesTrace(){
+  const t={},m={strokeColor:'--ink',outlineColor:'--trace-guide',
+    drawingColor:'--red',highlightColor:'--jade'};
+  Object.keys(m).forEach(k=>{const v=cssVar(m[k]);if(v)t[k]=v;});
+  return t;
 }
 
 /* ---- Un appel qui rapporte un objet, quel que soit le fournisseur ----
@@ -728,8 +741,9 @@ const SVG={
 };
 
 function ico(k,cls){
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round" ${cls?`class="${cls}"`:''}>${SVG[k]}</svg>`;
+  /* L’icône ne porte que son tracé. Teinte, épaisseur et jointures
+     sont décidées dans core.css, pour toutes les icônes à la fois. */
+  return `<svg viewBox="0 0 24 24" class="ico ${cls||''}">${SVG[k]}</svg>`;
 }
 
 
@@ -823,7 +837,18 @@ function render(){
   }
 }
 /* Démarrage commun : la page n’a plus qu’à publier VIEWS. */
+/* La barre système d’Android prend la couleur du papier. Elle ne peut
+   pas être déclarée en CSS — c’est une balise meta — mais elle n’a pas à
+   être recopiée dans les treize pages pour autant : on la pose au
+   démarrage depuis la variable de la feuille. */
+function poseBarre(){
+  const m=document.querySelector('meta[name="theme-color"]');
+  const c=cssVar('--bg');
+  if(m&&c)m.setAttribute('content',c);
+}
+
 function boot(){
+  poseBarre();
   if(buildCheck()==='reload')return;
   try{buildPyDict();}catch(e){}
   render();

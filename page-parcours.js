@@ -2,20 +2,20 @@
 function vParcours(){
   return `<div class="top"><div class="htitle">Parcours<small>Une leçon complète par thème et par niveau</small></div></div>
   ${levelPills()}
-  <div class="grid" style="grid-template-columns:1fr">
+  <div class="u-gtc-1fr grid">
   ${THEMES.map((th,i)=>{
     const l=LESSONS.find(x=>x.theme===th.id&&x.hsk===S.settings.level);
     const p=l?(S.lessons[l.id]||[]).length:0;
     const c=['red','gold','jade','indigo','plum','clay'][i%6];
     const num=String(i+1).padStart(2,'0');
-    if(!l)return `<button class="mod wide" style="opacity:.5"
+    if(!l)return `<button class="u-op-5 mod wide"
       onclick="toast('Ce thème sera ajouté après validation du format.')">
-      <span class="emb" style="color:var(--line2);font-family:var(--ui)">${num}</span>
-      <span class="col"><b style="color:var(--muted)">${esc(th.n)}</b><span>Bientôt disponible</span></span></button>`;
+      <span class="u-c-line2 u-ff-ui emb">${num}</span>
+      <span class="col"><b class="u-c-muted">${esc(th.n)}</b><span>Bientôt disponible</span></span></button>`;
     return `<button class="mod wide c-${c}" onclick="openLesson('${l.id}')">
-      <span class="emb" style="font-family:var(--ui)">${num}</span>
+      <span class="u-ff-ui emb">${num}</span>
       <span class="col"><b>${esc(th.n)}</b><span>${p} / ${l.steps.length} étapes</span>
-        <span class="bar" style="margin-top:7px"><i style="width:${p/l.steps.length*100}%"></i></span></span>
+        <span class="u-mt2 bar"><i style="width:${p/l.steps.length*100}%"></i></span></span>
     </button>`;
   }).join('')}
   </div>`;
@@ -41,12 +41,12 @@ function vLecon(){
   }).join('');
   return header(l.title,l.intro)+`
   <div class="box">
-    <div class="bar"><i style="width:${done.length/l.steps.length*100}%;background:var(--red)"></i></div>
-    <p class="mut sm" style="margin:10px 0 0">${done.length} / ${l.steps.length} étapes · ${m} mot${m>1?'s':''} acquis sur ${words.length}</p>
+    <div class="bar"><i class="no" style="width:${done.length/l.steps.length*100}%"></i></div>
+    <p class="u-mh3 mut sm">${done.length} / ${l.steps.length} étapes · ${m} mot${m>1?'s':''} acquis sur ${words.length}</p>
   </div>
   <div class="path">${steps}</div>
-  ${done.length===l.steps.length?`<div class="box" style="text-align:center">
-    <p class="hz" style="font-size:42px;margin:0;color:var(--red);font-weight:700">成</p>
+  ${done.length===l.steps.length?`<div class="u-ta-center box">
+    <p class="u-tx5 u-m0 u-c-red u-fw-700 hz">成</p>
     <p><b>Thème terminé</b></p>
     <p class="mut sm">Passez au niveau supérieur pour reprendre le même thème avec plus de moyens.</p></div>`:''}`;
 }
@@ -92,7 +92,7 @@ function vDecouv(){
   ${glob.length?`<h2 class="sec">De quoi s’agit-il ?</h2>
   ${glob.map((q,i)=>`<div class="box" id="q-gl-${i}"><p><b>${esc(q.q)}</b></p>
     ${opts('gl:'+t.id+':'+i,q,false,i+1<glob.length?`q-gl-${i+1}`:null)}</div>`).join('')}`:''}
-  <button class="btn red mt" onclick="versQuestions()">Passer aux questions de détail</button>
+  <button class="btn pale mt u-c-red" onclick="versQuestions()">Passer aux questions de détail</button>
   <p class="mut sm">Les questions précises sur le document sont à l’étape suivante.</p>`;
 }
 
@@ -115,9 +115,9 @@ function vProd(){
   ${p.type==='ordre'?pOrdre(p):p.type==='trad'?pTrad(p):pLibre(p)}
   ${S.written.length?`<h2 class="sec">Mon carnet</h2>
     ${S.written.slice().reverse().slice(0,6).map(e=>`<div class="box">
-      <p class="mut sm" style="margin:0 0 6px">${new Date(e.t).toLocaleDateString('fr-FR')}</p>
-      <div class="sentence" style="font-size:19px">${esc(e.txt)}</div>
-      ${e.corr?`<p class="sm" style="white-space:pre-wrap;border-top:2px dashed var(--line);padding-top:10px;margin-top:10px">${esc(e.corr)}</p>`:''}
+      <p class="u-mb2 mut sm">${new Date(e.t).toLocaleDateString('fr-FR')}</p>
+      <div class="u-tx2 sentence">${esc(e.txt)}</div>
+      ${e.corr?`<p class="u-ws-pre-wrap u-bt-2-dashed-line u-pt3 u-mt3 sm">${esc(e.corr)}</p>`:''}
     </div>`).join('')}`:''}`;
 }
 
@@ -143,7 +143,7 @@ function pOrdre(p){
     <p><b>${esc(p.consigne)}</b></p>
     <p class="mut sm">${esc(p.fr)}</p>
     <div class="drop">${ctx.built.map((w,i)=>`<button class="tile" onclick="unbuild(${i})">${esc(w)}</button>`).join('')
-      ||'<span class="mut sm" style="padding:0 6px">Touchez les mots dans l’ordre</span>'}</div>
+      ||'<span class="u-ph2 mut sm">Touchez les mots dans l’ordre</span>'}</div>
     <div class="tiles mt">${bag.map((w,i)=>`<button class="tile" onclick="build(${i},'${jq(p.id)}')">${esc(w)}</button>`).join('')}</div>
     ${!bag.length?`<div class="verdict ${done?'ok':'no'} mt">${done?'Phrase juste !':'Ordre incorrect. Réponse : '+esc(p.ok)}</div>
       ${done?`<button class="btn jade mt" onclick="speakSeq([{hz:'${jq(p.ok)}'}])">Écouter la phrase</button>`:''}`:''}
@@ -171,10 +171,10 @@ function pTrad(p){
       <button class="btn jade sm" onclick="askAI('${p.id}')">Corriger</button>
     </div>
     <button class="btn pale sm mt" onclick="keep('${p.id}')">Garder dans mon carnet</button>
-    ${ctx.res==='m'?`<div class="verdict ok mt"><div class="sentence" style="font-size:20px">${esc(p.ok)}</div>
-      <p class="sm" style="margin:6px 0 0">Comparez structure par structure : plusieurs formulations sont justes.</p></div>
+    ${ctx.res==='m'?`<div class="verdict ok mt"><div class="u-tx2 sentence">${esc(p.ok)}</div>
+      <p class="u-mh2 sm">Comparez structure par structure : plusieurs formulations sont justes.</p></div>
       <button class="btn pale sm" onclick="speakSeq([{hz:'${jq(p.ok)}'}])">Écouter le modèle</button>`:''}
-    ${ctx.aiout?`<div class="verdict ok mt" style="white-space:pre-wrap">${esc(ctx.aiout)}</div>`:''}
+    ${ctx.aiout?`<div class="u-ws-pre-wrap verdict ok mt">${esc(ctx.aiout)}</div>`:''}
   </div>`;
 }
 
@@ -188,9 +188,9 @@ function pLibre(p){
     </div>
     <button class="btn pale sm mt" onclick="keep('${p.id}')">Garder dans mon carnet</button>
     <p class="mut sm mt">Sans clé de correction, écrivez quand même : le texte est conservé et pourra être corrigé plus tard.</p>
-    ${ctx.res==='m'&&p.modele?`<div class="verdict ok mt"><div class="sentence" style="font-size:19px">${esc(p.modele)}</div></div>
+    ${ctx.res==='m'&&p.modele?`<div class="verdict ok mt"><div class="u-tx2 sentence">${esc(p.modele)}</div></div>
       <button class="btn pale sm" onclick="speakSeq([{hz:'${jq(p.modele||'')}'}])">Écouter le modèle</button>`:''}
-    ${ctx.aiout?`<div class="verdict ok mt" style="white-space:pre-wrap">${esc(ctx.aiout)}</div>`:''}
+    ${ctx.aiout?`<div class="u-ws-pre-wrap verdict ok mt">${esc(ctx.aiout)}</div>`:''}
   </div>`;
 }
 

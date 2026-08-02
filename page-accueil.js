@@ -1,24 +1,25 @@
 /* Les deux lanternes suspendues du panneau d’accueil, telles que
-   validées : corps vermillon #D9483C, armature et franges or #F0D08A,
-   la seconde plus petite et pendue plus bas. Le balancement de 4,5°
-   et le décalage entre les deux sont dans core.css ; ici, le dessin
-   seul. Les groupes c1 et c2 sont les points de pivot. */
+   validées : corps vermillon, armature et franges or, la seconde plus
+   petite et pendue plus bas. Ici, la géométrie seule — les teintes, les
+   épaisseurs de trait, le balancement de 4,5° et le décalage entre les
+   deux vivent dans core.css avec le reste de l’apparence. Les groupes
+   c1 et c2 sont les points de pivot. */
 const LANTERNES=`<svg class="lant" viewBox="0 0 60 92" aria-hidden="true">
       <g class="c1">
-        <line x1="20" y1="0" x2="20" y2="16" stroke="#F0D08A" stroke-width="1.1"/>
-        <path d="M12 16 H28 L26 21 H14 Z" fill="#EBC578"/>
-        <ellipse cx="20" cy="35" rx="14" ry="14.5" fill="#D9483C" stroke="#F0D08A" stroke-width="1.4"/>
-        <path d="M13 24 Q10 35 13 46 M27 24 Q30 35 27 46" stroke="#F0D08A" stroke-width=".9" fill="none" opacity=".8"/>
-        <path d="M14 49 H26 L28 54 H12 Z" fill="#EBC578"/>
-        <path d="M16 55 L15 66 M20 56 L20 68 M24 55 L25 66" stroke="#F0D08A" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="20" y1="0" x2="20" y2="16" class="l-fil"/>
+        <path d="M12 16 H28 L26 21 H14 Z" class="l-armature"/>
+        <ellipse cx="20" cy="35" rx="14" ry="14.5" class="l-corps"/>
+        <path d="M13 24 Q10 35 13 46 M27 24 Q30 35 27 46" class="l-cotes"/>
+        <path d="M14 49 H26 L28 54 H12 Z" class="l-armature"/>
+        <path d="M16 55 L15 66 M20 56 L20 68 M24 55 L25 66" class="l-franges"/>
       </g>
       <g class="c2">
-        <line x1="44" y1="0" x2="44" y2="30" stroke="#F0D08A" stroke-width="1.1"/>
-        <path d="M37 30 H51 L49 35 H39 Z" fill="#EBC578"/>
-        <ellipse cx="44" cy="48" rx="12.5" ry="13" fill="#D9483C" stroke="#F0D08A" stroke-width="1.4"/>
-        <path d="M38 38 Q35 48 38 58 M50 38 Q53 48 50 58" stroke="#F0D08A" stroke-width=".9" fill="none" opacity=".8"/>
-        <path d="M38 60 H50 L52 65 H36 Z" fill="#EBC578"/>
-        <path d="M40 66 L39 76 M44 67 L44 78 M48 66 L49 76" stroke="#F0D08A" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="44" y1="0" x2="44" y2="30" class="l-fil"/>
+        <path d="M37 30 H51 L49 35 H39 Z" class="l-armature"/>
+        <ellipse cx="44" cy="48" rx="12.5" ry="13" class="l-corps"/>
+        <path d="M38 38 Q35 48 38 58 M50 38 Q53 48 50 58" class="l-cotes"/>
+        <path d="M38 60 H50 L52 65 H36 Z" class="l-armature"/>
+        <path d="M40 66 L39 76 M44 67 L44 78 M48 66 L49 76" class="l-franges"/>
       </g>
     </svg>`;
 
@@ -59,7 +60,7 @@ function vHome(){
     if(m.wide)return `<button class="mod wide c-${m.c}${cur}" data-em="${m.em}" onclick="nav('${m.id}')">
       <span class="emb">${m.em}</span>
       <span class="col"><b>${esc(m.n)}</b><span>${esc(sub)}</span>
-        ${frac!==null?`<span class="bar" style="margin-top:7px"><i style="width:${Math.round(frac*100)}%"></i></span>`:''}</span>
+        ${frac!==null?`<span class="u-mt2 bar"><i style="width:${Math.round(frac*100)}%"></i></span>`:''}</span>
       </button>`;
     return `<button class="mod c-${m.c}${cur}" data-em="${m.em}" onclick="nav('${m.id}')">
       <span class="emb">${m.em}</span>

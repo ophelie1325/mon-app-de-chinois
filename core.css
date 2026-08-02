@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20260730e
+   core.css — livraison 20260801j
 
    Deux registres, et rien entre les deux.
 
@@ -22,7 +22,38 @@
    0. SOCLE COMMUN
    ===================================================================== */
 :root{
-  --build:'20260801f';   /* marqueur de livraison, lu par l’écran Réglages */
+
+  /* Le contour guide du tracé, plus pâle que le filet ordinaire. */
+  --trace-guide:#E2D6C4;
+
+  /* ---- Lanternes de l’accueil -------------------------------------
+     Trois teintes, plus chaudes que la palette générale : elles sont là
+     pour l’ornement du panneau rouge, pas pour la lisibilité. */
+  --lant-or:#F0D08A;
+  --lant-armature:#EBC578;
+  --lant-corps:#D9483C;
+
+  /* ---- Échelle d’espacement ----------------------------------------
+     Six rangs, un seul endroit. Le JavaScript nomme un rang, jamais une
+     taille : changer tout le rythme de l’application se fait ici. */
+  --esp-0:2px;   /* collé       */
+  --esp-1:4px;   /* serré       */
+  --esp-2:8px;   /* normal      */
+  --esp-3:12px;  /* aéré        */
+  --esp-4:16px;  /* séparation  */
+  --esp-5:24px;  /* respiration */
+
+  /* ---- Échelle typographique ---------------------------------------
+     Les écarts s’élargissent à mesure qu’on monte : c’est ce qu’on
+     attend d’une échelle de corps — petits pas dans le texte courant,
+     grands pas dans les titres. */
+  --tx-1:17px;  /* courant    */
+  --tx-2:19px;  /* accent     */
+  --tx-3:23px;  /* sous-titre */
+  --tx-4:30px;  /* titre      */
+  --tx-5:42px;  /* caractère isolé */
+
+  --build:'20260801j';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -277,7 +308,7 @@ h2.sec{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(
 p{margin:0 0 10px}
 .mut{color:var(--muted);font-size:14.5px;font-weight:600}
 .sm{font-size:13.5px}
-.mt{margin-top:12px}
+.mt{margin-top:var(--esp-3)}
 .row{display:flex;gap:9px}
 .row>*{flex:1}
 
@@ -455,23 +486,6 @@ body.exo{padding-bottom:24px}
 .opt.ok{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:0 5px 0 #C6DFD8}
 .opt.no{border-color:var(--red);background:var(--red-s);color:var(--red-d);box-shadow:0 5px 0 #F0CFCB}
 
-/* ---------- Le bandeau de correction ----------
-   Il monte du bas en 260 ms, en aplat jade ou rouge, porte le mot à
-   mot de la réponse, et se referme par le bouton Continuer. */
-.corr{
-  position:fixed;left:0;right:0;bottom:0;z-index:50;
-  padding:19px 18px calc(19px + env(safe-area-inset-bottom));
-  border-radius:22px 22px 0 0;background:var(--jade);color:#FFF6EC;
-  box-shadow:0 -8px 28px rgba(0,0,0,.18);
-  animation:corrUp .26s cubic-bezier(.22,.9,.3,1);
-}
-.corr.no{background:var(--red)}
-.corr .lb{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
-.corr .mm{font-size:16px;line-height:1.55;margin-top:8px}
-.corr .mm .hz{font-family:var(--han);font-size:19px}
-.corr .btn{margin-top:15px;background:#FFF6EC;color:var(--jade-d);box-shadow:0 5px 0 rgba(0,0,0,.22)}
-.corr.no .btn{color:var(--red-d)}
-.corr .btn:active{box-shadow:0 1px 0 rgba(0,0,0,.22)}
 @keyframes corrUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 
 /* ---------- Verdict en ligne, quand la correction reste dans le flux ---------- */
@@ -697,3 +711,134 @@ body.exo{padding-bottom:24px}
 /* Un résultat incomplet doit se voir. Une ligne nue à l’écran ne dit pas
    si le modèle s’est tu ou si l’application a filtré : ce panneau le dit. */
 .box.lac{border-color:var(--or-filet);background:var(--gold-s)}
+
+/* =====================================================================
+   CLASSES UTILITAIRES
+
+   Ces classes remplacent les styles qui etaient ecrits en dur dans les
+   fichiers JavaScript. Elles ne portent plus de valeur dans leur nom,
+   mais un rang d’échelle : .u-mb2 veut dire « marge basse, rang 2 », et
+   c’est la variable --esp-2 qui decide combien de pixels cela fait.
+
+   Conséquence : le prochain changement de rythme ou de corps de texte
+   se fera en modifiant les onze lignes de variables ci-dessus. Aucun
+   fichier JavaScript n’aura à être ouvert.
+
+   Elles portent !important : un style en ligne l’emportait sur
+   n’importe quel sélecteur, y compris composé. Sans cette marque,
+   « .wrow .g » reprendrait la main et l’ecran changerait.
+   ===================================================================== */
+.u-ai-center{align-items:center !important}
+.u-bb-3-solid-gold{border-bottom:3px solid var(--gold) !important}
+.u-bc-transparent{border-color:transparent !important}
+.u-bd-2-solid-line{border:2px solid var(--line) !important}
+.u-bg-fefcf8{background:#FEFCF8 !important}
+.u-br-20{border-radius:20px !important}
+.u-bs-none{box-shadow:none !important}
+.u-bt-2-dashed-line{border-top:2px dashed var(--line) !important}
+.u-c-clay{color:var(--clay) !important}
+.u-c-gold-d{color:var(--gold-d) !important}
+.u-c-indigo{color:var(--indigo) !important}
+.u-c-jade{color:var(--jade) !important}
+.u-c-jade-d{color:var(--jade-d) !important}
+.u-c-line2{color:var(--line2) !important}
+.u-c-muted{color:var(--muted) !important}
+.u-c-red{color:var(--red) !important}
+.u-c-red-d{color:var(--red-d) !important}
+.u-d-flex{display:flex !important}
+.u-ff-han{font-family:var(--han) !important}
+.u-ff-ui{font-family:var(--ui) !important}
+.u-fw-700{font-weight:700 !important}
+.u-fwr-wrap{flex-wrap:wrap !important}
+.u-fx-1{flex:1 !important}
+.u-fx-none{flex:none !important}
+.u-gp3{gap:var(--esp-3) !important}
+.u-gtc-1fr{grid-template-columns:1fr !important}
+.u-h-11{height:11px !important}
+.u-h-232{height:232px !important}
+.u-jc-center{justify-content:center !important}
+.u-lh-125{line-height:1.25 !important}
+.u-lh-16{line-height:1.6 !important}
+.u-m0{margin:0 !important}
+.u-mauto{margin:0 auto !important}
+.u-mb0{margin:0 0 var(--esp-0) !important}
+.u-mb1{margin:0 0 var(--esp-1) !important}
+.u-mb2{margin:0 0 var(--esp-2) !important}
+.u-mb3{margin:0 0 var(--esp-3) !important}
+.u-mbo2{margin-bottom:var(--esp-2) !important}
+.u-mbo3{margin-bottom:var(--esp-3) !important}
+.u-mh1{margin:var(--esp-1) 0 0 !important}
+.u-mh2{margin:var(--esp-2) 0 0 !important}
+.u-mh3{margin:var(--esp-3) 0 0 !important}
+.u-mt0{margin-top:var(--esp-0) !important}
+.u-mt1{margin-top:var(--esp-1) !important}
+.u-mt2{margin-top:var(--esp-2) !important}
+.u-mt3{margin-top:var(--esp-3) !important}
+.u-mt4{margin-top:var(--esp-4) !important}
+.u-mv13{margin:var(--esp-1) 0 var(--esp-3) !important}
+.u-mv23{margin:var(--esp-2) 0 var(--esp-3) !important}
+.u-mv30{margin:var(--esp-3) 0 var(--esp-0) !important}
+.u-mv33{margin:var(--esp-3) 0 !important}
+.u-mv42{margin:var(--esp-4) 0 var(--esp-2) !important}
+.u-mv44{margin:var(--esp-4) 0 !important}
+.u-op-5{opacity:.5 !important}
+.u-ph2{padding:0 var(--esp-2) !important}
+.u-ph4{padding:0 var(--esp-4) !important}
+.u-pt3{padding-top:var(--esp-3) !important}
+.u-pv20{padding:var(--esp-2) 0 var(--esp-0) !important}
+.u-ta-center{text-align:center !important}
+.u-ta-left{text-align:left !important}
+.u-ta-right{text-align:right !important}
+.u-tx1{font-size:var(--tx-1) !important}
+.u-tx2{font-size:var(--tx-2) !important}
+.u-tx3{font-size:var(--tx-3) !important}
+.u-tx4{font-size:var(--tx-4) !important}
+.u-tx5{font-size:var(--tx-5) !important}
+.u-w-100pc{width:100% !important}
+.u-w-232{width:232px !important}
+.u-w-24{width:24px !important}
+.u-w-56{width:56px !important}
+.u-ws-pre-wrap{white-space:pre-wrap !important}
+.u-lh-195{line-height:1.95 !important}
+.u-mh0{margin:var(--esp-0) 0 0 !important}
+
+/* ---- Remplissage des barres d’avancement --------------------------
+   La largeur se calcule, la couleur non : elle reste ici. */
+.bar i.ok{background:var(--jade)}
+.bar i.mi{background:var(--gold)}
+.bar i.no{background:var(--red)}
+
+/* ---- Ligne choisie dans une liste ---------------------------------
+   Trois teintes selon le module, une seule idée : « c’est celle-ci ». */
+.choisi{border-color:var(--indigo) !important;color:var(--indigo) !important}
+.choisi-jade{border-color:var(--jade) !important}
+.choisi-rouge{border-color:var(--red) !important}
+
+/* ---- Cases de tracé -----------------------------------------------
+   Trois tailles selon le nombre de caractères. HanziWriter mesure la
+   case au montage : cette déclaration est seule maîtresse. */
+.tbox.tw1{width:196px;height:196px}
+.tbox.tw2{width:138px;height:138px}
+.tbox.tw3{width:102px;height:102px}
+
+.u-lh-12{line-height:1.2 !important}
+
+/* ---- Lanternes de l’accueil ---------------------------------------
+   Le dessin est en SVG dans page-accueil.js — points, courbes, rayons.
+   Tout ce qui relève de l’aspect est ici : sans quoi un changement de
+   palette laisserait les lanternes à l’ancienne teinte, en silence. */
+.lant .l-fil{stroke:var(--lant-or);stroke-width:1.1;fill:none}
+.lant .l-cerne{fill:var(--lant-corps);stroke:var(--lant-or);stroke-width:1.4}
+.lant .l-corps{fill:var(--lant-corps);stroke:var(--lant-or);stroke-width:1.4}
+.lant .l-cotes{stroke:var(--lant-or);stroke-width:.9;fill:none;opacity:.8}
+.lant .l-franges{stroke:var(--lant-or);stroke-width:1.3;stroke-linecap:round;fill:none}
+.lant .l-armature{fill:var(--lant-armature)}
+
+/* ---- Icônes en tracé fin ------------------------------------------
+   Les SVG posés dans le JavaScript ne portent que leur géométrie. La
+   teinte suit celle du texte, l’épaisseur et les jointures sont
+   décidées ici — une icône plus fine ou plus grasse se règle sur ces
+   trois lignes, pour toute l’application. */
+.ico{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.etoile{stroke-width:1.8;stroke-linecap:butt}
+.fav.on .ico.etoile{fill:currentColor}
