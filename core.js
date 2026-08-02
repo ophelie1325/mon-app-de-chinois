@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260801e';
+const BUILD='20260801f';
 
 /* --- Cohérence de la livraison ---------------------------------------
    Le marqueur figure à trois endroits : la constante ci-dessus, la
@@ -516,7 +516,7 @@ Pas de préambule ni de conclusion.`;
    gabarit de correction de copie. Lui demander du JSON revenait à donner
    au modèle deux ordres contradictoires, et la lecture échouait presque
    toujours. Tout ce qui attend une structure passe donc par ici. */
-async function askJSON(sys,user,schema){
+async function askJSON(sys,user,schema,temp){
   const p=S.settings.provider,k=(S.settings.apikey||'').trim();
   if(p==='none'||!k)throw new Error('aucune clé');
   if(p==='anthropic'){
@@ -526,6 +526,7 @@ async function askJSON(sys,user,schema){
         headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
           'anthropic-dangerous-direct-browser-access':'true'},
         body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4000,
+          temperature:(typeof temp==='number')?temp:1,
           system:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balise de code ni commentaire.',
           messages:[{role:'user',content:user}]})});
     }catch(e){throw new Error('réseau injoignable, ou requête bloquée par le navigateur');}
@@ -535,7 +536,7 @@ async function askJSON(sys,user,schema){
     try{return JSON.parse(String(txt).replace(/```json|```/g,'').trim());}
     catch(e){throw new Error('Réponse illisible du modèle.');}
   }
-  return await gemJSON(sys,[{parts:[{text:user}]}],schema);
+  return await gemJSON(sys,[{parts:[{text:user}]}],schema,temp);
 }
 
 /* ---- Essai de la clé : sonder les quatre combinaisons et tout rapporter ---- */
@@ -635,23 +636,27 @@ async function gErrMsg(r){
   return {status:r.status,gstatus:e.status||'',message:e.message||''};
 }
 
-async function gemJSON(sys,contents,schema){
+async function gemJSON(sys,contents,schema,temp){
   const m=S.settings.gmodel||'gemini-flash-latest';
   const strict=S.settings.gjson!==false;
   const sys2=strict?sys:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balises de code ni commentaire.';
-  const r=await gemCall(m,sys2,contents,strict?schema:null);
+  const r=await gemCall(m,sys2,contents,strict?schema:null,temp);
   if(!r.ok)throw new Error(r.msg+(r.status?' ('+r.status+')':''));
   try{return JSON.parse(String(r.txt).replace(/```json|```/g,'').trim());}
   catch(e){throw new Error('Réponse illisible du modèle.');}
 }
 
 /* ---- Un appel de génération, avec le message d’erreur de Google ---- */
-async function gemCall(model,sys,contents,schema){
+async function gemCall(model,sys,contents,schema,temp){
   const body={contents:contents};
   if(sys)body.systemInstruction={parts:[{text:sys}]};
+  /* La température par défaut convient à la conversation et à la
+     correction. Traduire n’est pas une tâche où l’on veut de la variété :
+     le traducteur descend à 0,3. */
+  const t=(typeof temp==='number')?temp:.8;
   body.generationConfig=schema
-    ?{responseMimeType:'application/json',responseSchema:schema,temperature:.8}
-    :{temperature:.8};
+    ?{responseMimeType:'application/json',responseSchema:schema,temperature:t}
+    :{temperature:t};
   let r;
   try{r=await fetch(gURL('models/'+model+':generateContent'),{method:'POST',headers:gHead(),body:JSON.stringify(body)});}
   catch(e){return {ok:false,status:0,msg:'réseau injoignable, ou requête bloquée par le navigateur'};}

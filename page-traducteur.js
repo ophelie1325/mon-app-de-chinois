@@ -25,6 +25,9 @@
    ===================================================================== */
 
 const TRADKEY='coach-chinois-trad';
+/* Traduire n’est pas une tâche où l’on veut de la variété : à 0,8 le
+   même mot rendait des résultats inégaux d’un essai à l’autre. */
+const TRADTEMP=.3;
 
 /* --- Sens de traduction, choisi explicitement ------------------------ */
 function tradSens(){return ctx.sens==='fr-zh'?'fr-zh':'zh-fr';}
@@ -51,21 +54,46 @@ function tradRappel(q,s){ctx.q=q;ctx.sens=s;ctx.r=null;ctx.err='';render();}
    échouait, et le bouton « Traduire » ne pouvait pas fonctionner.
    On appelle donc directement, avec un schéma.
    ===================================================================== */
+/* Chaque objet imbriqué déclare ses champs obligatoires. Sans cela le
+   modèle est libre de n’émettre que « hz » dans un synonyme et de rendre
+   « ex » vide — ce qui arrivait, au hasard de la température, et privait
+   silencieusement le carnet de quatre épreuves. */
 const TXT={type:'STRING'};
-const VOISIN={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,note:TXT}};
-const PHRASE={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,seg:{type:'ARRAY',items:TXT}}};
+const SEG={type:'ARRAY',items:TXT};
+const VOISIN={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,note:TXT},
+  propertyOrdering:['hz','py','fr','note'],required:['hz','py','fr','note']};
+const PHRASE={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,seg:SEG},
+  propertyOrdering:['hz','py','fr','seg'],required:['hz','py','fr','seg']};
+const VARIANTE={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,reg:TXT,note:TXT,seg:SEG},
+  propertyOrdering:['hz','py','fr','reg','note','seg'],required:['hz','py','fr','reg','note','seg']};
+const PART={type:'OBJECT',properties:{p:TXT,role:TXT,sens:TXT},
+  propertyOrdering:['p','role','sens'],required:['p','role','sens']};
+const CARACT={type:'OBJECT',properties:{c:TXT,parts:{type:'ARRAY',items:PART},note:TXT},
+  propertyOrdering:['c','parts','note'],required:['c','parts','note']};
+const FAUTE={type:'OBJECT',properties:{hz:TXT,note:TXT},
+  propertyOrdering:['hz','note'],required:['hz','note']};
 const TRADSCHEMA={type:'OBJECT',properties:{
-  type:TXT,hz:TXT,py:TXT,fr:TXT,note:TXT,
-  seg:{type:'ARRAY',items:TXT},
+  type:TXT,hz:TXT,py:TXT,fr:TXT,note:TXT,seg:SEG,
   syn:{type:'ARRAY',items:VOISIN},
-  alts:{type:'ARRAY',items:{type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,reg:TXT,note:TXT,
-    seg:{type:'ARRAY',items:TXT}}}},
+  alts:{type:'ARRAY',items:VARIANTE},
   ex:{type:'ARRAY',items:PHRASE},
   vois:{type:'ARRAY',items:VOISIN},
-  faute:{type:'OBJECT',properties:{hz:TXT,note:TXT}},
-  decomp:{type:'ARRAY',items:{type:'OBJECT',properties:{c:TXT,note:TXT,
-    parts:{type:'ARRAY',items:{type:'OBJECT',properties:{p:TXT,role:TXT,sens:TXT}}}}}}
-},required:['type','hz','fr']};
+  faute:FAUTE,
+  decomp:{type:'ARRAY',items:CARACT}
+},
+propertyOrdering:['type','hz','py','fr','note','seg','syn','alts','ex','vois','faute','decomp'],
+required:['type','hz','py','fr','note','seg','syn','alts','ex','vois','faute','decomp']};
+
+/* Le complément : même forme, demandé seulement sur ce qui manque. */
+const COMPSCHEMA={type:'OBJECT',properties:{
+  py:TXT,
+  syn:{type:'ARRAY',items:VOISIN},
+  ex:{type:'ARRAY',items:PHRASE},
+  vois:{type:'ARRAY',items:VOISIN},
+  decomp:{type:'ARRAY',items:CARACT},
+  faute:FAUTE
+},propertyOrdering:['py','syn','ex','vois','decomp','faute'],
+required:['py','syn','ex','vois','decomp','faute']};
 
 function tradSys(){
   return `Tu es professeur de chinois pour une apprenante francophone de niveau HSK${S.settings.level}.
@@ -160,6 +188,86 @@ function nettoie(o){
   return r.hz?r:null;
 }
 
+/* Ce qui manque réellement, du point de vue des exercices — pas du point
+   de vue de l’affichage. Une ligne nue à l’écran est un symptôme ; ce qui
+   compte, c’est qu’un favori pris maintenant serait amputé pour toujours. */
+function lacunes(r){
+  const m=[];
+  if(!r)return m;
+  const unite=(r.type!=='phrase');
+  if(unite&&!r.ex.length)m.push('exemples');
+  if(unite&&!r.syn.length)m.push('synonymes');
+  if(r.syn.some(x=>!x.py||!x.fr||!x.note))m.push('synonymes');
+  if(!r.vois.length||r.vois.some(x=>!x.py||!x.fr||!x.note))m.push('voisins');
+  if(r.ex.some(x=>!x.py||!x.fr||!x.seg))m.push('exemples');
+  if(unite&&!r.decomp.length)m.push('composition');
+  if(!r.faute)m.push('version fautive');
+  if(!r.py)m.push('pinyin');
+  return [...new Set(m)];
+}
+const LACLABEL={exemples:'les phrases d’exemple',synonymes:'les synonymes complets',
+  voisins:'les voisins confondables',composition:'la composition des caractères',
+  'version fautive':'la version fautive',pinyin:'le pinyin'};
+
+function compPrompt(r,m){
+  return `Complète ce qui manque pour ${r.hz}${r.py?' ('+r.py+')':''} — ${r.fr}.
+
+Il manque : ${m.map(x=>LACLABEL[x]||x).join(', ')}.
+
+Renseigne tous les champs, sans exception :
+· py — le pinyin de ${r.hz}, syllabe par syllabe, accents de ton.
+· syn — deux à quatre synonymes, chacun avec hz, py, fr et une note qui dit
+  précisément ce qui le sépare de ${r.hz} et dans quel cas on le préfère.
+· ex — deux ou trois phrases courtes contenant exactement ${r.hz}, avec py, fr
+  et seg. Tableau vide uniquement si ${r.hz} est déjà une phrase complète.
+· vois — deux mots confondables avec ${r.hz} par une francophone, avec la règle
+  qui les sépare.
+· decomp — les composants d’un ou deux caractères de ${r.hz}.
+· faute — une version fautive plausible de la première phrase d’exemple.`;
+}
+
+/* On ne remplace jamais ce qui est déjà bon : on ne comble que les trous. */
+function fusionne(r,c){
+  if(!c)return r;
+  const un=x=>(x&&x.hz)?{hz:String(x.hz),py:pyOk(String(x.hz),String(x.py||'')),
+    fr:String(x.fr||''),note:String(x.note||''),reg:String(x.reg||''),
+    seg:(Array.isArray(x.seg)&&x.seg.join('')===String(x.hz))?x.seg.map(String):null}:null;
+  const mieux=(vieux,neuf)=>{
+    const n=(neuf||[]).map(un).filter(Boolean);
+    if(!n.length)return vieux;
+    const complet=x=>!!(x.py&&x.fr);
+    if(!vieux.length||vieux.filter(complet).length<n.filter(complet).length)return n;
+    return vieux;
+  };
+  if(!r.py&&c.py){r.py=pyOk(r.hz,String(c.py));if(r.py)r.pyMasque=false;}
+  r.syn=mieux(r.syn,c.syn);
+  r.ex=mieux(r.ex,c.ex);
+  r.vois=mieux(r.vois,c.vois);
+  if(!r.decomp.length&&Array.isArray(c.decomp))
+    r.decomp=c.decomp.filter(x=>x&&x.c).map(x=>({c:String(x.c),note:String(x.note||''),
+      parts:(x.parts||[]).filter(p=>p&&p.p).map(p=>({p:String(p.p),role:String(p.role||''),
+        sens:String(p.sens||'')}))}));
+  if(!r.faute&&c.faute&&c.faute.hz)r.faute={hz:String(c.faute.hz),note:String(c.faute.note||'')};
+  return r;
+}
+
+/* Une relance, une seule. Si elle ne suffit pas, on le dit à l’écran plutôt
+   que de laisser croire à un résultat complet. */
+async function tradComplete(auto){
+  const r=ctx.r;if(!r||ctx.busy)return;
+  const m=lacunes(r);
+  if(!m.length)return;
+  ctx.busy=true;ctx.relance=true;if(!auto)render();
+  try{
+    const c=await askJSON(tradSys(),compPrompt(r,m),COMPSCHEMA,TRADTEMP);
+    ctx.r=fusionne(r,c);
+  }catch(e){
+    if(!auto)ctx.err='Le complément a échoué : '+((e&&e.message)||e);
+  }
+  ctx.busy=false;
+  if(!auto)render();
+}
+
 async function tradGo(){
   tradGarde();
   const q=(ctx.q||'').trim();
@@ -167,9 +275,16 @@ async function tradGo(){
   if(ctx.busy)return;
   ctx.busy=true;ctx.r=null;ctx.err='';render();
   try{
-    const r=nettoie(await askJSON(tradSys(),tradPrompt(q,tradSens()),TRADSCHEMA));
+    const r=nettoie(await askJSON(tradSys(),tradPrompt(q,tradSens()),TRADSCHEMA,TRADTEMP));
     if(!r)ctx.err='Le modèle n’a rien renvoyé d’exploitable. Réessayez.';
-    else{ctx.r=r;ctx.src=q;tradPush({q:q,s:tradSens(),hz:r.hz,fr:r.fr,t:Date.now()});}
+    else{
+      ctx.r=r;ctx.src=q;ctx.relance=false;
+      /* Une relance automatique si l’essentiel manque : elle épargne un
+         aller-retour et évite qu’un favori soit pris amputé. */
+      if(lacunes(r).length)await tradComplete(true);
+      const f=ctx.r;
+      tradPush({q:q,s:tradSens(),hz:f.hz,fr:f.fr,t:Date.now()});
+    }
   }catch(e){
     ctx.err=(e&&e.message==='aucune clé')
       ? 'Aucune clé n’est enregistrée. Le traducteur ne peut pas fonctionner sans elle : les Réglages permettent d’en ajouter une.'
@@ -286,6 +401,15 @@ function tradResultat(){
     ${dans.length?`<p class="mut sm mt">Déjà dans le corpus — HSK ${dans[0].hsk}${(dans[0].th||[]).length?' · '+esc(themeName(dans[0].th[0])):''}${mastered(dans[0].id)?' · acquis':''}.</p>`:''}
   </div>
 
+  ${(function(){
+    const m=lacunes(R);
+    if(!m.length)return '';
+    return `<div class="box lac">
+      <p class="sm" style="margin:0 0 6px"><b>Résultat incomplet</b></p>
+      <p class="mut sm">Le modèle n’a pas renvoyé ${m.map(x=>LACLABEL[x]||x).join(', ')}. ${ctx.relance?'La relance automatique n’a pas suffi.':''} Mis au carnet en l’état, ce mot n’aurait pas toutes ses épreuves : sans phrase d’exemple, la complétion, la remise en ordre et la saisie ne peuvent pas se construire.</p>
+      <button class="btn pale sm mt" onclick="tradComplete(false)" ${ctx.busy?'disabled':''}>${ctx.busy?'Complément en cours…':'Compléter'}</button>
+    </div>`;
+  })()}
   ${(ctx.src&&ctx.src!==R.hz&&ctx.src!==R.fr)?`<div class="box">
     <div class="trow">
       <div class="tl"><div class="tg">Ma formulation de départ</div>

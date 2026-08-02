@@ -165,16 +165,27 @@ function sw(k,label,help){
    alors sur les anciens types. On les demande donc une fois, par lots
    de dix, et on les garde. Ensuite ça ne dépend plus de la connexion.
    ===================================================================== */
-const T_=  {type:'STRING'};
-const ENRSCHEMA={type:'OBJECT',properties:{mots:{type:'ARRAY',items:{type:'OBJECT',properties:{
-  hz:T_,
-  exs:{type:'ARRAY',items:{type:'OBJECT',properties:{hz:T_,py:T_,fr:T_,
-    seg:{type:'ARRAY',items:T_}}}},
-  vois:{type:'ARRAY',items:{type:'OBJECT',properties:{hz:T_,py:T_,fr:T_,note:T_}}},
-  faute:{type:'OBJECT',properties:{hz:T_,note:T_}},
-  decomp:{type:'ARRAY',items:{type:'OBJECT',properties:{c:T_,note:T_,
-    parts:{type:'ARRAY',items:{type:'OBJECT',properties:{p:T_,role:T_,sens:T_}}}}}}
-}}}}};
+/* Même leçon que pour le traducteur : sans « required » à chaque niveau,
+   le modèle n’émet que le strict minimum et les données arrivent creuses. */
+const T_={type:'STRING'};
+const SEG_={type:'ARRAY',items:T_};
+const EX_={type:'OBJECT',properties:{hz:T_,py:T_,fr:T_,seg:SEG_},
+  propertyOrdering:['hz','py','fr','seg'],required:['hz','py','fr','seg']};
+const VOIS_={type:'OBJECT',properties:{hz:T_,py:T_,fr:T_,note:T_},
+  propertyOrdering:['hz','py','fr','note'],required:['hz','py','fr','note']};
+const PART_={type:'OBJECT',properties:{p:T_,role:T_,sens:T_},
+  propertyOrdering:['p','role','sens'],required:['p','role','sens']};
+const DEC_={type:'OBJECT',properties:{c:T_,parts:{type:'ARRAY',items:PART_},note:T_},
+  propertyOrdering:['c','parts','note'],required:['c','parts','note']};
+const FAU_={type:'OBJECT',properties:{hz:T_,note:T_},
+  propertyOrdering:['hz','note'],required:['hz','note']};
+const MOT_={type:'OBJECT',properties:{
+  hz:T_,exs:{type:'ARRAY',items:EX_},vois:{type:'ARRAY',items:VOIS_},
+  faute:FAU_,decomp:{type:'ARRAY',items:DEC_}},
+  propertyOrdering:['hz','exs','vois','faute','decomp'],
+  required:['hz','exs','vois','faute','decomp']};
+const ENRSCHEMA={type:'OBJECT',properties:{mots:{type:'ARRAY',items:MOT_}},
+  propertyOrdering:['mots'],required:['mots']};
 
 function enrStop(){if(ctx.enr)ctx.enr.stop=true;}
 
@@ -200,7 +211,7 @@ async function enrGo(){
     const lot=reste.slice(i,i+10);
     ctx.enr.mot=lot[0].hz;render();
     try{
-      const o=await askJSON(enrSys(),enrPrompt(lot),ENRSCHEMA);
+      const o=await askJSON(enrSys(),enrPrompt(lot),ENRSCHEMA,.3);
       ((o&&o.mots)||[]).forEach(m=>{
         const w=lot.find(x=>x.hz===m.hz);if(!w)return;
         S.enrich[w.id]=enrNettoie(m);
