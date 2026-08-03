@@ -14,6 +14,20 @@
    Les phrases sont découpées en jetons {h:caractères, p:pinyin} pour
    que les exercices puissent les manipuler morceau par morceau et que
    le pinyin d’une phrase engendrée reste toujours exact.
+
+   Gabarits — règle impérative : dès qu’un gabarit porte plus d’une
+   liste, il doit déclarer un champ « lie » qui apparie les listes dont
+   le choix n’est pas indépendant. lie:[['o','v']] tire le même index
+   dans les deux listes, ligne à ligne ; sans lui, le tirage croisé
+   engendre des phrases correctes mais absurdes. Les listes appariées
+   ont donc la même longueur, et l’on répète un élément autant de fois
+   qu’il entre dans des couples différents.
+
+   Corollaire : un gabarit qui porte plus d’une liste déclare aussi
+   « libre », qui nomme les listes dont le tirage reste indépendant.
+   L’union de « lie » et de « libre » doit couvrir exactement toutes les
+   listes du gabarit. La liberté d’une liste devient ainsi une décision
+   écrite et vérifiée, jamais un oubli silencieux.
    ===================================================================== */
 
 const FAM=[
@@ -361,20 +375,29 @@ const GRAMMAR=[
 
   gabarits:[
     {cadre:[{h:'我',p:'wǒ'},{h:'的',p:'de'},{s:'n'},{h:'很',p:'hěn'},{s:'a'},P('。')],
-     fr:'Mon / ma … est …',
+     fr:'Mon / ma … est …', lie:[['n','a']],
      listes:{n:[{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'房间',p:'fáng jiān',fr:'chambre'},
-                {h:'朋友',p:'péng you',fr:'ami'},{h:'工作',p:'gōng zuò',fr:'travail'}],
-             a:[{h:'忙',p:'máng',fr:'occupé'},{h:'大',p:'dà',fr:'grand'},
+                {h:'朋友',p:'péng you',fr:'ami'},{h:'工作',p:'gōng zuò',fr:'travail'},
+                {h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'房间',p:'fáng jiān',fr:'chambre'}],
+             a:[{h:'忙',p:'máng',fr:'occupé'},{h:'大',p:'dà',fr:'grande'},
+                {h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},
                 {h:'新',p:'xīn',fr:'neuf'},{h:'安静',p:'ān jìng',fr:'calme'}]}},
     {cadre:[{h:'这个',p:'zhè ge'},{s:'n'},{h:'太',p:'tài'},{s:'a'},{h:'了',p:'le'},P('。')],
-     fr:'Ce / cette … est trop …',
-     listes:{n:[{h:'菜',p:'cài',fr:'plat'},{h:'房间',p:'fáng jiān',fr:'chambre'},
-                {h:'城市',p:'chéng shì',fr:'ville'}],
-             a:[{h:'贵',p:'guì',fr:'cher'},{h:'辣',p:'là',fr:'épicé'},
-                {h:'小',p:'xiǎo',fr:'petit'},{h:'吵',p:'chǎo',fr:'bruyant'}]}},
-    {cadre:[{h:'他',p:'tā'},{h:'不',p:'bù'},{s:'a'},P('。')],
-     fr:'Il n’est pas …',
-     listes:{a:[{h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},
+     fr:'Ce / cette … est trop …', lie:[['n','a']],
+     listes:{n:[{h:'菜',p:'cài',fr:'plat'},{h:'菜',p:'cài',fr:'plat'},
+                {h:'房间',p:'fáng jiān',fr:'chambre'},{h:'房间',p:'fáng jiān',fr:'chambre'},
+                {h:'城市',p:'chéng shì',fr:'ville'},{h:'城市',p:'chéng shì',fr:'ville'}],
+             a:[{h:'辣',p:'là',fr:'épicé'},{h:'贵',p:'guì',fr:'cher'},
+                {h:'小',p:'xiǎo',fr:'petite'},{h:'吵',p:'chǎo',fr:'bruyante'},
+                {h:'大',p:'dà',fr:'grande'},{h:'吵',p:'chǎo',fr:'bruyante'}]}},
+    /* 不 change de ton selon ce qui suit : bú devant un 4e ton, bù
+       ailleurs. Il ne peut donc pas être figé dans le cadre — il est
+       tiré en même temps que l'adjectif, par appariement. */
+    {cadre:[{h:'他',p:'tā'},{s:'b'},{s:'a'},P('。')],
+     fr:'Il n’est pas …', lie:[['b','a']],
+     listes:{b:[{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},
+                {h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'}],
+             a:[{h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},
                 {h:'胖',p:'pàng',fr:'gros'},{h:'年轻',p:'nián qīng',fr:'jeune'}]}}
   ],
 
@@ -751,16 +774,19 @@ const GRAMMAR=[
 
   gabarits:[
     {cadre:[{h:'他',p:'tā'},{s:'v'},{h:'得',p:'de'},{h:'很',p:'hěn'},{s:'a'},P('。')],
-     fr:'Il … très …',
+     fr:'Il … très …', lie:[['v','a']],
      listes:{v:[{h:'跑',p:'pǎo',fr:'courir'},{h:'走',p:'zǒu',fr:'marcher'},
-                {h:'来',p:'lái',fr:'venir'},{h:'吃',p:'chī',fr:'manger'},{h:'睡',p:'shuì',fr:'dormir'}],
+                {h:'来',p:'lái',fr:'venir'},{h:'吃',p:'chī',fr:'manger'},{h:'睡',p:'shuì',fr:'dormir'},
+                {h:'说',p:'shuō',fr:'parler'},{h:'写',p:'xiě',fr:'écrire'}],
              a:[{h:'快',p:'kuài',fr:'vite'},{h:'慢',p:'màn',fr:'lentement'},
-                {h:'早',p:'zǎo',fr:'tôt'},{h:'晚',p:'wǎn',fr:'tard'},{h:'少',p:'shǎo',fr:'peu'}]}},
+                {h:'早',p:'zǎo',fr:'tôt'},{h:'晚',p:'wǎn',fr:'tard'},{h:'少',p:'shǎo',fr:'peu'},
+                {h:'快',p:'kuài',fr:'vite'},{h:'慢',p:'màn',fr:'lentement'}]}},
     {cadre:[{h:'我',p:'wǒ'},{s:'o'},{s:'v'},{h:'得',p:'de'},{h:'不',p:'bù'},{h:'好',p:'hǎo'},P('。')],
-     fr:'Je … mal …',
+     fr:'Je … mal …', lie:[['o','v']],
      listes:{o:[{h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},
-                {h:'歌',p:'gē',fr:'les chansons'}],
-             v:[{h:'写',p:'xiě',fr:'écrire'},{h:'说',p:'shuō',fr:'parler'},{h:'唱',p:'chàng',fr:'chanter'}]}},
+                {h:'歌',p:'gē',fr:'les chansons'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'}],
+             v:[{h:'写',p:'xiě',fr:'écrire'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'唱',p:'chàng',fr:'chanter'},{h:'做',p:'zuò',fr:'faire'}]}},
     {cadre:[{h:'你',p:'nǐ'},{s:'v'},{h:'得',p:'de'},{h:'怎么样',p:'zěn me yàng'},P('？')],
      fr:'Comment … -tu ?',
      listes:{v:[{h:'睡',p:'shuì',fr:'dormir'},{h:'吃',p:'chī',fr:'manger'},
@@ -820,7 +846,1378 @@ const GRAMMAR=[
      modeles:[{hz:'我跑得很快，可是我唱歌唱得不好。',py:'wǒ pǎo de hěn kuài, kě shì wǒ chàng gē chàng de bù hǎo',fr:'Je cours vite, mais je chante mal.'}],
      criteres:['不 est après 得, pas devant le verbe','Chaque verbe est suivi de 得']}
   ]
+},
+/* ------------------------------------------------------------------ */
+{
+  id:'g303', hsk:3, fam:'verbe', th:['passe','quotidien'],
+  title:'了 : l’action accomplie et le changement d’état',
+  resume:'了 ne marque pas le passé, mais l’achèvement. Posé après le verbe, il clôt une action ; posé en fin de phrase, il annonce que la situation a changé.',
+
+  steps:[
+    {
+      t:'了 après le verbe — l’action est menée à son terme',
+      p:[
+        'Placé juste après le verbe, <b>了</b> dit que l’action est allée jusqu’au bout. Il ne dit rien du moment : hier, tout à l’heure ou demain, cela ne le regarde pas.',
+        'L’objet porte alors presque toujours une précision — un nombre avec son classificateur, ou un démonstratif — sans quoi la phrase reste en suspens et l’auditeur attend la suite.'
+      ],
+      ex:[
+        {hz:'我买了一件衣服。',py:'wǒ mǎi le yí jiàn yī fu',fr:'J’ai acheté un vêtement.',
+         note:'一件 précise l’objet. Sans lui, la phrase paraît inachevée.'},
+        {hz:'他喝了三杯茶。',py:'tā hē le sān bēi chá',fr:'Il a bu trois tasses de thé.'}
+      ],
+      check:{q:'Laquelle des deux est complète ?',a:['我买了衣服。','我买了一件衣服。'],ok:1,
+             why:'Après 了, l’objet demande une précision : un nombre et son classificateur, ou un démonstratif.'}
+    },
+    {
+      t:'La négation — 没有, et 了 disparaît',
+      p:[
+        'On ne nie pas un accompli avec 不. On emploie <b>没</b> ou <b>没有</b>, et <b>了 tombe</b>.',
+        '不 sert à nier une habitude, une volonté, un refus. 没 sert à dire que l’action n’a pas eu lieu. Les deux ne sont pas interchangeables.'
+      ],
+      ex:[
+        {hz:'我没买衣服。',py:'wǒ méi mǎi yī fu',fr:'Je n’ai pas acheté de vêtement.',
+         note:'没 prend la place de 了 : les deux ne cohabitent jamais.'},
+        {hz:'我不买衣服。',py:'wǒ bù mǎi yī fu',fr:'Je n’achète pas de vêtements.',
+         note:'Avec 不, ce n’est plus un fait constaté mais une habitude ou un refus.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我没买了衣服。','我没买衣服。'],ok:1,
+             why:'没 et 了 s’excluent : dès que 没 nie l’action, 了 disparaît.'}
+    },
+    {
+      t:'了 en fin de phrase — quelque chose a changé',
+      p:[
+        'À la toute fin, <b>了</b> ne clôt aucune action : il signale un <b>état nouveau</b>, différent de celui d’avant.',
+        'Avec un adjectif ou un groupe nominal, c’est même son seul emploi possible : la phrase dit que la situation a basculé.'
+      ],
+      ex:[
+        {hz:'天气冷了。',py:'tiān qì lěng le',fr:'Il fait froid, maintenant.',
+         note:'Sous-entendu : il ne faisait pas froid avant.'},
+        {hz:'我知道了。',py:'wǒ zhī dào le',fr:'Ça y est, j’ai compris.'},
+        {hz:'他二十岁了。',py:'tā èr shí suì le',fr:'Il a vingt ans, désormais.'}
+      ],
+      check:{q:'天气冷了 veut dire :',a:['Il faisait froid.','Il s’est mis à faire froid.'],ok:1,
+             why:'了 en fin de phrase marque le basculement : la situation n’est plus celle d’avant.'}
+    },
+    {
+      t:'Les deux 了 dans la même phrase',
+      p:[
+        'Les deux emplois se cumulent très bien. Le premier ferme l’action, le second dit que la situation ainsi créée <b>dure encore</b>.',
+        'C’est la façon habituelle de rendre notre « depuis » : 我学了两年了 — j’étudie depuis deux ans, et je continue.'
+      ],
+      ex:[
+        {hz:'我学了两年汉语了。',py:'wǒ xué le liǎng nián Hàn yǔ le',fr:'J’apprends le chinois depuis deux ans.',
+         note:'Le second 了 dit que cela continue aujourd’hui.'},
+        {hz:'我学了两年汉语。',py:'wǒ xué le liǎng nián Hàn yǔ',fr:'J’ai étudié le chinois pendant deux ans.',
+         note:'Un seul 了 : la période est close, je n’étudie plus.'}
+      ],
+      check:{q:'Vous apprenez le chinois depuis deux ans et vous continuez :',
+             a:['我学了两年汉语。','我学了两年汉语了。'],ok:1,
+             why:'Seul le second 了 dit que la situation dure encore.'}
+    },
+    {
+      t:'Le piège — 了 n’est pas le passé',
+      p:[
+        'Le réflexe francophone consiste à traduire tout passé composé par 了. C’est faux une fois sur deux.',
+        'Une habitude passée, un état, une description ne prennent <b>pas</b> 了 : rien n’y est achevé, rien n’y a changé.',
+        'À l’inverse, 了 s’emploie très bien au futur, dès qu’une action doit être achevée avant qu’une autre commence.'
+      ],
+      ex:[
+        {hz:'我以前每天喝咖啡。',py:'wǒ yǐ qián měi tiān hē kā fēi',fr:'Avant, je buvais du café tous les jours.',
+         note:'Habitude passée : aucun 了. C’est 以前 qui situe la scène.'},
+        {hz:'明天我吃了饭就去。',py:'míng tiān wǒ chī le fàn jiù qù',fr:'Demain, j’irai dès que j’aurai mangé.',
+         note:'了 dans une phrase au futur : il marque l’achèvement, pas le passé.'}
+      ],
+      check:{q:'« Avant, j’habitais à Pékin » se dit :',
+             a:['我以前住在北京了。','我以前住在北京。'],ok:1,
+             why:'C’est une situation qui durait, non une action achevée : pas de 了.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Emploi','Exemple','Ce que cela dit'],
+    rows:[
+      ['了 après le verbe','我买了一件衣服','L’action est menée à son terme'],
+      ['Négation','我没买衣服','L’action n’a pas eu lieu, 了 tombe'],
+      ['了 en fin de phrase','天气冷了','La situation a changé'],
+      ['Les deux 了','我学了两年汉语了','L’action dure encore aujourd’hui'],
+      ['Habitude passée','我以前每天喝咖啡','Aucun 了 : rien n’est achevé'],
+      ['了 au futur','明天我吃了饭就去','Achèvement à venir, non passé']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我以前住在北京了。',py:'wǒ yǐ qián zhù zài Běi jīng le'},
+    good:{hz:'我以前住在北京。',py:'wǒ yǐ qián zhù zài Běi jīng'},
+    why:'了 n’est pas la marque du passé français. Une situation qui durait ne s’achève pas et ne bascule pas : elle ne prend pas 了. C’est 以前 qui situe la scène dans le passé.'
+  },
+
+  voir:['g304','g301'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'买',p:'mǎi'},{h:'了',p:'le'},{h:'一件',p:'yí jiàn'},{h:'衣服',p:'yī fu'},P('。')],cle:2,fr:'J’ai acheté un vêtement.'},
+    {seg:[{h:'他',p:'tā'},{h:'喝',p:'hē'},{h:'了',p:'le'},{h:'三杯',p:'sān bēi'},{h:'茶',p:'chá'},P('。')],cle:2,fr:'Il a bu trois tasses de thé.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'买',p:'mǎi'},{h:'衣服',p:'yī fu'},P('。')],cle:1,fr:'Je n’ai pas acheté de vêtement.'},
+    {seg:[{h:'天气',p:'tiān qì'},{h:'冷',p:'lěng'},{h:'了',p:'le'},P('。')],cle:2,fr:'Il fait froid, maintenant.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'知道',p:'zhī dào'},{h:'了',p:'le'},P('。')],cle:2,fr:'Ça y est, j’ai compris.'},
+    {seg:[{h:'他',p:'tā'},{h:'二十',p:'èr shí'},{h:'岁',p:'suì'},{h:'了',p:'le'},P('。')],cle:3,fr:'Il a vingt ans, désormais.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'学',p:'xué'},{h:'了',p:'le'},{h:'两年',p:'liǎng nián'},{h:'汉语',p:'Hàn yǔ'},{h:'了',p:'le'},P('。')],cle:5,fr:'J’apprends le chinois depuis deux ans.'},
+    {seg:[{h:'下',p:'xià'},{h:'雨',p:'yǔ'},{h:'了',p:'le'},P('。')],cle:2,fr:'Il s’est mis à pleuvoir.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'吃',p:'chī'},{h:'了',p:'le'},{h:'饭',p:'fàn'},{h:'再',p:'zài'},{h:'去',p:'qù'},P('。')],cle:2,fr:'J’irai après avoir mangé.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'吃',p:'chī'},{h:'了',p:'le'},{h:'吗',p:'ma'},P('？')],cle:2,fr:'As-tu mangé ?'},
+    {seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'来',p:'lái'},P('。')],cle:1,fr:'Il n’est pas venu.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'了',p:'le'},{h:'两本',p:'liǎng běn'},{h:'书',p:'shū'},P('。')],cle:2,fr:'J’ai lu deux livres.'},
+    {seg:[{h:'现在',p:'xiàn zài'},{h:'几',p:'jǐ'},{h:'点',p:'diǎn'},{h:'了',p:'le'},P('？')],cle:3,fr:'Quelle heure est-il, maintenant ?'},
+    {seg:[{h:'她',p:'tā'},{h:'去',p:'qù'},{h:'了',p:'le'},{h:'上海',p:'Shàng hǎi'},P('。')],cle:2,fr:'Elle est partie à Shanghai.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没有',p:'méi yǒu'},{h:'看',p:'kàn'},{h:'那个',p:'nà ge'},{h:'电影',p:'diàn yǐng'},P('。')],cle:1,fr:'Je n’ai pas vu ce film.'}
+  ],
+  leurres:['了','没','过','在','不','得','很'],
+
+  gabarits:[
+    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{h:'了',p:'le'},{s:'o'},P('。')],
+     fr:'J’ai …', lie:[['v','o']],
+     listes:{v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'}],
+             o:[{h:'一件衣服',p:'yí jiàn yī fu',fr:'un vêtement'},{h:'三杯茶',p:'sān bēi chá',fr:'trois tasses de thé'},
+                {h:'两本书',p:'liǎng běn shū',fr:'deux livres'},{h:'一个面包',p:'yí ge miàn bāo',fr:'un pain'},
+                {h:'两年汉语',p:'liǎng nián Hàn yǔ',fr:'deux ans de chinois'}]}},
+    {cadre:[{s:'n'},{s:'a'},{h:'了',p:'le'},P('。')],
+     fr:'… est devenu …', lie:[['n','a']],
+     listes:{n:[{h:'天气',p:'tiān qì',fr:'le temps'},{h:'他',p:'tā',fr:'il'},
+                {h:'我',p:'wǒ',fr:'je'},{h:'孩子',p:'hái zi',fr:'l’enfant'},{h:'菜',p:'cài',fr:'le plat'}],
+             a:[{h:'冷',p:'lěng',fr:'froid'},{h:'高',p:'gāo',fr:'grand'},
+                {h:'累',p:'lèi',fr:'fatiguée'},{h:'大',p:'dà',fr:'grand'},{h:'凉',p:'liáng',fr:'froid'}]}},
+    {cadre:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{s:'v'},{s:'o'},P('。')],
+     fr:'Je n’ai pas …', lie:[['v','o']],
+     listes:{v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'看',p:'kàn',fr:'voir'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'}],
+             o:[{h:'衣服',p:'yī fu',fr:'de vêtement'},{h:'那个电影',p:'nà ge diàn yǐng',fr:'ce film'},
+                {h:'早饭',p:'zǎo fàn',fr:'de petit-déjeuner'},{h:'咖啡',p:'kā fēi',fr:'de café'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我买了一件衣服。',py:'wǒ mǎi le yí jiàn yī fu',fr:'J’ai acheté un vêtement.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'买',p:'mǎi'},{h:'衣服',p:'yī fu'},P('。')],fr:'Je n’ai pas acheté de vêtement.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'他来了。',py:'tā lái le',fr:'Il est venu.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'来',p:'lái'},P('。')],fr:'Il n’est pas venu.'}},
+    {consigne:'Dites que la situation dure encore, avec le second 了',
+     de:{hz:'我学了两年汉语。',py:'wǒ xué le liǎng nián Hàn yǔ',fr:'J’ai étudié le chinois pendant deux ans.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'学',p:'xué'},{h:'了',p:'le'},{h:'两年',p:'liǎng nián'},{h:'汉语',p:'Hàn yǔ'},{h:'了',p:'le'},P('。')],fr:'J’apprends le chinois depuis deux ans.'}},
+    {consigne:'Posez la question avec 吗',
+     de:{hz:'我吃了。',py:'wǒ chī le',fr:'J’ai mangé.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'吃',p:'chī'},{h:'了',p:'le'},{h:'吗',p:'ma'},P('？')],fr:'As-tu mangé ?'}},
+    {consigne:'Dites que la situation a changé, avec 了 en fin de phrase',
+     de:{hz:'天气很冷。',py:'tiān qì hěn lěng',fr:'Il fait froid.'},
+     vers:{seg:[{h:'天气',p:'tiān qì'},{h:'冷',p:'lěng'},{h:'了',p:'le'},P('。')],fr:'Il s’est mis à faire froid.'}},
+    {consigne:'Faites-en une habitude passée avec 以前, sans 了',
+     de:{hz:'我每天喝咖啡。',py:'wǒ měi tiān hē kā fēi',fr:'Je bois du café tous les jours.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'以前',p:'yǐ qián'},{h:'每天',p:'měi tiān'},{h:'喝',p:'hē'},{h:'咖啡',p:'kā fēi'},P('。')],fr:'Avant, je buvais du café tous les jours.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'买',p:'mǎi'},{h:'了',p:'le'},{h:'衣服',p:'yī fu'},P('。')],bad:3,
+     bon:'我没买衣服。',why:'没 et 了 ne cohabitent pas : dès que 没 nie l’action, 了 disparaît.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'昨天',p:'zuó tiān'},{h:'不',p:'bú'},{h:'去',p:'qù'},P('。')],bad:2,
+     bon:'我昨天没去。',why:'Pour dire qu’une action n’a pas eu lieu, on emploie 没, non 不.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'以前',p:'yǐ qián'},{h:'住',p:'zhù'},{h:'在',p:'zài'},{h:'北京',p:'Běi jīng'},{h:'了',p:'le'},P('。')],bad:5,
+     bon:'我以前住在北京。',why:'Une situation qui durait n’est ni achevée ni nouvelle : elle ne prend pas 了.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'了',p:'le'},{h:'买',p:'mǎi'},{h:'一件',p:'yí jiàn'},{h:'衣服',p:'yī fu'},P('。')],bad:1,
+     bon:'我买了一件衣服。',why:'了 suit le verbe, il ne le précède jamais.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'买',p:'mǎi'},{h:'了',p:'le'},{h:'衣服',p:'yī fu'},P('。')],bad:3,
+     bon:'我买了一件衣服。',why:'Après 了, l’objet demande une précision : un nombre et son classificateur, ou un démonstratif.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'学',p:'xué'},{h:'了',p:'le'},{h:'两年',p:'liǎng nián'},{h:'了',p:'le'},{h:'汉语',p:'Hàn yǔ'},P('。')],bad:4,
+     bon:'我学了两年汉语了。',why:'Le second 了 se pose à la toute fin, après l’objet.'}
+  ],
+
+  reemploi:[
+    {q:'Racontez un achat récent, en une phrase, avec un objet précisé.',
+     verif:[{type:'contient',v:'了',msg:'On attend 了 après le verbe pour marquer l’achèvement.'},
+            {type:'absent',v:'没',msg:'La phrase est affirmative : 没 n’y a pas sa place.'}],
+     modeles:[{hz:'我买了一件新衣服。',py:'wǒ mǎi le yí jiàn xīn yī fu',fr:'J’ai acheté un vêtement neuf.'},
+              {hz:'昨天我买了两本书。',py:'zuó tiān wǒ mǎi le liǎng běn shū',fr:'Hier, j’ai acheté deux livres.'}],
+     criteres:['了 suit immédiatement le verbe','L’objet porte un nombre et son classificateur, ou un démonstratif','La date, si elle est là, se place avant le verbe']},
+    {q:'Dites depuis combien de temps vous apprenez le chinois, en marquant que vous continuez.',
+     verif:[{type:'contient',v:'了',msg:'La durée qui continue demande 了.'},
+            {type:'finit',v:'了',msg:'Le second 了 ferme la phrase : c’est lui qui dit que cela dure encore.'}],
+     modeles:[{hz:'我学了两年汉语了。',py:'wǒ xué le liǎng nián Hàn yǔ le',fr:'J’apprends le chinois depuis deux ans.'},
+              {hz:'我学汉语学了三年了。',py:'wǒ xué Hàn yǔ xué le sān nián le',fr:'J’apprends le chinois depuis trois ans.'}],
+     criteres:['Deux 了 : un après le verbe, un en fin de phrase','La durée est placée après le verbe','Le second 了 est le dernier mot avant la ponctuation']},
+    {q:'Répondez à 你昨天做什么了？ en disant une chose que vous avez faite et une chose que vous n’avez pas faite.',
+     verif:[{type:'contient',v:'了',msg:'La phrase affirmative attend 了 après le verbe.'},
+            {type:'contient',v:'没',msg:'La phrase négative attend 没.'}],
+     modeles:[{hz:'我看了一个电影，没做饭。',py:'wǒ kàn le yí ge diàn yǐng, méi zuò fàn',fr:'J’ai vu un film et je n’ai pas fait la cuisine.'},
+              {hz:'昨天我喝了两杯咖啡，没吃早饭。',py:'zuó tiān wǒ hē le liǎng bēi kā fēi, méi chī zǎo fàn',fr:'Hier, j’ai bu deux cafés et je n’ai pas pris de petit-déjeuner.'}],
+     criteres:['了 est présent dans la phrase affirmative','La négation emploie 没, et 了 y disparaît','L’objet de la phrase affirmative est précisé']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g304', hsk:3, fam:'verbe', th:['voyage','passe'],
+  title:'过 : l’expérience déjà vécue',
+  resume:'过 ne raconte aucun événement : il verse une action au compte de l’expérience. On l’a déjà faite au moins une fois dans sa vie, et on en est revenu.',
+
+  steps:[
+    {
+      t:'过 après le verbe — « j’ai déjà… »',
+      p:[
+        'Posé juste après le verbe, <b>过</b> dit que l’action figure au moins une fois dans l’expérience de la personne. Le moment n’a aucune importance et n’est presque jamais donné.',
+        'C’est notre « déjà » : 你吃过北京烤鸭吗？ — as-tu déjà mangé du canard laqué ?'
+      ],
+      ex:[
+        {hz:'我去过中国。',py:'wǒ qù guo Zhōng guó',fr:'Je suis déjà allée en Chine.',
+         note:'Après le verbe, 过 se prononce au ton neutre : guo.'},
+        {hz:'你吃过北京烤鸭吗？',py:'nǐ chī guo Běi jīng kǎo yā ma',fr:'As-tu déjà mangé du canard laqué ?'}
+      ],
+      check:{q:'我去过中国 signifie :',a:['Je pars pour la Chine.','Je suis déjà allée en Chine.'],ok:1,
+             why:'过 verse l’action au compte de l’expérience vécue.'}
+    },
+    {
+      t:'La négation — 没…过, et 过 reste',
+      p:[
+        'La négation se fait avec <b>没</b> ou <b>没有</b>, comme pour 了. Mais ici, <b>过 ne disparaît pas</b>.',
+        'C’est l’écart le plus facile à retenir entre les deux particules : 没买了 est faux, 没买过 est juste.'
+      ],
+      ex:[
+        {hz:'我没去过中国。',py:'wǒ méi qù guo Zhōng guó',fr:'Je ne suis jamais allée en Chine.'},
+        {hz:'他没看过这个电影。',py:'tā méi kàn guo zhè ge diàn yǐng',fr:'Il n’a jamais vu ce film.'}
+      ],
+      check:{q:'« Je ne suis jamais allée en Chine » se dit :',
+             a:['我没去中国。','我没去过中国。'],ok:1,
+             why:'C’est l’expérience de toute une vie qui est niée : 过 reste après le verbe.'}
+    },
+    {
+      t:'Compter les fois',
+      p:[
+        'Le nombre de fois se place <b>après 过</b>, avec le classificateur <b>次</b>.',
+        'Si le verbe a un objet, le compte se glisse entre 过 et cet objet : 去过三次北京.',
+        'Autre tournure très courante : mettre l’objet en tête et laisser le compte fermer la phrase.'
+      ],
+      ex:[
+        {hz:'我去过三次北京。',py:'wǒ qù guo sān cì Běi jīng',fr:'Je suis allée trois fois à Pékin.'},
+        {hz:'这个电影我看过两次。',py:'zhè ge diàn yǐng wǒ kàn guo liǎng cì',fr:'Ce film, je l’ai vu deux fois.',
+         note:'L’objet est en tête, le compte ferme la phrase.'}
+      ],
+      check:{q:'Où se place 三次 ?',a:['我三次去过北京。','我去过三次北京。'],ok:1,
+             why:'Le compte suit 过 et précède l’objet.'}
+    },
+    {
+      t:'了 face à 过',
+      p:[
+        '<b>了</b> clôt une action précise et laisse souvent la situation en place : 我去了北京 — je suis partie à Pékin, j’y suis peut-être encore.',
+        '<b>过</b> verse l’action à l’expérience et suppose qu’on en est revenu : 我去过北京 — j’y suis allée, c’est du passé révolu.',
+        'Second écart, tout aussi net : à la négative, 了 disparaît, 过 reste.'
+      ],
+      ex:[
+        {hz:'我去了北京。',py:'wǒ qù le Běi jīng',fr:'Je suis partie à Pékin.',
+         note:'Un fait daté. Je peux encore y être.'},
+        {hz:'我去过北京。',py:'wǒ qù guo Běi jīng',fr:'Je suis déjà allée à Pékin.',
+         note:'Une expérience close. J’en suis revenue.'}
+      ],
+      check:{q:'Votre amie demande si vous connaissez Shanghai. Vous répondez :',
+             a:['我去了上海。','我去过上海。'],ok:1,
+             why:'La question porte sur l’expérience, non sur un départ précis : 过.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Emploi','Exemple','Ce que cela dit'],
+    rows:[
+      ['Expérience vécue','我去过中国','J’y suis déjà allée'],
+      ['Négation','我没去过中国','Je n’y suis jamais allée, 过 reste'],
+      ['Compte de fois','我去过三次北京','Trois fois dans ma vie'],
+      ['Objet en tête','这个电影我看过两次','Ce film, je l’ai vu deux fois'],
+      ['Question','你吃过烤鸭吗？','En as-tu déjà mangé ?'],
+      ['Face à 了','我去了北京','Un départ précis, j’y suis peut-être encore']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我没去过了中国。',py:'wǒ méi qù guo le Zhōng guó'},
+    good:{hz:'我没去过中国。',py:'wǒ méi qù guo Zhōng guó'},
+    why:'过 et 了 ne se superposent jamais. À la négative, 了 disparaît de toute façon ; 过, lui, demeure — c’est précisément lui qui porte l’idée d’expérience.'
+  },
+
+  voir:['g303'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'中国',p:'Zhōng guó'},P('。')],cle:2,fr:'Je suis déjà allée en Chine.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'吃',p:'chī'},{h:'过',p:'guo'},{h:'北京',p:'Běi jīng'},{h:'烤鸭',p:'kǎo yā'},{h:'吗',p:'ma'},P('？')],cle:2,fr:'As-tu déjà mangé du canard laqué ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'中国',p:'Zhōng guó'},P('。')],cle:3,fr:'Je ne suis jamais allée en Chine.'},
+    {seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'看',p:'kàn'},{h:'过',p:'guo'},{h:'这个',p:'zhè ge'},{h:'电影',p:'diàn yǐng'},P('。')],cle:3,fr:'Il n’a jamais vu ce film.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'三次',p:'sān cì'},{h:'北京',p:'Běi jīng'},P('。')],cle:2,fr:'Je suis allée trois fois à Pékin.'},
+    {seg:[{h:'这个',p:'zhè ge'},{h:'电影',p:'diàn yǐng'},{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'过',p:'guo'},{h:'两次',p:'liǎng cì'},P('。')],cle:4,fr:'Ce film, je l’ai vu deux fois.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'了',p:'le'},{h:'北京',p:'Běi jīng'},P('。')],cle:2,fr:'Je suis partie à Pékin.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'学',p:'xué'},{h:'过',p:'guo'},{h:'一年',p:'yì nián'},{h:'日语',p:'Rì yǔ'},P('。')],cle:2,fr:'J’ai étudié le japonais pendant un an.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'几次',p:'jǐ cì'},{h:'上海',p:'Shàng hǎi'},P('？')],cle:2,fr:'Combien de fois es-tu allé à Shanghai ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'喝',p:'hē'},{h:'过',p:'guo'},{h:'中国',p:'Zhōng guó'},{h:'茶',p:'chá'},P('。')],cle:3,fr:'Je n’ai jamais bu de thé chinois.'},
+    {seg:[{h:'他',p:'tā'},{h:'来',p:'lái'},{h:'过',p:'guo'},{h:'我',p:'wǒ'},{h:'家',p:'jiā'},P('。')],cle:2,fr:'Il est déjà venu chez moi.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'吃',p:'chī'},{h:'过',p:'guo'},{h:'一次',p:'yí cì'},{h:'日本菜',p:'Rì běn cài'},P('。')],cle:2,fr:'J’ai mangé japonais une fois.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'看',p:'kàn'},{h:'过',p:'guo'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'吗',p:'ma'},P('？')],cle:2,fr:'As-tu déjà lu ce livre ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'坐',p:'zuò'},{h:'过',p:'guo'},{h:'飞机',p:'fēi jī'},P('。')],cle:3,fr:'Je n’ai jamais pris l’avion.'}
+  ],
+  leurres:['过','了','没','在','次','不','得'],
+
+  gabarits:[
+    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{h:'过',p:'guo'},{s:'o'},P('。')],
+     fr:'J’ai déjà …', lie:[['v','o']],
+     listes:{v:[{h:'去',p:'qù',fr:'aller'},{h:'吃',p:'chī',fr:'manger'},
+                {h:'看',p:'kàn',fr:'voir'},{h:'喝',p:'hē',fr:'boire'},{h:'学',p:'xué',fr:'apprendre'}],
+             o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},
+                {h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},{h:'中国茶',p:'Zhōng guó chá',fr:'du thé chinois'},
+                {h:'日语',p:'Rì yǔ',fr:'le japonais'}]}},
+    {cadre:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{s:'v'},{h:'过',p:'guo'},{s:'o'},P('。')],
+     fr:'Je n’ai jamais …', lie:[['v','o']],
+     listes:{v:[{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'},
+                {h:'看',p:'kàn',fr:'lire'},{h:'喝',p:'hē',fr:'boire'}],
+             o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'飞机',p:'fēi jī',fr:'l’avion'},
+                {h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'咖啡',p:'kā fēi',fr:'de café'}]}},
+    {cadre:[{h:'你',p:'nǐ'},{s:'v'},{h:'过',p:'guo'},{s:'o'},{h:'吗',p:'ma'},P('？')],
+     fr:'As-tu déjà … ?', lie:[['v','o']],
+     listes:{v:[{h:'吃',p:'chī',fr:'manger'},{h:'去',p:'qù',fr:'aller'},
+                {h:'看',p:'kàn',fr:'lire'},{h:'坐',p:'zuò',fr:'prendre'}],
+             o:[{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},{h:'上海',p:'Shàng hǎi',fr:'à Shanghai'},
+                {h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'火车',p:'huǒ chē',fr:'le train'}]}},
+    {cadre:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{s:'n'},{h:'次',p:'cì'},{h:'北京',p:'Běi jīng'},P('。')],
+     fr:'Je suis allée … fois à Pékin.',
+     listes:{n:[{h:'一',p:'yí',fr:'une'},{h:'两',p:'liǎng',fr:'deux'},
+                {h:'三',p:'sān',fr:'trois'},{h:'很多',p:'hěn duō',fr:'beaucoup de'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我去过中国。',py:'wǒ qù guo Zhōng guó',fr:'Je suis déjà allée en Chine.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'中国',p:'Zhōng guó'},P('。')],fr:'Je ne suis jamais allée en Chine.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'他看过这个电影。',py:'tā kàn guo zhè ge diàn yǐng',fr:'Il a déjà vu ce film.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'看',p:'kàn'},{h:'过',p:'guo'},{h:'这个',p:'zhè ge'},{h:'电影',p:'diàn yǐng'},P('。')],fr:'Il n’a jamais vu ce film.'}},
+    {consigne:'Posez la question avec 吗',
+     de:{hz:'我吃过北京烤鸭。',py:'wǒ chī guo Běi jīng kǎo yā',fr:'J’ai déjà mangé du canard laqué.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'吃',p:'chī'},{h:'过',p:'guo'},{h:'北京',p:'Běi jīng'},{h:'烤鸭',p:'kǎo yā'},{h:'吗',p:'ma'},P('？')],fr:'As-tu déjà mangé du canard laqué ?'}},
+    {consigne:'Ajoutez le compte : trois fois',
+     de:{hz:'我去过北京。',py:'wǒ qù guo Běi jīng',fr:'Je suis déjà allée à Pékin.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'三次',p:'sān cì'},{h:'北京',p:'Běi jīng'},P('。')],fr:'Je suis allée trois fois à Pékin.'}},
+    {consigne:'Demandez combien de fois',
+     de:{hz:'我去过三次上海。',py:'wǒ qù guo sān cì Shàng hǎi',fr:'Je suis allée trois fois à Shanghai.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'几次',p:'jǐ cì'},{h:'上海',p:'Shàng hǎi'},P('？')],fr:'Combien de fois y es-tu allé ?'}},
+    {consigne:'Passez de l’événement daté à l’expérience vécue',
+     de:{hz:'我昨天去了北京。',py:'wǒ zuó tiān qù le Běi jīng',fr:'Hier, je suis partie à Pékin.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'北京',p:'Běi jīng'},P('。')],fr:'Je suis déjà allée à Pékin.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'了',p:'le'},{h:'中国',p:'Zhōng guó'},P('。')],bad:4,
+     bon:'我没去过中国。',why:'过 et 了 ne se superposent pas ; à la négative, 了 disparaît de toute façon.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'去',p:'qù'},{h:'中国',p:'Zhōng guó'},{h:'过',p:'guo'},P('。')],bad:4,
+     bon:'我没去过中国。',why:'过 se colle au verbe ; il ne se rejette pas derrière l’objet.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不',p:'bú'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'中国',p:'Zhōng guó'},P('。')],bad:1,
+     bon:'我没去过中国。',why:'Une expérience qui n’a pas eu lieu se nie avec 没, jamais avec 不.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'三次',p:'sān cì'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'北京',p:'Běi jīng'},P('。')],bad:1,
+     bon:'我去过三次北京。',why:'Le compte de fois suit 过 et précède l’objet.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{h:'几',p:'jǐ'},{h:'北京',p:'Běi jīng'},P('？')],bad:3,
+     bon:'你去过几次北京？',why:'Le compte de fois exige son classificateur : 次.'},
+    {seg:[{h:'他',p:'tā'},{h:'来',p:'lái'},{h:'过',p:'guo'},{h:'了',p:'le'},{h:'我',p:'wǒ'},{h:'家',p:'jiā'},P('。')],bad:3,
+     bon:'他来过我家。',why:'过 suffit à dire l’expérience ; ajouter 了 brouille les deux valeurs.'}
+  ],
+
+  reemploi:[
+    {q:'Nommez deux endroits où vous êtes déjà allée, et un endroit où vous n’êtes jamais allée.',
+     verif:[{type:'contient',v:'过',msg:'L’expérience vécue demande 过 après le verbe.'},
+            {type:'contient',v:'没',msg:'La partie négative attend 没.'}],
+     modeles:[{hz:'我去过中国和日本，没去过美国。',py:'wǒ qù guo Zhōng guó hé Rì běn, méi qù guo Měi guó',fr:'Je suis déjà allée en Chine et au Japon, jamais aux États-Unis.'},
+              {hz:'我去过北京，可是没去过上海。',py:'wǒ qù guo Běi jīng, kě shì méi qù guo Shàng hǎi',fr:'Je suis déjà allée à Pékin, mais jamais à Shanghai.'}],
+     criteres:['过 suit immédiatement le verbe','La négation emploie 没 et conserve 过','Aucun 了 dans la phrase']},
+    {q:'On vous demande 你吃过中国菜吗？ Répondez, puis dites combien de fois.',
+     verif:[{type:'contient',v:'过',msg:'La réponse reprend le verbe suivi de 过.'},
+            {type:'contient',v:'次',msg:'Le compte de fois demande le classificateur 次.'}],
+     modeles:[{hz:'吃过，我吃过很多次。',py:'chī guo, wǒ chī guo hěn duō cì',fr:'Oui, j’en ai mangé beaucoup de fois.'},
+              {hz:'我吃过三次中国菜。',py:'wǒ chī guo sān cì Zhōng guó cài',fr:'J’ai mangé chinois trois fois.'}],
+     criteres:['La réponse reprend le verbe, sans mot qui voudrait dire « oui »','次 accompagne le nombre','Le compte suit 过']},
+    {q:'Dites une chose que vous avez faite hier, et une chose que vous avez déjà faite dans votre vie. Faites sentir l’écart entre 了 et 过.',
+     verif:[{type:'contient',v:'了',msg:'L’action d’hier, datée et achevée, demande 了.'},
+            {type:'contient',v:'过',msg:'L’expérience de toute une vie demande 过.'}],
+     modeles:[{hz:'昨天我看了一个电影，我看过很多中国电影。',py:'zuó tiān wǒ kàn le yí ge diàn yǐng, wǒ kàn guo hěn duō Zhōng guó diàn yǐng',fr:'Hier j’ai vu un film ; j’ai déjà vu beaucoup de films chinois.'}],
+     criteres:['了 pour l’action d’hier, datée et achevée','过 pour l’expérience, sans date','Chaque particule est collée à son verbe']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g305', hsk:3, fam:'verbe', th:['quotidien','decrire'],
+  title:'L’action en cours : 在, 正在, 呢 — et 着',
+  resume:'Le chinois ne conjugue pas, mais il sait dire qu’une action se déroule : 在 devant le verbe suffit, 正在 insiste, 呢 adoucit. 着 est tout autre chose : un état installé qui dure.',
+
+  steps:[
+    {
+      t:'在 devant le verbe',
+      p:[
+        'Pour dire qu’une action est en cours, on place <b>在</b> juste devant le verbe. Rien d’autre ne change dans la phrase.',
+        'Attention à ne pas le confondre avec le 在 de localisation : celui-là est suivi d’un lieu, non d’un verbe.'
+      ],
+      ex:[
+        {hz:'我在看书。',py:'wǒ zài kàn shū',fr:'Je suis en train de lire.',
+         note:'在 précède un verbe : action en cours.'},
+        {hz:'我在家。',py:'wǒ zài jiā',fr:'Je suis à la maison.',
+         note:'在 précède un lieu : localisation.'}
+      ],
+      check:{q:'我在看书 signifie :',a:['Je lis, en ce moment même.','Je lis des livres à la maison.'],ok:0,
+             why:'在 suivi d’un verbe marque l’action en cours.'}
+    },
+    {
+      t:'正在 — insister sur l’instant précis',
+      p:[
+        '<b>正在</b> renforce : l’action se déroule à l’instant même, souvent au moment où quelque chose d’autre survient.',
+        'C’est la forme qu’on emploie pour dire « j’étais justement en train de… quand… ».'
+      ],
+      ex:[
+        {hz:'我正在做饭。',py:'wǒ zhèng zài zuò fàn',fr:'Je suis justement en train de faire la cuisine.'},
+        {hz:'你来的时候，我正在打电话。',py:'nǐ lái de shí hou, wǒ zhèng zài dǎ diàn huà',fr:'Quand tu es arrivé, j’étais justement au téléphone.'}
+      ],
+      check:{q:'Lequel insiste le plus sur l’instant précis ?',a:['我在做饭。','我正在做饭。'],ok:1,
+             why:'正 ajoute l’idée d’un moment précis, souvent interrompu.'}
+    },
+    {
+      t:'呢 en fin de phrase',
+      p:[
+        '<b>呢</b> posé à la toute fin adoucit la phrase et souligne que l’action se poursuit. Il accompagne 在 ou tient tout seul.',
+        'C’est la forme la plus courante à l’oral, celle qu’on entend au téléphone.'
+      ],
+      ex:[
+        {hz:'他在睡觉呢。',py:'tā zài shuì jiào ne',fr:'Il est en train de dormir.'},
+        {hz:'他吃饭呢。',py:'tā chī fàn ne',fr:'Il est en train de manger.',
+         note:'在 est sous-entendu : 呢 suffit à dire que l’action se déroule.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['他呢在睡觉。','他在睡觉呢。'],ok:1,
+             why:'呢 se pose en toute fin de phrase, jamais à l’intérieur.'}
+    },
+    {
+      t:'La négation — 没在',
+      p:[
+        'On nie avec <b>没</b> ou <b>没有</b> placé devant 在 : l’action n’est pas en train de se dérouler.',
+        'Le 呢 final tombe alors, et l’on enchaîne volontiers sur ce qu’on fait à la place.'
+      ],
+      ex:[
+        {hz:'我没在看电视。',py:'wǒ méi zài kàn diàn shì',fr:'Je ne suis pas en train de regarder la télévision.'},
+        {hz:'他没在睡觉，他在工作。',py:'tā méi zài shuì jiào, tā zài gōng zuò',fr:'Il ne dort pas, il travaille.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我不在看电视。','我没在看电视。'],ok:1,
+             why:'L’action en cours est un fait constaté : elle se nie avec 没.'}
+    },
+    {
+      t:'着 — un état qui dure, non une action qui se déroule',
+      p:[
+        '<b>着</b> se pose <b>après</b> le verbe et décrit un état installé, résultat d’une action déjà faite.',
+        'Comparez : 他在开门 — il est en train d’ouvrir la porte ; 门开着 — la porte est ouverte, et elle le reste.',
+        'On l’emploie beaucoup pour décrire : ce que quelqu’un porte, ce qui est posé quelque part, l’état d’une pièce.'
+      ],
+      ex:[
+        {hz:'他在开门。',py:'tā zài kāi mén',fr:'Il est en train d’ouvrir la porte.',
+         note:'L’action se déroule.'},
+        {hz:'门开着。',py:'mén kāi zhe',fr:'La porte est ouverte.',
+         note:'L’état dure. 着 se prononce zhe, au ton neutre.'},
+        {hz:'她穿着一件红色的衣服。',py:'tā chuān zhe yí jiàn hóng sè de yī fu',fr:'Elle porte un vêtement rouge.'}
+      ],
+      check:{q:'« La fenêtre est ouverte » se dit :',a:['窗户在开。','窗户开着。'],ok:1,
+             why:'C’est un état qui dure, non une action qui se déroule : 着 après le verbe.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Forme','Exemple','Ce que cela dit'],
+    rows:[
+      ['在 + verbe','我在看书','L’action est en cours'],
+      ['正在 + verbe','我正在做饭','À l’instant précis'],
+      ['… 呢','他吃饭呢','En cours, ton parlé'],
+      ['没在 + verbe','我没在看电视','L’action n’est pas en cours'],
+      ['verbe + 着','门开着','Un état installé qui dure'],
+      ['在 + lieu','我在家','Localisation, non action']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我在看书着。',py:'wǒ zài kàn shū zhe'},
+    good:{hz:'我在看书。',py:'wǒ zài kàn shū'},
+    why:'在 et 着 ne disent pas la même chose et ne se cumulent pas. 在 précède le verbe et décrit une action qui se déroule ; 着 le suit et décrit un état qui dure.'
+  },
+
+  voir:['g303','g304'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'书',p:'shū'},P('。')],cle:1,fr:'Je suis en train de lire.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'家',p:'jiā'},P('。')],cle:1,fr:'Je suis à la maison.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'正在',p:'zhèng zài'},{h:'做',p:'zuò'},{h:'饭',p:'fàn'},P('。')],cle:1,fr:'Je suis justement en train de faire la cuisine.'},
+    {seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'睡觉',p:'shuì jiào'},{h:'呢',p:'ne'},P('。')],cle:1,fr:'Il est en train de dormir.'},
+    {seg:[{h:'他',p:'tā'},{h:'吃',p:'chī'},{h:'饭',p:'fàn'},{h:'呢',p:'ne'},P('。')],cle:3,fr:'Il est en train de manger.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'电视',p:'diàn shì'},P('。')],cle:2,fr:'Je ne suis pas en train de regarder la télévision.'},
+    {seg:[{h:'门',p:'mén'},{h:'开',p:'kāi'},{h:'着',p:'zhe'},P('。')],cle:2,fr:'La porte est ouverte.'},
+    {seg:[{h:'她',p:'tā'},{h:'穿',p:'chuān'},{h:'着',p:'zhe'},{h:'一件',p:'yí jiàn'},{h:'红色',p:'hóng sè'},{h:'的',p:'de'},{h:'衣服',p:'yī fu'},P('。')],cle:2,fr:'Elle porte un vêtement rouge.'},
+    {seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'开',p:'kāi'},{h:'门',p:'mén'},P('。')],cle:1,fr:'Il est en train d’ouvrir la porte.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'来',p:'lái'},{h:'的',p:'de'},{h:'时候',p:'shí hou'},P('，'),{h:'我',p:'wǒ'},{h:'正在',p:'zhèng zài'},{h:'打',p:'dǎ'},{h:'电话',p:'diàn huà'},P('。')],cle:6,fr:'Quand tu es arrivé, j’étais justement au téléphone.'},
+    {seg:[{h:'窗户',p:'chuāng hu'},{h:'开',p:'kāi'},{h:'着',p:'zhe'},P('。')],cle:2,fr:'La fenêtre est ouverte.'},
+    {seg:[{h:'妈妈',p:'mā ma'},{h:'在',p:'zài'},{h:'做',p:'zuò'},{h:'饭',p:'fàn'},{h:'呢',p:'ne'},P('。')],cle:1,fr:'Maman est en train de faire la cuisine.'},
+    {seg:[{h:'他们',p:'tā men'},{h:'在',p:'zài'},{h:'学',p:'xué'},{h:'汉语',p:'Hàn yǔ'},P('。')],cle:1,fr:'Ils sont en train d’apprendre le chinois.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'在',p:'zài'},{h:'工作',p:'gōng zuò'},P('，'),{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'休息',p:'xiū xi'},P('。')],cle:2,fr:'Je ne travaille pas, je me repose.'},
+    {seg:[{h:'桌子',p:'zhuō zi'},{h:'上',p:'shang'},{h:'放',p:'fàng'},{h:'着',p:'zhe'},{h:'一本',p:'yì běn'},{h:'书',p:'shū'},P('。')],cle:3,fr:'Sur la table est posé un livre.'}
+  ],
+  leurres:['在','正在','着','呢','了','没','过'],
+
+  gabarits:[
+    {cadre:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{s:'v'},{s:'o'},P('。')],
+     fr:'Je suis en train de …', lie:[['v','o']],
+     listes:{v:[{h:'看',p:'kàn',fr:'lire'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'打',p:'dǎ',fr:'passer'},{h:'喝',p:'hē',fr:'boire'}],
+             o:[{h:'书',p:'shū',fr:'un livre'},{h:'饭',p:'fàn',fr:'la cuisine'},
+                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'电话',p:'diàn huà',fr:'un coup de téléphone'},
+                {h:'咖啡',p:'kā fēi',fr:'un café'}]}},
+    {cadre:[{h:'他',p:'tā'},{s:'v'},{s:'o'},{h:'呢',p:'ne'},P('。')],
+     fr:'Il est en train de …', lie:[['v','o']],
+     listes:{v:[{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'喝',p:'hē',fr:'boire'},{h:'写',p:'xiě',fr:'écrire'}],
+             o:[{h:'饭',p:'fàn',fr:'le repas'},{h:'电视',p:'diàn shì',fr:'la télévision'},
+                {h:'咖啡',p:'kā fēi',fr:'du café'},{h:'汉字',p:'Hàn zì',fr:'des caractères'}]}},
+    {cadre:[{s:'n'},{s:'v'},{h:'着',p:'zhe'},P('。')],
+     fr:'… est …', lie:[['n','v']],
+     listes:{n:[{h:'门',p:'mén',fr:'la porte'},{h:'窗户',p:'chuāng hu',fr:'la fenêtre'},
+                {h:'灯',p:'dēng',fr:'la lampe'},{h:'电视',p:'diàn shì',fr:'la télévision'}],
+             v:[{h:'开',p:'kāi',fr:'ouverte'},{h:'关',p:'guān',fr:'fermée'},
+                {h:'开',p:'kāi',fr:'allumée'},{h:'开',p:'kāi',fr:'allumée'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Dites que l’action est en cours, avec 在',
+     de:{hz:'我看书。',py:'wǒ kàn shū',fr:'Je lis.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'书',p:'shū'},P('。')],fr:'Je suis en train de lire.'}},
+    {consigne:'Insistez sur l’instant précis, avec 正在',
+     de:{hz:'我做饭。',py:'wǒ zuò fàn',fr:'Je fais la cuisine.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'正在',p:'zhèng zài'},{h:'做',p:'zuò'},{h:'饭',p:'fàn'},P('。')],fr:'Je suis justement en train de faire la cuisine.'}},
+    {consigne:'Ajoutez 呢 en fin de phrase',
+     de:{hz:'他在睡觉。',py:'tā zài shuì jiào',fr:'Il dort.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'睡觉',p:'shuì jiào'},{h:'呢',p:'ne'},P('。')],fr:'Il est en train de dormir.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我在看电视。',py:'wǒ zài kàn diàn shì',fr:'Je regarde la télévision.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'电视',p:'diàn shì'},P('。')],fr:'Je ne suis pas en train de regarder la télévision.'}},
+    {consigne:'Passez de l’action en cours à l’état qui dure',
+     de:{hz:'他在开门。',py:'tā zài kāi mén',fr:'Il est en train d’ouvrir la porte.'},
+     vers:{seg:[{h:'门',p:'mén'},{h:'开',p:'kāi'},{h:'着',p:'zhe'},P('。')],fr:'La porte est ouverte.'}},
+    {consigne:'Posez la question avec 吗',
+     de:{hz:'他在工作。',py:'tā zài gōng zuò',fr:'Il travaille.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'工作',p:'gōng zuò'},{h:'吗',p:'ma'},P('？')],fr:'Est-il en train de travailler ?'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'书',p:'shū'},{h:'在',p:'zài'},P('。')],bad:3,
+     bon:'我在看书。',why:'在 se place devant le verbe, jamais derrière l’objet.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不',p:'bú'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'电视',p:'diàn shì'},P('。')],bad:1,
+     bon:'我没在看电视。',why:'L’action en cours se nie avec 没, non avec 不.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'书',p:'shū'},{h:'着',p:'zhe'},P('。')],bad:4,
+     bon:'我在看书。',why:'在 et 着 ne se cumulent pas : l’un dit l’action qui se déroule, l’autre l’état qui dure.'},
+    {seg:[{h:'他',p:'tā'},{h:'呢',p:'ne'},{h:'在',p:'zài'},{h:'睡觉',p:'shuì jiào'},P('。')],bad:1,
+     bon:'他在睡觉呢。',why:'呢 se pose en toute fin de phrase.'},
+    {seg:[{h:'门',p:'mén'},{h:'开',p:'kāi'},{h:'在',p:'zài'},P('。')],bad:2,
+     bon:'门开着。',why:'L’état qui dure se marque par 着 après le verbe. 在 précède le verbe et dit l’action en cours.'},
+    {seg:[{h:'她',p:'tā'},{h:'穿',p:'chuān'},{h:'一件',p:'yí jiàn'},{h:'红色',p:'hóng sè'},{h:'的',p:'de'},{h:'衣服',p:'yī fu'},{h:'着',p:'zhe'},P('。')],bad:6,
+     bon:'她穿着一件红色的衣服。',why:'着 se colle au verbe ; il ne se rejette pas en fin de phrase.'}
+  ],
+
+  reemploi:[
+    {q:'Quelqu’un vous téléphone et demande 你在做什么呢？ Répondez.',
+     verif:[{type:'contient',v:'在',msg:'L’action en cours demande 在 devant le verbe.'},
+            {type:'absent',v:'着',msg:'着 décrit un état, non une action en cours.'}],
+     modeles:[{hz:'我在看书呢。',py:'wǒ zài kàn shū ne',fr:'Je suis en train de lire.'},
+              {hz:'我正在做饭。',py:'wǒ zhèng zài zuò fàn',fr:'Je suis justement en train de faire la cuisine.'}],
+     criteres:['在 précède le verbe','L’objet suit le verbe','呢 est facultatif ; s’il est là, il ferme la phrase']},
+    {q:'Décrivez la pièce où vous êtes : deux choses ouvertes, fermées, allumées ou posées quelque part.',
+     verif:[{type:'contient',v:'着',msg:'L’état installé demande 着 après le verbe.'},
+            {type:'absent',v:'正在',msg:'正在 dit l’action qui se déroule, non l’état qui dure.'}],
+     modeles:[{hz:'窗户开着，灯也开着。',py:'chuāng hu kāi zhe, dēng yě kāi zhe',fr:'La fenêtre est ouverte et la lampe est allumée aussi.'},
+              {hz:'桌子上放着一本书。',py:'zhuō zi shang fàng zhe yì běn shū',fr:'Sur la table est posé un livre.'}],
+     criteres:['着 suit immédiatement le verbe','La phrase décrit un état, non une action','Aucun 在 devant le verbe']},
+    {q:'Dites ce que vous n’êtes pas en train de faire, puis ce que vous faites à la place.',
+     verif:[{type:'contient',v:'没',msg:'La négation de l’action en cours passe par 没.'},
+            {type:'contient',v:'在',msg:'Les deux phrases attendent 在 devant le verbe.'}],
+     modeles:[{hz:'我没在工作，我在休息。',py:'wǒ méi zài gōng zuò, wǒ zài xiū xi',fr:'Je ne travaille pas, je me repose.'},
+              {hz:'我没在看电视，我在学汉语。',py:'wǒ méi zài kàn diàn shì, wǒ zài xué Hàn yǔ',fr:'Je ne regarde pas la télévision, j’apprends le chinois.'}],
+     criteres:['没 précède 在','在 précède le verbe dans les deux phrases','Ni 了 ni 过 dans la phrase']}
+  ]
+},
+/* ------------------------------------------------------------------ */
+{
+  id:'g306', hsk:3, fam:'verbe', th:['quotidien','travail'],
+  title:'Le complément de résultat : ce que devient l’action',
+  resume:'Le chinois ne dit pas seulement ce qu’on fait, mais comment cela finit. Un second élément se soude au verbe et donne son issue : 看完, 听懂, 找到.',
+
+  steps:[
+    {
+      t:'Le principe — un bloc verbe + issue',
+      p:[
+        'Le verbe seul dit l’action, sans dire si elle a abouti. Un second élément vient se souder derrière lui et donne son <b>issue</b>.',
+        'Les deux forment un bloc que rien ne sépare : ni un objet, ni même 了.'
+      ],
+      ex:[
+        {hz:'我看书。',py:'wǒ kàn shū',fr:'Je lis.',
+         note:'L’action, sans son issue : rien ne dit que la lecture aboutit.'},
+        {hz:'我看完了这本书。',py:'wǒ kàn wán le zhè běn shū',fr:'J’ai fini de lire ce livre.',
+         note:'完 dit que la lecture est allée à son terme. 了 se pose après le bloc 看完.'}
+      ],
+      check:{q:'Où se place 了 ?',a:['我看了完这本书。','我看完了这本书。'],ok:1,
+             why:'Le verbe et son résultat forment un bloc : 了 se pose après, jamais entre les deux.'}
+    },
+    {
+      t:'Les résultats les plus courants',
+      p:[
+        'Quelques éléments reviennent sans cesse : <b>完</b> l’achèvement, <b>好</b> le bon achèvement, <b>到</b> l’atteinte, <b>懂</b> la compréhension, <b>见</b> la perception, <b>错</b> l’erreur.',
+        'Ce ne sont pas des adverbes mais de vrais verbes ou adjectifs, employés ici comme issue de l’action.'
+      ],
+      ex:[
+        {hz:'我找到了我的手机。',py:'wǒ zhǎo dào le wǒ de shǒu jī',fr:'J’ai retrouvé mon téléphone.',
+         note:'找 c’est chercher ; c’est 到 qui ajoute l’aboutissement.'},
+        {hz:'我听懂了。',py:'wǒ tīng dǒng le',fr:'J’ai compris.'},
+        {hz:'你说错了。',py:'nǐ shuō cuò le',fr:'Tu t’es trompé.'}
+      ],
+      check:{q:'找 employé seul veut dire :',a:['trouver','chercher'],ok:1,
+             why:'C’est 到 qui ajoute l’aboutissement : 找到, c’est trouver.'}
+    },
+    {
+      t:'La négation — 没, et le résultat reste',
+      p:[
+        'On nie avec <b>没</b> ou <b>没有</b> : l’action n’a pas abouti. Le complément de résultat, lui, <b>reste</b>, et 了 disparaît.',
+        'C’est exactement le mécanisme de 过 : ce qui est nié, c’est l’aboutissement, donc il doit rester visible.'
+      ],
+      ex:[
+        {hz:'我没看完这本书。',py:'wǒ méi kàn wán zhè běn shū',fr:'Je n’ai pas fini ce livre.'},
+        {hz:'我没听懂。',py:'wǒ méi tīng dǒng',fr:'Je n’ai pas compris.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我没看完了这本书。','我没看完这本书。'],ok:1,
+             why:'没 chasse 了, mais le complément de résultat demeure.'}
+    },
+    {
+      t:'La forme potentielle — 得 et 不 au milieu du bloc',
+      p:[
+        'Pour dire qu’un résultat est <b>possible ou impossible</b>, on glisse <b>得</b> ou <b>不</b> entre le verbe et son résultat.',
+        '看得懂, j’arrive à comprendre en lisant. 看不懂, je n’y arrive pas.',
+        'Ce n’est pas la même chose que 没看懂, qui constate un échec ponctuel : la forme potentielle parle d’une capacité.'
+      ],
+      ex:[
+        {hz:'这本书我看得懂。',py:'zhè běn shū wǒ kàn de dǒng',fr:'Ce livre, j’arrive à le lire.'},
+        {hz:'老师说得太快，我听不懂。',py:'lǎo shī shuō de tài kuài, wǒ tīng bu dǒng',fr:'Le professeur parle trop vite, je n’arrive pas à suivre.',
+         note:'Dans la forme potentielle, 不 se prononce au ton neutre : bu.'}
+      ],
+      check:{q:'« Je n’arrive pas à comprendre ce que je lis » se dit :',
+             a:['我没看懂。','我看不懂。'],ok:1,
+             why:'La forme potentielle parle d’une capacité ; 没 ne constaterait qu’un échec ponctuel.'}
+    },
+    {
+      t:'Le piège — un verbe français, plusieurs blocs chinois',
+      p:[
+        'Le français a des verbes distincts là où le chinois a un seul verbe et des issues différentes.',
+        '听 écouter · 听到 entendre, le son parvient · 听见 entendre, on le perçoit · 听懂 comprendre.',
+        'La faute la plus fréquente consiste à employer le verbe nu là où le français emploie un verbe d’aboutissement.'
+      ],
+      ex:[
+        {hz:'我听了，可是没听懂。',py:'wǒ tīng le, kě shì méi tīng dǒng',fr:'J’ai écouté, mais je n’ai pas compris.'},
+        {hz:'我看见他了。',py:'wǒ kàn jiàn tā le',fr:'Je l’ai vu.',
+         note:'看 seul dirait seulement que je regardais dans sa direction.'}
+      ],
+      check:{q:'« Je l’ai vu » se dit :',a:['我看他了。','我看见他了。'],ok:1,
+             why:'见 marque que la perception a abouti ; 看 seul ne dit que le regard.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Résultat','Ce qu’il ajoute','Exemple'],
+    rows:[
+      ['完','mené à son terme','我看完了 — j’ai fini de lire'],
+      ['好','achevé comme il faut','饭做好了 — le repas est prêt'],
+      ['到','atteint, obtenu','我找到了 — j’ai trouvé'],
+      ['懂','compris','我听懂了 — j’ai compris'],
+      ['见','perçu','我看见他了 — je l’ai vu'],
+      ['错','de travers','你说错了 — tu t’es trompé']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我没看完了这本书。',py:'wǒ méi kàn wán le zhè běn shū'},
+    good:{hz:'我没看完这本书。',py:'wǒ méi kàn wán zhè běn shū'},
+    why:'没 et 了 ne cohabitent jamais. Le complément de résultat, lui, reste en place : c’est lui qui porte l’aboutissement, et c’est précisément cet aboutissement que 没 vient nier.'
+  },
+
+  voir:['g303','g302'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'了',p:'le'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],cle:2,fr:'J’ai fini de lire ce livre.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'找',p:'zhǎo'},{h:'到',p:'dào'},{h:'了',p:'le'},{h:'我',p:'wǒ'},{h:'的',p:'de'},{h:'手机',p:'shǒu jī'},P('。')],cle:2,fr:'J’ai retrouvé mon téléphone.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'听',p:'tīng'},{h:'懂',p:'dǒng'},{h:'了',p:'le'},P('。')],cle:2,fr:'J’ai compris.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'说',p:'shuō'},{h:'错',p:'cuò'},{h:'了',p:'le'},P('。')],cle:2,fr:'Tu t’es trompé.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'见',p:'jiàn'},{h:'他',p:'tā'},{h:'了',p:'le'},P('。')],cle:2,fr:'Je l’ai vu.'},
+    {seg:[{h:'饭',p:'fàn'},{h:'做',p:'zuò'},{h:'好',p:'hǎo'},{h:'了',p:'le'},P('。')],cle:2,fr:'Le repas est prêt.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],cle:3,fr:'Je n’ai pas fini ce livre.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'听',p:'tīng'},{h:'懂',p:'dǒng'},P('。')],cle:3,fr:'Je n’ai pas compris.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'听',p:'tīng'},{h:'见',p:'jiàn'},{h:'了',p:'le'},{h:'吗',p:'ma'},P('？')],cle:2,fr:'Tu as entendu ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'找',p:'zhǎo'},{h:'到',p:'dào'},{h:'我',p:'wǒ'},{h:'的',p:'de'},{h:'手机',p:'shǒu jī'},P('。')],cle:3,fr:'Je n’ai pas retrouvé mon téléphone.'},
+    {seg:[{h:'作业',p:'zuò yè'},{h:'我',p:'wǒ'},{h:'写',p:'xiě'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],cle:3,fr:'Mes devoirs, je les ai finis.'},
+    {seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'做',p:'zuò'},{h:'好',p:'hǎo'},{h:'这个',p:'zhè ge'},{h:'工作',p:'gōng zuò'},P('。')],cle:3,fr:'Il n’a pas bien fait ce travail.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'买',p:'mǎi'},{h:'到',p:'dào'},{h:'票',p:'piào'},{h:'了',p:'le'},P('。')],cle:2,fr:'J’ai réussi à avoir un billet.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'写',p:'xiě'},{h:'错',p:'cuò'},{h:'了',p:'le'},{h:'一个',p:'yí ge'},{h:'字',p:'zì'},P('。')],cle:2,fr:'Tu as écrit un caractère de travers.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'听',p:'tīng'},{h:'了',p:'le'},P('，'),{h:'可是',p:'kě shì'},{h:'没',p:'méi'},{h:'听',p:'tīng'},{h:'懂',p:'dǒng'},P('。')],cle:7,fr:'J’ai écouté, mais je n’ai pas compris.'}
+  ],
+  leurres:['完','到','懂','见','错','好','了','没'],
+
+  gabarits:[
+    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{s:'r'},{h:'了',p:'le'},P('。')],
+     fr:'J’ai …', lie:[['v','r']],
+     listes:{v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'找',p:'zhǎo',fr:'chercher'},{h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'faire'}],
+             r:[{h:'完',p:'wán',fr:'fini de'},{h:'懂',p:'dǒng',fr:'et compris'},
+                {h:'到',p:'dào',fr:'et trouvé'},{h:'完',p:'wán',fr:'fini de'},{h:'好',p:'hǎo',fr:'comme il faut'}]}},
+    {cadre:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{s:'v'},{s:'r'},P('。')],
+     fr:'Je n’ai pas …', lie:[['v','r']],
+     listes:{v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'找',p:'zhǎo',fr:'chercher'},{h:'做',p:'zuò',fr:'faire'}],
+             r:[{h:'完',p:'wán',fr:'fini de'},{h:'懂',p:'dǒng',fr:'et compris'},
+                {h:'到',p:'dào',fr:'et trouvé'},{h:'好',p:'hǎo',fr:'comme il faut'}]}},
+    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{s:'d'},{h:'懂',p:'dǒng'},P('。')],
+     fr:'J’arrive / je n’arrive pas à comprendre …', lie:[['v','d']],
+     listes:{v:[{h:'看',p:'kàn',fr:'en lisant'},{h:'看',p:'kàn',fr:'en lisant'},
+                {h:'听',p:'tīng',fr:'en écoutant'},{h:'听',p:'tīng',fr:'en écoutant'}],
+             d:[{h:'得',p:'de',fr:'j’y arrive'},{h:'不',p:'bu',fr:'je n’y arrive pas'},
+                {h:'得',p:'de',fr:'j’y arrive'},{h:'不',p:'bu',fr:'je n’y arrive pas'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Ajoutez le résultat 完',
+     de:{hz:'我看了这本书。',py:'wǒ kàn le zhè běn shū',fr:'J’ai lu ce livre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'了',p:'le'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],fr:'J’ai fini de lire ce livre.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我看完了这本书。',py:'wǒ kàn wán le zhè běn shū',fr:'J’ai fini de lire ce livre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],fr:'Je n’ai pas fini ce livre.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我听懂了。',py:'wǒ tīng dǒng le',fr:'J’ai compris.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'听',p:'tīng'},{h:'懂',p:'dǒng'},P('。')],fr:'Je n’ai pas compris.'}},
+    {consigne:'Passez à la forme potentielle négative',
+     de:{hz:'我没听懂。',py:'wǒ méi tīng dǒng',fr:'Je n’ai pas compris.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'听',p:'tīng'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},P('。')],fr:'Je n’arrive pas à comprendre.'}},
+    {consigne:'Passez à la forme potentielle affirmative',
+     de:{hz:'我听不懂。',py:'wǒ tīng bu dǒng',fr:'Je n’arrive pas à comprendre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'听',p:'tīng'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},P('。')],fr:'J’arrive à comprendre.'}},
+    {consigne:'Ajoutez le résultat 到',
+     de:{hz:'我找我的手机。',py:'wǒ zhǎo wǒ de shǒu jī',fr:'Je cherche mon téléphone.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'找',p:'zhǎo'},{h:'到',p:'dào'},{h:'了',p:'le'},{h:'我',p:'wǒ'},{h:'的',p:'de'},{h:'手机',p:'shǒu jī'},P('。')],fr:'J’ai retrouvé mon téléphone.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'了',p:'le'},{h:'完',p:'wán'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],bad:2,
+     bon:'我看完了这本书。',why:'Le verbe et son résultat forment un bloc : 了 se pose après, jamais entre les deux.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'了',p:'le'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],bad:4,
+     bon:'我没看完这本书。',why:'没 chasse 了 ; le complément de résultat, lui, reste en place.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不',p:'bù'},{h:'听',p:'tīng'},{h:'懂',p:'dǒng'},P('。')],bad:1,
+     bon:'我没听懂。',why:'Un résultat qui n’a pas abouti se nie avec 没. 不 exprimerait un refus.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'听',p:'tīng'},{h:'懂',p:'dǒng'},{h:'不',p:'bù'},P('。')],bad:3,
+     bon:'我听不懂。',why:'Dans la forme potentielle, 不 se glisse entre le verbe et son résultat.'},
+    {seg:[{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'得',p:'de'},{h:'不',p:'bù'},{h:'懂',p:'dǒng'},P('。')],bad:4,
+     bon:'这本书我看不懂。',why:'得 et 不 ne se cumulent pas : l’un dit que le résultat est possible, l’autre qu’il ne l’est pas.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'找',p:'zhǎo'},{h:'我',p:'wǒ'},{h:'的',p:'de'},{h:'手机',p:'shǒu jī'},P('。')],bad:2,
+     bon:'我没找到我的手机。',why:'找 seul ne dit que la recherche. Pour l’aboutissement — trouver — il faut 到.'}
+  ],
+
+  reemploi:[
+    {q:'Dites une chose que vous avez terminée aujourd’hui et une chose que vous n’avez pas terminée.',
+     verif:[{type:'contient',v:'完',msg:'L’achèvement demande le résultat 完.'},
+            {type:'contient',v:'没',msg:'La partie négative attend 没.'}],
+     modeles:[{hz:'我看完了一本书，没写完作业。',py:'wǒ kàn wán le yì běn shū, méi xiě wán zuò yè',fr:'J’ai fini un livre et je n’ai pas fini mes devoirs.'},
+              {hz:'今天我做完了工作，可是没看完这本书。',py:'jīn tiān wǒ zuò wán le gōng zuò, kě shì méi kàn wán zhè běn shū',fr:'Aujourd’hui j’ai fini mon travail, mais je n’ai pas fini ce livre.'}],
+     criteres:['完 est collé au verbe, sans rien entre les deux','了 se pose après le bloc verbe + résultat','La phrase négative emploie 没 et perd son 了']},
+    {q:'Dites ce que vous arrivez à comprendre en chinois, et ce que vous n’arrivez pas à comprendre.',
+     verif:[{type:'contient',v:'得',msg:'La capacité s’exprime avec 得 entre le verbe et son résultat.'},
+            {type:'contient',v:'不',msg:'L’incapacité s’exprime avec 不 à la même place.'}],
+     modeles:[{hz:'我看得懂汉字，可是听不懂。',py:'wǒ kàn de dǒng Hàn zì, kě shì tīng bu dǒng',fr:'J’arrive à lire les caractères, mais pas à comprendre à l’oreille.'},
+              {hz:'老师说的我听得懂，电影我听不懂。',py:'lǎo shī shuō de wǒ tīng de dǒng, diàn yǐng wǒ tīng bu dǒng',fr:'Ce que dit le professeur, je le comprends ; les films, non.'}],
+     criteres:['得 et 不 sont entre le verbe et son résultat','Aucun 没 : il s’agit d’une capacité, non d’un échec ponctuel','Le résultat 懂 reste dans les deux phrases']},
+    {q:'Vous cherchiez quelque chose. Dites si vous l’avez trouvé, avec le résultat 到.',
+     verif:[{type:'contient',v:'到',msg:'L’aboutissement de la recherche demande 到.'},
+            {type:'contient',v:'找',msg:'On attend le verbe 找.'}],
+     modeles:[{hz:'我找到了我的手机。',py:'wǒ zhǎo dào le wǒ de shǒu jī',fr:'J’ai retrouvé mon téléphone.'},
+              {hz:'我没找到我的钥匙。',py:'wǒ méi zhǎo dào wǒ de yào shi',fr:'Je n’ai pas retrouvé mes clés.'}],
+     criteres:['到 est collé au verbe 找','Si la phrase est affirmative, 了 suit le bloc','Si elle est négative, 没 est là et 了 a disparu']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g307', hsk:3, fam:'phrase', th:['logement','quotidien'],
+  title:'把 : dire ce qu’on fait subir à un objet',
+  resume:'把 avance l’objet devant le verbe pour dire non pas ce qu’on fait, mais ce que cet objet devient : déplacé, terminé, rangé, transformé.',
+
+  steps:[
+    {
+      t:'Quand l’employer',
+      p:[
+        'La phrase ordinaire dit ce que fait le sujet. La phrase en <b>把</b> dit ce que l’objet <b>devient</b> : où il finit, dans quel état il se retrouve.',
+        'Deux conditions, toujours réunies : l’objet est <b>connu et déterminé</b> — celui-là, le mien, ce livre-ci — et la phrase raconte son sort.'
+      ],
+      ex:[
+        {hz:'我吃了那个面包。',py:'wǒ chī le nà ge miàn bāo',fr:'J’ai mangé ce pain.',
+         note:'Phrase ordinaire : ce que j’ai fait.'},
+        {hz:'我把那个面包吃了。',py:'wǒ bǎ nà ge miàn bāo chī le',fr:'Ce pain, je l’ai mangé.',
+         note:'Phrase en 把 : ce qu’il est devenu.'}
+      ],
+      check:{q:'把 s’emploie quand :',
+             a:['l’objet est un objet quelconque','l’objet est connu et la phrase dit son sort'],ok:1,
+             why:'把 exige un objet déterminé et un verbe qui dit ce qu’il devient.'}
+    },
+    {
+      t:'Le moule — et le verbe qui ne reste jamais nu',
+      p:[
+        'L’ordre est fixe : <b>sujet + 把 + objet + verbe + complément</b>.',
+        'Le verbe ne reste <b>jamais nu</b>. Il lui faut toujours quelque chose derrière lui : c’est là toute la difficulté de la construction.'
+      ],
+      ex:[
+        {hz:'我把书放在桌子上。',py:'wǒ bǎ shū fàng zài zhuō zi shang',fr:'J’ai posé le livre sur la table.'},
+        {hz:'请把门关上。',py:'qǐng bǎ mén guān shang',fr:'Ferme la porte, s’il te plaît.',
+         note:'上 est le complément qui achève le verbe.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我把书放。','我把书放在桌子上。'],ok:1,
+             why:'Après 把, le verbe ne peut pas rester nu : il lui faut un complément.'}
+    },
+    {
+      t:'Ce qui peut occuper la place du complément',
+      p:[
+        'Cinq possibilités, toutes déjà connues : <b>了</b>, un <b>complément de résultat</b>, <b>给</b> suivi d’une personne, <b>在</b> ou <b>到</b> suivis d’un lieu, ou une direction.',
+        'C’est ici que la fiche précédente sert : la plupart des phrases en 把 se terminent par un résultatif.'
+      ],
+      ex:[
+        {hz:'我把作业写完了。',py:'wǒ bǎ zuò yè xiě wán le',fr:'J’ai fini mes devoirs.',
+         note:'Le résultat 完, puis 了 après le bloc.'},
+        {hz:'我把这本书给他了。',py:'wǒ bǎ zhè běn shū gěi tā le',fr:'Je lui ai donné ce livre.'},
+        {hz:'他把车开到了机场。',py:'tā bǎ chē kāi dào le jī chǎng',fr:'Il a conduit la voiture jusqu’à l’aéroport.'}
+      ],
+      check:{q:'Dans 我把作业写完了, qu’est-ce qui remplit la place du complément ?',
+             a:['了 tout seul','le résultat 完, suivi de 了'],ok:1,
+             why:'C’est 完 qui dit ce que les devoirs sont devenus ; 了 ne vient qu’après le bloc.'}
+    },
+    {
+      t:'Négation et auxiliaires — devant 把',
+      p:[
+        '不, 没, 想, 要, 能 se placent <b>devant 把</b>, jamais devant le verbe.',
+        'C’est logique : ils portent sur toute la phrase, non sur le seul verbe, qui est déjà pris dans son bloc.'
+      ],
+      ex:[
+        {hz:'我没把作业写完。',py:'wǒ méi bǎ zuò yè xiě wán',fr:'Je n’ai pas fini mes devoirs.',
+         note:'没 devant 把 ; le résultat 完 reste, 了 disparaît.'},
+        {hz:'我想把这本书给他。',py:'wǒ xiǎng bǎ zhè běn shū gěi tā',fr:'Je voudrais lui donner ce livre.'}
+      ],
+      check:{q:'Où se place 没 ?',a:['我把作业没写完。','我没把作业写完。'],ok:1,
+             why:'La négation précède 把 ; elle ne se glisse pas devant le verbe.'}
+    },
+    {
+      t:'Les deux pièges',
+      p:[
+        'Premier piège : l’objet doit être <b>déterminé</b>. 我把一本书看完了 est faux — un livre quelconque n’a pas de sort à raconter.',
+        'Second piège : 把 refuse les verbes qui ne font <b>rien subir</b> à leur objet — perception, sentiment, état : 看见, 喜欢, 知道, 是, 有.',
+        'Le test est simple : si l’objet ne change ni de place ni d’état, 把 est hors de propos.'
+      ],
+      ex:[
+        {hz:'我把这本书看完了。',py:'wǒ bǎ zhè běn shū kàn wán le',fr:'Ce livre, je l’ai fini.',
+         note:'这本 le détermine, et 看完 le mène à son terme : la phrase est juste.'},
+        {hz:'我看见他了。',py:'wǒ kàn jiàn tā le',fr:'Je l’ai vu.',
+         note:'Aucun 把 possible : le regard ne fait rien subir.'}
+      ],
+      check:{q:'Laquelle est possible ?',a:['我把他看见了。','我把这本书看完了。'],ok:1,
+             why:'看见 ne fait rien subir à son objet ; 看完, lui, le mène à son terme.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Ce qui ferme le verbe','Exemple','Traduction'],
+    rows:[
+      ['了','我把面包吃了','Ce pain, je l’ai mangé'],
+      ['un résultat','我把作业写完了','J’ai fini mes devoirs'],
+      ['给 + personne','我把书给他了','Je lui ai donné le livre'],
+      ['在 / 到 + lieu','我把书放在桌子上','J’ai posé le livre sur la table'],
+      ['une direction','请把门关上','Ferme la porte'],
+      ['Négation','我没把作业写完','Je n’ai pas fini mes devoirs']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我把书放。',py:'wǒ bǎ shū fàng'},
+    good:{hz:'我把书放在桌子上。',py:'wǒ bǎ shū fàng zài zhuō zi shang'},
+    why:'Après 把, le verbe ne reste jamais nu. La phrase a promis de dire ce que l’objet devient : il lui faut donc un complément — un lieu, un résultat, une direction, ou au minimum 了.'
+  },
+
+  voir:['g306','g303'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'那个',p:'nà ge'},{h:'面包',p:'miàn bāo'},{h:'吃',p:'chī'},{h:'了',p:'le'},P('。')],cle:1,fr:'Ce pain, je l’ai mangé.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'书',p:'shū'},{h:'放',p:'fàng'},{h:'在',p:'zài'},{h:'桌子',p:'zhuō zi'},{h:'上',p:'shang'},P('。')],cle:1,fr:'J’ai posé le livre sur la table.'},
+    {seg:[{h:'请',p:'qǐng'},{h:'把',p:'bǎ'},{h:'门',p:'mén'},{h:'关',p:'guān'},{h:'上',p:'shang'},P('。')],cle:1,fr:'Ferme la porte, s’il te plaît.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'作业',p:'zuò yè'},{h:'写',p:'xiě'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],cle:4,fr:'J’ai fini mes devoirs.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'给',p:'gěi'},{h:'他',p:'tā'},{h:'了',p:'le'},P('。')],cle:4,fr:'Je lui ai donné ce livre.'},
+    {seg:[{h:'他',p:'tā'},{h:'把',p:'bǎ'},{h:'车',p:'chē'},{h:'开',p:'kāi'},{h:'到',p:'dào'},{h:'了',p:'le'},{h:'机场',p:'jī chǎng'},P('。')],cle:4,fr:'Il a conduit la voiture jusqu’à l’aéroport.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'把',p:'bǎ'},{h:'作业',p:'zuò yè'},{h:'写',p:'xiě'},{h:'完',p:'wán'},P('。')],cle:1,fr:'Je n’ai pas fini mes devoirs.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'把',p:'bǎ'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'给',p:'gěi'},{h:'他',p:'tā'},P('。')],cle:2,fr:'Je voudrais lui donner ce livre.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'把',p:'bǎ'},{h:'那个',p:'nà ge'},{h:'字',p:'zì'},{h:'写',p:'xiě'},{h:'错',p:'cuò'},{h:'了',p:'le'},P('。')],cle:1,fr:'Tu as écrit ce caractère de travers.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],cle:5,fr:'Ce livre, je l’ai fini.'},
+    {seg:[{h:'请',p:'qǐng'},{h:'把',p:'bǎ'},{h:'手机',p:'shǒu jī'},{h:'放',p:'fàng'},{h:'在',p:'zài'},{h:'这儿',p:'zhèr'},P('。')],cle:4,fr:'Pose ton téléphone ici.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'咖啡',p:'kā fēi'},{h:'喝',p:'hē'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],cle:4,fr:'J’ai fini mon café.'},
+    {seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'把',p:'bǎ'},{h:'门',p:'mén'},{h:'关',p:'guān'},{h:'上',p:'shang'},P('。')],cle:1,fr:'Il n’a pas fermé la porte.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'钱',p:'qián'},{h:'给',p:'gěi'},{h:'你',p:'nǐ'},P('。')],cle:3,fr:'Je te donne l’argent.'}
+  ],
+  leurres:['把','了','完','在','给','没','到'],
+
+  gabarits:[
+    {cadre:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{s:'o'},{s:'v'},{h:'了',p:'le'},P('。')],
+     fr:'…, je l’ai …', lie:[['o','v']],
+     listes:{o:[{h:'那个面包',p:'nà ge miàn bāo',fr:'ce pain'},{h:'咖啡',p:'kā fēi',fr:'le café'},
+                {h:'茶',p:'chá',fr:'le thé'},{h:'饭',p:'fàn',fr:'le repas'}],
+             v:[{h:'吃',p:'chī',fr:'mangé'},{h:'喝',p:'hē',fr:'bu'},
+                {h:'喝',p:'hē',fr:'bu'},{h:'吃',p:'chī',fr:'mangé'}]}},
+    {cadre:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{s:'o'},{s:'v'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],
+     fr:'J’ai fini de … …', lie:[['o','v']],
+     listes:{o:[{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},
+                {h:'咖啡',p:'kā fēi',fr:'le café'},{h:'工作',p:'gōng zuò',fr:'le travail'}],
+             v:[{h:'写',p:'xiě',fr:'écrire'},{h:'看',p:'kàn',fr:'lire'},
+                {h:'喝',p:'hē',fr:'boire'},{h:'做',p:'zuò',fr:'faire'}]}},
+    {cadre:[{h:'请',p:'qǐng'},{h:'把',p:'bǎ'},{s:'o'},{h:'放',p:'fàng'},{h:'在',p:'zài'},{s:'l'},P('。')],
+     fr:'Pose … …', lie:[['o','l']],
+     listes:{o:[{h:'书',p:'shū',fr:'le livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},
+                {h:'钱',p:'qián',fr:'l’argent'},{h:'咖啡',p:'kā fēi',fr:'le café'}],
+             l:[{h:'桌子上',p:'zhuō zi shang',fr:'sur la table'},{h:'这儿',p:'zhèr',fr:'ici'},
+                {h:'那儿',p:'nàr',fr:'là'},{h:'桌子上',p:'zhuō zi shang',fr:'sur la table'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Récrivez avec 把',
+     de:{hz:'我吃了那个面包。',py:'wǒ chī le nà ge miàn bāo',fr:'J’ai mangé ce pain.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'那个',p:'nà ge'},{h:'面包',p:'miàn bāo'},{h:'吃',p:'chī'},{h:'了',p:'le'},P('。')],fr:'Ce pain, je l’ai mangé.'}},
+    {consigne:'Récrivez avec 把',
+     de:{hz:'我写完了作业。',py:'wǒ xiě wán le zuò yè',fr:'J’ai fini mes devoirs.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'作业',p:'zuò yè'},{h:'写',p:'xiě'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],fr:'J’ai fini mes devoirs.'}},
+    {consigne:'Récrivez avec 把',
+     de:{hz:'他开车到了机场。',py:'tā kāi chē dào le jī chǎng',fr:'Il est allé en voiture jusqu’à l’aéroport.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'把',p:'bǎ'},{h:'车',p:'chē'},{h:'开',p:'kāi'},{h:'到',p:'dào'},{h:'了',p:'le'},{h:'机场',p:'jī chǎng'},P('。')],fr:'Il a conduit la voiture jusqu’à l’aéroport.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我把作业写完了。',py:'wǒ bǎ zuò yè xiě wán le',fr:'J’ai fini mes devoirs.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'把',p:'bǎ'},{h:'作业',p:'zuò yè'},{h:'写',p:'xiě'},{h:'完',p:'wán'},P('。')],fr:'Je n’ai pas fini mes devoirs.'}},
+    {consigne:'Exprimez le souhait avec 想',
+     de:{hz:'我把这本书给他。',py:'wǒ bǎ zhè běn shū gěi tā',fr:'Je lui donne ce livre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'把',p:'bǎ'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'给',p:'gěi'},{h:'他',p:'tā'},P('。')],fr:'Je voudrais lui donner ce livre.'}},
+    {consigne:'Ajoutez le lieu 在桌子上',
+     de:{hz:'我把书放好了。',py:'wǒ bǎ shū fàng hǎo le',fr:'J’ai rangé le livre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'书',p:'shū'},{h:'放',p:'fàng'},{h:'在',p:'zài'},{h:'桌子',p:'zhuō zi'},{h:'上',p:'shang'},P('。')],fr:'J’ai posé le livre sur la table.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'书',p:'shū'},{h:'放',p:'fàng'},P('。')],bad:3,
+     bon:'我把书放在桌子上。',why:'Après 把, le verbe ne reste jamais nu : il lui faut un complément.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'作业',p:'zuò yè'},{h:'没',p:'méi'},{h:'写',p:'xiě'},{h:'完',p:'wán'},P('。')],bad:3,
+     bon:'我没把作业写完。',why:'La négation se place devant 把, jamais devant le verbe.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'一本',p:'yì běn'},{h:'书',p:'shū'},{h:'看',p:'kàn'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],bad:2,
+     bon:'我把这本书看完了。',why:'L’objet d’une phrase en 把 doit être déterminé : un livre quelconque n’a pas de sort à raconter.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'他',p:'tā'},{h:'看',p:'kàn'},{h:'见',p:'jiàn'},{h:'了',p:'le'},P('。')],bad:1,
+     bon:'我看见他了。',why:'把 refuse les verbes de perception : le regard ne fait rien subir à son objet.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{h:'吃',p:'chī'},{h:'了',p:'le'},{h:'那个',p:'nà ge'},{h:'面包',p:'miàn bāo'},P('。')],bad:2,
+     bon:'我把那个面包吃了。',why:'Dans le moule 把, l’objet vient avant le verbe, jamais après.'},
+    {seg:[{h:'请',p:'qǐng'},{h:'门',p:'mén'},{h:'把',p:'bǎ'},{h:'关',p:'guān'},{h:'上',p:'shang'},P('。')],bad:1,
+     bon:'请把门关上。',why:'把 précède l’objet : c’est lui qui l’avance devant le verbe.'}
+  ],
+
+  reemploi:[
+    {q:'Vous rangez la pièce. Dites où vous posez deux objets, avec 把.',
+     verif:[{type:'contient',v:'把',msg:'On attend la construction en 把.'},
+            {type:'contient',v:'在',msg:'Le verbe doit être suivi d’un complément de lieu : 在 ou 到.'}],
+     modeles:[{hz:'我把书放在桌子上，把手机放在这儿。',py:'wǒ bǎ shū fàng zài zhuō zi shang, bǎ shǒu jī fàng zài zhèr',fr:'Je pose le livre sur la table et le téléphone ici.'},
+              {hz:'请把咖啡放在桌子上。',py:'qǐng bǎ kā fēi fàng zài zhuō zi shang',fr:'Pose le café sur la table.'}],
+     criteres:['把 précède l’objet, qui précède le verbe','Le verbe est suivi d’un complément de lieu','L’objet est déterminé, non un objet quelconque']},
+    {q:'Dites une chose que vous avez terminée aujourd’hui, avec 把 et un complément de résultat.',
+     verif:[{type:'contient',v:'把',msg:'On attend la construction en 把.'},
+            {type:'contient',v:'完',msg:'L’achèvement demande le résultat 完.'}],
+     modeles:[{hz:'我把作业写完了。',py:'wǒ bǎ zuò yè xiě wán le',fr:'J’ai fini mes devoirs.'},
+              {hz:'今天我把这本书看完了。',py:'jīn tiān wǒ bǎ zhè běn shū kàn wán le',fr:'Aujourd’hui j’ai fini ce livre.'}],
+     criteres:['把 avance l’objet devant le verbe','完 est collé au verbe','了 vient après le bloc verbe + résultat']},
+    {q:'Dites ce que vous n’avez pas réussi à finir, avec 把 à la forme négative.',
+     verif:[{type:'contient',v:'把',msg:'On attend la construction en 把.'},
+            {type:'contient',v:'没',msg:'La négation se fait avec 没, placé devant 把.'},
+            {type:'absent',v:'了',msg:'À la forme négative, 了 disparaît.'}],
+     modeles:[{hz:'我没把工作做完。',py:'wǒ méi bǎ gōng zuò zuò wán',fr:'Je n’ai pas fini mon travail.'},
+              {hz:'昨天我没把这本书看完。',py:'zuó tiān wǒ méi bǎ zhè běn shū kàn wán',fr:'Hier, je n’ai pas fini ce livre.'}],
+     criteres:['没 se place devant 把','Le complément de résultat reste en place','了 a disparu']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g308', hsk:3, fam:'verbe', th:['quotidien','logement'],
+  title:'Les compléments de direction : 来, 去 et les composés',
+  resume:'Le chinois ne dit pas seulement l’action : il ajoute le trajet qu’elle suit, et le point de vue depuis lequel on la regarde.',
+
+  steps:[
+    {
+      t:'来 et 去 — où se tient celui qui parle',
+      p:[
+        'Le français dit « entrer » et s’arrête là. Le chinois demande une chose de plus : le mouvement vient-il <b>vers celui qui parle</b>, ou s’en éloigne-t-il ?',
+        '<b>来</b> marque le mouvement qui se rapproche du locuteur, <b>去</b> celui qui s’en éloigne. Ils se collent derrière le trajet.'
+      ],
+      ex:[
+        {hz:'他进来了。',py:'tā jìn lái le',fr:'Il est entré.',
+         note:'Je suis dans la pièce : il vient vers moi.'},
+        {hz:'他进去了。',py:'tā jìn qù le',fr:'Il est entré.',
+         note:'Je suis dehors : il s’éloigne de moi. Le français ne fait pas cette différence.'}
+      ],
+      check:{q:'Vous êtes dans le bureau, votre collègue y entre. Vous dites :',
+             a:['他进去了。','他进来了。'],ok:1,
+             why:'Le mouvement vient vers vous : c’est 来.'}
+    },
+    {
+      t:'Les sept trajets',
+      p:[
+        'Sept caractères disent le trajet : <b>进</b> entrer, <b>出</b> sortir, <b>上</b> monter, <b>下</b> descendre, <b>回</b> rentrer, <b>过</b> passer, <b>起</b> se lever.',
+        'Chacun se combine avec 来 ou 去 : il n’y a pas quatorze mots à mémoriser, mais un trajet à choisir puis un point de vue. Seul <b>起</b> fait exception : il n’admet que 来.'
+      ],
+      ex:[
+        {hz:'我回来了。',py:'wǒ huí lái le',fr:'Je suis rentrée.',
+         note:'Ce qu’on dit en franchissant sa propre porte.'},
+        {hz:'他上去了。',py:'tā shàng qù le',fr:'Il est monté.',
+         note:'Je reste en bas : il s’éloigne.'},
+        {hz:'她站起来了。',py:'tā zhàn qǐ lái le',fr:'Elle s’est levée.',
+         note:'起 ne se combine jamais avec 去.'}
+      ],
+      check:{q:'Peut-on dire 起去 ?',a:['Oui, comme 上去','Non, 起 n’admet que 来'],ok:1,
+             why:'起 est le seul trajet à ne connaître qu’une seule combinaison : 起来.'}
+    },
+    {
+      t:'Greffer le trajet sur un verbe d’action',
+      p:[
+        'Jusqu’ici le verbe disait déjà le déplacement. Mais le trajet peut se greffer sur n’importe quel verbe d’action : <b>verbe + trajet + 来/去</b>.',
+        'Trois informations en un seul bloc : le verbe dit ce qu’on fait, le trajet dit où cela va, 来/去 dit de quel côté on se tient.'
+      ],
+      ex:[
+        {hz:'他拿出来一本书。',py:'tā ná chū lái yì běn shū',fr:'Il a sorti un livre.',
+         note:'拿 l’action, 出 le trajet, 来 le point de vue : le livre vient vers moi.'},
+        {hz:'我带回来一些水果。',py:'wǒ dài huí lái yì xiē shuǐ guǒ',fr:'J’ai rapporté des fruits.'},
+        {hz:'他走进来了。',py:'tā zǒu jìn lái le',fr:'Il est entré.',
+         note:'走 précise qu’il est entré à pied, sans se presser.'}
+      ],
+      check:{q:'Dans 拿出来, que dit 出 ?',a:['l’action','le trajet'],ok:1,
+             why:'拿 dit l’action, 出 dit le trajet, 来 dit le point de vue.'}
+    },
+    {
+      t:'La place de l’objet',
+      p:[
+        'Un objet qui désigne une <b>chose</b> a deux places possibles : après le bloc entier, ou à l’intérieur, juste avant 来/去. 拿出来一本书 et 拿出一本书来 se disent aussi bien l’un que l’autre.',
+        'Un objet qui désigne un <b>lieu</b> n’a pas le choix : il se place toujours <b>avant 来/去</b>. C’est le point que le français fait rater, parce qu’il place le lieu à la fin.'
+      ],
+      ex:[
+        {hz:'他拿出一本书来。',py:'tā ná chū yì běn shū lái',fr:'Il a sorti un livre.',
+         note:'Même phrase que 拿出来一本书, l’objet ayant simplement changé de place.'},
+        {hz:'他走进教室来了。',py:'tā zǒu jìn jiào shì lái le',fr:'Il est entré dans la salle de classe.',
+         note:'教室 est un lieu : il se glisse obligatoirement avant 来.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['他走进来教室了。','他走进教室来了。'],ok:1,
+             why:'Un objet de lieu se place toujours avant 来 ou 去, jamais après.'}
+    },
+    {
+      t:'La négation et le 了',
+      p:[
+        '<b>了</b> se place après le bloc entier, jamais à l’intérieur : 他进来<b>了</b>, et non 他进了来.',
+        'La négation se fait avec <b>没</b>, posé devant le verbe — donc devant tout le bloc — et le 了 disparaît, comme partout ailleurs.'
+      ],
+      ex:[
+        {hz:'他没回来。',py:'tā méi huí lái',fr:'Il n’est pas rentré.',
+         note:'没 devant le bloc, et plus de 了.'},
+        {hz:'我没带回来水果。',py:'wǒ méi dài huí lái shuǐ guǒ',fr:'Je n’ai pas rapporté de fruits.'}
+      ],
+      check:{q:'Où se place 了 ?',a:['他进了来。','他进来了。'],ok:1,
+             why:'了 vient après le bloc complet : le trajet et le point de vue ne se séparent pas.'}
+    },
+    {
+      t:'Ce que le français fond, le chinois l’articule',
+      p:[
+        'Le français a un verbe unique pour chaque trajet — entrer, sortir, monter, rapporter — et ne dit ni comment ni de quel côté. Le chinois articule toujours les trois.',
+        'Conséquence directe : un trajet ne se tient jamais seul devant un objet. 他出书 ne veut rien dire ; il faut un verbe d’action devant, 他拿出来一本书.',
+        'À ne pas confondre avec le complément de résultat de la fiche précédente : 看完 dit que la lecture est <b>achevée</b>, 拿出来 dit que la chose a <b>bougé</b>.'
+      ],
+      ex:[
+        {hz:'他拿出来一本书。',py:'tā ná chū lái yì běn shū',fr:'Il a sorti un livre.',
+         note:'拿 porte l’action ; 出来 ne fait que dire où elle mène.'},
+        {hz:'他看完了那本书。',py:'tā kàn wán le nà běn shū',fr:'Il a fini ce livre.',
+         note:'完 est un résultat, pas un trajet : rien n’a bougé.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['他出一本书。','他拿出一本书来。'],ok:1,
+             why:'Le trajet 出 ne peut pas porter l’action tout seul : il lui faut un verbe devant.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Trajet','Vers celui qui parle','Loin de celui qui parle'],
+    rows:[
+      ['进 entrer','进来','进去'],
+      ['出 sortir','出来','出去'],
+      ['上 monter','上来','上去'],
+      ['下 descendre','下来','下去'],
+      ['回 rentrer','回来','回去'],
+      ['过 passer','过来','过去'],
+      ['起 se lever','起来','—']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'他走进来教室了。',py:'tā zǒu jìn lái jiào shì le'},
+    good:{hz:'他走进教室来了。',py:'tā zǒu jìn jiào shì lái le'},
+    why:'Le français place le lieu à la fin — « il est entré dans la salle » — et l’on transpose sans y penser. En chinois, un objet de lieu se glisse toujours à l’intérieur du bloc, avant 来 ou 去.'
+  },
+
+  voir:['g306','g307'],
+
+  banque:[
+    {seg:[{h:'他',p:'tā'},{h:'进来',p:'jìn lái'},{h:'了',p:'le'},P('。')],cle:1,fr:'Il est entré (il vient vers moi).'},
+    {seg:[{h:'他',p:'tā'},{h:'进去',p:'jìn qù'},{h:'了',p:'le'},P('。')],cle:1,fr:'Il est entré (il s’éloigne de moi).'},
+    {seg:[{h:'我',p:'wǒ'},{h:'回来',p:'huí lái'},{h:'了',p:'le'},P('。')],cle:1,fr:'Je suis rentrée.'},
+    {seg:[{h:'他',p:'tā'},{h:'拿',p:'ná'},{h:'出来',p:'chū lái'},{h:'一本',p:'yì běn'},{h:'书',p:'shū'},P('。')],cle:2,fr:'Il a sorti un livre.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'带',p:'dài'},{h:'回来',p:'huí lái'},{h:'一些',p:'yì xiē'},{h:'水果',p:'shuǐ guǒ'},P('。')],cle:2,fr:'J’ai rapporté des fruits.'},
+    {seg:[{h:'他',p:'tā'},{h:'走',p:'zǒu'},{h:'进',p:'jìn'},{h:'教室',p:'jiào shì'},{h:'来',p:'lái'},{h:'了',p:'le'},P('。')],cle:4,fr:'Il est entré dans la salle de classe.'},
+    {seg:[{h:'他',p:'tā'},{h:'拿',p:'ná'},{h:'出',p:'chū'},{h:'一本',p:'yì běn'},{h:'书',p:'shū'},{h:'来',p:'lái'},P('。')],cle:5,fr:'Il a sorti un livre.'},
+    {seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'回来',p:'huí lái'},P('。')],cle:2,fr:'Il n’est pas rentré.'},
+    {seg:[{h:'请',p:'qǐng'},{h:'拿',p:'ná'},{h:'过来',p:'guò lái'},P('。')],cle:2,fr:'Apporte-le ici, s’il te plaît.'},
+    {seg:[{h:'他',p:'tā'},{h:'从',p:'cóng'},{h:'楼上',p:'lóu shàng'},{h:'下来',p:'xià lái'},{h:'了',p:'le'},P('。')],cle:3,fr:'Il est descendu de l’étage.'},
+    {seg:[{h:'她',p:'tā'},{h:'站',p:'zhàn'},{h:'起来',p:'qǐ lái'},{h:'了',p:'le'},P('。')],cle:2,fr:'Elle s’est levée.'},
+    {seg:[{h:'老师',p:'lǎo shī'},{h:'走',p:'zǒu'},{h:'出去',p:'chū qù'},{h:'了',p:'le'},P('。')],cle:2,fr:'Le professeur est sorti.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'什么时候',p:'shén me shí hou'},{h:'回去',p:'huí qù'},P('？')],cle:2,fr:'Quand repars-tu ?'},
+    {seg:[{h:'他',p:'tā'},{h:'搬',p:'bān'},{h:'进来',p:'jìn lái'},{h:'了',p:'le'},{h:'一张',p:'yì zhāng'},{h:'桌子',p:'zhuō zi'},P('。')],cle:2,fr:'Il a rentré une table.'}
+  ],
+  leurres:['来','去','进','出','回','过','上','下'],
+
+  gabarits:[
+    {cadre:[{h:'他',p:'tā'},{s:'d'},{h:'了',p:'le'},P('。')],
+     fr:'Il est …',
+     listes:{d:[{h:'进来',p:'jìn lái',fr:'à l’intérieur, vers moi'},{h:'进去',p:'jìn qù',fr:'à l’intérieur, loin de moi'},
+                {h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'出去',p:'chū qù',fr:'dehors, loin de moi'},
+                {h:'上来',p:'shàng lái',fr:'en haut, vers moi'},{h:'上去',p:'shàng qù',fr:'en haut, loin de moi'},
+                {h:'下来',p:'xià lái',fr:'en bas, vers moi'},{h:'下去',p:'xià qù',fr:'en bas, loin de moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回去',p:'huí qù',fr:'de retour là-bas'},
+                {h:'过来',p:'guò lái',fr:'jusqu’ici'},{h:'过去',p:'guò qù',fr:'jusque là-bas'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{s:'d'},{h:'了',p:'le'},{s:'o'},P('。')],
+     fr:'… a … …', lie:[['v','d','o']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'带',p:'dài',fr:'apporter'},{h:'带',p:'dài',fr:'apporter'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'搬',p:'bān',fr:'déplacer'},{h:'搬',p:'bān',fr:'déplacer'},
+                {h:'送',p:'sòng',fr:'porter'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'带',p:'dài',fr:'apporter'},{h:'拿',p:'ná',fr:'prendre'}],
+             d:[{h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'出来',p:'chū lái',fr:'dehors, vers moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回来',p:'huí lái',fr:'de retour ici'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回来',p:'huí lái',fr:'de retour ici'},
+                {h:'进来',p:'jìn lái',fr:'à l’intérieur, vers moi'},{h:'出去',p:'chū qù',fr:'dehors, loin de moi'},
+                {h:'过来',p:'guò lái',fr:'jusqu’ici'},{h:'过来',p:'guò lái',fr:'jusqu’ici'},
+                {h:'过去',p:'guò qù',fr:'jusque là-bas'},{h:'上来',p:'shàng lái',fr:'en haut, vers moi'}],
+             o:[{h:'一本书',p:'yì běn shū',fr:'un livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},
+                {h:'一些水果',p:'yì xiē shuǐ guǒ',fr:'des fruits'},{h:'一个礼物',p:'yí ge lǐ wù',fr:'un cadeau'},
+                {h:'一些面包',p:'yì xiē miàn bāo',fr:'du pain'},{h:'一杯咖啡',p:'yì bēi kā fēi',fr:'un café'},
+                {h:'一张桌子',p:'yì zhāng zhuō zi',fr:'une table'},{h:'那张桌子',p:'nà zhāng zhuō zi',fr:'cette table'},
+                {h:'一些蛋糕',p:'yì xiē dàn gāo',fr:'du gâteau'},{h:'一杯水',p:'yì bēi shuǐ',fr:'un verre d’eau'},
+                {h:'一些照片',p:'yì xiē zhào piàn',fr:'des photos'},{h:'一些衣服',p:'yì xiē yī fu',fr:'des vêtements'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{s:'d'},{s:'o'},{s:'w'},P('。')],
+     fr:'… a … … (objet à l’intérieur du bloc)', lie:[['v','d','o','w']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'带',p:'dài',fr:'apporter'},{h:'带',p:'dài',fr:'apporter'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'搬',p:'bān',fr:'déplacer'},{h:'送',p:'sòng',fr:'porter'},
+                {h:'拿',p:'ná',fr:'prendre'},{h:'带',p:'dài',fr:'apporter'},
+                {h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'}],
+             d:[{h:'出',p:'chū',fr:'dehors'},{h:'出',p:'chū',fr:'dehors'},
+                {h:'回',p:'huí',fr:'de retour'},{h:'回',p:'huí',fr:'de retour'},
+                {h:'回',p:'huí',fr:'de retour'},{h:'回',p:'huí',fr:'de retour'},
+                {h:'进',p:'jìn',fr:'à l’intérieur'},{h:'过',p:'guò',fr:'de côté'},
+                {h:'过',p:'guò',fr:'de côté'},{h:'过',p:'guò',fr:'de côté'},
+                {h:'上',p:'shàng',fr:'en haut'},{h:'下',p:'xià',fr:'en bas'}],
+             o:[{h:'一本书',p:'yì běn shū',fr:'un livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},
+                {h:'一些水果',p:'yì xiē shuǐ guǒ',fr:'des fruits'},{h:'一个礼物',p:'yí ge lǐ wù',fr:'un cadeau'},
+                {h:'一些面包',p:'yì xiē miàn bāo',fr:'du pain'},{h:'一杯咖啡',p:'yì bēi kā fēi',fr:'un café'},
+                {h:'一些东西',p:'yì xiē dōng xi',fr:'des affaires'},{h:'一些蛋糕',p:'yì xiē dàn gāo',fr:'du gâteau'},
+                {h:'一杯水',p:'yì bēi shuǐ',fr:'un verre d’eau'},{h:'一些照片',p:'yì xiē zhào piàn',fr:'des photos'},
+                {h:'一些衣服',p:'yì xiē yī fu',fr:'des vêtements'},{h:'一些书',p:'yì xiē shū',fr:'des livres'}],
+             w:[{h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'去',p:'qù',fr:'loin de moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{s:'d'},{s:'l'},{s:'w'},{h:'了',p:'le'},P('。')],
+     fr:'… est … dans / vers …', lie:[['v','d','l','w']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'走',p:'zǒu',fr:'à pied'},{h:'走',p:'zǒu',fr:'à pied'},
+                {h:'走',p:'zǒu',fr:'à pied'},{h:'跑',p:'pǎo',fr:'en courant'},
+                {h:'跑',p:'pǎo',fr:'en courant'},{h:'走',p:'zǒu',fr:'à pied'},
+                {h:'跑',p:'pǎo',fr:'en courant'},{h:'走',p:'zǒu',fr:'à pied'},
+                {h:'走',p:'zǒu',fr:'à pied'},{h:'跑',p:'pǎo',fr:'en courant'},
+                {h:'走',p:'zǒu',fr:'à pied'},{h:'跑',p:'pǎo',fr:'en courant'}],
+             d:[{h:'进',p:'jìn',fr:'à l’intérieur'},{h:'进',p:'jìn',fr:'à l’intérieur'},
+                {h:'出',p:'chū',fr:'dehors'},{h:'进',p:'jìn',fr:'à l’intérieur'},
+                {h:'出',p:'chū',fr:'dehors'},{h:'回',p:'huí',fr:'de retour'},
+                {h:'回',p:'huí',fr:'de retour'},{h:'上',p:'shàng',fr:'en haut'},
+                {h:'下',p:'xià',fr:'en bas'},{h:'上',p:'shàng',fr:'en haut'},
+                {h:'进',p:'jìn',fr:'à l’intérieur'},{h:'回',p:'huí',fr:'de retour'}],
+             l:[{h:'教室',p:'jiào shì',fr:'la salle de classe'},{h:'房间',p:'fáng jiān',fr:'la chambre'},
+                {h:'教室',p:'jiào shì',fr:'la salle de classe'},{h:'房间',p:'fáng jiān',fr:'la chambre'},
+                {h:'房间',p:'fáng jiān',fr:'la chambre'},{h:'家',p:'jiā',fr:'la maison'},
+                {h:'家',p:'jiā',fr:'la maison'},{h:'楼',p:'lóu',fr:'l’étage'},
+                {h:'楼',p:'lóu',fr:'l’étage'},{h:'楼',p:'lóu',fr:'l’étage'},
+                {h:'学校',p:'xué xiào',fr:'l’école'},{h:'学校',p:'xué xiào',fr:'l’école'}],
+             w:[{h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'去',p:'qù',fr:'loin de moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'去',p:'qù',fr:'loin de moi'},{h:'去',p:'qù',fr:'loin de moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'去',p:'qù',fr:'loin de moi'},{h:'去',p:'qù',fr:'loin de moi'},
+                {h:'去',p:'qù',fr:'loin de moi'},{h:'去',p:'qù',fr:'loin de moi'}]}},
+
+    {cadre:[{s:'s'},{h:'没',p:'méi'},{s:'v'},{s:'d'},{s:'o'},P('。')],
+     fr:'… n’a pas … …', lie:[['v','d','o']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'带',p:'dài',fr:'apporter'},{h:'带',p:'dài',fr:'apporter'},
+                {h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'搬',p:'bān',fr:'déplacer'},{h:'送',p:'sòng',fr:'porter'},
+                {h:'拿',p:'ná',fr:'prendre'},{h:'带',p:'dài',fr:'apporter'},
+                {h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'}],
+             d:[{h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回来',p:'huí lái',fr:'de retour ici'},
+                {h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'出来',p:'chū lái',fr:'dehors, vers moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回来',p:'huí lái',fr:'de retour ici'},
+                {h:'进来',p:'jìn lái',fr:'à l’intérieur, vers moi'},{h:'过来',p:'guò lái',fr:'jusqu’ici'},
+                {h:'过来',p:'guò lái',fr:'jusqu’ici'},{h:'过去',p:'guò qù',fr:'jusque là-bas'},
+                {h:'上来',p:'shàng lái',fr:'en haut, vers moi'},{h:'下来',p:'xià lái',fr:'en bas, vers moi'}],
+             o:[{h:'水果',p:'shuǐ guǒ',fr:'de fruits'},{h:'礼物',p:'lǐ wù',fr:'de cadeau'},
+                {h:'手机',p:'shǒu jī',fr:'le téléphone'},{h:'词典',p:'cí diǎn',fr:'le dictionnaire'},
+                {h:'面包',p:'miàn bāo',fr:'de pain'},{h:'咖啡',p:'kā fēi',fr:'de café'},
+                {h:'桌子',p:'zhuō zi',fr:'la table'},{h:'蛋糕',p:'dàn gāo',fr:'de gâteau'},
+                {h:'水',p:'shuǐ',fr:'d’eau'},{h:'照片',p:'zhào piàn',fr:'de photos'},
+                {h:'衣服',p:'yī fu',fr:'de vêtements'},{h:'书',p:'shū',fr:'de livres'}]}},
+
+    {cadre:[{s:'s'},{s:'d'},{h:'了',p:'le'},{h:'吗',p:'ma'},P('？')],
+     fr:'Est-ce que … est … ?', lie:[], libre:['s','d'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'你朋友',p:'nǐ péng you',fr:'ton amie'}],
+             d:[{h:'进来',p:'jìn lái',fr:'à l’intérieur, vers moi'},{h:'进去',p:'jìn qù',fr:'à l’intérieur, loin de moi'},
+                {h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'出去',p:'chū qù',fr:'dehors, loin de moi'},
+                {h:'上来',p:'shàng lái',fr:'en haut, vers moi'},{h:'上去',p:'shàng qù',fr:'en haut, loin de moi'},
+                {h:'下来',p:'xià lái',fr:'en bas, vers moi'},{h:'下去',p:'xià qù',fr:'en bas, loin de moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回去',p:'huí qù',fr:'de retour là-bas'},
+                {h:'过来',p:'guò lái',fr:'jusqu’ici'},{h:'过去',p:'guò qù',fr:'jusque là-bas'}]}},
+
+    {cadre:[{h:'请',p:'qǐng'},{s:'v'},{s:'d'},{s:'o'},{s:'w'},P('。')],
+     fr:'S’il te plaît, … …', lie:[['v','d','o','w']],
+     listes:{v:[{h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'带',p:'dài',fr:'apporter'},{h:'送',p:'sòng',fr:'porter'},
+                {h:'搬',p:'bān',fr:'déplacer'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'拿',p:'ná',fr:'prendre'},{h:'带',p:'dài',fr:'apporter'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'送',p:'sòng',fr:'porter'},{h:'带',p:'dài',fr:'apporter'}],
+             d:[{h:'出',p:'chū',fr:'dehors'},{h:'过',p:'guò',fr:'de côté'},
+                {h:'回',p:'huí',fr:'de retour'},{h:'过',p:'guò',fr:'de côté'},
+                {h:'进',p:'jìn',fr:'à l’intérieur'},{h:'上',p:'shàng',fr:'en haut'},
+                {h:'下',p:'xià',fr:'en bas'},{h:'过',p:'guò',fr:'de côté'},
+                {h:'回',p:'huí',fr:'de retour'},{h:'出',p:'chū',fr:'dehors'},
+                {h:'过',p:'guò',fr:'de côté'},{h:'回',p:'huí',fr:'de retour'}],
+             o:[{h:'你的书',p:'nǐ de shū',fr:'ton livre'},{h:'那本词典',p:'nà běn cí diǎn',fr:'ce dictionnaire'},
+                {h:'一些水果',p:'yì xiē shuǐ guǒ',fr:'des fruits'},{h:'这些照片',p:'zhè xiē zhào piàn',fr:'ces photos'},
+                {h:'那张桌子',p:'nà zhāng zhuō zi',fr:'cette table'},{h:'我的衣服',p:'wǒ de yī fu',fr:'mes vêtements'},
+                {h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'你的电脑',p:'nǐ de diàn nǎo',fr:'ton ordinateur'},
+                {h:'一些面包',p:'yì xiē miàn bāo',fr:'du pain'},{h:'这些东西',p:'zhè xiē dōng xi',fr:'ces affaires'},
+                {h:'一杯水',p:'yì bēi shuǐ',fr:'un verre d’eau'},{h:'这些礼物',p:'zhè xiē lǐ wù',fr:'ces cadeaux'}],
+             w:[{h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'去',p:'qù',fr:'loin de moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'来',p:'lái',fr:'vers moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'去',p:'qù',fr:'loin de moi'},
+                {h:'来',p:'lái',fr:'vers moi'},{h:'去',p:'qù',fr:'loin de moi'}]}},
+
+    {cadre:[{s:'s'},{h:'从',p:'cóng'},{s:'l'},{s:'d'},{h:'了',p:'le'},P('。')],
+     fr:'… est … de …', lie:[['l','d']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             l:[{h:'楼上',p:'lóu shàng',fr:'l’étage'},{h:'楼下',p:'lóu xià',fr:'le bas'},
+                {h:'房间',p:'fáng jiān',fr:'la chambre'},{h:'教室',p:'jiào shì',fr:'la salle de classe'},
+                {h:'学校',p:'xué xiào',fr:'l’école'},{h:'中国',p:'Zhōng guó',fr:'Chine'},
+                {h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'家',p:'jiā',fr:'la maison'},
+                {h:'楼上',p:'lóu shàng',fr:'l’étage'},{h:'外面',p:'wài miàn',fr:'dehors'},
+                {h:'那边',p:'nà biān',fr:'là-bas'},{h:'法国',p:'Fǎ guó',fr:'France'}],
+             d:[{h:'下来',p:'xià lái',fr:'en bas, vers moi'},{h:'上来',p:'shàng lái',fr:'en haut, vers moi'},
+                {h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'出来',p:'chū lái',fr:'dehors, vers moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'回来',p:'huí lái',fr:'de retour ici'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'出来',p:'chū lái',fr:'dehors, vers moi'},
+                {h:'下去',p:'xià qù',fr:'en bas, loin de moi'},{h:'进来',p:'jìn lái',fr:'à l’intérieur, vers moi'},
+                {h:'过来',p:'guò lái',fr:'jusqu’ici'},{h:'回来',p:'huí lái',fr:'de retour ici'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Changez le point de vue : vous êtes maintenant à l’extérieur',
+     de:{hz:'他进来了。',py:'tā jìn lái le',fr:'Il est entré (vers moi).'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'进去',p:'jìn qù'},{h:'了',p:'le'},P('。')],fr:'Il est entré (loin de moi).'}},
+    {consigne:'Ajoutez l’objet 一本书 après le bloc',
+     de:{hz:'他拿出来了。',py:'tā ná chū lái le',fr:'Il l’a sorti.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'拿',p:'ná'},{h:'出来',p:'chū lái'},{h:'了',p:'le'},{h:'一本书',p:'yì běn shū'},P('。')],fr:'Il a sorti un livre.'}},
+    {consigne:'Replacez l’objet à l’intérieur du bloc',
+     de:{hz:'他拿出来一本书。',py:'tā ná chū lái yì běn shū',fr:'Il a sorti un livre.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'拿',p:'ná'},{h:'出',p:'chū'},{h:'一本书',p:'yì běn shū'},{h:'来',p:'lái'},P('。')],fr:'Il a sorti un livre.'}},
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'他带回来了水果。',py:'tā dài huí lái le shuǐ guǒ',fr:'Il a rapporté des fruits.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'带',p:'dài'},{h:'回来',p:'huí lái'},{h:'水果',p:'shuǐ guǒ'},P('。')],fr:'Il n’a pas rapporté de fruits.'}},
+    {consigne:'Ajoutez le lieu 教室, à sa place obligatoire',
+     de:{hz:'他走进来了。',py:'tā zǒu jìn lái le',fr:'Il est entré.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'走',p:'zǒu'},{h:'进',p:'jìn'},{h:'教室',p:'jiào shì'},{h:'来',p:'lái'},{h:'了',p:'le'},P('。')],fr:'Il est entré dans la salle de classe.'}},
+    {consigne:'Posez la question avec 吗',
+     de:{hz:'他回来了。',py:'tā huí lái le',fr:'Il est rentré.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'回来',p:'huí lái'},{h:'了',p:'le'},{h:'吗',p:'ma'},P('？')],fr:'Est-il rentré ?'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'他',p:'tā'},{h:'走',p:'zǒu'},{h:'进',p:'jìn'},{h:'来',p:'lái'},{h:'教室',p:'jiào shì'},{h:'了',p:'le'},P('。')],bad:3,
+     bon:'他走进教室来了。',why:'Un objet de lieu se place toujours avant 来 ou 去, jamais après.'},
+    {seg:[{h:'他',p:'tā'},{h:'进',p:'jìn'},{h:'了',p:'le'},{h:'来',p:'lái'},P('。')],bad:2,
+     bon:'他进来了。',why:'了 vient après le bloc entier : le trajet et le point de vue ne se séparent pas.'},
+    {seg:[{h:'他',p:'tā'},{h:'没',p:'méi'},{h:'回来',p:'huí lái'},{h:'了',p:'le'},P('。')],bad:3,
+     bon:'他没回来。',why:'Avec 没, le 了 disparaît.'},
+    {seg:[{h:'她',p:'tā'},{h:'站',p:'zhàn'},{h:'起',p:'qǐ'},{h:'去',p:'qù'},{h:'了',p:'le'},P('。')],bad:3,
+     bon:'她站起来了。',why:'起 est le seul trajet à n’admettre que 来.'},
+    {seg:[{h:'他',p:'tā'},{h:'出',p:'chū'},{h:'一本书',p:'yì běn shū'},P('。')],bad:1,
+     bon:'他拿出一本书来。',why:'Un trajet ne porte pas l’action tout seul : il lui faut un verbe devant.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'带',p:'dài'},{h:'回来',p:'huí lái'},{h:'没',p:'méi'},{h:'水果',p:'shuǐ guǒ'},P('。')],bad:3,
+     bon:'我没带回来水果。',why:'没 se place devant le verbe, donc devant tout le bloc.'}
+  ],
+
+  reemploi:[
+    {q:'Vous êtes dans votre bureau, un collègue frappe. Faites-le entrer, puis racontez qu’il est entré.',
+     verif:[{type:'contient',v:'进',msg:'On attend le trajet 进.'},
+            {type:'contient',v:'来',msg:'Le mouvement vient vers vous : c’est 来.'},
+            {type:'absent',v:'进去',msg:'进去 s’éloignerait de vous : vous êtes dans le bureau.'}],
+     modeles:[{hz:'请进来。',py:'qǐng jìn lái',fr:'Entrez.'},
+              {hz:'他走进来了。',py:'tā zǒu jìn lái le',fr:'Il est entré.'}],
+     criteres:['来 et non 去, puisque vous êtes à l’intérieur','了 se place après le bloc','Le verbe d’action peut précéder le trajet']},
+    {q:'Vous rentrez du marché. Dites ce que vous avez rapporté, puis ce que vous avez oublié.',
+     verif:[{type:'contient',v:'回来',msg:'Le retour à la maison demande 回来.'},
+            {type:'un_parmi',v:['带','买'],msg:'On attend un verbe d’action devant le trajet : 带 ou 买.'},
+            {type:'contient',v:'没',msg:'L’oubli demande la forme négative avec 没.'}],
+     modeles:[{hz:'我带回来一些水果，可是我没买回来面包。',py:'wǒ dài huí lái yì xiē shuǐ guǒ, kě shì wǒ méi mǎi huí lái miàn bāo',fr:'J’ai rapporté des fruits, mais je n’ai pas rapporté de pain.'}],
+     criteres:['Le verbe d’action précède le trajet','没 est devant le verbe, pas dans le bloc','Aucun 了 après 没']},
+    {q:'Décrivez quelqu’un qui entre dans une salle de classe, en nommant le lieu.',
+     verif:[{type:'contient',v:'进',msg:'On attend le trajet 进.'},
+            {type:'un_parmi',v:['来','去'],msg:'Il faut préciser le point de vue : 来 ou 去.'},
+            {type:'absent',v:'进来教室',msg:'Le lieu ne peut pas suivre 来 : il se place avant.'},
+            {type:'absent',v:'进去教室',msg:'Le lieu ne peut pas suivre 去 : il se place avant.'}],
+     modeles:[{hz:'他走进教室来了。',py:'tā zǒu jìn jiào shì lái le',fr:'Il est entré dans la salle de classe.'},
+              {hz:'老师走进教室去了。',py:'lǎo shī zǒu jìn jiào shì qù le',fr:'Le professeur est entré dans la salle.'}],
+     criteres:['Le lieu est entre le trajet et 来/去','Le point de vue est cohérent avec l’endroit où vous êtes','了 ferme la phrase']}
+  ]
 }
+
 
 ];
 

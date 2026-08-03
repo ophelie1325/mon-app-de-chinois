@@ -36,7 +36,7 @@ function vGramHome(){
   ${themeSelect()}
 
   <div class="gsub">Les fiches de mon niveau</div>
-  ${dispo.length?dispo.map(g=>ligneFiche(g)).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. Les quatre fiches écrites couvrent « Se présenter » et « Présenter et décrire quelqu’un », en HSK 2 et HSK 3.')}
+  ${dispo.length?dispo.map(g=>ligneFiche(g)).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. Les neuf fiches écrites couvrent « Se présenter », « Présenter et décrire quelqu’un », « Raconter au passé », « Loisirs, habitudes, quotidien », « Le voyage », « Le travail et les études » et « Le logement », en HSK 2 et HSK 3.')}
 
   <div class="gsub">Explorer</div>
   <button class="grow c-indigo" onclick="go('index')">
@@ -79,7 +79,7 @@ function vIndex(){
     if(!l.length)return '';
     return `<div class="gsub">${esc(f.n)}</div>${l.map(g=>ligneFiche(g,g.hsk>S.settings.level)).join('')}`;
   }).join('')}
-  <p class="sm mt">Trente-deux fiches restent à écrire pour couvrir le programme jusqu’au HSK 6.</p>`;
+  <p class="sm mt">Il reste ${36-GRAMMAR.length} fiches à écrire pour couvrir le programme jusqu’au HSK 6.</p>`;
 }
 
 function vRevoir(){
@@ -211,10 +211,25 @@ function vFiche(){
    dans les banques de la fiche : le fonctionnement ne change pas, les
    phrases si.
    ===================================================================== */
+/* Un gabarit engendre une phrase en tirant un élément dans chacune de
+   ses listes. Tant que les listes sont indépendantes — un verbe d'un
+   côté, un adverbe de l'autre — le tirage libre produit tôt ou tard des
+   phrases syntaxiquement justes mais absurdes (我汉字唱得不好).
+   Le champ « lie » règle cela : il déclare des groupes de listes tirées
+   au même index, donc appariées ligne à ligne. Les listes d'un même
+   groupe doivent avoir la même longueur ; par sécurité on se cale sur la
+   plus courte. Les listes hors groupe gardent le tirage libre. */
 function fillGabarit(ga){
-  const acc={};
-  Object.keys(ga.listes).forEach(k=>{acc[k]=shuffle(ga.listes[k])[0];});
-  return {seg:ga.cadre.map(t=>t.s?acc[t.s]:t),fr:ga.fr,mots:Object.keys(acc).map(k=>acc[k].fr)};
+  const acc={}, lie={};
+  (ga.lie||[]).forEach(grp=>{
+    const n=Math.min.apply(null,grp.map(k=>(ga.listes[k]||[]).length));
+    if(!n)return;
+    const i=Math.floor(Math.random()*n);
+    grp.forEach(k=>{acc[k]=ga.listes[k][i];lie[k]=1;});
+  });
+  Object.keys(ga.listes).forEach(k=>{if(!lie[k])acc[k]=shuffle(ga.listes[k])[0];});
+  return {seg:ga.cadre.map(t=>t.s?acc[t.s]:t),fr:ga.fr,
+          mots:Object.keys(ga.listes).map(k=>acc[k].fr)};
 }
 
 function buildSession(g){
