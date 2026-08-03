@@ -179,19 +179,17 @@ const GRAMMAR=[
   leurres:['吗','呢','什么','谁','哪儿','几','多少','多大','怎么样'],
 
   gabarits:[
-    {cadre:[{h:'你',p:'nǐ'},{s:'v'},{h:'什么',p:'shén me'},P('？')],
-     fr:'Que … -tu ?',
-     listes:{v:[{h:'喝',p:'hē',fr:'boire'},{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},
-                {h:'买',p:'mǎi',fr:'acheter'},{h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'}]}},
-    {cadre:[{h:'你',p:'nǐ'},{h:'是',p:'shì'},{h:'不',p:'bu'},{h:'是',p:'shì'},{s:'n'},P('？')],
-     fr:'Es-tu … ?',
-     listes:{n:[{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'学生',p:'xué shēng',fr:'étudiant'},
-                {h:'医生',p:'yī shēng',fr:'médecin'},{h:'中国人',p:'Zhōng guó rén',fr:'Chinois'},
-                {h:'法国人',p:'Fǎ guó rén',fr:'Français'}]}},
-    {cadre:[{h:'他',p:'tā'},{h:'的',p:'de'},{s:'n'},{h:'呢',p:'ne'},P('？')],
-     fr:'Et son / sa … ?',
-     listes:{n:[{h:'书',p:'shū',fr:'livre'},{h:'手机',p:'shǒu jī',fr:'téléphone'},
-                {h:'照片',p:'zhào piàn',fr:'photo'},{h:'车',p:'chē',fr:'voiture'}]}}
+    {cadre:[{s:'s'},{s:'v'},{h:'什么',p:'shén me'},P('？')],
+     fr:'Que … -tu ?', lie:[], libre:['s','v'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],v:[{h:'喝',p:'hē',fr:'boire'},{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},{h:'买',p:'mǎi',fr:'acheter'},{h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'faire'},{h:'听',p:'tīng',fr:'écouter'},{h:'说',p:'shuō',fr:'dire'},{h:'找',p:'zhǎo',fr:'chercher'},{h:'带',p:'dài',fr:'apporter'},{h:'唱',p:'chàng',fr:'chanter'}]}},
+
+    {cadre:[{s:'s'},{h:'是',p:'shì'},{h:'不',p:'bu'},{h:'是',p:'shì'},{s:'n'},P('？')],
+     fr:'Es-tu … ?', lie:[], libre:['s','n'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],n:[{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'学生',p:'xué sheng',fr:'étudiant'},{h:'医生',p:'yī shēng',fr:'médecin'},{h:'中国人',p:'Zhōng guó rén',fr:'chinois'},{h:'法国人',p:'Fǎ guó rén',fr:'français'},{h:'英国人',p:'Yīng guó rén',fr:'anglais'},{h:'日本人',p:'Rì běn rén',fr:'japonais'},{h:'大学生',p:'dà xué shēng',fr:'étudiant à l’université'},{h:'服务员',p:'fú wù yuán',fr:'serveur'},{h:'韩国人',p:'Hán guó rén',fr:'coréen'},{h:'经理',p:'jīng lǐ',fr:'directeur'},{h:'司机',p:'sī jī',fr:'chauffeur'}]}},
+
+    {cadre:[{s:'s'},{h:'的',p:'de'},{s:'n'},{h:'呢',p:'ne'},P('？')],
+     fr:'Et son / ton … ?', lie:[], libre:['s','n'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'你',p:'nǐ',fr:'tu'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],n:[{h:'书',p:'shū',fr:'livre'},{h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'照片',p:'zhào piàn',fr:'photo'},{h:'车',p:'chē',fr:'voiture'},{h:'电脑',p:'diàn nǎo',fr:'ordinateur'},{h:'钱',p:'qián',fr:'argent'},{h:'衣服',p:'yī fu',fr:'vêtements'},{h:'词典',p:'cí diǎn',fr:'dictionnaire'},{h:'作业',p:'zuò yè',fr:'devoirs'},{h:'咖啡',p:'kā fēi',fr:'café'},{h:'礼物',p:'lǐ wù',fr:'cadeau'},{h:'房间',p:'fáng jiān',fr:'chambre'}]}}
   ],
 
   transfo:[
@@ -374,31 +372,17 @@ const GRAMMAR=[
   leurres:['很','不','太','了','的','非常','是'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{h:'的',p:'de'},{s:'n'},{h:'很',p:'hěn'},{s:'a'},P('。')],
-     fr:'Mon / ma … est …', lie:[['n','a']],
-     listes:{n:[{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'房间',p:'fáng jiān',fr:'chambre'},
-                {h:'朋友',p:'péng you',fr:'ami'},{h:'工作',p:'gōng zuò',fr:'travail'},
-                {h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'房间',p:'fáng jiān',fr:'chambre'}],
-             a:[{h:'忙',p:'máng',fr:'occupé'},{h:'大',p:'dà',fr:'grande'},
-                {h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},
-                {h:'新',p:'xīn',fr:'neuf'},{h:'安静',p:'ān jìng',fr:'calme'}]}},
-    {cadre:[{h:'这个',p:'zhè ge'},{s:'n'},{h:'太',p:'tài'},{s:'a'},{h:'了',p:'le'},P('。')],
-     fr:'Ce / cette … est trop …', lie:[['n','a']],
-     listes:{n:[{h:'菜',p:'cài',fr:'plat'},{h:'菜',p:'cài',fr:'plat'},
-                {h:'房间',p:'fáng jiān',fr:'chambre'},{h:'房间',p:'fáng jiān',fr:'chambre'},
-                {h:'城市',p:'chéng shì',fr:'ville'},{h:'城市',p:'chéng shì',fr:'ville'}],
-             a:[{h:'辣',p:'là',fr:'épicé'},{h:'贵',p:'guì',fr:'cher'},
-                {h:'小',p:'xiǎo',fr:'petite'},{h:'吵',p:'chǎo',fr:'bruyante'},
-                {h:'大',p:'dà',fr:'grande'},{h:'吵',p:'chǎo',fr:'bruyante'}]}},
-    /* 不 change de ton selon ce qui suit : bú devant un 4e ton, bù
-       ailleurs. Il ne peut donc pas être figé dans le cadre — il est
-       tiré en même temps que l'adjectif, par appariement. */
-    {cadre:[{h:'他',p:'tā'},{s:'b'},{s:'a'},P('。')],
-     fr:'Il n’est pas …', lie:[['b','a']],
-     listes:{b:[{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},
-                {h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'}],
-             a:[{h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},
-                {h:'胖',p:'pàng',fr:'gros'},{h:'年轻',p:'nián qīng',fr:'jeune'}]}}
+    {cadre:[{s:'p'},{h:'的',p:'de'},{s:'n'},{h:'很',p:'hěn'},{s:'a'},P('。')],
+     fr:'Mon / son … est …', lie:[['n','a']], libre:['p'],
+     listes:{p:[{h:'我',p:'wǒ',fr:'mon'},{h:'他',p:'tā',fr:'son à lui'},{h:'她',p:'tā',fr:'son à elle'},{h:'你',p:'nǐ',fr:'ton'}],n:[{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'房间',p:'fáng jiān',fr:'chambre'},{h:'朋友',p:'péng you',fr:'ami'},{h:'工作',p:'gōng zuò',fr:'travail'},{h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'房间',p:'fáng jiān',fr:'chambre'},{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'朋友',p:'péng you',fr:'ami'},{h:'工作',p:'gōng zuò',fr:'travail'},{h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'朋友',p:'péng you',fr:'ami'},{h:'房间',p:'fáng jiān',fr:'chambre'}],a:[{h:'忙',p:'máng',fr:'occupé'},{h:'大',p:'dà',fr:'grand'},{h:'高',p:'gāo',fr:'grand de taille'},{h:'忙',p:'máng',fr:'prenant'},{h:'新',p:'xīn',fr:'neuf'},{h:'安静',p:'ān jìng',fr:'calme'},{h:'好',p:'hǎo',fr:'bien'},{h:'年轻',p:'nián qīng',fr:'jeune'},{h:'累',p:'lèi',fr:'fatigant'},{h:'贵',p:'guì',fr:'cher'},{h:'忙',p:'máng',fr:'occupé'},{h:'干净',p:'gān jìng',fr:'propre'}]}},
+
+    {cadre:[{s:'d'},{s:'n'},{h:'太',p:'tài'},{s:'a'},{h:'了',p:'le'},P('。')],
+     fr:'Ce / cette … est trop …', lie:[['n','a']], libre:['d'],
+     listes:{d:[{h:'这个',p:'zhè ge',fr:'ce'},{h:'那个',p:'nà ge',fr:'ce … là'}],n:[{h:'菜',p:'cài',fr:'plat'},{h:'菜',p:'cài',fr:'plat'},{h:'房间',p:'fáng jiān',fr:'chambre'},{h:'房间',p:'fáng jiān',fr:'chambre'},{h:'城市',p:'chéng shì',fr:'ville'},{h:'城市',p:'chéng shì',fr:'ville'},{h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'工作',p:'gōng zuò',fr:'travail'},{h:'问题',p:'wèn tí',fr:'problème'},{h:'地方',p:'dì fang',fr:'endroit'},{h:'东西',p:'dōng xi',fr:'objet'},{h:'字',p:'zì',fr:'caractère'}],a:[{h:'辣',p:'là',fr:'épicé'},{h:'贵',p:'guì',fr:'cher'},{h:'小',p:'xiǎo',fr:'petit'},{h:'吵',p:'chǎo',fr:'bruyant'},{h:'大',p:'dà',fr:'grand'},{h:'吵',p:'chǎo',fr:'bruyant'},{h:'贵',p:'guì',fr:'cher'},{h:'忙',p:'máng',fr:'prenant'},{h:'难',p:'nán',fr:'difficile'},{h:'远',p:'yuǎn',fr:'loin'},{h:'贵',p:'guì',fr:'cher'},{h:'难',p:'nán',fr:'difficile'}]}},
+
+    {cadre:[{s:'s'},{s:'b'},{s:'a'},P('。')],
+     fr:'… n’est pas …', lie:[['b','a']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],b:[{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'}],a:[{h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},{h:'胖',p:'pàng',fr:'gros'},{h:'年轻',p:'nián qīng',fr:'jeune'},{h:'累',p:'lèi',fr:'fatigué'},{h:'好',p:'hǎo',fr:'bien'},{h:'聪明',p:'cōng ming',fr:'intelligent'},{h:'认真',p:'rèn zhēn',fr:'sérieux'},{h:'安静',p:'ān jìng',fr:'calme'},{h:'快乐',p:'kuài lè',fr:'joyeux'},{h:'生气',p:'shēng qì',fr:'fâché'},{h:'舒服',p:'shū fu',fr:'à l’aise'}]}}
   ],
 
   transfo:[
@@ -585,18 +569,17 @@ const GRAMMAR=[
   leurres:['是','的','了','在','跟','从','怎么'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{h:'是',p:'shì'},{s:'q'},{h:'来',p:'lái'},{h:'的',p:'de'},P('。')],
-     fr:'C’est … que je suis venue.',
-     listes:{q:[{h:'昨天',p:'zuó tiān',fr:'hier'},{h:'去年',p:'qù nián',fr:'l’an dernier'},
-                {h:'上个月',p:'shàng ge yuè',fr:'le mois dernier'},{h:'今天早上',p:'jīn tiān zǎo shang',fr:'ce matin'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{h:'是',p:'shì'},{h:'坐',p:'zuò'},{s:'t'},{h:'来',p:'lái'},{h:'的',p:'de'},P('。')],
-     fr:'Je suis venue en …',
-     listes:{t:[{h:'飞机',p:'fēi jī',fr:'avion'},{h:'火车',p:'huǒ chē',fr:'train'},
-                {h:'地铁',p:'dì tiě',fr:'métro'},{h:'出租车',p:'chū zū chē',fr:'taxi'}]}},
-    {cadre:[{h:'他',p:'tā'},{h:'是',p:'shì'},{h:'在',p:'zài'},{s:'l'},{h:'工作',p:'gōng zuò'},{h:'的',p:'de'},P('。')],
-     fr:'C’est à … qu’il travaillait.',
-     listes:{l:[{h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'上海',p:'Shàng hǎi',fr:'Shanghai'},
-                {h:'法国',p:'Fǎ guó',fr:'France'},{h:'大学',p:'dà xué',fr:'l’université'}]}}
+    {cadre:[{s:'s'},{h:'是',p:'shì'},{s:'q'},{h:'来',p:'lái'},{h:'的',p:'de'},P('。')],
+     fr:'C’est … que … est venu.', lie:[], libre:['s','q'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],q:[{h:'昨天',p:'zuó tiān',fr:'hier'},{h:'去年',p:'qù nián',fr:'l’an dernier'},{h:'上个月',p:'shàng ge yuè',fr:'le mois dernier'},{h:'今天早上',p:'jīn tiān zǎo shang',fr:'ce matin'},{h:'前天',p:'qián tiān',fr:'avant-hier'},{h:'上个星期',p:'shàng ge xīng qī',fr:'la semaine dernière'},{h:'二零二零年',p:'èr líng èr líng nián',fr:'en 2020'},{h:'昨天晚上',p:'zuó tiān wǎn shang',fr:'hier soir'},{h:'今天下午',p:'jīn tiān xià wǔ',fr:'cet après-midi'},{h:'去年九月',p:'qù nián jiǔ yuè',fr:'en septembre dernier'},{h:'星期一',p:'xīng qī yī',fr:'lundi'},{h:'今年',p:'jīn nián',fr:'cette année'}]}},
+
+    {cadre:[{s:'s'},{h:'是',p:'shì'},{h:'坐',p:'zuò'},{s:'t'},{h:'来',p:'lái'},{h:'的',p:'de'},P('。')],
+     fr:'… est venu en …', lie:[], libre:['s','t'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],t:[{h:'飞机',p:'fēi jī',fr:'avion'},{h:'火车',p:'huǒ chē',fr:'train'},{h:'地铁',p:'dì tiě',fr:'métro'},{h:'出租车',p:'chū zū chē',fr:'taxi'},{h:'公共汽车',p:'gōng gòng qì chē',fr:'bus'},{h:'船',p:'chuán',fr:'bateau'},{h:'汽车',p:'qì chē',fr:'voiture'}]}},
+
+    {cadre:[{s:'s'},{h:'是',p:'shì'},{h:'在',p:'zài'},{s:'l'},{h:'工作',p:'gōng zuò'},{h:'的',p:'de'},P('。')],
+     fr:'C’est à … que … travaillait.', lie:[], libre:['s','l'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],l:[{h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'上海',p:'Shàng hǎi',fr:'Shanghai'},{h:'法国',p:'Fǎ guó',fr:'France'},{h:'中国',p:'Zhōng guó',fr:'Chine'},{h:'大学',p:'dà xué',fr:'l’université'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'医院',p:'yī yuàn',fr:'l’hôpital'},{h:'银行',p:'yín háng',fr:'la banque'},{h:'公司',p:'gōng sī',fr:'l’entreprise'},{h:'那个城市',p:'nà ge chéng shì',fr:'cette ville'},{h:'巴黎',p:'Bā lí',fr:'Paris'},{h:'家',p:'jiā',fr:'la maison'}]}}
   ],
 
   transfo:[
@@ -773,24 +756,17 @@ const GRAMMAR=[
   leurres:['得','的','地','很','不','太'],
 
   gabarits:[
-    {cadre:[{h:'他',p:'tā'},{s:'v'},{h:'得',p:'de'},{h:'很',p:'hěn'},{s:'a'},P('。')],
-     fr:'Il … très …', lie:[['v','a']],
-     listes:{v:[{h:'跑',p:'pǎo',fr:'courir'},{h:'走',p:'zǒu',fr:'marcher'},
-                {h:'来',p:'lái',fr:'venir'},{h:'吃',p:'chī',fr:'manger'},{h:'睡',p:'shuì',fr:'dormir'},
-                {h:'说',p:'shuō',fr:'parler'},{h:'写',p:'xiě',fr:'écrire'}],
-             a:[{h:'快',p:'kuài',fr:'vite'},{h:'慢',p:'màn',fr:'lentement'},
-                {h:'早',p:'zǎo',fr:'tôt'},{h:'晚',p:'wǎn',fr:'tard'},{h:'少',p:'shǎo',fr:'peu'},
-                {h:'快',p:'kuài',fr:'vite'},{h:'慢',p:'màn',fr:'lentement'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{s:'o'},{s:'v'},{h:'得',p:'de'},{h:'不',p:'bù'},{h:'好',p:'hǎo'},P('。')],
-     fr:'Je … mal …', lie:[['o','v']],
-     listes:{o:[{h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},
-                {h:'歌',p:'gē',fr:'les chansons'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'}],
-             v:[{h:'写',p:'xiě',fr:'écrire'},{h:'说',p:'shuō',fr:'parler'},
-                {h:'唱',p:'chàng',fr:'chanter'},{h:'做',p:'zuò',fr:'faire'}]}},
-    {cadre:[{h:'你',p:'nǐ'},{s:'v'},{h:'得',p:'de'},{h:'怎么样',p:'zěn me yàng'},P('？')],
-     fr:'Comment … -tu ?',
-     listes:{v:[{h:'睡',p:'shuì',fr:'dormir'},{h:'吃',p:'chī',fr:'manger'},
-                {h:'唱',p:'chàng',fr:'chanter'},{h:'写',p:'xiě',fr:'écrire'}]}}
+    {cadre:[{s:'s'},{s:'v'},{h:'得',p:'de'},{h:'很',p:'hěn'},{s:'a'},P('。')],
+     fr:'… … très …', lie:[['v','a']], libre:['s'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'跑',p:'pǎo',fr:'courir'},{h:'走',p:'zǒu',fr:'marcher'},{h:'来',p:'lái',fr:'arriver'},{h:'来',p:'lái',fr:'arriver'},{h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'manger'},{h:'睡',p:'shuì',fr:'dormir'},{h:'睡',p:'shuì',fr:'dormir'},{h:'说',p:'shuō',fr:'parler'},{h:'说',p:'shuō',fr:'parler'},{h:'写',p:'xiě',fr:'écrire'},{h:'走',p:'zǒu',fr:'marcher'}],a:[{h:'快',p:'kuài',fr:'vite'},{h:'慢',p:'màn',fr:'lentement'},{h:'早',p:'zǎo',fr:'tôt'},{h:'晚',p:'wǎn',fr:'tard'},{h:'少',p:'shǎo',fr:'peu'},{h:'快',p:'kuài',fr:'vite'},{h:'早',p:'zǎo',fr:'tôt'},{h:'晚',p:'wǎn',fr:'tard'},{h:'快',p:'kuài',fr:'vite'},{h:'慢',p:'màn',fr:'lentement'},{h:'慢',p:'màn',fr:'lentement'},{h:'快',p:'kuài',fr:'vite'}]}},
+
+    {cadre:[{s:'s'},{s:'o'},{s:'v'},{h:'得',p:'de'},{h:'不',p:'bù'},{h:'好',p:'hǎo'},P('。')],
+     fr:'… … mal …', lie:[['o','v']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],o:[{h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'歌',p:'gē',fr:'les chansons'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'},{h:'英语',p:'Yīng yǔ',fr:'l’anglais'},{h:'法语',p:'Fǎ yǔ',fr:'le français'},{h:'这个词',p:'zhè ge cí',fr:'ce mot'},{h:'这个字',p:'zhè ge zì',fr:'ce caractère'},{h:'这首歌',p:'zhè shǒu gē',fr:'cette chanson'},{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'饭',p:'fàn',fr:'la cuisine'},{h:'中文',p:'Zhōng wén',fr:'le chinois'}],v:[{h:'写',p:'xiě',fr:'écrire'},{h:'说',p:'shuō',fr:'parler'},{h:'唱',p:'chàng',fr:'chanter'},{h:'做',p:'zuò',fr:'préparer'},{h:'说',p:'shuō',fr:'parler'},{h:'说',p:'shuō',fr:'parler'},{h:'说',p:'shuō',fr:'prononcer'},{h:'写',p:'xiě',fr:'écrire'},{h:'唱',p:'chàng',fr:'chanter'},{h:'做',p:'zuò',fr:'faire'},{h:'做',p:'zuò',fr:'préparer'},{h:'说',p:'shuō',fr:'parler'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'得',p:'de'},{h:'怎么样',p:'zěn me yàng'},P('？')],
+     fr:'Comment … -tu ?', lie:[], libre:['s','v'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],v:[{h:'睡',p:'shuì',fr:'dormir'},{h:'吃',p:'chī',fr:'manger'},{h:'唱',p:'chàng',fr:'chanter'},{h:'写',p:'xiě',fr:'écrire'},{h:'说',p:'shuō',fr:'parler'},{h:'跑',p:'pǎo',fr:'courir'},{h:'走',p:'zǒu',fr:'marcher'},{h:'做',p:'zuò',fr:'faire'},{h:'学',p:'xué',fr:'apprendre'},{h:'玩',p:'wán',fr:'s’amuser'},{h:'看',p:'kàn',fr:'lire'},{h:'考',p:'kǎo',fr:'passer l’examen'}]}}
   ],
 
   transfo:[
@@ -973,25 +949,17 @@ const GRAMMAR=[
   leurres:['了','没','过','在','不','得','很'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{h:'了',p:'le'},{s:'o'},P('。')],
-     fr:'J’ai …', lie:[['v','o']],
-     listes:{v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'喝',p:'hē',fr:'boire'},
-                {h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'}],
-             o:[{h:'一件衣服',p:'yí jiàn yī fu',fr:'un vêtement'},{h:'三杯茶',p:'sān bēi chá',fr:'trois tasses de thé'},
-                {h:'两本书',p:'liǎng běn shū',fr:'deux livres'},{h:'一个面包',p:'yí ge miàn bāo',fr:'un pain'},
-                {h:'两年汉语',p:'liǎng nián Hàn yǔ',fr:'deux ans de chinois'}]}},
+    {cadre:[{s:'s'},{s:'v'},{h:'了',p:'le'},{s:'o'},P('。')],
+     fr:'… a …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'喝',p:'hē',fr:'boire'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'},{h:'买',p:'mǎi',fr:'acheter'},{h:'喝',p:'hē',fr:'boire'},{h:'看',p:'kàn',fr:'voir'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'},{h:'买',p:'mǎi',fr:'acheter'},{h:'写',p:'xiě',fr:'écrire'}],o:[{h:'一件衣服',p:'yí jiàn yī fu',fr:'un vêtement'},{h:'三杯茶',p:'sān bēi chá',fr:'trois thés'},{h:'两本书',p:'liǎng běn shū',fr:'deux livres'},{h:'一个面包',p:'yí ge miàn bāo',fr:'un pain'},{h:'两年汉语',p:'liǎng nián Hàn yǔ',fr:'deux ans de chinois'},{h:'一个手机',p:'yí ge shǒu jī',fr:'un téléphone'},{h:'一杯咖啡',p:'yì bēi kā fēi',fr:'un café'},{h:'那个电影',p:'nà ge diàn yǐng',fr:'ce film'},{h:'一些水果',p:'yì xiē shuǐ guǒ',fr:'des fruits'},{h:'三年英语',p:'sān nián Yīng yǔ',fr:'trois ans d’anglais'},{h:'两本书',p:'liǎng běn shū',fr:'deux livres'},{h:'一些汉字',p:'yì xiē Hàn zì',fr:'des caractères'}]}},
+
     {cadre:[{s:'n'},{s:'a'},{h:'了',p:'le'},P('。')],
      fr:'… est devenu …', lie:[['n','a']],
-     listes:{n:[{h:'天气',p:'tiān qì',fr:'le temps'},{h:'他',p:'tā',fr:'il'},
-                {h:'我',p:'wǒ',fr:'je'},{h:'孩子',p:'hái zi',fr:'l’enfant'},{h:'菜',p:'cài',fr:'le plat'}],
-             a:[{h:'冷',p:'lěng',fr:'froid'},{h:'高',p:'gāo',fr:'grand'},
-                {h:'累',p:'lèi',fr:'fatiguée'},{h:'大',p:'dà',fr:'grand'},{h:'凉',p:'liáng',fr:'froid'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{s:'v'},{s:'o'},P('。')],
-     fr:'Je n’ai pas …', lie:[['v','o']],
-     listes:{v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'看',p:'kàn',fr:'voir'},
-                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'}],
-             o:[{h:'衣服',p:'yī fu',fr:'de vêtement'},{h:'那个电影',p:'nà ge diàn yǐng',fr:'ce film'},
-                {h:'早饭',p:'zǎo fàn',fr:'de petit-déjeuner'},{h:'咖啡',p:'kā fēi',fr:'de café'}]}}
+     listes:{n:[{h:'天气',p:'tiān qì',fr:'le temps'},{h:'天气',p:'tiān qì',fr:'le temps'},{h:'他',p:'tā',fr:'il'},{h:'我',p:'wǒ',fr:'je'},{h:'孩子',p:'hái zi',fr:'l’enfant'},{h:'菜',p:'cài',fr:'le plat'},{h:'天',p:'tiān',fr:'le ciel'},{h:'他',p:'tā',fr:'il'},{h:'我',p:'wǒ',fr:'je'},{h:'房间',p:'fáng jiān',fr:'la chambre'},{h:'咖啡',p:'kā fēi',fr:'le café'},{h:'她',p:'tā',fr:'elle'}],a:[{h:'冷',p:'lěng',fr:'froid'},{h:'热',p:'rè',fr:'chaud'},{h:'高',p:'gāo',fr:'grand'},{h:'累',p:'lèi',fr:'fatigué'},{h:'大',p:'dà',fr:'grand'},{h:'凉',p:'liáng',fr:'tiède'},{h:'黑',p:'hēi',fr:'sombre'},{h:'胖',p:'pàng',fr:'gros'},{h:'忙',p:'máng',fr:'occupé'},{h:'干净',p:'gān jìng',fr:'propre'},{h:'凉',p:'liáng',fr:'froid'},{h:'累',p:'lèi',fr:'fatiguée'}]}},
+
+    {cadre:[{s:'s'},{h:'没',p:'méi'},{s:'v'},{s:'o'},P('。')],
+     fr:'… n’a pas …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'看',p:'kàn',fr:'voir'},{h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},{h:'买',p:'mǎi',fr:'acheter'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},{h:'做',p:'zuò',fr:'faire'},{h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'},{h:'听',p:'tīng',fr:'écouter'}],o:[{h:'衣服',p:'yī fu',fr:'de vêtements'},{h:'那个电影',p:'nà ge diàn yǐng',fr:'ce film'},{h:'早饭',p:'zǎo fàn',fr:'de petit-déjeuner'},{h:'咖啡',p:'kā fēi',fr:'de café'},{h:'手机',p:'shǒu jī',fr:'de téléphone'},{h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'晚饭',p:'wǎn fàn',fr:'de dîner'},{h:'茶',p:'chá',fr:'de thé'},{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'汉字',p:'Hàn zì',fr:'de caractères'},{h:'音乐',p:'yīn yuè',fr:'de musique'}]}}
   ],
 
   transfo:[
@@ -1160,29 +1128,21 @@ const GRAMMAR=[
   leurres:['过','了','没','在','次','不','得'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{h:'过',p:'guo'},{s:'o'},P('。')],
-     fr:'J’ai déjà …', lie:[['v','o']],
-     listes:{v:[{h:'去',p:'qù',fr:'aller'},{h:'吃',p:'chī',fr:'manger'},
-                {h:'看',p:'kàn',fr:'voir'},{h:'喝',p:'hē',fr:'boire'},{h:'学',p:'xué',fr:'apprendre'}],
-             o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},
-                {h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},{h:'中国茶',p:'Zhōng guó chá',fr:'du thé chinois'},
-                {h:'日语',p:'Rì yǔ',fr:'le japonais'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{s:'v'},{h:'过',p:'guo'},{s:'o'},P('。')],
-     fr:'Je n’ai jamais …', lie:[['v','o']],
-     listes:{v:[{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'},
-                {h:'看',p:'kàn',fr:'lire'},{h:'喝',p:'hē',fr:'boire'}],
-             o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'飞机',p:'fēi jī',fr:'l’avion'},
-                {h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'咖啡',p:'kā fēi',fr:'de café'}]}},
-    {cadre:[{h:'你',p:'nǐ'},{s:'v'},{h:'过',p:'guo'},{s:'o'},{h:'吗',p:'ma'},P('？')],
-     fr:'As-tu déjà … ?', lie:[['v','o']],
-     listes:{v:[{h:'吃',p:'chī',fr:'manger'},{h:'去',p:'qù',fr:'aller'},
-                {h:'看',p:'kàn',fr:'lire'},{h:'坐',p:'zuò',fr:'prendre'}],
-             o:[{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},{h:'上海',p:'Shàng hǎi',fr:'à Shanghai'},
-                {h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'火车',p:'huǒ chē',fr:'le train'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'过',p:'guo'},{s:'n'},{h:'次',p:'cì'},{h:'北京',p:'Běi jīng'},P('。')],
-     fr:'Je suis allée … fois à Pékin.',
-     listes:{n:[{h:'一',p:'yí',fr:'une'},{h:'两',p:'liǎng',fr:'deux'},
-                {h:'三',p:'sān',fr:'trois'},{h:'很多',p:'hěn duō',fr:'beaucoup de'}]}}
+    {cadre:[{s:'s'},{s:'v'},{h:'过',p:'guo'},{s:'o'},P('。')],
+     fr:'… a déjà …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'去',p:'qù',fr:'aller'},{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'voir'},{h:'喝',p:'hē',fr:'boire'},{h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'}],o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},{h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},{h:'中国茶',p:'Zhōng guó chá',fr:'du thé chinois'},{h:'日语',p:'Rì yǔ',fr:'le japonais'},{h:'上海',p:'Shàng hǎi',fr:'à Shanghai'},{h:'飞机',p:'fēi jī',fr:'l’avion'},{h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'中国菜',p:'Zhōng guó cài',fr:'de la cuisine chinoise'},{h:'法语',p:'Fǎ yǔ',fr:'le français'},{h:'法国',p:'Fǎ guó',fr:'en France'},{h:'火车',p:'huǒ chē',fr:'le train'}]}},
+
+    {cadre:[{s:'s'},{h:'没',p:'méi'},{s:'v'},{h:'过',p:'guo'},{s:'o'},P('。')],
+     fr:'… n’a jamais …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'去',p:'qù',fr:'aller'},{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'voir'},{h:'喝',p:'hē',fr:'boire'},{h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'}],o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},{h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},{h:'中国茶',p:'Zhōng guó chá',fr:'du thé chinois'},{h:'日语',p:'Rì yǔ',fr:'le japonais'},{h:'上海',p:'Shàng hǎi',fr:'à Shanghai'},{h:'飞机',p:'fēi jī',fr:'l’avion'},{h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'中国菜',p:'Zhōng guó cài',fr:'de la cuisine chinoise'},{h:'法语',p:'Fǎ yǔ',fr:'le français'},{h:'法国',p:'Fǎ guó',fr:'en France'},{h:'火车',p:'huǒ chē',fr:'le train'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'过',p:'guo'},{s:'o'},{h:'吗',p:'ma'},P('？')],
+     fr:'As-tu déjà … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'}],v:[{h:'去',p:'qù',fr:'aller'},{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'voir'},{h:'喝',p:'hē',fr:'boire'},{h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller'},{h:'坐',p:'zuò',fr:'prendre'}],o:[{h:'中国',p:'Zhōng guó',fr:'en Chine'},{h:'北京烤鸭',p:'Běi jīng kǎo yā',fr:'du canard laqué'},{h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},{h:'中国茶',p:'Zhōng guó chá',fr:'du thé chinois'},{h:'日语',p:'Rì yǔ',fr:'le japonais'},{h:'上海',p:'Shàng hǎi',fr:'à Shanghai'},{h:'飞机',p:'fēi jī',fr:'l’avion'},{h:'那本书',p:'nà běn shū',fr:'ce livre'},{h:'中国菜',p:'Zhōng guó cài',fr:'de la cuisine chinoise'},{h:'法语',p:'Fǎ yǔ',fr:'le français'},{h:'法国',p:'Fǎ guó',fr:'en France'},{h:'火车',p:'huǒ chē',fr:'le train'}]}},
+
+    {cadre:[{s:'s'},{h:'去',p:'qù'},{h:'过',p:'guo'},{s:'n'},{h:'次',p:'cì'},{s:'l'},P('。')],
+     fr:'… est allé … fois à …', lie:[], libre:['s','n','l'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],n:[{h:'一',p:'yí',fr:'une'},{h:'两',p:'liǎng',fr:'deux'},{h:'三',p:'sān',fr:'trois'},{h:'四',p:'sì',fr:'quatre'},{h:'五',p:'wǔ',fr:'cinq'},{h:'很多',p:'hěn duō',fr:'beaucoup de'}],l:[{h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'上海',p:'Shàng hǎi',fr:'Shanghai'},{h:'中国',p:'Zhōng guó',fr:'Chine'},{h:'法国',p:'Fǎ guó',fr:'France'},{h:'那个城市',p:'nà ge chéng shì',fr:'cette ville'},{h:'那个地方',p:'nà ge dì fang',fr:'cet endroit'}]}}
   ],
 
   transfo:[
@@ -1363,25 +1323,17 @@ const GRAMMAR=[
   leurres:['在','正在','着','呢','了','没','过'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{s:'v'},{s:'o'},P('。')],
-     fr:'Je suis en train de …', lie:[['v','o']],
-     listes:{v:[{h:'看',p:'kàn',fr:'lire'},{h:'做',p:'zuò',fr:'faire'},
-                {h:'学',p:'xué',fr:'apprendre'},{h:'打',p:'dǎ',fr:'passer'},{h:'喝',p:'hē',fr:'boire'}],
-             o:[{h:'书',p:'shū',fr:'un livre'},{h:'饭',p:'fàn',fr:'la cuisine'},
-                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'电话',p:'diàn huà',fr:'un coup de téléphone'},
-                {h:'咖啡',p:'kā fēi',fr:'un café'}]}},
-    {cadre:[{h:'他',p:'tā'},{s:'v'},{s:'o'},{h:'呢',p:'ne'},P('。')],
-     fr:'Il est en train de …', lie:[['v','o']],
-     listes:{v:[{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},
-                {h:'喝',p:'hē',fr:'boire'},{h:'写',p:'xiě',fr:'écrire'}],
-             o:[{h:'饭',p:'fàn',fr:'le repas'},{h:'电视',p:'diàn shì',fr:'la télévision'},
-                {h:'咖啡',p:'kā fēi',fr:'du café'},{h:'汉字',p:'Hàn zì',fr:'des caractères'}]}},
+    {cadre:[{s:'s'},{h:'在',p:'zài'},{s:'v'},{s:'o'},P('。')],
+     fr:'… est en train de …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'看',p:'kàn',fr:'lire'},{h:'做',p:'zuò',fr:'préparer'},{h:'学',p:'xué',fr:'apprendre'},{h:'打',p:'dǎ',fr:'passer'},{h:'喝',p:'hē',fr:'boire'},{h:'看',p:'kàn',fr:'regarder'},{h:'写',p:'xiě',fr:'écrire'},{h:'吃',p:'chī',fr:'manger'},{h:'听',p:'tīng',fr:'écouter'},{h:'做',p:'zuò',fr:'faire'},{h:'看',p:'kàn',fr:'voir'},{h:'学',p:'xué',fr:'apprendre'}],o:[{h:'书',p:'shū',fr:'un livre'},{h:'饭',p:'fàn',fr:'le repas'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'咖啡',p:'kā fēi',fr:'un café'},{h:'电视',p:'diàn shì',fr:'la télévision'},{h:'汉字',p:'Hàn zì',fr:'des caractères'},{h:'饭',p:'fàn',fr:'le repas'},{h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'电影',p:'diàn yǐng',fr:'un film'},{h:'英语',p:'Yīng yǔ',fr:'l’anglais'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{s:'o'},{h:'呢',p:'ne'},P('。')],
+     fr:'… est en train de …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'看',p:'kàn',fr:'lire'},{h:'做',p:'zuò',fr:'préparer'},{h:'学',p:'xué',fr:'apprendre'},{h:'打',p:'dǎ',fr:'passer'},{h:'喝',p:'hē',fr:'boire'},{h:'看',p:'kàn',fr:'regarder'},{h:'写',p:'xiě',fr:'écrire'},{h:'吃',p:'chī',fr:'manger'},{h:'听',p:'tīng',fr:'écouter'},{h:'做',p:'zuò',fr:'faire'},{h:'看',p:'kàn',fr:'voir'},{h:'学',p:'xué',fr:'apprendre'}],o:[{h:'书',p:'shū',fr:'un livre'},{h:'饭',p:'fàn',fr:'le repas'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'咖啡',p:'kā fēi',fr:'un café'},{h:'电视',p:'diàn shì',fr:'la télévision'},{h:'汉字',p:'Hàn zì',fr:'des caractères'},{h:'饭',p:'fàn',fr:'le repas'},{h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'电影',p:'diàn yǐng',fr:'un film'},{h:'英语',p:'Yīng yǔ',fr:'l’anglais'}]}},
+
     {cadre:[{s:'n'},{s:'v'},{h:'着',p:'zhe'},P('。')],
      fr:'… est …', lie:[['n','v']],
-     listes:{n:[{h:'门',p:'mén',fr:'la porte'},{h:'窗户',p:'chuāng hu',fr:'la fenêtre'},
-                {h:'灯',p:'dēng',fr:'la lampe'},{h:'电视',p:'diàn shì',fr:'la télévision'}],
-             v:[{h:'开',p:'kāi',fr:'ouverte'},{h:'关',p:'guān',fr:'fermée'},
-                {h:'开',p:'kāi',fr:'allumée'},{h:'开',p:'kāi',fr:'allumée'}]}}
+     listes:{n:[{h:'门',p:'mén',fr:'la porte'},{h:'门',p:'mén',fr:'la porte'},{h:'窗户',p:'chuāng hu',fr:'la fenêtre'},{h:'窗户',p:'chuāng hu',fr:'la fenêtre'},{h:'灯',p:'dēng',fr:'la lampe'},{h:'灯',p:'dēng',fr:'la lampe'},{h:'电视',p:'diàn shì',fr:'la télévision'},{h:'电视',p:'diàn shì',fr:'la télévision'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},{h:'电脑',p:'diàn nǎo',fr:'l’ordinateur'},{h:'电脑',p:'diàn nǎo',fr:'l’ordinateur'}],v:[{h:'开',p:'kāi',fr:'ouvert'},{h:'关',p:'guān',fr:'fermé'},{h:'开',p:'kāi',fr:'ouverte'},{h:'关',p:'guān',fr:'fermée'},{h:'开',p:'kāi',fr:'allumée'},{h:'关',p:'guān',fr:'éteinte'},{h:'开',p:'kāi',fr:'allumée'},{h:'关',p:'guān',fr:'éteinte'},{h:'开',p:'kāi',fr:'allumé'},{h:'关',p:'guān',fr:'éteint'},{h:'开',p:'kāi',fr:'allumé'},{h:'关',p:'guān',fr:'éteint'}]}}
   ],
 
   transfo:[
@@ -1564,24 +1516,17 @@ const GRAMMAR=[
   leurres:['完','到','懂','见','错','好','了','没'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{s:'r'},{h:'了',p:'le'},P('。')],
-     fr:'J’ai …', lie:[['v','r']],
-     listes:{v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
-                {h:'找',p:'zhǎo',fr:'chercher'},{h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'faire'}],
-             r:[{h:'完',p:'wán',fr:'fini de'},{h:'懂',p:'dǒng',fr:'et compris'},
-                {h:'到',p:'dào',fr:'et trouvé'},{h:'完',p:'wán',fr:'fini de'},{h:'好',p:'hǎo',fr:'comme il faut'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{s:'v'},{s:'r'},P('。')],
-     fr:'Je n’ai pas …', lie:[['v','r']],
-     listes:{v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
-                {h:'找',p:'zhǎo',fr:'chercher'},{h:'做',p:'zuò',fr:'faire'}],
-             r:[{h:'完',p:'wán',fr:'fini de'},{h:'懂',p:'dǒng',fr:'et compris'},
-                {h:'到',p:'dào',fr:'et trouvé'},{h:'好',p:'hǎo',fr:'comme il faut'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{s:'v'},{s:'d'},{h:'懂',p:'dǒng'},P('。')],
-     fr:'J’arrive / je n’arrive pas à comprendre …', lie:[['v','d']],
-     listes:{v:[{h:'看',p:'kàn',fr:'en lisant'},{h:'看',p:'kàn',fr:'en lisant'},
-                {h:'听',p:'tīng',fr:'en écoutant'},{h:'听',p:'tīng',fr:'en écoutant'}],
-             d:[{h:'得',p:'de',fr:'j’y arrive'},{h:'不',p:'bu',fr:'je n’y arrive pas'},
-                {h:'得',p:'de',fr:'j’y arrive'},{h:'不',p:'bu',fr:'je n’y arrive pas'}]}}
+    {cadre:[{s:'s'},{s:'v'},{s:'r'},{h:'了',p:'le'},P('。')],
+     fr:'… a …', lie:[['v','r']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},{h:'找',p:'zhǎo',fr:'chercher'},{h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'faire'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'买',p:'mǎi',fr:'acheter'},{h:'说',p:'shuō',fr:'dire'},{h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'},{h:'听',p:'tīng',fr:'entendre'}],r:[{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'到',p:'dào',fr:'jusqu’à trouver'},{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'好',p:'hǎo',fr:'comme il faut'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'好',p:'hǎo',fr:'comme il faut'},{h:'好',p:'hǎo',fr:'comme il faut'},{h:'见',p:'jiàn',fr:'jusqu’à entendre'}]}},
+
+    {cadre:[{s:'s'},{h:'没',p:'méi'},{s:'v'},{s:'r'},P('。')],
+     fr:'… n’a pas …', lie:[['v','r']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},{h:'找',p:'zhǎo',fr:'chercher'},{h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'faire'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'买',p:'mǎi',fr:'acheter'},{h:'说',p:'shuō',fr:'dire'},{h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'},{h:'听',p:'tīng',fr:'entendre'}],r:[{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'到',p:'dào',fr:'jusqu’à trouver'},{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'好',p:'hǎo',fr:'comme il faut'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'完',p:'wán',fr:'jusqu’au bout'},{h:'好',p:'hǎo',fr:'comme il faut'},{h:'好',p:'hǎo',fr:'comme il faut'},{h:'见',p:'jiàn',fr:'jusqu’à entendre'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{s:'d'},{s:'r'},P('。')],
+     fr:'… arrive / n’arrive pas à …', lie:[['v','d','r']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],v:[{h:'看',p:'kàn',fr:'lire'},{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},{h:'听',p:'tīng',fr:'écouter'},{h:'找',p:'zhǎo',fr:'chercher'},{h:'找',p:'zhǎo',fr:'chercher'},{h:'看',p:'kàn',fr:'lire'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'manger'},{h:'买',p:'mǎi',fr:'acheter'},{h:'买',p:'mǎi',fr:'acheter'}],d:[{h:'得',p:'de',fr:'y arriver'},{h:'不',p:'bu',fr:'ne pas y arriver'},{h:'得',p:'de',fr:'y arriver'},{h:'不',p:'bu',fr:'ne pas y arriver'},{h:'得',p:'de',fr:'y arriver'},{h:'不',p:'bu',fr:'ne pas y arriver'},{h:'得',p:'de',fr:'y arriver'},{h:'不',p:'bu',fr:'ne pas y arriver'},{h:'得',p:'de',fr:'y arriver'},{h:'不',p:'bu',fr:'ne pas y arriver'},{h:'得',p:'de',fr:'y arriver'},{h:'不',p:'bu',fr:'ne pas y arriver'}],r:[{h:'懂',p:'dǒng',fr:'comprendre'},{h:'懂',p:'dǒng',fr:'comprendre'},{h:'懂',p:'dǒng',fr:'comprendre'},{h:'懂',p:'dǒng',fr:'comprendre'},{h:'到',p:'dào',fr:'trouver'},{h:'到',p:'dào',fr:'trouver'},{h:'完',p:'wán',fr:'finir'},{h:'完',p:'wán',fr:'finir'},{h:'完',p:'wán',fr:'finir'},{h:'完',p:'wán',fr:'finir'},{h:'到',p:'dào',fr:'l’obtenir'},{h:'到',p:'dào',fr:'l’obtenir'}]}}
   ],
 
   transfo:[
@@ -1766,24 +1711,17 @@ const GRAMMAR=[
   leurres:['把','了','完','在','给','没','到'],
 
   gabarits:[
-    {cadre:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{s:'o'},{s:'v'},{h:'了',p:'le'},P('。')],
-     fr:'…, je l’ai …', lie:[['o','v']],
-     listes:{o:[{h:'那个面包',p:'nà ge miàn bāo',fr:'ce pain'},{h:'咖啡',p:'kā fēi',fr:'le café'},
-                {h:'茶',p:'chá',fr:'le thé'},{h:'饭',p:'fàn',fr:'le repas'}],
-             v:[{h:'吃',p:'chī',fr:'mangé'},{h:'喝',p:'hē',fr:'bu'},
-                {h:'喝',p:'hē',fr:'bu'},{h:'吃',p:'chī',fr:'mangé'}]}},
-    {cadre:[{h:'我',p:'wǒ'},{h:'把',p:'bǎ'},{s:'o'},{s:'v'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],
-     fr:'J’ai fini de … …', lie:[['o','v']],
-     listes:{o:[{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},
-                {h:'咖啡',p:'kā fēi',fr:'le café'},{h:'工作',p:'gōng zuò',fr:'le travail'}],
-             v:[{h:'写',p:'xiě',fr:'écrire'},{h:'看',p:'kàn',fr:'lire'},
-                {h:'喝',p:'hē',fr:'boire'},{h:'做',p:'zuò',fr:'faire'}]}},
-    {cadre:[{h:'请',p:'qǐng'},{h:'把',p:'bǎ'},{s:'o'},{h:'放',p:'fàng'},{h:'在',p:'zài'},{s:'l'},P('。')],
-     fr:'Pose … …', lie:[['o','l']],
-     listes:{o:[{h:'书',p:'shū',fr:'le livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},
-                {h:'钱',p:'qián',fr:'l’argent'},{h:'咖啡',p:'kā fēi',fr:'le café'}],
-             l:[{h:'桌子上',p:'zhuō zi shang',fr:'sur la table'},{h:'这儿',p:'zhèr',fr:'ici'},
-                {h:'那儿',p:'nàr',fr:'là'},{h:'桌子上',p:'zhuō zi shang',fr:'sur la table'}]}}
+    {cadre:[{s:'s'},{h:'把',p:'bǎ'},{s:'o'},{s:'v'},{h:'了',p:'le'},P('。')],
+     fr:'…, … l’a …', lie:[['o','v']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],o:[{h:'那个面包',p:'nà ge miàn bāo',fr:'ce pain'},{h:'咖啡',p:'kā fēi',fr:'le café'},{h:'茶',p:'chá',fr:'le thé'},{h:'饭',p:'fàn',fr:'le repas'},{h:'那些菜',p:'nà xiē cài',fr:'ces plats'},{h:'蛋糕',p:'dàn gāo',fr:'le gâteau'},{h:'水',p:'shuǐ',fr:'l’eau'},{h:'那杯茶',p:'nà bēi chá',fr:'cette tasse de thé'},{h:'那个苹果',p:'nà ge píng guǒ',fr:'cette pomme'},{h:'牛奶',p:'niú nǎi',fr:'le lait'},{h:'面包',p:'miàn bāo',fr:'le pain'},{h:'那杯咖啡',p:'nà bēi kā fēi',fr:'ce café'}],v:[{h:'吃',p:'chī',fr:'mangé'},{h:'喝',p:'hē',fr:'bu'},{h:'喝',p:'hē',fr:'bu'},{h:'吃',p:'chī',fr:'mangé'},{h:'吃',p:'chī',fr:'mangés'},{h:'吃',p:'chī',fr:'mangé'},{h:'喝',p:'hē',fr:'bue'},{h:'喝',p:'hē',fr:'bue'},{h:'吃',p:'chī',fr:'mangée'},{h:'喝',p:'hē',fr:'bu'},{h:'吃',p:'chī',fr:'mangé'},{h:'喝',p:'hē',fr:'bu'}]}},
+
+    {cadre:[{s:'s'},{h:'把',p:'bǎ'},{s:'o'},{s:'v'},{h:'完',p:'wán'},{h:'了',p:'le'},P('。')],
+     fr:'… a fini de … …', lie:[['o','v']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],o:[{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'咖啡',p:'kā fēi',fr:'le café'},{h:'工作',p:'gōng zuò',fr:'le travail'},{h:'饭',p:'fàn',fr:'le repas'},{h:'这些字',p:'zhè xiē zì',fr:'ces caractères'},{h:'那个电影',p:'nà ge diàn yǐng',fr:'ce film'},{h:'茶',p:'chá',fr:'le thé'},{h:'这些菜',p:'zhè xiē cài',fr:'ces plats'},{h:'这些作业',p:'zhè xiē zuò yè',fr:'ces devoirs'},{h:'那本书',p:'nà běn shū',fr:'ce livre-là'},{h:'面包',p:'miàn bāo',fr:'le pain'}],v:[{h:'写',p:'xiě',fr:'écrire'},{h:'看',p:'kàn',fr:'lire'},{h:'喝',p:'hē',fr:'boire'},{h:'做',p:'zuò',fr:'faire'},{h:'吃',p:'chī',fr:'manger'},{h:'写',p:'xiě',fr:'écrire'},{h:'看',p:'kàn',fr:'regarder'},{h:'喝',p:'hē',fr:'boire'},{h:'吃',p:'chī',fr:'manger'},{h:'做',p:'zuò',fr:'faire'},{h:'看',p:'kàn',fr:'lire'},{h:'吃',p:'chī',fr:'manger'}]}},
+
+    {cadre:[{s:'q'},{h:'把',p:'bǎ'},{s:'o'},{h:'放',p:'fàng'},{h:'在',p:'zài'},{s:'l'},P('。')],
+     fr:'Pose … …', lie:[], libre:['q','o','l'],
+     listes:{q:[{h:'请',p:'qǐng',fr:'s’il te plaît'},{h:'请你',p:'qǐng nǐ',fr:'s’il te plaît'}],o:[{h:'书',p:'shū',fr:'le livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},{h:'钱',p:'qián',fr:'l’argent'},{h:'咖啡',p:'kā fēi',fr:'le café'},{h:'词典',p:'cí diǎn',fr:'le dictionnaire'},{h:'电脑',p:'diàn nǎo',fr:'l’ordinateur'},{h:'衣服',p:'yī fu',fr:'les vêtements'},{h:'照片',p:'zhào piàn',fr:'la photo'},{h:'礼物',p:'lǐ wù',fr:'le cadeau'},{h:'水',p:'shuǐ',fr:'l’eau'},{h:'作业',p:'zuò yè',fr:'les devoirs'},{h:'蛋糕',p:'dàn gāo',fr:'le gâteau'}],l:[{h:'桌子上',p:'zhuō zi shang',fr:'sur la table'},{h:'这儿',p:'zhèr',fr:'ici'},{h:'那儿',p:'nàr',fr:'là'},{h:'房间里',p:'fáng jiān lǐ',fr:'dans la chambre'}]}}
   ],
 
   transfo:[
@@ -2215,6 +2153,580 @@ const GRAMMAR=[
      modeles:[{hz:'他走进教室来了。',py:'tā zǒu jìn jiào shì lái le',fr:'Il est entré dans la salle de classe.'},
               {hz:'老师走进教室去了。',py:'lǎo shī zǒu jìn jiào shì qù le',fr:'Le professeur est entré dans la salle.'}],
      criteres:['Le lieu est entre le trajet et 来/去','Le point de vue est cohérent avec l’endroit où vous êtes','了 ferme la phrase']}
+  ]
+}
+,
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g309', hsk:3, fam:'verbe', th:['decrire','quotidien'],
+  title:'起来 au sens figuré : 看起来, 说起来, 想起来',
+  resume:'Le même 起来 qui fait lever un corps sert aussi à juger d’une apparence, à retrouver un souvenir, à éprouver une chose en s’y mettant, ou à dire qu’une action se déclenche.',
+
+  steps:[
+    {
+      t:'Rappel du sens propre',
+      p:[
+        'Dans la fiche précédente, <b>起来</b> disait un mouvement réel vers le haut : 站起来, se lever ; 拿起来, ramasser.',
+        'C’est de ce sens que dérivent tous les autres. Ce qui monte, dans les emplois figurés, ce n’est plus un corps : c’est une impression, un souvenir, une action qui démarre.'
+      ],
+      ex:[
+        {hz:'她站起来了。',py:'tā zhàn qǐ lái le',fr:'Elle s’est levée.',
+         note:'Sens propre : le corps monte.'},
+        {hz:'他把书拿起来了。',py:'tā bǎ shū ná qǐ lái le',fr:'Il a ramassé le livre.'}
+      ],
+      check:{q:'Dans 站起来, 起来 dit :',a:['une impression','un mouvement réel vers le haut'],ok:1,
+             why:'C’est le sens propre, dont tous les emplois figurés dérivent.'}
+    },
+    {
+      t:'看起来, 听起来 — juger d’une apparence',
+      p:[
+        '<b>看起来</b> introduit un jugement fondé sur ce qu’on voit : « à le voir, on dirait que… ». <b>听起来</b> fait de même pour ce qu’on entend.',
+        'Ce qui suit se construit comme une phrase d’adjectif ordinaire, avec 很 devant : 看起来<b>很</b>累.'
+      ],
+      ex:[
+        {hz:'他看起来很累。',py:'tā kàn qǐ lái hěn lèi',fr:'Il a l’air fatigué.',
+         note:'Je ne dis pas qu’il est fatigué : je dis ce que son apparence donne à penser.'},
+        {hz:'这个名字听起来很好听。',py:'zhè ge míng zi tīng qǐ lái hěn hǎo tīng',fr:'Ce nom sonne joliment.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['他看起来累。','他看起来很累。'],ok:1,
+             why:'Comme partout, l’adjectif attribut demande un adverbe : 很.'}
+    },
+    {
+      t:'想起来 — le souvenir qui remonte',
+      p:[
+        '<b>想</b> seul veut dire penser, ou vouloir. <b>想起来</b> dit tout autre chose : un souvenir qu’on avait perdu remonte à la surface.',
+        'L’objet se place après le bloc, ou à l’intérieur juste avant 来, exactement comme pour les compléments de direction.'
+      ],
+      ex:[
+        {hz:'我想起来了。',py:'wǒ xiǎng qǐ lái le',fr:'Ça y est, je me rappelle.'},
+        {hz:'我想起来他的名字了。',py:'wǒ xiǎng qǐ lái tā de míng zi le',fr:'Je me suis rappelé son nom.'},
+        {hz:'我想起他的名字来了。',py:'wǒ xiǎng qǐ tā de míng zi lái le',fr:'Je me suis rappelé son nom.',
+         note:'Même phrase, l’objet ayant seulement changé de place.'}
+      ],
+      check:{q:'我想他 veut dire :',a:['je me souviens de lui','il me manque, je pense à lui'],ok:1,
+             why:'Le souvenir qui revient demande 想起来 ; 想 seul, c’est penser à quelqu’un.'}
+    },
+    {
+      t:'说起来, 做起来 — à l’épreuve',
+      p:[
+        'Greffé sur un verbe d’action, <b>起来</b> dit : quand on s’y met, à l’usage. C’est un jugement porté sur l’expérience de faire la chose.',
+        'La formule proverbiale la plus connue oppose les deux : 说起来容易，做起来难.'
+      ],
+      ex:[
+        {hz:'说起来容易，做起来难。',py:'shuō qǐ lái róng yì, zuò qǐ lái nán',fr:'Facile à dire, difficile à faire.'},
+        {hz:'汉语说起来很难。',py:'Hàn yǔ shuō qǐ lái hěn nán',fr:'Le chinois est difficile à parler.',
+         note:'Le sujet est ce dont on parle ; le verbe dit par quel bout on l’éprouve.'}
+      ],
+      check:{q:'这个菜吃起来很好吃 signifie :',a:['ce plat est en train d’être mangé','à le goûter, ce plat est bon'],ok:1,
+             why:'起来 dit ici l’épreuve : ce que donne la chose quand on s’y met.'}
+    },
+    {
+      t:'起来 — l’action qui se déclenche',
+      p:[
+        'Dernier emploi : <b>起来</b> marque le moment où l’action se met en route. 他笑起来了, il s’est mis à rire.',
+        'S’il y a un objet, il se glisse entre 起 et 来 : 下<b>起</b>雨<b>来</b>了.'
+      ],
+      ex:[
+        {hz:'他笑起来了。',py:'tā xiào qǐ lái le',fr:'Il s’est mis à rire.'},
+        {hz:'下起雨来了。',py:'xià qǐ yǔ lái le',fr:'Il s’est mis à pleuvoir.',
+         note:'雨 se glisse à l’intérieur, entre 起 et 来.'}
+      ],
+      check:{q:'Où se place 雨 ?',a:['下起来雨了。','下起雨来了。'],ok:1,
+             why:'L’objet se glisse entre 起 et 来, jamais après le bloc.'}
+    },
+    {
+      t:'Les confusions à éviter',
+      p:[
+        '<b>看起来</b> n’est pas <b>看见</b> : le premier juge d’une apparence, le second constate qu’on a vu.',
+        '<b>想起来</b> n’est pas <b>想</b> : le premier retrouve un souvenir, le second pense à quelque chose ou en a envie.',
+        'Enfin, 起来 figuré garde la construction du 起来 propre : l’objet se glisse toujours avant 来.'
+      ],
+      ex:[
+        {hz:'我看见他了。',py:'wǒ kàn jiàn tā le',fr:'Je l’ai vu.',
+         note:'Un constat, pas un jugement.'},
+        {hz:'他看起来很年轻。',py:'tā kàn qǐ lái hěn nián qīng',fr:'Il a l’air jeune.',
+         note:'Un jugement tiré de l’apparence.'}
+      ],
+      check:{q:'Pour dire « il a l’air content » :',a:['他看见很高兴。','他看起来很高兴。'],ok:1,
+             why:'看见 constate ; c’est 看起来 qui porte un jugement sur l’apparence.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Emploi','Exemple','Traduction'],
+    rows:[
+      ['Sens propre','她站起来了','Elle s’est levée'],
+      ['Apparence vue','他看起来很累','Il a l’air fatigué'],
+      ['Apparence entendue','这个名字听起来很好听','Ce nom sonne joliment'],
+      ['Souvenir retrouvé','我想起来了','Ça y est, je me rappelle'],
+      ['À l’épreuve','说起来容易','Facile à dire'],
+      ['Action déclenchée','下起雨来了','Il s’est mis à pleuvoir']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'他看见很高兴。',py:'tā kàn jiàn hěn gāo xìng'},
+    good:{hz:'他看起来很高兴。',py:'tā kàn qǐ lái hěn gāo xìng'},
+    why:'看见 constate qu’on a vu quelque chose. Pour dire ce que l’apparence donne à penser, il faut 看起来 — et l’adjectif garde son 很, comme dans toute phrase d’adjectif.'
+  },
+
+  voir:['g308','g302'],
+
+  banque:[
+    {seg:[{h:'他',p:'tā'},{h:'看起来',p:'kàn qǐ lái'},{h:'很',p:'hěn'},{h:'累',p:'lèi'},P('。')],cle:1,fr:'Il a l’air fatigué.'},
+    {seg:[{h:'她',p:'tā'},{h:'看起来',p:'kàn qǐ lái'},{h:'很',p:'hěn'},{h:'高兴',p:'gāo xìng'},P('。')],cle:1,fr:'Elle a l’air contente.'},
+    {seg:[{h:'这个',p:'zhè ge'},{h:'名字',p:'míng zi'},{h:'听起来',p:'tīng qǐ lái'},{h:'很',p:'hěn'},{h:'好听',p:'hǎo tīng'},P('。')],cle:2,fr:'Ce nom sonne joliment.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'想起来',p:'xiǎng qǐ lái'},{h:'了',p:'le'},P('。')],cle:1,fr:'Ça y est, je me rappelle.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'想起来',p:'xiǎng qǐ lái'},{h:'他的',p:'tā de'},{h:'名字',p:'míng zi'},{h:'了',p:'le'},P('。')],cle:1,fr:'Je me suis rappelé son nom.'},
+    {seg:[{h:'说起来',p:'shuō qǐ lái'},{h:'容易',p:'róng yì'},P('，'),{h:'做起来',p:'zuò qǐ lái'},{h:'难',p:'nán'},P('。')],cle:0,fr:'Facile à dire, difficile à faire.'},
+    {seg:[{h:'汉语',p:'Hàn yǔ'},{h:'说起来',p:'shuō qǐ lái'},{h:'很',p:'hěn'},{h:'难',p:'nán'},P('。')],cle:1,fr:'Le chinois est difficile à parler.'},
+    {seg:[{h:'他',p:'tā'},{h:'笑',p:'xiào'},{h:'起来',p:'qǐ lái'},{h:'了',p:'le'},P('。')],cle:2,fr:'Il s’est mis à rire.'},
+    {seg:[{h:'下',p:'xià'},{h:'起',p:'qǐ'},{h:'雨',p:'yǔ'},{h:'来',p:'lái'},{h:'了',p:'le'},P('。')],cle:1,fr:'Il s’est mis à pleuvoir.'},
+    {seg:[{h:'她',p:'tā'},{h:'站',p:'zhàn'},{h:'起来',p:'qǐ lái'},{h:'了',p:'le'},P('。')],cle:2,fr:'Elle s’est levée.'},
+    {seg:[{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},{h:'看起来',p:'kàn qǐ lái'},{h:'很',p:'hěn'},{h:'有意思',p:'yǒu yì si'},P('。')],cle:2,fr:'Ce livre a l’air intéressant.'},
+    {seg:[{h:'他',p:'tā'},{h:'看起来',p:'kàn qǐ lái'},{h:'不太',p:'bú tài'},{h:'舒服',p:'shū fu'},P('。')],cle:1,fr:'Il n’a pas l’air très bien.'},
+    {seg:[{h:'大家',p:'dà jiā'},{h:'唱',p:'chàng'},{h:'起来',p:'qǐ lái'},{h:'了',p:'le'},P('。')],cle:2,fr:'Tout le monde s’est mis à chanter.'},
+    {seg:[{h:'这个',p:'zhè ge'},{h:'办法',p:'bàn fǎ'},{h:'听起来',p:'tīng qǐ lái'},{h:'很',p:'hěn'},{h:'好',p:'hǎo'},P('。')],cle:2,fr:'Cette solution a l’air bonne.'}
+  ],
+  leurres:['起来','看起来','听起来','想起来','看见','很','了'],
+
+  gabarits:[
+    {cadre:[{s:'s'},{h:'看起来',p:'kàn qǐ lái'},{h:'很',p:'hěn'},{s:'a'},P('。')],
+     fr:'… a l’air …', lie:[], libre:['s','a'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'你朋友',p:'nǐ péng you',fr:'ton amie'}],
+             a:[{h:'累',p:'lèi',fr:'fatigué'},{h:'高兴',p:'gāo xìng',fr:'content'},
+                {h:'年轻',p:'nián qīng',fr:'jeune'},{h:'忙',p:'máng',fr:'occupé'},
+                {h:'舒服',p:'shū fu',fr:'à l’aise'},{h:'好',p:'hǎo',fr:'bien'},
+                {h:'高',p:'gāo',fr:'grand'},{h:'聪明',p:'cōng ming',fr:'intelligent'},
+                {h:'认真',p:'rèn zhēn',fr:'sérieux'},{h:'安静',p:'ān jìng',fr:'calme'},
+                {h:'快乐',p:'kuài lè',fr:'joyeux'},{h:'生气',p:'shēng qì',fr:'fâché'}]}},
+
+    {cadre:[{s:'n'},{h:'听起来',p:'tīng qǐ lái'},{h:'很',p:'hěn'},{s:'a'},P('。')],
+     fr:'… sonne …', lie:[['n','a']],
+     listes:{n:[{h:'这个名字',p:'zhè ge míng zi',fr:'ce nom'},{h:'这首歌',p:'zhè shǒu gē',fr:'cette chanson'},
+                {h:'他的声音',p:'tā de shēng yīn',fr:'sa voix'},{h:'这个故事',p:'zhè ge gù shi',fr:'cette histoire'},
+                {h:'这个问题',p:'zhè ge wèn tí',fr:'cette question'},{h:'这个办法',p:'zhè ge bàn fǎ',fr:'cette solution'},
+                {h:'这首歌',p:'zhè shǒu gē',fr:'cette chanson'},{h:'这个故事',p:'zhè ge gù shi',fr:'cette histoire'},
+                {h:'这个问题',p:'zhè ge wèn tí',fr:'cette question'},{h:'这个办法',p:'zhè ge bàn fǎ',fr:'cette solution'},
+                {h:'这个名字',p:'zhè ge míng zi',fr:'ce nom'},{h:'他的声音',p:'tā de shēng yīn',fr:'sa voix'}],
+             a:[{h:'好听',p:'hǎo tīng',fr:'joli à l’oreille'},{h:'好听',p:'hǎo tīng',fr:'joli à l’oreille'},
+                {h:'好听',p:'hǎo tīng',fr:'joli à l’oreille'},{h:'有意思',p:'yǒu yì si',fr:'intéressant'},
+                {h:'难',p:'nán',fr:'difficile'},{h:'好',p:'hǎo',fr:'bon'},
+                {h:'不错',p:'bú cuò',fr:'pas mal'},{h:'不错',p:'bú cuò',fr:'pas mal'},
+                {h:'容易',p:'róng yì',fr:'facile'},{h:'容易',p:'róng yì',fr:'facile'},
+                {h:'不错',p:'bú cuò',fr:'pas mal'},{h:'奇怪',p:'qí guài',fr:'étrange'}]}},
+
+    {cadre:[{s:'s'},{h:'想起来',p:'xiǎng qǐ lái'},{s:'o'},{h:'了',p:'le'},P('。')],
+     fr:'… s’est rappelé …', lie:[], libre:['s','o'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'你朋友',p:'nǐ péng you',fr:'ton amie'}],
+             o:[{h:'他的名字',p:'tā de míng zi',fr:'son nom'},{h:'她的名字',p:'tā de míng zi',fr:'son nom à elle'},
+                {h:'那个人的名字',p:'nà ge rén de míng zi',fr:'le nom de cette personne'},{h:'那个词',p:'nà ge cí',fr:'ce mot'},
+                {h:'那件事',p:'nà jiàn shì',fr:'cette affaire'},{h:'老师的话',p:'lǎo shī de huà',fr:'les paroles du professeur'},
+                {h:'那个地方',p:'nà ge dì fang',fr:'cet endroit'},{h:'昨天的事',p:'zuó tiān de shì',fr:'ce qui s’est passé hier'},
+                {h:'那个故事',p:'nà ge gù shi',fr:'cette histoire'},{h:'那本书的名字',p:'nà běn shū de míng zi',fr:'le titre de ce livre'},
+                {h:'他的电话号码',p:'tā de diàn huà hào mǎ',fr:'son numéro'},{h:'那个办法',p:'nà ge bàn fǎ',fr:'cette solution'}]}},
+
+    {cadre:[{s:'o'},{s:'v'},{h:'起来',p:'qǐ lái'},{h:'很',p:'hěn'},{s:'a'},P('。')],
+     fr:'…, à l’épreuve, est …', lie:[['o','v','a']],
+     listes:{o:[{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'汉字',p:'Hàn zì',fr:'les caractères'},
+                {h:'这个字',p:'zhè ge zì',fr:'ce caractère'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},
+                {h:'这个问题',p:'zhè ge wèn tí',fr:'cette question'},{h:'这个问题',p:'zhè ge wèn tí',fr:'cette question'},
+                {h:'这首歌',p:'zhè shǒu gē',fr:'cette chanson'},{h:'这首歌',p:'zhè shǒu gē',fr:'cette chanson'},
+                {h:'这个菜',p:'zhè ge cài',fr:'ce plat'},{h:'这个菜',p:'zhè ge cài',fr:'ce plat'},
+                {h:'中文',p:'Zhōng wén',fr:'le chinois'},{h:'这个词',p:'zhè ge cí',fr:'ce mot'}],
+             v:[{h:'说',p:'shuō',fr:'à parler'},{h:'写',p:'xiě',fr:'à écrire'},
+                {h:'写',p:'xiě',fr:'à écrire'},{h:'看',p:'kàn',fr:'à lire'},
+                {h:'说',p:'shuō',fr:'à formuler'},{h:'做',p:'zuò',fr:'à résoudre'},
+                {h:'唱',p:'chàng',fr:'à chanter'},{h:'听',p:'tīng',fr:'à écouter'},
+                {h:'做',p:'zuò',fr:'à préparer'},{h:'吃',p:'chī',fr:'à manger'},
+                {h:'学',p:'xué',fr:'à apprendre'},{h:'用',p:'yòng',fr:'à employer'}],
+             a:[{h:'难',p:'nán',fr:'difficile'},{h:'难',p:'nán',fr:'difficile'},
+                {h:'容易',p:'róng yì',fr:'facile'},{h:'容易',p:'róng yì',fr:'facile'},
+                {h:'容易',p:'róng yì',fr:'facile'},{h:'难',p:'nán',fr:'difficile'},
+                {h:'难',p:'nán',fr:'difficile'},{h:'好听',p:'hǎo tīng',fr:'agréable'},
+                {h:'容易',p:'róng yì',fr:'facile'},{h:'好吃',p:'hǎo chī',fr:'bon'},
+                {h:'难',p:'nán',fr:'difficile'},{h:'容易',p:'róng yì',fr:'facile'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'起来',p:'qǐ lái'},{h:'了',p:'le'},P('。')],
+     fr:'… s’est mis à …', lie:[['s','v']],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'大家',p:'dà jiā',fr:'tout le monde'},{h:'孩子',p:'hái zi',fr:'l’enfant'},
+                {h:'他',p:'tā',fr:'il'},{h:'大家',p:'dà jiā',fr:'tout le monde'},
+                {h:'天',p:'tiān',fr:'le temps'},{h:'天气',p:'tiān qì',fr:'le temps'},
+                {h:'雨',p:'yǔ',fr:'la pluie'},{h:'她',p:'tā',fr:'elle'},
+                {h:'他',p:'tā',fr:'il'},{h:'大家',p:'dà jiā',fr:'tout le monde'}],
+             v:[{h:'笑',p:'xiào',fr:'rire'},{h:'哭',p:'kū',fr:'pleurer'},
+                {h:'唱',p:'chàng',fr:'chanter'},{h:'哭',p:'kū',fr:'pleurer'},
+                {h:'跑',p:'pǎo',fr:'courir'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'冷',p:'lěng',fr:'se rafraîchir'},{h:'热',p:'rè',fr:'se réchauffer'},
+                {h:'下',p:'xià',fr:'tomber'},{h:'唱',p:'chàng',fr:'chanter'},
+                {h:'说',p:'shuō',fr:'parler'},{h:'笑',p:'xiào',fr:'rire'}]}},
+
+    {cadre:[{s:'s'},{h:'看起来',p:'kàn qǐ lái'},{h:'不太',p:'bú tài'},{s:'a'},P('。')],
+     fr:'… n’a pas l’air très …', lie:[], libre:['s','a'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'你朋友',p:'nǐ péng you',fr:'ton amie'}],
+             a:[{h:'累',p:'lèi',fr:'fatigué'},{h:'高兴',p:'gāo xìng',fr:'content'},
+                {h:'年轻',p:'nián qīng',fr:'jeune'},{h:'忙',p:'máng',fr:'occupé'},
+                {h:'舒服',p:'shū fu',fr:'à l’aise'},{h:'好',p:'hǎo',fr:'bien'},
+                {h:'高',p:'gāo',fr:'grand'},{h:'聪明',p:'cōng ming',fr:'intelligent'},
+                {h:'认真',p:'rèn zhēn',fr:'sérieux'},{h:'安静',p:'ān jìng',fr:'calme'},
+                {h:'快乐',p:'kuài lè',fr:'joyeux'},{h:'生气',p:'shēng qì',fr:'fâché'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Portez un jugement sur l’apparence, avec 看起来',
+     de:{hz:'他很累。',py:'tā hěn lèi',fr:'Il est fatigué.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'看起来',p:'kàn qǐ lái'},{h:'很',p:'hěn'},{h:'累',p:'lèi'},P('。')],fr:'Il a l’air fatigué.'}},
+    {consigne:'Portez le jugement sur ce qu’on entend, avec 听起来',
+     de:{hz:'这个名字很好听。',py:'zhè ge míng zi hěn hǎo tīng',fr:'Ce nom est joli.'},
+     vers:{seg:[{h:'这个',p:'zhè ge'},{h:'名字',p:'míng zi'},{h:'听起来',p:'tīng qǐ lái'},{h:'很',p:'hěn'},{h:'好听',p:'hǎo tīng'},P('。')],fr:'Ce nom sonne joliment.'}},
+    {consigne:'Replacez l’objet à l’intérieur du bloc',
+     de:{hz:'我想起来他的名字了。',py:'wǒ xiǎng qǐ lái tā de míng zi le',fr:'Je me suis rappelé son nom.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'起',p:'qǐ'},{h:'他的',p:'tā de'},{h:'名字',p:'míng zi'},{h:'来',p:'lái'},{h:'了',p:'le'},P('。')],fr:'Je me suis rappelé son nom.'}},
+    {consigne:'Dites la difficulté à l’épreuve, avec 起来',
+     de:{hz:'汉语很难。',py:'Hàn yǔ hěn nán',fr:'Le chinois est difficile.'},
+     vers:{seg:[{h:'汉语',p:'Hàn yǔ'},{h:'说',p:'shuō'},{h:'起来',p:'qǐ lái'},{h:'很',p:'hěn'},{h:'难',p:'nán'},P('。')],fr:'Le chinois est difficile à parler.'}},
+    {consigne:'Dites que l’action se déclenche, avec 起来',
+     de:{hz:'他笑了。',py:'tā xiào le',fr:'Il a ri.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'笑',p:'xiào'},{h:'起来',p:'qǐ lái'},{h:'了',p:'le'},P('。')],fr:'Il s’est mis à rire.'}},
+    {consigne:'Atténuez le jugement avec 不太',
+     de:{hz:'他看起来很舒服。',py:'tā kàn qǐ lái hěn shū fu',fr:'Il a l’air bien.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'看起来',p:'kàn qǐ lái'},{h:'不太',p:'bú tài'},{h:'舒服',p:'shū fu'},P('。')],fr:'Il n’a pas l’air très bien.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'他',p:'tā'},{h:'看见',p:'kàn jiàn'},{h:'很',p:'hěn'},{h:'高兴',p:'gāo xìng'},P('。')],bad:1,
+     bon:'他看起来很高兴。',why:'看见 constate qu’on a vu ; le jugement d’apparence demande 看起来.'},
+    {seg:[{h:'他',p:'tā'},{h:'看起来',p:'kàn qǐ lái'},{h:'累',p:'lèi'},P('。')],bad:2,
+     bon:'他看起来很累。',why:'L’adjectif attribut garde son adverbe : 很.'},
+    {seg:[{h:'下',p:'xià'},{h:'起来',p:'qǐ lái'},{h:'雨',p:'yǔ'},{h:'了',p:'le'},P('。')],bad:2,
+     bon:'下起雨来了。',why:'L’objet se glisse entre 起 et 来, jamais après le bloc.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'他的',p:'tā de'},{h:'名字',p:'míng zi'},{h:'了',p:'le'},P('。')],bad:1,
+     bon:'我想起来他的名字了。',why:'想 seul veut dire penser à ; le souvenir qui remonte demande 想起来.'},
+    {seg:[{h:'汉语',p:'Hàn yǔ'},{h:'起来',p:'qǐ lái'},{h:'说',p:'shuō'},{h:'很',p:'hěn'},{h:'难',p:'nán'},P('。')],bad:1,
+     bon:'汉语说起来很难。',why:'起来 se place après le verbe, jamais devant.'},
+    {seg:[{h:'她',p:'tā'},{h:'站',p:'zhàn'},{h:'起去',p:'qǐ qù'},{h:'了',p:'le'},P('。')],bad:2,
+     bon:'她站起来了。',why:'起 n’admet que 来, au sens propre comme au sens figuré.'}
+  ],
+
+  reemploi:[
+    {q:'Regardez quelqu’un autour de vous et dites de quoi il a l’air, puis atténuez avec 不太.',
+     verif:[{type:'contient',v:'看起来',msg:'Le jugement d’apparence demande 看起来.'},
+            {type:'contient',v:'不太',msg:'L’atténuation se fait avec 不太.'}],
+     modeles:[{hz:'他看起来很累，可是看起来不太生气。',py:'tā kàn qǐ lái hěn lèi, kě shì kàn qǐ lái bú tài shēng qì',fr:'Il a l’air fatigué, mais pas très fâché.'}],
+     criteres:['看起来 précède le jugement','很 devant l’adjectif à la forme affirmative','不太 remplace 很 à la forme atténuée']},
+    {q:'Vous venez de retrouver le nom de quelqu’un que vous aviez oublié. Dites-le.',
+     verif:[{type:'contient',v:'想起来',msg:'Le souvenir qui remonte demande 想起来.'},
+            {type:'finit',v:'了',msg:'Le changement d’état demande 了 en fin de phrase.'}],
+     modeles:[{hz:'我想起来了，他叫王明。',py:'wǒ xiǎng qǐ lái le, tā jiào Wáng Míng',fr:'Ça y est, je me rappelle : il s’appelle Wang Ming.'},
+              {hz:'我想起来他的名字了。',py:'wǒ xiǎng qǐ lái tā de míng zi le',fr:'Je me suis rappelé son nom.'}],
+     criteres:['想起来 et non 想 seul','了 ferme la phrase','L’objet est après le bloc, ou entre 起 et 来']},
+    {q:'Dites d’une langue ou d’un plat ce qu’il donne à l’épreuve : à parler, à goûter.',
+     verif:[{type:'contient',v:'起来',msg:'L’épreuve demande 起来 greffé sur le verbe.'},
+            {type:'contient',v:'很',msg:'Le jugement garde son adverbe : 很.'}],
+     modeles:[{hz:'汉语说起来很难，可是听起来很好听。',py:'Hàn yǔ shuō qǐ lái hěn nán, kě shì tīng qǐ lái hěn hǎo tīng',fr:'Le chinois est difficile à parler, mais agréable à entendre.'},
+              {hz:'这个菜吃起来很好吃。',py:'zhè ge cài chī qǐ lái hěn hǎo chī',fr:'Ce plat est bon.'}],
+     criteres:['起来 suit immédiatement le verbe','Ce dont on parle est en tête','很 précède l’adjectif']}
+  ]
+}
+,
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g310', hsk:3, fam:'verbe', th:['quotidien','travail'],
+  title:'Y arriver ou non : la forme potentielle 看得懂 / 看不懂',
+  resume:'On glisse 得 ou 不 entre le verbe et son complément pour dire si le résultat est à portée : non pas ce qui a eu lieu, mais ce dont on est capable.',
+
+  steps:[
+    {
+      t:'Le principe',
+      p:[
+        'Reprenez un verbe et son complément de résultat — 看懂, comprendre en lisant. Glissez <b>得</b> entre les deux : 看<b>得</b>懂, j’arrive à comprendre. Glissez <b>不</b> : 看<b>不</b>懂, je n’y arrive pas.',
+        'Ce n’est plus un fait accompli, c’est une capacité. 我看懂了 raconte que j’ai compris ; 我看得懂 dit que j’en suis capable.',
+        'Dans cette construction, 得 et 不 perdent leur ton et se prononcent légers.'
+      ],
+      ex:[
+        {hz:'我看不懂这本书。',py:'wǒ kàn bu dǒng zhè běn shū',fr:'Je n’arrive pas à comprendre ce livre.'},
+        {hz:'他听得懂老师的话。',py:'tā tīng de dǒng lǎo shī de huà',fr:'Il arrive à comprendre ce que dit le professeur.'}
+      ],
+      check:{q:'我看懂了 veut dire :',a:['j’arrive à comprendre','j’ai compris'],ok:1,
+             why:'Avec 了, c’est un fait accompli. La capacité passe par 得 ou 不.'}
+    },
+    {
+      t:'La même chose avec un complément de direction',
+      p:[
+        'Le procédé vaut aussi pour les compléments de direction de la fiche g308 : 拿<b>不</b>出来, je n’arrive pas à le sortir ; 进<b>得</b>去, on peut y entrer.',
+        'Attention : 不 se place devant le complément <b>entier</b>. On ne coupe jamais 出来 en deux.'
+      ],
+      ex:[
+        {hz:'我拿不出来。',py:'wǒ ná bu chū lái',fr:'Je n’arrive pas à le sortir.'},
+        {hz:'桌子搬不进去。',py:'zhuō zi bān bu jìn qù',fr:'La table ne rentre pas.',
+         note:'不 précède 进去 tout entier.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我拿出不来。','我拿不出来。'],ok:1,
+             why:'不 se met devant le complément entier, jamais à l’intérieur.'}
+    },
+    {
+      t:'Interroger',
+      p:[
+        'Deux façons. Avec <b>吗</b> : 你看得懂吗？ Ou par la forme alternative, en juxtaposant l’affirmatif et le négatif : 你看<b>得</b>懂看<b>不</b>懂？',
+        'Comme pour V不V, les deux outils ne se cumulent jamais.'
+      ],
+      ex:[
+        {hz:'你听得清楚吗？',py:'nǐ tīng de qīng chu ma',fr:'Tu entends bien ?'},
+        {hz:'你看得懂看不懂？',py:'nǐ kàn de dǒng kàn bu dǒng',fr:'Arrives-tu à comprendre ?'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['你看得懂吗看不懂？','你看得懂看不懂？'],ok:1,
+             why:'La forme alternative remplace 吗 : les employer ensemble est une faute.'}
+    },
+    {
+      t:'Ne pas confondre avec 不能',
+      p:[
+        '<b>不能</b> dit une impossibilité venue du dehors : une interdiction, une circonstance. 我不能看电视, je n’ai pas le droit de regarder la télévision.',
+        'La forme potentielle, elle, dit une incapacité qui tient à moi ou à la chose : 我看不懂, mes moyens n’y suffisent pas.',
+        'Autre remarque d’usage : la forme négative est bien plus fréquente que l’affirmative. On dit couramment 看不懂 ; pour l’affirmatif, on emploie souvent 能 ou rien du tout.'
+      ],
+      ex:[
+        {hz:'我不能看电视。',py:'wǒ bù néng kàn diàn shì',fr:'Je n’ai pas le droit de regarder la télévision.'},
+        {hz:'我看不懂这本书。',py:'wǒ kàn bu dǒng zhè běn shū',fr:'Je n’arrive pas à comprendre ce livre.'}
+      ],
+      check:{q:'La bibliothèque est fermée, vous ne pouvez pas emprunter le livre. Vous dites :',
+             a:['我借不到那本书。','我不能借那本书。'],ok:1,
+             why:'L’obstacle est extérieur : c’est 不能. 借不到 dirait que vous n’arrivez pas à mettre la main dessus.'}
+    },
+    {
+      t:'Les deux erreurs de placement',
+      p:[
+        'Première erreur : mettre 不 devant le verbe. 我<b>不</b>看懂 est faux — la négation ne porte pas sur l’action, mais sur l’aboutissement.',
+        'Seconde erreur : ajouter 了. La forme potentielle ne raconte aucun fait, elle ne peut donc pas s’achever.',
+        'Et l’objet, comme toujours, peut passer en tête : 这本书，我看不懂.'
+      ],
+      ex:[
+        {hz:'这本书，我看不懂。',py:'zhè běn shū, wǒ kàn bu dǒng',fr:'Ce livre, je n’arrive pas à le comprendre.'},
+        {hz:'这个词，我想不起来。',py:'zhè ge cí, wǒ xiǎng bu qǐ lái',fr:'Ce mot, je n’arrive pas à le retrouver.',
+         note:'想起来 de la fiche précédente se met lui aussi à la forme potentielle.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我不看懂这本书。','我看不懂这本书。'],ok:1,
+             why:'不 se glisse entre le verbe et le résultat, jamais devant le verbe.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Forme','Exemple','Sens'],
+    rows:[
+      ['Fait accompli','我看懂了','J’ai compris'],
+      ['Capacité affirmée','我看得懂','J’arrive à comprendre'],
+      ['Capacité niée','我看不懂','Je n’y arrive pas'],
+      ['Question alternative','你看得懂看不懂？','Y arrives-tu ?'],
+      ['Avec une direction','我拿不出来','Je n’arrive pas à le sortir'],
+      ['Obstacle extérieur','我不能看','Je n’ai pas le droit de regarder']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我不看懂这本书。',py:'wǒ bú kàn dǒng zhè běn shū'},
+    good:{hz:'我看不懂这本书。',py:'wǒ kàn bu dǒng zhè běn shū'},
+    why:'Le français nie le verbe — « je ne comprends pas ». Le chinois nie l’aboutissement : l’action de regarder a bien lieu, c’est la compréhension qui manque. 不 se loge donc entre le verbe et son résultat.'
+  },
+
+  voir:['g306','g308'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],cle:2,fr:'Je n’arrive pas à comprendre ce livre.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],cle:2,fr:'J’arrive à comprendre ce livre.'},
+    {seg:[{h:'他',p:'tā'},{h:'听',p:'tīng'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},{h:'老师的',p:'lǎo shī de'},{h:'话',p:'huà'},P('。')],cle:2,fr:'Il n’arrive pas à comprendre le professeur.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'找',p:'zhǎo'},{h:'不',p:'bu'},{h:'到',p:'dào'},{h:'我的',p:'wǒ de'},{h:'手机',p:'shǒu jī'},P('。')],cle:2,fr:'Je ne trouve pas mon téléphone.'},
+    {seg:[{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('，'),{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'完',p:'wán'},P('。')],cle:5,fr:'Ce livre, je n’arriverai pas à le finir.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'看',p:'kàn'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},P('？')],cle:2,fr:'Arrives-tu à comprendre ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'拿',p:'ná'},{h:'不',p:'bu'},{h:'出来',p:'chū lái'},P('。')],cle:2,fr:'Je n’arrive pas à le sortir.'},
+    {seg:[{h:'桌子',p:'zhuō zi'},{h:'搬',p:'bān'},{h:'不',p:'bu'},{h:'进去',p:'jìn qù'},P('。')],cle:2,fr:'La table ne rentre pas.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'听',p:'tīng'},{h:'得',p:'de'},{h:'清楚',p:'qīng chu'},{h:'吗',p:'ma'},P('？')],cle:2,fr:'Tu entends bien ?'},
+    {seg:[{h:'这个',p:'zhè ge'},{h:'词',p:'cí'},P('，'),{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'不',p:'bu'},{h:'起来',p:'qǐ lái'},P('。')],cle:5,fr:'Ce mot, je n’arrive pas à le retrouver.'},
+    {seg:[{h:'这些',p:'zhè xiē'},{h:'菜',p:'cài'},{h:'我',p:'wǒ'},{h:'吃',p:'chī'},{h:'不',p:'bu'},{h:'完',p:'wán'},P('。')],cle:4,fr:'Je n’arriverai pas à finir ces plats.'},
+    {seg:[{h:'那本',p:'nà běn'},{h:'书',p:'shū'},{h:'买',p:'mǎi'},{h:'不',p:'bu'},{h:'到',p:'dào'},P('。')],cle:3,fr:'Ce livre est introuvable.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'听',p:'tīng'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},{h:'一点儿',p:'yì diǎnr'},P('。')],cle:2,fr:'J’arrive à comprendre un peu.'},
+    {seg:[{h:'他',p:'tā'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'清楚',p:'qīng chu'},{h:'那个',p:'nà ge'},{h:'人',p:'rén'},P('。')],cle:2,fr:'Il ne distingue pas bien cette personne.'}
+  ],
+  leurres:['得','不','懂','到','完','见','清楚'],
+
+  gabarits:[
+    {cadre:[{s:'s'},{s:'v'},{h:'不',p:'bu'},{s:'r'},{s:'o'},P('。')],
+     fr:'… n’arrive pas à …', lie:[['v','r','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'听',p:'tīng',fr:'entendre'},
+                {h:'找',p:'zhǎo',fr:'chercher'},{h:'看',p:'kàn',fr:'lire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'做',p:'zuò',fr:'faire'}],
+             r:[{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},
+                {h:'见',p:'jiàn',fr:'jusqu’à voir'},{h:'见',p:'jiàn',fr:'jusqu’à entendre'},
+                {h:'到',p:'dào',fr:'jusqu’à trouver'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'完',p:'wán',fr:'jusqu’au bout'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'清楚',p:'qīng chu',fr:'jusqu’à bien saisir'},
+                {h:'清楚',p:'qīng chu',fr:'jusqu’à bien distinguer'},{h:'完',p:'wán',fr:'jusqu’au bout'}],
+             o:[{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'老师的话',p:'lǎo shī de huà',fr:'les paroles du professeur'},
+                {h:'那个字',p:'nà ge zì',fr:'ce caractère'},{h:'你的声音',p:'nǐ de shēng yīn',fr:'ta voix'},
+                {h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},
+                {h:'这些菜',p:'zhè xiē cài',fr:'ces plats'},{h:'这些字',p:'zhè xiē zì',fr:'ces caractères'},
+                {h:'那本书',p:'nà běn shū',fr:'ce livre-là'},{h:'那个人的话',p:'nà ge rén de huà',fr:'ce que dit cette personne'},
+                {h:'那个人',p:'nà ge rén',fr:'cette personne'},{h:'这些作业',p:'zhè xiē zuò yè',fr:'ces devoirs'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'得',p:'de'},{s:'r'},{s:'o'},P('。')],
+     fr:'… arrive à …', lie:[['v','r','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'听',p:'tīng',fr:'entendre'},
+                {h:'找',p:'zhǎo',fr:'chercher'},{h:'看',p:'kàn',fr:'lire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'做',p:'zuò',fr:'faire'}],
+             r:[{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},
+                {h:'见',p:'jiàn',fr:'jusqu’à voir'},{h:'见',p:'jiàn',fr:'jusqu’à entendre'},
+                {h:'到',p:'dào',fr:'jusqu’à trouver'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'完',p:'wán',fr:'jusqu’au bout'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'清楚',p:'qīng chu',fr:'jusqu’à bien saisir'},
+                {h:'清楚',p:'qīng chu',fr:'jusqu’à bien distinguer'},{h:'完',p:'wán',fr:'jusqu’au bout'}],
+             o:[{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'老师的话',p:'lǎo shī de huà',fr:'les paroles du professeur'},
+                {h:'那个字',p:'nà ge zì',fr:'ce caractère'},{h:'你的声音',p:'nǐ de shēng yīn',fr:'ta voix'},
+                {h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},
+                {h:'这些菜',p:'zhè xiē cài',fr:'ces plats'},{h:'这些字',p:'zhè xiē zì',fr:'ces caractères'},
+                {h:'那本书',p:'nà běn shū',fr:'ce livre-là'},{h:'那个人的话',p:'nà ge rén de huà',fr:'ce que dit cette personne'},
+                {h:'那个人',p:'nà ge rén',fr:'cette personne'},{h:'这些作业',p:'zhè xiē zuò yè',fr:'ces devoirs'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'得',p:'de'},{s:'r'},{s:'v'},{h:'不',p:'bu'},{s:'r'},P('？')],
+     fr:'… y arrive-t-il ou non ?', lie:[['v','r']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'}],
+             v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'听',p:'tīng',fr:'entendre'},
+                {h:'找',p:'zhǎo',fr:'chercher'},{h:'看',p:'kàn',fr:'lire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'做',p:'zuò',fr:'faire'}],
+             r:[{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},
+                {h:'见',p:'jiàn',fr:'jusqu’à voir'},{h:'见',p:'jiàn',fr:'jusqu’à entendre'},
+                {h:'到',p:'dào',fr:'jusqu’à trouver'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'完',p:'wán',fr:'jusqu’au bout'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'清楚',p:'qīng chu',fr:'jusqu’à bien saisir'},
+                {h:'清楚',p:'qīng chu',fr:'jusqu’à bien distinguer'},{h:'完',p:'wán',fr:'jusqu’au bout'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'不',p:'bu'},{s:'d'},P('。')],
+     fr:'… n’arrive pas à …', lie:[['v','d']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'拿',p:'ná',fr:'prendre'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'搬',p:'bān',fr:'déplacer'},{h:'走',p:'zǒu',fr:'aller à pied'},
+                {h:'跑',p:'pǎo',fr:'courir'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'带',p:'dài',fr:'apporter'},{h:'搬',p:'bān',fr:'déplacer'},
+                {h:'走',p:'zǒu',fr:'aller à pied'},{h:'拿',p:'ná',fr:'prendre'},
+                {h:'跑',p:'pǎo',fr:'courir'},{h:'走',p:'zǒu',fr:'aller à pied'}],
+             d:[{h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'进去',p:'jìn qù',fr:'à l’intérieur, loin de moi'},
+                {h:'进来',p:'jìn lái',fr:'à l’intérieur, vers moi'},{h:'进去',p:'jìn qù',fr:'à l’intérieur, loin de moi'},
+                {h:'上去',p:'shàng qù',fr:'en haut, loin de moi'},{h:'下来',p:'xià lái',fr:'en bas, vers moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'出去',p:'chū qù',fr:'dehors, loin de moi'},
+                {h:'出来',p:'chū lái',fr:'dehors, vers moi'},{h:'上来',p:'shàng lái',fr:'en haut, vers moi'},
+                {h:'回来',p:'huí lái',fr:'de retour ici'},{h:'过去',p:'guò qù',fr:'jusque là-bas'}]}},
+
+    {cadre:[{s:'o'},P('，'),{s:'s'},{s:'v'},{h:'不',p:'bu'},{s:'r'},P('。')],
+     fr:'…, … n’arrive pas à …', lie:[['o','v','r']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             o:[{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'老师的话',p:'lǎo shī de huà',fr:'les paroles du professeur'},
+                {h:'那个字',p:'nà ge zì',fr:'ce caractère'},{h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},
+                {h:'这些菜',p:'zhè xiē cài',fr:'ces plats'},{h:'这些字',p:'zhè xiē zì',fr:'ces caractères'},
+                {h:'那本书',p:'nà běn shū',fr:'ce livre-là'},{h:'那个人的话',p:'nà ge rén de huà',fr:'ce que dit cette personne'},
+                {h:'那个人',p:'nà ge rén',fr:'cette personne'},{h:'这些作业',p:'zhè xiē zuò yè',fr:'ces devoirs'},
+                {h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'这个词',p:'zhè ge cí',fr:'ce mot'}],
+             v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'找',p:'zhǎo',fr:'chercher'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'看',p:'kàn',fr:'lire'},{h:'想',p:'xiǎng',fr:'chercher à retrouver'}],
+             r:[{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},
+                {h:'见',p:'jiàn',fr:'jusqu’à voir'},{h:'到',p:'dào',fr:'jusqu’à trouver'},
+                {h:'完',p:'wán',fr:'jusqu’au bout'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'清楚',p:'qīng chu',fr:'jusqu’à bien saisir'},
+                {h:'清楚',p:'qīng chu',fr:'jusqu’à bien distinguer'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'完',p:'wán',fr:'jusqu’au bout'},{h:'起来',p:'qǐ lái',fr:'jusqu’à le retrouver'}]}},
+
+    {cadre:[{s:'s'},{s:'v'},{h:'得',p:'de'},{s:'r'},{h:'吗',p:'ma'},P('？')],
+     fr:'Est-ce que … y arrive ?', lie:[['v','r']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'}],
+             v:[{h:'看',p:'kàn',fr:'lire'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'听',p:'tīng',fr:'entendre'},
+                {h:'找',p:'zhǎo',fr:'chercher'},{h:'看',p:'kàn',fr:'lire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'做',p:'zuò',fr:'faire'}],
+             r:[{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},{h:'懂',p:'dǒng',fr:'jusqu’à comprendre'},
+                {h:'见',p:'jiàn',fr:'jusqu’à voir'},{h:'见',p:'jiàn',fr:'jusqu’à entendre'},
+                {h:'到',p:'dào',fr:'jusqu’à trouver'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'完',p:'wán',fr:'jusqu’au bout'},{h:'完',p:'wán',fr:'jusqu’au bout'},
+                {h:'到',p:'dào',fr:'jusqu’à l’obtenir'},{h:'清楚',p:'qīng chu',fr:'jusqu’à bien saisir'},
+                {h:'清楚',p:'qīng chu',fr:'jusqu’à bien distinguer'},{h:'完',p:'wán',fr:'jusqu’au bout'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Passez du fait accompli à l’incapacité',
+     de:{hz:'我看懂了这本书。',py:'wǒ kàn dǒng le zhè běn shū',fr:'J’ai compris ce livre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},{h:'这本书',p:'zhè běn shū'},P('。')],fr:'Je n’arrive pas à comprendre ce livre.'}},
+    {consigne:'Passez à la forme potentielle affirmative',
+     de:{hz:'我看不懂这本书。',py:'wǒ kàn bu dǒng zhè běn shū',fr:'Je n’arrive pas à comprendre ce livre.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},{h:'这本书',p:'zhè běn shū'},P('。')],fr:'J’arrive à comprendre ce livre.'}},
+    {consigne:'Posez la question par la forme alternative',
+     de:{hz:'你看得懂。',py:'nǐ kàn de dǒng',fr:'Tu arrives à comprendre.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'看',p:'kàn'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},P('？')],fr:'Arrives-tu à comprendre ?'}},
+    {consigne:'Passez à l’incapacité, avec le complément de direction',
+     de:{hz:'我拿出来了。',py:'wǒ ná chū lái le',fr:'Je l’ai sorti.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'拿',p:'ná'},{h:'不',p:'bu'},{h:'出来',p:'chū lái'},P('。')],fr:'Je n’arrive pas à le sortir.'}},
+    {consigne:'Placez ce dont on parle en tête',
+     de:{hz:'我看不完这本书。',py:'wǒ kàn bu wán zhè běn shū',fr:'Je n’arriverai pas à finir ce livre.'},
+     vers:{seg:[{h:'这本书',p:'zhè běn shū'},P('，'),{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'完',p:'wán'},P('。')],fr:'Ce livre, je n’arriverai pas à le finir.'}},
+    {consigne:'Posez la question avec 吗',
+     de:{hz:'你听得清楚。',py:'nǐ tīng de qīng chu',fr:'Tu entends bien.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'听',p:'tīng'},{h:'得',p:'de'},{h:'清楚',p:'qīng chu'},{h:'吗',p:'ma'},P('？')],fr:'Tu entends bien ?'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'不',p:'bú'},{h:'看',p:'kàn'},{h:'懂',p:'dǒng'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],bad:1,
+     bon:'我看不懂这本书。',why:'不 se glisse entre le verbe et le résultat, jamais devant le verbe.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不能',p:'bù néng'},{h:'看',p:'kàn'},{h:'懂',p:'dǒng'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],bad:1,
+     bon:'我看不懂这本书。',why:'不能 dit un obstacle extérieur ; l’incapacité personnelle passe par la forme potentielle.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},{h:'了',p:'le'},{h:'这本',p:'zhè běn'},{h:'书',p:'shū'},P('。')],bad:4,
+     bon:'我看不懂这本书。',why:'La forme potentielle ne raconte aucun fait : elle ne se combine pas avec 了.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'拿',p:'ná'},{h:'出',p:'chū'},{h:'不',p:'bu'},{h:'来',p:'lái'},P('。')],bad:3,
+     bon:'我拿不出来。',why:'不 précède le complément de direction entier : 出来 ne se coupe pas.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'看',p:'kàn'},{h:'得',p:'de'},{h:'懂',p:'dǒng'},{h:'吗',p:'ma'},{h:'看',p:'kàn'},{h:'不',p:'bu'},{h:'懂',p:'dǒng'},P('？')],bad:4,
+     bon:'你看得懂看不懂？',why:'La forme alternative remplace 吗 : les cumuler est une faute.'},
+    {seg:[{h:'这个',p:'zhè ge'},{h:'词',p:'cí'},{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'不',p:'bu'},{h:'起',p:'qǐ'},P('。')],bad:5,
+     bon:'这个词，我想不起来。',why:'起来 ne se coupe pas davantage : 不 se met devant le bloc entier.'}
+  ],
+
+  reemploi:[
+    {q:'Dites ce que vous arrivez et ce que vous n’arrivez pas à comprendre en chinois.',
+     verif:[{type:'contient',v:'得',msg:'La capacité affirmée demande 得 entre le verbe et le résultat.'},
+            {type:'contient',v:'不',msg:'L’incapacité demande 不 à la même place.'},
+            {type:'contient',v:'懂',msg:'On attend le résultat 懂.'}],
+     modeles:[{hz:'我听得懂老师的话，可是看不懂这本书。',py:'wǒ tīng de dǒng lǎo shī de huà, kě shì kàn bu dǒng zhè běn shū',fr:'Je comprends le professeur, mais pas ce livre.'}],
+     criteres:['得 et 不 sont entre le verbe et le résultat','Aucun 不 devant le verbe','Aucun 了 dans la phrase']},
+    {q:'Vous cherchez votre téléphone sans le trouver. Dites-le, puis demandez à quelqu’un s’il le voit.',
+     verif:[{type:'contient',v:'找不到',msg:'Ne pas parvenir à trouver, c’est 找不到.'},
+            {type:'un_parmi',v:['吗','看得见看不见'],msg:'On attend une question, avec 吗 ou par la forme alternative.'}],
+     modeles:[{hz:'我找不到我的手机，你看得见吗？',py:'wǒ zhǎo bu dào wǒ de shǒu jī, nǐ kàn de jiàn ma',fr:'Je ne trouve pas mon téléphone, tu le vois ?'}],
+     criteres:['不 est entre 找 et 到','La question emploie 吗 ou la forme alternative, jamais les deux']},
+    {q:'Un mot vous échappe. Dites-le en plaçant le mot en tête de phrase.',
+     verif:[{type:'contient',v:'想不起来',msg:'Le souvenir qui ne revient pas, c’est 想不起来.'},
+            {type:'absent',v:'不想',msg:'不想 voudrait dire que vous n’en avez pas envie.'}],
+     modeles:[{hz:'这个词，我想不起来。',py:'zhè ge cí, wǒ xiǎng bu qǐ lái',fr:'Ce mot, je n’arrive pas à le retrouver.'},
+              {hz:'他的名字，我想不起来了。',py:'tā de míng zi, wǒ xiǎng bu qǐ lái le',fr:'Son nom, je n’arrive plus à le retrouver.'}],
+     criteres:['Ce dont on parle est en tête, suivi d’une virgule','不 se place devant 起来 tout entier','想不起来 et non 不想起来']}
   ]
 }
 
