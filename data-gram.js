@@ -55,7 +55,7 @@ const GRAMMAR=[
         'La réponse ne se fait pas par un mot qui voudrait dire « oui ». On reprend le verbe de la question. Pour dire non, on met <b>不</b> devant ce même verbe.'
       ],
       ex:[
-        {hz:'你是学生吗？',py:'nǐ shì xué shēng ma',fr:'Es-tu étudiante ?',
+        {hz:'你是学生吗？',py:'nǐ shì xué sheng ma',fr:'Es-tu étudiante ?',
          note:'L’affirmative 你是学生 reste intacte. 吗 s’ajoute, rien d’autre ne bouge.'},
         {hz:'他喝茶吗？',py:'tā hē chá ma',fr:'Boit-il du thé ?',
          note:'Réponse possible : 喝 pour oui, 不喝 pour non.'}
@@ -132,6 +132,27 @@ const GRAMMAR=[
       ],
       check:{q:'Laquelle est correcte ?',a:['你去不去吗？','你去不去？'],ok:1,
              why:'V不V remplace 吗. Les employer ensemble est une faute.'}
+    },
+    {
+      t:'À l’oral — 啥, 干吗, 咋样, 对吧', reg:'oral',
+      p:[
+        'Tout ce qui précède s’écrit et se dit. Ce qui suit se dit, beaucoup, et ne s’écrit pas en langue soutenue. Ce sont les formes que vous entendrez d’abord chez des amis.',
+        '<b>啥</b> remplace 什么 partout, sans rien changer à la place du mot : 你说啥, 干啥, 为啥, 啥时候.',
+        '<b>干吗</b> demande la raison ou l’occupation — « pourquoi » ou « qu’est-ce que tu fabriques ». Il s’écrit aussi 干嘛.',
+        '<b>咋</b> vaut 怎么 et <b>咋样</b> vaut 怎么样. Plus marqué au nord que 啥.',
+        '<b>对吧</b> et <b>是吧</b> ferment une phrase dont on attend confirmation, exactement comme le « non ? » du français parlé.'
+      ],
+      ex:[
+        {hz:'你说啥？',py:'nǐ shuō shá',fr:'Tu dis quoi ?',reg:'oral',
+         note:'啥 occupe la place de 什么, ni avant ni après : la règle de l’écran 3 ne bouge pas.'},
+        {hz:'你干啥呢？',py:'nǐ gàn shá ne',fr:'Tu fais quoi, là ?',reg:'oral'},
+        {hz:'为啥不告诉我？',py:'wèi shá bú gào su wǒ',fr:'Pourquoi tu me l’as pas dit ?',reg:'oral'},
+        {hz:'这个咋样？',py:'zhè ge zǎ yàng',fr:'Ça donne quoi ?',reg:'oral'},
+        {hz:'你是法国人，对吧？',py:'nǐ shì Fǎ guó rén, duì ba',fr:'Tu es française, non ?',reg:'oral'}
+      ],
+      check:{q:'Un ami vous demande 你干啥呢？ Il veut savoir :',
+             a:['ce que vous faites en ce moment','pourquoi vous êtes venue'],ok:0,
+             why:'干啥 vaut 干什么 — « faire quoi ». C’est 为啥 qui demande la raison.'}
     }
   ],
 
@@ -146,7 +167,11 @@ const GRAMMAR=[
       ['几','combien, petit nombre','几个人？'],
       ['多少','combien, quantité','多少钱？'],
       ['多大','quel âge','你多大？'],
-      ['怎么样','comment c’est','这个怎么样？']
+      ['怎么样','comment c’est','这个怎么样？'],
+      ['啥','quoi — à l’oral','你说啥？'],
+      ['干吗','pourquoi — à l’oral','你干吗不来？'],
+      ['咋样','comment c’est — à l’oral','这个咋样？'],
+      ['对吧','non ? — à l’oral','你是学生，对吧？']
     ]
   },
 
@@ -156,10 +181,10 @@ const GRAMMAR=[
     why:'Un mot interrogatif pose déjà la question à lui seul. 吗 ne sert qu’aux questions fermées : mettre les deux revient à demander « Comment t’appelles-tu, oui ou non ? »'
   },
 
-  voir:['g301'],
+  voir:['g301','g207'],
 
   banque:[
-    {seg:[{h:'你',p:'nǐ'},{h:'是',p:'shì'},{h:'学生',p:'xué shēng'},{h:'吗',p:'ma'},P('？')],cle:3,fr:'Es-tu étudiante ?'},
+    {seg:[{h:'你',p:'nǐ'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},{h:'吗',p:'ma'},P('？')],cle:3,fr:'Es-tu étudiante ?'},
     {seg:[{h:'你',p:'nǐ'},{h:'明天',p:'míng tiān'},{h:'来',p:'lái'},{h:'吗',p:'ma'},P('？')],cle:3,fr:'Viens-tu demain ?'},
     {seg:[{h:'你',p:'nǐ'},{h:'妈妈',p:'mā ma'},{h:'好',p:'hǎo'},{h:'吗',p:'ma'},P('？')],cle:3,fr:'Ta mère va-t-elle bien ?'},
     {seg:[{h:'他',p:'tā'},{h:'喝',p:'hē'},{h:'什么',p:'shén me'},P('？')],cle:2,fr:'Que boit-il ?'},
@@ -176,23 +201,43 @@ const GRAMMAR=[
     {seg:[{h:'你',p:'nǐ'},{h:'去',p:'qù'},{h:'哪儿',p:'nǎr'},P('？')],cle:2,fr:'Où vas-tu ?'},
     {seg:[{h:'这个',p:'zhè ge'},{h:'菜',p:'cài'},{h:'怎么样',p:'zěn me yàng'},P('？')],cle:2,fr:'Comment est ce plat ?'}
   ],
-  leurres:['吗','呢','什么','谁','哪儿','几','多少','多大','怎么样'],
+  leurres:['吗','呢','什么','谁','哪儿','几','多少','多大','怎么样','啥','干吗','咋样','对吧'],
+
+  /* 什么 et 啥 conviennent l’un comme l’autre, 怎么样 et 咋样 aussi : le
+     générateur de complétion ne doit jamais les opposer. */
+  equiv:[['什么','啥'],['怎么样','咋样']],
 
   gabarits:[
-    {cadre:[{s:'s'},{s:'v'},{h:'什么',p:'shén me'},P('？')],
-     fr:'Que … -tu ?', lie:[], libre:['s','v'],
-     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],v:[{h:'喝',p:'hē',fr:'boire'},{h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},{h:'买',p:'mǎi',fr:'acheter'},{h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'faire'},{h:'听',p:'tīng',fr:'écouter'},{h:'说',p:'shuō',fr:'dire'},{h:'找',p:'zhǎo',fr:'chercher'},{h:'带',p:'dài',fr:'apporter'},{h:'唱',p:'chàng',fr:'chanter'}]}},
-
-    {cadre:[{s:'s'},{h:'是',p:'shì'},{h:'不',p:'bu'},{h:'是',p:'shì'},{s:'n'},P('？')],
-     fr:'Es-tu … ?', lie:[], libre:['s','n'],
-     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],n:[{h:'老师',p:'lǎo shī',fr:'professeur'},{h:'学生',p:'xué sheng',fr:'étudiant'},{h:'医生',p:'yī shēng',fr:'médecin'},{h:'中国人',p:'Zhōng guó rén',fr:'chinois'},{h:'法国人',p:'Fǎ guó rén',fr:'français'},{h:'英国人',p:'Yīng guó rén',fr:'anglais'},{h:'日本人',p:'Rì běn rén',fr:'japonais'},{h:'大学生',p:'dà xué shēng',fr:'étudiant à l’université'},{h:'服务员',p:'fú wù yuán',fr:'serveur'},{h:'韩国人',p:'Hán guó rén',fr:'coréen'},{h:'经理',p:'jīng lǐ',fr:'directeur'},{h:'司机',p:'sī jī',fr:'chauffeur'}]}},
-
-    {cadre:[{s:'s'},{h:'的',p:'de'},{s:'n'},{h:'呢',p:'ne'},P('？')],
-     fr:'Et son / ton … ?', lie:[], libre:['s','n'],
-     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'你',p:'nǐ',fr:'tu'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],n:[{h:'书',p:'shū',fr:'livre'},{h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'照片',p:'zhào piàn',fr:'photo'},{h:'车',p:'chē',fr:'voiture'},{h:'电脑',p:'diàn nǎo',fr:'ordinateur'},{h:'钱',p:'qián',fr:'argent'},{h:'衣服',p:'yī fu',fr:'vêtements'},{h:'词典',p:'cí diǎn',fr:'dictionnaire'},{h:'作业',p:'zuò yè',fr:'devoirs'},{h:'咖啡',p:'kā fēi',fr:'café'},{h:'礼物',p:'lǐ wù',fr:'cadeau'},{h:'房间',p:'fáng jiān',fr:'chambre'}]}}
+    {"cadre":[{"s":"s"},{"s":"v"},{"s":"o"},{"h":"吗","p":"ma"},{"h":"？","p":""}],"fr":"… -tu … ?","lie":[["v","o"]],"libre":["s"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"学","p":"xué","fr":"apprendre"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"做","p":"zuò","fr":"faire"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"打","p":"dǎ","fr":"passer"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"找","p":"zhǎo","fr":"chercher"}],"o":[{"h":"咖啡","p":"kā fēi","fr":"du café"},{"h":"茶","p":"chá","fr":"du thé"},{"h":"中国菜","p":"Zhōng guó cài","fr":"chinois"},{"h":"电影","p":"diàn yǐng","fr":"un film"},{"h":"汉语","p":"Hàn yǔ","fr":"le chinois"},{"h":"衣服","p":"yī fu","fr":"des vêtements"},{"h":"音乐","p":"yīn yuè","fr":"de la musique"},{"h":"作业","p":"zuò yè","fr":"ses devoirs"},{"h":"电脑","p":"diàn nǎo","fr":"un ordinateur"},{"h":"电话","p":"diàn huà","fr":"un coup de fil"},{"h":"汉字","p":"Hàn zì","fr":"des caractères"},{"h":"工作","p":"gōng zuò","fr":"un travail"}]}},
+    {"cadre":[{"s":"s"},{"h":"是","p":"shì"},{"s":"n"},{"h":"吗","p":"ma"},{"h":"？","p":""}],"fr":"Es-tu … ?","lie":[],"libre":["s","n"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"n":[{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"学生","p":"xué sheng","fr":"étudiant"},{"h":"医生","p":"yī shēng","fr":"médecin"},{"h":"中国人","p":"Zhōng guó rén","fr":"chinois"},{"h":"法国人","p":"Fǎ guó rén","fr":"français"},{"h":"英国人","p":"Yīng guó rén","fr":"anglais"},{"h":"日本人","p":"Rì běn rén","fr":"japonais"},{"h":"大学生","p":"dà xué shēng","fr":"étudiant à l’université"},{"h":"服务员","p":"fú wù yuán","fr":"serveur"},{"h":"韩国人","p":"Hán guó rén","fr":"coréen"},{"h":"经理","p":"jīng lǐ","fr":"directeur"},{"h":"司机","p":"sī jī","fr":"chauffeur"}]}},
+    {"cadre":[{"s":"s"},{"s":"a"},{"h":"吗","p":"ma"},{"h":"？","p":""}],"fr":"Es-tu … ?","lie":[],"libre":["s","a"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"s"},{"s":"v"},{"s":"o"},{"h":"，","p":""},{"h":"你","p":"nǐ"},{"h":"呢","p":"ne"},{"h":"？","p":""}],"fr":"Moi je …, et toi ?","lie":[["v","o"]],"libre":["s"],"listes":{"s":[{"h":"我","p":"wǒ","fr":"je"},{"h":"我们","p":"wǒ men","fr":"nous"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"学","p":"xué","fr":"apprendre"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"做","p":"zuò","fr":"faire"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"打","p":"dǎ","fr":"passer"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"找","p":"zhǎo","fr":"chercher"}],"o":[{"h":"咖啡","p":"kā fēi","fr":"du café"},{"h":"茶","p":"chá","fr":"du thé"},{"h":"中国菜","p":"Zhōng guó cài","fr":"chinois"},{"h":"电影","p":"diàn yǐng","fr":"un film"},{"h":"汉语","p":"Hàn yǔ","fr":"le chinois"},{"h":"衣服","p":"yī fu","fr":"des vêtements"},{"h":"音乐","p":"yīn yuè","fr":"de la musique"},{"h":"作业","p":"zuò yè","fr":"ses devoirs"},{"h":"电脑","p":"diàn nǎo","fr":"un ordinateur"},{"h":"电话","p":"diàn huà","fr":"un coup de fil"},{"h":"汉字","p":"Hàn zì","fr":"des caractères"},{"h":"工作","p":"gōng zuò","fr":"un travail"}]}},
+    {"cadre":[{"s":"s"},{"s":"v"},{"h":"什么","p":"shén me"},{"s":"n"},{"h":"？","p":""}],"fr":"Quel … … -tu ?","lie":[["v","n"]],"libre":["s"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"坐","p":"zuò","fr":"prendre"},{"h":"做","p":"zuò","fr":"faire"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"点","p":"diǎn","fr":"commander"},{"h":"读","p":"dú","fr":"lire"},{"h":"学","p":"xué","fr":"apprendre"}],"n":[{"h":"茶","p":"chá","fr":"thé"},{"h":"菜","p":"cài","fr":"plat"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"音乐","p":"yīn yuè","fr":"musique"},{"h":"电脑","p":"diàn nǎo","fr":"ordinateur"},{"h":"车","p":"chē","fr":"véhicule"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"字","p":"zì","fr":"caractère"},{"h":"菜","p":"cài","fr":"plat"},{"h":"书","p":"shū","fr":"livre"},{"h":"汉字","p":"Hàn zì","fr":"caractère"}]}},
+    {"cadre":[{"s":"t"},{"h":"谁","p":"shéi"},{"s":"v"},{"s":"o"},{"h":"？","p":""}],"fr":"Qui … … ?","lie":[["v","o"]],"libre":["t"],"listes":{"t":[{"h":"今天","p":"jīn tiān","fr":"aujourd’hui"},{"h":"明天","p":"míng tiān","fr":"demain"},{"h":"晚上","p":"wǎn shang","fr":"ce soir"},{"h":"现在","p":"xiàn zài","fr":"maintenant"},{"h":"星期天","p":"xīng qī tiān","fr":"dimanche"},{"h":"下午","p":"xià wǔ","fr":"cet après-midi"}],"v":[{"h":"做","p":"zuò","fr":"faire"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"打","p":"dǎ","fr":"passer"},{"h":"开","p":"kāi","fr":"conduire"},{"h":"洗","p":"xǐ","fr":"laver"},{"h":"做","p":"zuò","fr":"faire"},{"h":"看","p":"kàn","fr":"garder"},{"h":"带","p":"dài","fr":"apporter"},{"h":"点","p":"diǎn","fr":"commander"},{"h":"给","p":"gěi","fr":"donner"},{"h":"教","p":"jiāo","fr":"enseigner"},{"h":"找","p":"zhǎo","fr":"chercher"}],"o":[{"h":"饭","p":"fàn","fr":"à manger"},{"h":"东西","p":"dōng xi","fr":"des courses"},{"h":"电话","p":"diàn huà","fr":"le coup de fil"},{"h":"车","p":"chē","fr":"la voiture"},{"h":"衣服","p":"yī fu","fr":"le linge"},{"h":"作业","p":"zuò yè","fr":"les devoirs"},{"h":"孩子","p":"hái zi","fr":"les enfants"},{"h":"礼物","p":"lǐ wù","fr":"le cadeau"},{"h":"菜","p":"cài","fr":"les plats"},{"h":"钱","p":"qián","fr":"l’argent"},{"h":"汉语","p":"Hàn yǔ","fr":"le chinois"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}]}},
+    {"cadre":[{"s":"s"},{"h":"有","p":"yǒu"},{"h":"几","p":"jǐ"},{"s":"c"},{"s":"n"},{"h":"？","p":""}],"fr":"Combien de … as-tu ?","lie":[["c","n"]],"libre":["s"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur"},{"h":"你哥哥","p":"nǐ gē ge","fr":"ton frère"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"只","p":"zhī","fr":"classificateur"},{"h":"杯","p":"bēi","fr":"classificateur"}],"n":[{"h":"孩子","p":"hái zi","fr":"enfant"},{"h":"哥哥","p":"gē ge","fr":"frère aîné"},{"h":"姐姐","p":"jiě jie","fr":"sœur aînée"},{"h":"朋友","p":"péng you","fr":"ami"},{"h":"问题","p":"wèn tí","fr":"question"},{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"书","p":"shū","fr":"livre"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"事","p":"shì","fr":"chose à faire"},{"h":"猫","p":"māo","fr":"chat"},{"h":"咖啡","p":"kā fēi","fr":"café"}]}},
+    {"cadre":[{"s":"s"},{"h":"几点","p":"jǐ diǎn"},{"s":"v"},{"h":"？","p":""}],"fr":"À quelle heure … -tu … ?","lie":[],"libre":["s","v"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"v":[{"h":"起床","p":"qǐ chuáng","fr":"se lever"},{"h":"上班","p":"shàng bān","fr":"aller travailler"},{"h":"下班","p":"xià bān","fr":"finir le travail"},{"h":"上课","p":"shàng kè","fr":"avoir cours"},{"h":"下课","p":"xià kè","fr":"finir les cours"},{"h":"吃饭","p":"chī fàn","fr":"manger"},{"h":"睡觉","p":"shuì jiào","fr":"dormir"},{"h":"回家","p":"huí jiā","fr":"rentrer"},{"h":"出发","p":"chū fā","fr":"partir"},{"h":"到","p":"dào","fr":"arriver"},{"h":"开始","p":"kāi shǐ","fr":"commencer"},{"h":"见面","p":"jiàn miàn","fr":"se voir"}]}},
+    {"cadre":[{"s":"s"},{"h":"有","p":"yǒu"},{"h":"多少","p":"duō shao"},{"s":"n"},{"h":"？","p":""}],"fr":"Combien de … as-tu ?","lie":[],"libre":["s","n"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur"},{"h":"你哥哥","p":"nǐ gē ge","fr":"ton frère"}],"n":[{"h":"钱","p":"qián","fr":"argent"},{"h":"书","p":"shū","fr":"livres"},{"h":"照片","p":"zhào piàn","fr":"photos"},{"h":"衣服","p":"yī fu","fr":"vêtements"},{"h":"朋友","p":"péng you","fr":"amis"},{"h":"时间","p":"shí jiān","fr":"temps"},{"h":"东西","p":"dōng xi","fr":"affaires"},{"h":"作业","p":"zuò yè","fr":"devoirs"},{"h":"汉字","p":"Hàn zì","fr":"caractères"},{"h":"手机","p":"shǒu jī","fr":"téléphones"},{"h":"词典","p":"cí diǎn","fr":"dictionnaires"},{"h":"礼物","p":"lǐ wù","fr":"cadeaux"}]}},
+    {"cadre":[{"s":"d"},{"s":"c"},{"s":"n"},{"h":"多少","p":"duō shao"},{"h":"钱","p":"qián"},{"h":"？","p":""}],"fr":"Combien coûte ce … ?","lie":[["c","n"]],"libre":["d"],"listes":{"d":[{"h":"这","p":"zhè","fr":"ce"},{"h":"那","p":"nà","fr":"ce … là"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"杯","p":"bēi","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"把","p":"bǎ","fr":"classificateur"},{"h":"双","p":"shuāng","fr":"classificateur"}],"n":[{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"书","p":"shū","fr":"livre"},{"h":"词典","p":"cí diǎn","fr":"dictionnaire"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"咖啡","p":"kā fēi","fr":"café"},{"h":"电脑","p":"diàn nǎo","fr":"ordinateur"},{"h":"礼物","p":"lǐ wù","fr":"cadeau"},{"h":"包","p":"bāo","fr":"sac"},{"h":"桌子","p":"zhuō zi","fr":"table"},{"h":"椅子","p":"yǐ zi","fr":"chaise"},{"h":"鞋","p":"xié","fr":"paire de chaussures"}]}},
+    {"cadre":[{"s":"s"},{"h":"今年","p":"jīn nián"},{"h":"多","p":"duō"},{"h":"大","p":"dà"},{"h":"？","p":""}],"fr":"Quel âge a … cette année ?","lie":[],"libre":["s"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"你女儿","p":"nǐ nǚ ér","fr":"ta fille"},{"h":"你儿子","p":"nǐ ér zi","fr":"ton fils"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"你哥哥","p":"nǐ gē ge","fr":"ton frère aîné"},{"h":"你妹妹","p":"nǐ mèi mei","fr":"ta sœur cadette"},{"h":"你弟弟","p":"nǐ dì di","fr":"ton frère cadet"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你老师","p":"nǐ lǎo shī","fr":"ton professeur"},{"h":"你同事","p":"nǐ tóng shì","fr":"ton collègue"}]}},
+    {"cadre":[{"s":"s"},{"h":"多","p":"duō"},{"s":"a"},{"h":"？","p":""}],"fr":"Demandez la mesure : … ?","lie":[["s","a"]],"libre":[],"listes":{"s":[{"h":"这条路","p":"zhè tiáo lù","fr":"cette route"},{"h":"那条路","p":"nà tiáo lù","fr":"cette route-là"},{"h":"你家","p":"nǐ jiā","fr":"chez toi"},{"h":"学校","p":"xué xiào","fr":"l’école"},{"h":"这个包","p":"zhè ge bāo","fr":"ce sac"},{"h":"那个包","p":"nà ge bāo","fr":"ce sac-là"},{"h":"这张桌子","p":"zhè zhāng zhuō zi","fr":"cette table"},{"h":"那个房间","p":"nà ge fáng jiān","fr":"cette chambre-là"},{"h":"这本书","p":"zhè běn shū","fr":"ce livre"},{"h":"这件衣服","p":"zhè jiàn yī fu","fr":"ce vêtement"},{"h":"这个东西","p":"zhè ge dōng xi","fr":"cet objet"},{"h":"那个地方","p":"nà ge dì fang","fr":"cet endroit-là"}],"a":[{"h":"长","p":"cháng","fr":"longue"},{"h":"长","p":"cháng","fr":"longue"},{"h":"远","p":"yuǎn","fr":"loin"},{"h":"远","p":"yuǎn","fr":"loin"},{"h":"重","p":"zhòng","fr":"lourd"},{"h":"重","p":"zhòng","fr":"lourd"},{"h":"大","p":"dà","fr":"grande"},{"h":"大","p":"dà","fr":"grande"},{"h":"厚","p":"hòu","fr":"épais"},{"h":"长","p":"cháng","fr":"long"},{"h":"重","p":"zhòng","fr":"lourd"},{"h":"远","p":"yuǎn","fr":"loin"}]}},
+    {"cadre":[{"s":"s"},{"s":"v"},{"s":"b"},{"s":"v"},{"s":"o"},{"h":"？","p":""}],"fr":"… -tu … , oui ou non ?","lie":[["b","v","o"]],"libre":["s"],"listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"b":[{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"},{"h":"不","p":"bu","fr":"ou non"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"学","p":"xué","fr":"apprendre"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"做","p":"zuò","fr":"faire"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"打","p":"dǎ","fr":"passer"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"找","p":"zhǎo","fr":"chercher"}],"o":[{"h":"咖啡","p":"kā fēi","fr":"du café"},{"h":"茶","p":"chá","fr":"du thé"},{"h":"中国菜","p":"Zhōng guó cài","fr":"chinois"},{"h":"电影","p":"diàn yǐng","fr":"un film"},{"h":"汉语","p":"Hàn yǔ","fr":"le chinois"},{"h":"衣服","p":"yī fu","fr":"des vêtements"},{"h":"音乐","p":"yīn yuè","fr":"de la musique"},{"h":"作业","p":"zuò yè","fr":"ses devoirs"},{"h":"电脑","p":"diàn nǎo","fr":"un ordinateur"},{"h":"电话","p":"diàn huà","fr":"un coup de fil"},{"h":"汉字","p":"Hàn zì","fr":"des caractères"},{"h":"工作","p":"gōng zuò","fr":"un travail"}]}},
+    {"cadre":[{"s":"s"},{"s":"v"},{"h":"啥","p":"shá"},{"h":"？","p":""}],"fr":"Tu … quoi ?","lie":[],"libre":["s","v"],"reg":"oral","listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"学","p":"xué","fr":"apprendre"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"做","p":"zuò","fr":"faire"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"说","p":"shuō","fr":"dire"},{"h":"找","p":"zhǎo","fr":"chercher"},{"h":"带","p":"dài","fr":"apporter"}]}},
+    {"cadre":[{"s":"s"},{"h":"为啥","p":"wèi shá"},{"s":"b"},{"s":"v"},{"s":"o"},{"h":"？","p":""}],"fr":"Pourquoi … -tu pas … ?","lie":[["b","v","o"]],"libre":["s"],"reg":"oral","listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"}],"b":[{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"学","p":"xué","fr":"apprendre"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"做","p":"zuò","fr":"faire"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"打","p":"dǎ","fr":"passer"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"找","p":"zhǎo","fr":"chercher"}],"o":[{"h":"咖啡","p":"kā fēi","fr":"du café"},{"h":"茶","p":"chá","fr":"du thé"},{"h":"中国菜","p":"Zhōng guó cài","fr":"chinois"},{"h":"电影","p":"diàn yǐng","fr":"un film"},{"h":"汉语","p":"Hàn yǔ","fr":"le chinois"},{"h":"衣服","p":"yī fu","fr":"des vêtements"},{"h":"音乐","p":"yīn yuè","fr":"de la musique"},{"h":"作业","p":"zuò yè","fr":"ses devoirs"},{"h":"电脑","p":"diàn nǎo","fr":"un ordinateur"},{"h":"电话","p":"diàn huà","fr":"un coup de fil"},{"h":"汉字","p":"Hàn zì","fr":"des caractères"},{"h":"工作","p":"gōng zuò","fr":"un travail"}]}},
+    {"cadre":[{"s":"s"},{"h":"干吗","p":"gàn má"},{"s":"v"},{"s":"o"},{"h":"？","p":""}],"fr":"Pourquoi … -tu … ?","lie":[["v","o"]],"libre":["s"],"reg":"oral","listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"}],"v":[{"h":"喝","p":"hē","fr":"boire"},{"h":"喝","p":"hē","fr":"boire"},{"h":"吃","p":"chī","fr":"manger"},{"h":"看","p":"kàn","fr":"regarder"},{"h":"学","p":"xué","fr":"apprendre"},{"h":"买","p":"mǎi","fr":"acheter"},{"h":"听","p":"tīng","fr":"écouter"},{"h":"做","p":"zuò","fr":"faire"},{"h":"用","p":"yòng","fr":"utiliser"},{"h":"打","p":"dǎ","fr":"passer"},{"h":"写","p":"xiě","fr":"écrire"},{"h":"找","p":"zhǎo","fr":"chercher"}],"o":[{"h":"咖啡","p":"kā fēi","fr":"du café"},{"h":"茶","p":"chá","fr":"du thé"},{"h":"中国菜","p":"Zhōng guó cài","fr":"chinois"},{"h":"电影","p":"diàn yǐng","fr":"un film"},{"h":"汉语","p":"Hàn yǔ","fr":"le chinois"},{"h":"衣服","p":"yī fu","fr":"des vêtements"},{"h":"音乐","p":"yīn yuè","fr":"de la musique"},{"h":"作业","p":"zuò yè","fr":"ses devoirs"},{"h":"电脑","p":"diàn nǎo","fr":"un ordinateur"},{"h":"电话","p":"diàn huà","fr":"un coup de fil"},{"h":"汉字","p":"Hàn zì","fr":"des caractères"},{"h":"工作","p":"gōng zuò","fr":"un travail"}]}},
+    {"cadre":[{"s":"s"},{"h":"是","p":"shì"},{"s":"n"},{"h":"，","p":""},{"h":"对吧","p":"duì ba"},{"h":"？","p":""}],"fr":"Tu es … , non ?","lie":[],"libre":["s","n"],"reg":"oral","listes":{"s":[{"h":"你","p":"nǐ","fr":"tu"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"你朋友","p":"nǐ péng you","fr":"ton amie"},{"h":"你姐姐","p":"nǐ jiě jie","fr":"ta sœur aînée"},{"h":"老师","p":"lǎo shī","fr":"le professeur"}],"n":[{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"学生","p":"xué sheng","fr":"étudiant"},{"h":"医生","p":"yī shēng","fr":"médecin"},{"h":"中国人","p":"Zhōng guó rén","fr":"chinois"},{"h":"法国人","p":"Fǎ guó rén","fr":"français"},{"h":"英国人","p":"Yīng guó rén","fr":"anglais"},{"h":"日本人","p":"Rì běn rén","fr":"japonais"},{"h":"大学生","p":"dà xué shēng","fr":"étudiant à l’université"},{"h":"服务员","p":"fú wù yuán","fr":"serveur"},{"h":"韩国人","p":"Hán guó rén","fr":"coréen"},{"h":"经理","p":"jīng lǐ","fr":"directeur"},{"h":"司机","p":"sī jī","fr":"chauffeur"}]}},
+    {"cadre":[{"s":"d"},{"s":"c"},{"s":"n"},{"h":"咋样","p":"zǎ yàng"},{"h":"？","p":""}],"fr":"Il donne quoi, ce … ?","lie":[["c","n"]],"libre":["d"],"reg":"oral","listes":{"d":[{"h":"这","p":"zhè","fr":"ce"},{"h":"那","p":"nà","fr":"ce … là"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"家","p":"jiā","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"}],"n":[{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"书","p":"shū","fr":"livre"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"地方","p":"dì fang","fr":"endroit"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"学校","p":"xué xiào","fr":"école"},{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"饭馆","p":"fàn guǎn","fr":"restaurant"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"房间","p":"fáng jiān","fr":"chambre"}]}}
   ],
 
   transfo:[
+    {consigne:'Dites-le comme à l’oral',
+     de:{hz:'你要什么？',py:'nǐ yào shén me',fr:'Qu’est-ce que tu veux ?'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'要',p:'yào'},{h:'啥',p:'shá'},{h:'？',p:''}],
+           fr:'Tu veux quoi ?',reg:'oral'}},
+    {consigne:'Demandez confirmation, à l’oral',
+     de:{hz:'你是老师吗？',py:'nǐ shì lǎo shī ma',fr:'Es-tu professeur ?'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'是',p:'shì'},{h:'老师',p:'lǎo shī'},{h:'，',p:''},
+                {h:'对吧',p:'duì ba'},{h:'？',p:''}],
+           fr:'Tu es professeur, non ?',reg:'oral'}},
     {consigne:'Transformez en question avec 吗',
      de:{hz:'他是老师。',py:'tā shì lǎo shī',fr:'Il est professeur.'},
      vers:{seg:[{h:'他',p:'tā'},{h:'是',p:'shì'},{h:'老师',p:'lǎo shī'},{h:'吗',p:'ma'},P('？')],fr:'Est-il professeur ?'}},
@@ -200,8 +245,8 @@ const GRAMMAR=[
      de:{hz:'你妈妈很忙。',py:'nǐ mā ma hěn máng',fr:'Ta mère est très occupée.'},
      vers:{seg:[{h:'你',p:'nǐ'},{h:'妈妈',p:'mā ma'},{h:'忙',p:'máng'},{h:'吗',p:'ma'},P('？')],fr:'Ta mère est-elle occupée ?'}},
     {consigne:'Transformez en question alternative V 不 V',
-     de:{hz:'你是学生吗？',py:'nǐ shì xué shēng ma',fr:'Es-tu étudiante ?'},
-     vers:{seg:[{h:'你',p:'nǐ'},{h:'是',p:'shì'},{h:'不',p:'bu'},{h:'是',p:'shì'},{h:'学生',p:'xué shēng'},P('？')],fr:'Es-tu étudiante ?'}},
+     de:{hz:'你是学生吗？',py:'nǐ shì xué sheng ma',fr:'Es-tu étudiante ?'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'是',p:'shì'},{h:'不',p:'bu'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},P('？')],fr:'Es-tu étudiante ?'}},
     {consigne:'Posez la question à laquelle cette phrase répond',
      de:{hz:'我叫王明。',py:'wǒ jiào Wáng Míng',fr:'Je m’appelle Wang Ming.'},
      vers:{seg:[{h:'你',p:'nǐ'},{h:'叫',p:'jiào'},{h:'什么',p:'shén me'},{h:'名字',p:'míng zi'},P('？')],fr:'Comment t’appelles-tu ?'}},
@@ -328,6 +373,28 @@ const GRAMMAR=[
       ],
       check:{q:'Laquelle est correcte ?',a:['一个漂亮姑娘','一个漂亮的姑娘'],ok:1,
              why:'漂亮 a deux syllabes : 的 est nécessaire.'}
+    },
+    {
+      t:'À l’oral — 挺…的, 特别, 好…, 死了, 极了', reg:'oral',
+      p:[
+        'Le 很 des écrans précédents est juste, mais plat. Voici ce qu’on entend réellement pour dire la même chose.',
+        '<b>挺</b> vaut « plutôt, pas mal », et il se ferme presque toujours par <b>的</b> : 挺好的, 挺贵的. Sans le 的, la phrase reste en suspens.',
+        '<b>特别</b> dit « particulièrement ». Il est bien plus courant à l’oral que 非常.',
+        '<b>好</b> devant un adjectif n’est pas le 好 « bien » : c’est une exclamation, comme « qu’est-ce que c’est… ! ». 好累 n’est pas 很累.',
+        '<b>死了</b> et <b>极了</b> se placent <b>après</b> l’adjectif, là où le français met son adverbe avant. 累死了 se dit couramment et n’a rien de violent.'
+      ],
+      ex:[
+        {hz:'这家饭馆挺好的。',py:'zhè jiā fàn guǎn tǐng hǎo de',fr:'Ce restaurant est pas mal.',reg:'oral',
+         note:'挺 sans 的 sonne inachevé : les deux vont ensemble.'},
+        {hz:'我今天特别累。',py:'wǒ jīn tiān tè bié lèi',fr:'Je suis particulièrement fatiguée aujourd’hui.',reg:'oral'},
+        {hz:'好漂亮！',py:'hǎo piào liang',fr:'Qu’est-ce que c’est joli !',reg:'oral'},
+        {hz:'累死了！',py:'lèi sǐ le',fr:'Je suis morte de fatigue !',reg:'oral'},
+        {hz:'这个菜好吃极了！',py:'zhè ge cài hǎo chī jí le',fr:'Ce plat est délicieux !',reg:'oral',
+         note:'极了 suit l’adjectif. Jamais devant.'}
+      ],
+      check:{q:'« Pas mal, ce restaurant » se dit le plus souvent :',
+             a:['这家饭馆很好。','这家饭馆挺好的。'],ok:1,
+             why:'挺 se ferme par 的. 很好 n’est pas faux, mais ce n’est pas ce qu’on dit.'}
     }
   ],
 
@@ -339,7 +406,11 @@ const GRAMMAR=[
       ['Ce n’est pas ainsi','不 + adjectif','她不高'],
       ['C’est excessif','太 + adjectif + 了','太高了'],
       ['Qualifier un nom','adjectif + 的 + nom','漂亮的照片'],
-      ['Adjectif court et courant','adjectif + nom','好人']
+      ['Adjectif court et courant','adjectif + nom','好人'],
+      ['挺…的','plutôt — à l’oral','挺好的'],
+      ['特别','particulièrement — à l’oral','特别累'],
+      ['好 + adj','exclamation — à l’oral','好漂亮！'],
+      ['死了 / 极了','au plus haut point — à l’oral','累死了！']
     ]
   },
 
@@ -349,7 +420,7 @@ const GRAMMAR=[
     why:'Le français fait passer l’adjectif par le verbe être ; le chinois non. L’adjectif est le verbe. 是 ne s’emploie qu’avec un nom : 她是老师.'
   },
 
-  voir:['g302'],
+  voir:['g302','g208'],
 
   banque:[
     {seg:[{h:'她',p:'tā'},{h:'很',p:'hěn'},{h:'漂亮',p:'piào liang'},P('。')],cle:1,fr:'Elle est belle.'},
@@ -369,7 +440,12 @@ const GRAMMAR=[
     {seg:[{h:'我',p:'wǒ'},{h:'的',p:'de'},{h:'房间',p:'fáng jiān'},{h:'不',p:'bú'},{h:'大',p:'dà'},P('。')],cle:3,fr:'Ma chambre n’est pas grande.'},
     {seg:[{h:'这个',p:'zhè ge'},{h:'城市',p:'chéng shì'},{h:'很',p:'hěn'},{h:'安静',p:'ān jìng'},P('。')],cle:2,fr:'Cette ville est calme.'}
   ],
-  leurres:['很','不','太','了','的','非常','是'],
+  leurres:['很','不','太','了','的','非常','是','挺','特别','极','死'],
+
+  /* 很, 非常 et 特别 occupent la même case devant l’adjectif et conviennent
+     tous les trois : le générateur de complétion ne doit pas les opposer.
+     挺 en est exclu — il réclame son 的 — et 好 est exclamatif. */
+  equiv:[['很','非常','特别']],
 
   gabarits:[
     {cadre:[{s:'p'},{h:'的',p:'de'},{s:'n'},{h:'很',p:'hěn'},{s:'a'},P('。')],
@@ -382,10 +458,34 @@ const GRAMMAR=[
 
     {cadre:[{s:'s'},{s:'b'},{s:'a'},P('。')],
      fr:'… n’est pas …', lie:[['b','a']], libre:['s'],
-     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],b:[{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'}],a:[{h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},{h:'胖',p:'pàng',fr:'gros'},{h:'年轻',p:'nián qīng',fr:'jeune'},{h:'累',p:'lèi',fr:'fatigué'},{h:'好',p:'hǎo',fr:'bien'},{h:'聪明',p:'cōng ming',fr:'intelligent'},{h:'认真',p:'rèn zhēn',fr:'sérieux'},{h:'安静',p:'ān jìng',fr:'calme'},{h:'快乐',p:'kuài lè',fr:'joyeux'},{h:'生气',p:'shēng qì',fr:'fâché'},{h:'舒服',p:'shū fu',fr:'à l’aise'}]}}
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],b:[{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bú',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'},{h:'不',p:'bù',fr:'ne … pas'}],a:[{h:'高',p:'gāo',fr:'grand'},{h:'忙',p:'máng',fr:'occupé'},{h:'胖',p:'pàng',fr:'gros'},{h:'年轻',p:'nián qīng',fr:'jeune'},{h:'累',p:'lèi',fr:'fatigué'},{h:'好',p:'hǎo',fr:'bien'},{h:'聪明',p:'cōng ming',fr:'intelligent'},{h:'认真',p:'rèn zhēn',fr:'sérieux'},{h:'安静',p:'ān jìng',fr:'calme'},{h:'快乐',p:'kuài lè',fr:'joyeux'},{h:'生气',p:'shēng qì',fr:'fâché'},{h:'舒服',p:'shū fu',fr:'à l’aise'}]}},
+    {"cadre":[{"s":"s"},{"h":"很","p":"hěn"},{"s":"a"},{"h":"。","p":""}],"fr":"… est …","lie":[],"libre":["s","a"],"listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"d"},{"s":"c"},{"s":"n"},{"h":"很","p":"hěn"},{"s":"a"},{"h":"。","p":""}],"fr":"Ce … est …","lie":[["c","n","a"]],"libre":["d"],"listes":{"d":[{"h":"这","p":"zhè","fr":"ce"},{"h":"那","p":"nà","fr":"ce … là"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"杯","p":"bēi","fr":"classificateur"}],"n":[{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"书","p":"shū","fr":"livre"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"地方","p":"dì fang","fr":"endroit"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"菜","p":"cài","fr":"plat"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"问题","p":"wèn tí","fr":"question"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"咖啡","p":"kā fēi","fr":"café"}],"a":[{"h":"贵","p":"guì","fr":"cher"},{"h":"新","p":"xīn","fr":"neuf"},{"h":"干净","p":"gān jìng","fr":"propre"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"便宜","p":"pián yi","fr":"bon marché"},{"h":"辣","p":"là","fr":"épicé"},{"h":"大","p":"dà","fr":"grande"},{"h":"累","p":"lèi","fr":"fatigant"},{"h":"难","p":"nán","fr":"difficile"},{"h":"好看","p":"hǎo kàn","fr":"jolie"},{"h":"长","p":"cháng","fr":"long"},{"h":"热","p":"rè","fr":"chaud"}]}},
+    {"cadre":[{"s":"s"},{"s":"b"},{"s":"a"},{"h":"。","p":""}],"fr":"… n’est pas …","lie":[["b","a"]],"libre":["s"],"listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"b":[{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"},{"h":"不","p":"bù","fr":"ne … pas"},{"h":"不","p":"bú","fr":"ne … pas"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"s"},{"h":"不","p":"bú"},{"h":"太","p":"tài"},{"s":"a"},{"h":"。","p":""}],"fr":"… n’est pas très …","lie":[],"libre":["s","a"],"listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"s"},{"h":"非常","p":"fēi cháng"},{"s":"a"},{"h":"。","p":""}],"fr":"… est extrêmement …","lie":[],"libre":["s","a"],"listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"s"},{"h":"觉得","p":"jué de"},{"s":"d"},{"s":"c"},{"s":"n"},{"h":"很","p":"hěn"},{"s":"a"},{"h":"。","p":""}],"fr":"… trouve ce … …","lie":[["c","n","a"]],"libre":["s","d"],"listes":{"s":[{"h":"我","p":"wǒ","fr":"je"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"我们","p":"wǒ men","fr":"nous"}],"d":[{"h":"这","p":"zhè","fr":"ce"},{"h":"那","p":"nà","fr":"ce … là"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"杯","p":"bēi","fr":"classificateur"}],"n":[{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"书","p":"shū","fr":"livre"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"地方","p":"dì fang","fr":"endroit"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"菜","p":"cài","fr":"plat"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"问题","p":"wèn tí","fr":"question"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"咖啡","p":"kā fēi","fr":"café"}],"a":[{"h":"贵","p":"guì","fr":"cher"},{"h":"新","p":"xīn","fr":"neuf"},{"h":"干净","p":"gān jìng","fr":"propre"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"便宜","p":"pián yi","fr":"bon marché"},{"h":"辣","p":"là","fr":"épicé"},{"h":"大","p":"dà","fr":"grande"},{"h":"累","p":"lèi","fr":"fatigant"},{"h":"难","p":"nán","fr":"difficile"},{"h":"好看","p":"hǎo kàn","fr":"jolie"},{"h":"长","p":"cháng","fr":"long"},{"h":"热","p":"rè","fr":"chaud"}]}},
+    {"cadre":[{"s":"p"},{"h":"的","p":"de"},{"s":"n"},{"h":"怎么样","p":"zěn me yàng"},{"h":"？","p":""}],"fr":"Comment est ton … ?","lie":[],"libre":["p","n"],"listes":{"p":[{"h":"我","p":"wǒ","fr":"mon"},{"h":"他","p":"tā","fr":"son à lui"},{"h":"她","p":"tā","fr":"son à elle"},{"h":"你","p":"nǐ","fr":"ton"}],"n":[{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"朋友","p":"péng you","fr":"ami"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"学校","p":"xué xiào","fr":"école"},{"h":"电脑","p":"diàn nǎo","fr":"ordinateur"},{"h":"书","p":"shū","fr":"livre"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"饭馆","p":"fàn guǎn","fr":"restaurant"}]}},
+    {"cadre":[{"h":"这","p":"zhè"},{"h":"是","p":"shì"},{"s":"p"},{"h":"的","p":"de"},{"s":"n"},{"h":"。","p":""}],"fr":"C’est le … de …","lie":[],"libre":["p","n"],"listes":{"p":[{"h":"我","p":"wǒ","fr":"mon"},{"h":"他","p":"tā","fr":"son à lui"},{"h":"她","p":"tā","fr":"son à elle"},{"h":"你","p":"nǐ","fr":"ton"}],"n":[{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"朋友","p":"péng you","fr":"ami"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"学校","p":"xué xiào","fr":"école"},{"h":"电脑","p":"diàn nǎo","fr":"ordinateur"},{"h":"书","p":"shū","fr":"livre"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"饭馆","p":"fàn guǎn","fr":"restaurant"}]}},
+    {"cadre":[{"s":"s"},{"h":"喜欢","p":"xǐ huan"},{"s":"a"},{"h":"的","p":"de"},{"s":"n"},{"h":"。","p":""}],"fr":"… aime les … …","lie":[["a","n"]],"libre":["s"],"listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"a":[{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"便宜","p":"pián yi","fr":"bon marché"},{"h":"好吃","p":"hǎo chī","fr":"bon"},{"h":"新","p":"xīn","fr":"neuf"},{"h":"大","p":"dà","fr":"grand"},{"h":"好看","p":"hǎo kàn","fr":"joli"},{"h":"长","p":"cháng","fr":"long"},{"h":"热","p":"rè","fr":"chaud"},{"h":"干净","p":"gān jìng","fr":"propre"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"贵","p":"guì","fr":"cher"}],"n":[{"h":"地方","p":"dì fang","fr":"endroit"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"菜","p":"cài","fr":"plat"},{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"咖啡","p":"kā fēi","fr":"café"},{"h":"饭馆","p":"fàn guǎn","fr":"restaurant"},{"h":"老师","p":"lǎo shī","fr":"professeur"},{"h":"学生","p":"xué sheng","fr":"étudiant"},{"h":"东西","p":"dōng xi","fr":"objet"}]}},
+    {"cadre":[{"s":"s"},{"h":"挺","p":"tǐng"},{"s":"a"},{"h":"的","p":"de"},{"h":"。","p":""}],"fr":"… est plutôt …","lie":[],"libre":["s","a"],"reg":"oral","listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"d"},{"s":"c"},{"s":"n"},{"h":"挺","p":"tǐng"},{"s":"a"},{"h":"的","p":"de"},{"h":"。","p":""}],"fr":"Ce … est plutôt …","lie":[["c","n","a"]],"libre":["d"],"reg":"oral","listes":{"d":[{"h":"这","p":"zhè","fr":"ce"},{"h":"那","p":"nà","fr":"ce … là"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"杯","p":"bēi","fr":"classificateur"}],"n":[{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"书","p":"shū","fr":"livre"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"地方","p":"dì fang","fr":"endroit"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"菜","p":"cài","fr":"plat"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"问题","p":"wèn tí","fr":"question"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"咖啡","p":"kā fēi","fr":"café"}],"a":[{"h":"贵","p":"guì","fr":"cher"},{"h":"新","p":"xīn","fr":"neuf"},{"h":"干净","p":"gān jìng","fr":"propre"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"便宜","p":"pián yi","fr":"bon marché"},{"h":"辣","p":"là","fr":"épicé"},{"h":"大","p":"dà","fr":"grande"},{"h":"累","p":"lèi","fr":"fatigant"},{"h":"难","p":"nán","fr":"difficile"},{"h":"好看","p":"hǎo kàn","fr":"jolie"},{"h":"长","p":"cháng","fr":"long"},{"h":"热","p":"rè","fr":"chaud"}]}},
+    {"cadre":[{"s":"s"},{"h":"特别","p":"tè bié"},{"s":"a"},{"h":"。","p":""}],"fr":"… est particulièrement …","lie":[],"libre":["s","a"],"reg":"oral","listes":{"s":[{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"老师","p":"lǎo shī","fr":"le professeur"},{"h":"我朋友","p":"wǒ péng you","fr":"mon amie"},{"h":"我姐姐","p":"wǒ jiě jie","fr":"ma sœur aînée"},{"h":"我哥哥","p":"wǒ gē ge","fr":"mon frère aîné"}],"a":[{"h":"忙","p":"máng","fr":"occupé"},{"h":"累","p":"lèi","fr":"fatigué"},{"h":"高","p":"gāo","fr":"grand de taille"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"},{"h":"生气","p":"shēng qì","fr":"fâché"},{"h":"快乐","p":"kuài lè","fr":"joyeux"},{"h":"聪明","p":"cōng ming","fr":"intelligent"},{"h":"认真","p":"rèn zhēn","fr":"sérieux"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"胖","p":"pàng","fr":"gros"}]}},
+    {"cadre":[{"s":"s"},{"h":"好","p":"hǎo"},{"s":"a"},{"h":"！","p":""}],"fr":"Qu’est-ce que … est … !","lie":[],"libre":["s","a"],"reg":"oral","listes":{"s":[{"h":"我","p":"wǒ","fr":"je"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"我们","p":"wǒ men","fr":"nous"}],"a":[{"h":"累","p":"lèi","fr":"fatiguée"},{"h":"忙","p":"máng","fr":"occupée"},{"h":"热","p":"rè","fr":"chaud"},{"h":"冷","p":"lěng","fr":"froid"},{"h":"饿","p":"è","fr":"affamée"},{"h":"渴","p":"kě","fr":"assoiffée"},{"h":"高","p":"gāo","fr":"grande"},{"h":"漂亮","p":"piào liang","fr":"jolie"},{"h":"好","p":"hǎo","fr":"bien"},{"h":"聪明","p":"cōng ming","fr":"intelligente"},{"h":"年轻","p":"nián qīng","fr":"jeune"},{"h":"舒服","p":"shū fu","fr":"à l’aise"}]}},
+    {"cadre":[{"s":"s"},{"s":"a"},{"h":"死","p":"sǐ"},{"h":"了","p":"le"},{"h":"！","p":""}],"fr":"… est … à mourir !","lie":[],"libre":["s","a"],"reg":"oral","listes":{"s":[{"h":"我","p":"wǒ","fr":"je"},{"h":"他","p":"tā","fr":"il"},{"h":"她","p":"tā","fr":"elle"},{"h":"我们","p":"wǒ men","fr":"nous"}],"a":[{"h":"累","p":"lèi","fr":"fatiguée"},{"h":"热","p":"rè","fr":"chaud"},{"h":"冷","p":"lěng","fr":"froid"},{"h":"忙","p":"máng","fr":"débordée"},{"h":"饿","p":"è","fr":"affamée"},{"h":"渴","p":"kě","fr":"assoiffée"},{"h":"困","p":"kùn","fr":"endormie"},{"h":"急","p":"jí","fr":"pressée"}]}},
+    {"cadre":[{"s":"d"},{"s":"c"},{"s":"n"},{"s":"a"},{"h":"极","p":"jí"},{"h":"了","p":"le"},{"h":"！","p":""}],"fr":"Ce … est on ne peut plus …","lie":[["c","n","a"]],"libre":["d"],"reg":"oral","listes":{"d":[{"h":"这","p":"zhè","fr":"ce"},{"h":"那","p":"nà","fr":"ce … là"}],"c":[{"h":"个","p":"ge","fr":"classificateur"},{"h":"本","p":"běn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"件","p":"jiàn","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"张","p":"zhāng","fr":"classificateur"},{"h":"个","p":"ge","fr":"classificateur"},{"h":"杯","p":"bēi","fr":"classificateur"}],"n":[{"h":"手机","p":"shǒu jī","fr":"téléphone"},{"h":"书","p":"shū","fr":"livre"},{"h":"房间","p":"fáng jiān","fr":"chambre"},{"h":"地方","p":"dì fang","fr":"endroit"},{"h":"衣服","p":"yī fu","fr":"vêtement"},{"h":"菜","p":"cài","fr":"plat"},{"h":"城市","p":"chéng shì","fr":"ville"},{"h":"工作","p":"gōng zuò","fr":"travail"},{"h":"问题","p":"wèn tí","fr":"question"},{"h":"照片","p":"zhào piàn","fr":"photo"},{"h":"电影","p":"diàn yǐng","fr":"film"},{"h":"咖啡","p":"kā fēi","fr":"café"}],"a":[{"h":"贵","p":"guì","fr":"cher"},{"h":"新","p":"xīn","fr":"neuf"},{"h":"干净","p":"gān jìng","fr":"propre"},{"h":"安静","p":"ān jìng","fr":"calme"},{"h":"便宜","p":"pián yi","fr":"bon marché"},{"h":"辣","p":"là","fr":"épicé"},{"h":"大","p":"dà","fr":"grande"},{"h":"累","p":"lèi","fr":"fatigant"},{"h":"难","p":"nán","fr":"difficile"},{"h":"好看","p":"hǎo kàn","fr":"jolie"},{"h":"长","p":"cháng","fr":"long"},{"h":"热","p":"rè","fr":"chaud"}]}}
   ],
 
   transfo:[
+    {consigne:'Dites-le comme à l’oral',
+     de:{hz:'这个房间很干净。',py:'zhè ge fáng jiān hěn gān jìng',fr:'Cette chambre est propre.'},
+     vers:{seg:[{h:'这个',p:'zhè ge'},{h:'房间',p:'fáng jiān'},{h:'挺',p:'tǐng'},
+                {h:'干净',p:'gān jìng'},{h:'的',p:'de'},{h:'。',p:''}],
+           fr:'Cette chambre est plutôt propre.',reg:'oral'}},
+    {consigne:'Rendez l’exclamation',
+     de:{hz:'我很累。',py:'wǒ hěn lèi',fr:'Je suis fatiguée.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'累',p:'lèi'},{h:'死',p:'sǐ'},{h:'了',p:'le'},{h:'！',p:''}],
+           fr:'Je suis morte de fatigue !',reg:'oral'}},
     {consigne:'Mettez à la forme négative',
      de:{hz:'她很高。',py:'tā hěn gāo',fr:'Elle est grande.'},
      vers:{seg:[{h:'她',p:'tā'},{h:'不',p:'bù'},{h:'高',p:'gāo'},P('。')],fr:'Elle n’est pas grande.'}},
@@ -407,6 +507,12 @@ const GRAMMAR=[
   ],
 
   fixes:[
+    {faux:'这个菜挺辣。',juste:'这个菜挺辣的。',py:'zhè ge cài tǐng là de',
+     fr:'Ce plat est plutôt épicé.',
+     why:'挺 réclame son 的 en fin de phrase. Sans lui, la phrase reste en suspens.',reg:'oral'},
+    {faux:'我极了累。',juste:'我累极了。',py:'wǒ lèi jí le',
+     fr:'Je suis épuisée.',
+     why:'极了 se place après l’adjectif, jamais devant : le français met son adverbe avant, le chinois après.',reg:'oral'},
     {seg:[{h:'她',p:'tā'},{h:'是',p:'shì'},{h:'漂亮',p:'piào liang'},P('。')],bad:1,
      bon:'她很漂亮。',why:'L’adjectif est déjà le verbe. 是 ne s’emploie que devant un nom.'},
     {seg:[{h:'他',p:'tā'},{h:'不',p:'bù'},{h:'很',p:'hěn'},{h:'忙',p:'máng'},P('。')],bad:2,
@@ -441,6 +547,1510 @@ const GRAMMAR=[
      modeles:[{hz:'我住在一个很安静的城市。',py:'wǒ zhù zài yí ge hěn ān jìng de chéng shì',fr:'J’habite dans une ville très calme.'},
               {hz:'这是一个非常大的城市。',py:'zhè shì yí ge fēi cháng dà de chéng shì',fr:'C’est une très grande ville.'}],
      criteres:['的 sépare l’adjectif du nom','Le classificateur 个 est présent après 一','Pas de 是 devant l’adjectif']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g203', hsk:2, fam:'verbe', th:['quotidien','travail'],
+  title:'Savoir et pouvoir : 会, 能, 可以',
+  resume:'Trois auxiliaires que le français réunit sous « pouvoir ». Le chinois les sépare selon l’origine de la capacité : ce qu’on a appris, ce que les circonstances permettent, ce que quelqu’un autorise.',
+
+  steps:[
+    {
+      t:'会 — ce qu’on a appris à faire',
+      p:[
+        '<b>会</b> se place devant le verbe et dit une compétence acquise : une langue, un instrument, un sport, la conduite. Ce qui compte, c’est l’apprentissage qu’il y a eu derrière.',
+        'La négation est <b>不会</b>, jamais 没会 : une compétence n’est pas un fait accompli, elle ne s’achève pas.'
+      ],
+      ex:[
+        {hz:'我会说汉语。',py:'wǒ huì shuō Hàn yǔ',fr:'Je sais parler chinois.'},
+        {hz:'他不会开车。',py:'tā bú huì kāi chē',fr:'Il ne sait pas conduire.',
+         note:'不 devant 会 se prononce bú, quatrième ton devant quatrième ton.'}
+      ],
+      check:{q:'Vous n’avez jamais appris à nager. Vous dites :',a:['我没会游泳。','我不会游泳。'],ok:1,
+             why:'La négation de 会 est 不会. 没 raconterait un fait qui n’a pas eu lieu.'}
+    },
+    {
+      t:'能 — ce que les circonstances permettent',
+      p:[
+        '<b>能</b> ne parle pas d’apprentissage mais de possibilité du moment : on est libre, ou en état, ou autorisé par les faits. 我今天不能来 — je sais parfaitement venir, mais aujourd’hui quelque chose m’en empêche.',
+        'C’est donc l’auxiliaire de l’empêchement passager, et il s’emploie bien plus souvent au négatif qu’à l’affirmatif.'
+      ],
+      ex:[
+        {hz:'我今天不能去学校。',py:'wǒ jīn tiān bù néng qù xué xiào',fr:'Je ne peux pas aller à l’école aujourd’hui.'},
+        {hz:'她明天能来。',py:'tā míng tiān néng lái',fr:'Elle peut venir demain.'}
+      ],
+      check:{q:'Vous savez conduire, mais votre voiture est en panne. Vous dites :',
+             a:['我不会开车。','我今天不能开车。'],ok:1,
+             why:'La compétence est là ; c’est la circonstance qui manque. 不会 nierait l’apprentissage lui-même.'}
+    },
+    {
+      t:'可以 — ce que quelqu’un autorise',
+      p:[
+        '<b>可以</b> demande ou accorde une permission. C’est l’auxiliaire de la politesse : 我可以进来吗？ — puis-je entrer ?',
+        'Pour refuser une permission, on répond <b>不行</b> ou <b>不能</b>, rarement 不可以, qui sonne très sec.',
+        '能 et 可以 se recouvrent souvent quand il s’agit d’autorisation. Retenez la nuance : 可以 demande à quelqu’un, 能 constate ce que la situation rend possible.'
+      ],
+      ex:[
+        {hz:'我可以用你的电脑吗？',py:'wǒ kě yǐ yòng nǐ de diàn nǎo ma',fr:'Puis-je utiliser ton ordinateur ?'},
+        {hz:'这儿可以吃东西吗？',py:'zhèr kě yǐ chī dōng xi ma',fr:'A-t-on le droit de manger ici ?'}
+      ],
+      check:{q:'Vous demandez à votre professeur la permission de poser une question. Vous dites :',
+             a:['我会问一个问题吗？','我可以问一个问题吗？'],ok:1,
+             why:'On demande une autorisation : c’est 可以. 会 parlerait de savoir-faire.'}
+    },
+    {
+      t:'Interroger et répondre',
+      p:[
+        'Deux façons de questionner, comme toujours : avec <b>吗</b> à la fin, ou par la forme alternative en doublant l’auxiliaire — 会不会, 能不能, 可不可以. Les deux outils ne se cumulent jamais.',
+        'On répond en reprenant l’auxiliaire seul, jamais par un mot qui voudrait dire « oui ». 会不会开车？ — 会. Ou 不会.',
+        'Remarquez la forme de 可以 : c’est le premier caractère seul qui se dédouble, 可不可以.'
+      ],
+      ex:[
+        {hz:'你会不会做中国菜？',py:'nǐ huì bu huì zuò Zhōng guó cài',fr:'Sais-tu faire la cuisine chinoise ?'},
+        {hz:'你能不能帮我？',py:'nǐ néng bu néng bāng wǒ',fr:'Peux-tu m’aider ?',
+         note:'不 pris entre deux auxiliaires perd son ton : bu.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['他会不会开车吗？','他会不会开车？'],ok:1,
+             why:'La forme alternative remplace 吗 : les employer ensemble est une faute.'}
+    },
+    {
+      t:'会 tourné vers l’avenir, et l’erreur qui coûte cher',
+      p:[
+        'Devant un fait à venir, <b>会</b> change de sens : il annonce ce qui va probablement arriver. 明天会下雨 — il pleuvra demain.',
+        'L’auxiliaire se place toujours <b>devant le verbe</b>, jamais après lui, et jamais en fin de phrase.',
+        'L’erreur la plus fréquente chez un francophone est de traduire « je ne peux pas venir » par 我不会来. Cette phrase dit que vous n’avez pas appris à venir. L’empêchement passager, c’est 不能.'
+      ],
+      ex:[
+        {hz:'明天会下雨吗？',py:'míng tiān huì xià yǔ ma',fr:'Pleuvra-t-il demain ?'},
+        {hz:'他明天会来我家。',py:'tā míng tiān huì lái wǒ jiā',fr:'Il viendra chez moi demain.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['明天下雨会。','明天会下雨。'],ok:1,
+             why:'L’auxiliaire précède le verbe. Il ne se rejette jamais à la fin.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Auxiliaire','Exemple','Ce qu’il dit'],
+    rows:[
+      ['会','我会说汉语','Une compétence apprise'],
+      ['不会','我不会开车','On ne l’a jamais appris'],
+      ['能','我今天不能来','Les circonstances l’empêchent'],
+      ['能不能','你能不能帮我？','Demander un service'],
+      ['可以','我可以进来吗？','Demander la permission'],
+      ['会 + à venir','明天会下雨','Ce qui va probablement arriver']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我明天不会来。',py:'wǒ míng tiān bú huì lái'},
+    good:{hz:'我明天不能来。',py:'wǒ míng tiān bù néng lái'},
+    why:'Le français dit « je ne peux pas venir » avec un seul verbe, et l’on tombe sur 不会 parce qu’il vient le premier à l’esprit. Mais 不会来 dit que venir est une chose qu’on n’a pas apprise. L’empêchement d’un jour se dit 不能.'
+  },
+
+  voir:['g201','g310'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'会',p:'huì'},{h:'说',p:'shuō'},{h:'汉语',p:'Hàn yǔ'},P('。')],cle:1,fr:'Je sais parler chinois.'},
+    {seg:[{h:'他',p:'tā'},{h:'不会',p:'bú huì'},{h:'开',p:'kāi'},{h:'车',p:'chē'},P('。')],cle:1,fr:'Il ne sait pas conduire.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'今天',p:'jīn tiān'},{h:'不能',p:'bù néng'},{h:'去',p:'qù'},{h:'学校',p:'xué xiào'},P('。')],cle:2,fr:'Je ne peux pas aller à l’école aujourd’hui.'},
+    {seg:[{h:'她',p:'tā'},{h:'明天',p:'míng tiān'},{h:'能',p:'néng'},{h:'来',p:'lái'},P('。')],cle:2,fr:'Elle peut venir demain.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'可以',p:'kě yǐ'},{h:'用',p:'yòng'},{h:'你的',p:'nǐ de'},{h:'电脑',p:'diàn nǎo'},{h:'吗',p:'ma'},P('？')],cle:1,fr:'Puis-je utiliser ton ordinateur ?'},
+    {seg:[{h:'你',p:'nǐ'},{h:'能',p:'néng'},{h:'不',p:'bu'},{h:'能',p:'néng'},{h:'帮',p:'bāng'},{h:'我',p:'wǒ'},P('？')],cle:1,fr:'Peux-tu m’aider ?'},
+    {seg:[{h:'你',p:'nǐ'},{h:'会',p:'huì'},{h:'不',p:'bu'},{h:'会',p:'huì'},{h:'做',p:'zuò'},{h:'中国菜',p:'Zhōng guó cài'},P('？')],cle:1,fr:'Sais-tu faire la cuisine chinoise ?'},
+    {seg:[{h:'明天',p:'míng tiān'},{h:'会',p:'huì'},{h:'下雨',p:'xià yǔ'},P('。')],cle:1,fr:'Il pleuvra demain.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不会',p:'bú huì'},{h:'游泳',p:'yóu yǒng'},P('。')],cle:1,fr:'Je ne sais pas nager.'},
+    {seg:[{h:'这儿',p:'zhèr'},{h:'可以',p:'kě yǐ'},{h:'吃',p:'chī'},{h:'东西',p:'dōng xi'},{h:'吗',p:'ma'},P('？')],cle:1,fr:'A-t-on le droit de manger ici ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'可以',p:'kě yǐ'},{h:'问',p:'wèn'},{h:'一个',p:'yí ge'},{h:'问题',p:'wèn tí'},{h:'吗',p:'ma'},P('？')],cle:1,fr:'Puis-je poser une question ?'},
+    {seg:[{h:'他',p:'tā'},{h:'明天',p:'míng tiān'},{h:'会',p:'huì'},{h:'来',p:'lái'},{h:'我家',p:'wǒ jiā'},P('。')],cle:2,fr:'Il viendra chez moi demain.'},
+    {seg:[{h:'老师',p:'lǎo shī'},{h:'能',p:'néng'},{h:'不',p:'bu'},{h:'能',p:'néng'},{h:'教',p:'jiāo'},{h:'我',p:'wǒ'},{h:'汉语',p:'Hàn yǔ'},P('？')],cle:1,fr:'Le professeur peut-il m’enseigner le chinois ?'},
+    {seg:[{h:'我们',p:'wǒ men'},{h:'今天',p:'jīn tiān'},{h:'不能',p:'bù néng'},{h:'上',p:'shàng'},{h:'课',p:'kè'},P('。')],cle:2,fr:'Nous n’avons pas cours aujourd’hui.'}
+  ],
+  leurres:['会','能','可以','不会','不能','想','要'],
+
+  gabarits:[
+    {cadre:[{s:'s'},{h:'会',p:'huì'},{s:'v'},{s:'o'},P('。')],
+     fr:'… sait …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我们',p:'wǒ men',fr:'nous'},
+                {h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'}],
+             v:[{h:'说',p:'shuō',fr:'parler'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'说',p:'shuō',fr:'parler'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'préparer'},
+                {h:'做',p:'zuò',fr:'faire'},{h:'开',p:'kāi',fr:'conduire'},
+                {h:'唱',p:'chàng',fr:'chanter'},{h:'打',p:'dǎ',fr:'jouer'},
+                {h:'打',p:'dǎ',fr:'jouer'},{h:'用',p:'yòng',fr:'utiliser'}],
+             o:[{h:'汉语',p:'Hàn yǔ',fr:'chinois'},{h:'英语',p:'Yīng yǔ',fr:'anglais'},
+                {h:'法语',p:'Fǎ yǔ',fr:'français'},{h:'日语',p:'Rì yǔ',fr:'japonais'},
+                {h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'},
+                {h:'饭',p:'fàn',fr:'la cuisine'},{h:'车',p:'chē',fr:'la voiture'},
+                {h:'中国歌',p:'Zhōng guó gē',fr:'des chansons chinoises'},{h:'网球',p:'wǎng qiú',fr:'au tennis'},
+                {h:'篮球',p:'lán qiú',fr:'au basket'},{h:'电脑',p:'diàn nǎo',fr:'un ordinateur'}]}},
+
+    {cadre:[{s:'s'},{h:'不会',p:'bú huì'},{s:'v'},{s:'o'},P('。')],
+     fr:'… ne sait pas …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'},
+                {h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'开',p:'kāi',fr:'conduire'},{h:'游',p:'yóu',fr:'nager'},
+                {h:'骑',p:'qí',fr:'monter à'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'说',p:'shuō',fr:'parler'},{h:'做',p:'zuò',fr:'préparer'},
+                {h:'做',p:'zuò',fr:'faire'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'唱',p:'chàng',fr:'chanter'},{h:'打',p:'dǎ',fr:'jouer'},
+                {h:'打',p:'dǎ',fr:'jouer'},{h:'用',p:'yòng',fr:'utiliser'}],
+             o:[{h:'车',p:'chē',fr:'la voiture'},{h:'泳',p:'yǒng',fr:'nager'},
+                {h:'自行车',p:'zì xíng chē',fr:'vélo'},{h:'日语',p:'Rì yǔ',fr:'japonais'},
+                {h:'韩语',p:'Hán yǔ',fr:'coréen'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'},
+                {h:'饭',p:'fàn',fr:'la cuisine'},{h:'汉字',p:'Hàn zì',fr:'les caractères'},
+                {h:'中国歌',p:'Zhōng guó gē',fr:'des chansons chinoises'},{h:'网球',p:'wǎng qiú',fr:'au tennis'},
+                {h:'篮球',p:'lán qiú',fr:'au basket'},{h:'电脑',p:'diàn nǎo',fr:'un ordinateur'}]}},
+
+    {cadre:[{s:'s'},{h:'会',p:'huì'},{h:'不',p:'bu'},{h:'会',p:'huì'},{s:'v'},{s:'o'},P('？')],
+     fr:'… sait-il … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],
+             v:[{h:'说',p:'shuō',fr:'parler'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'写',p:'xiě',fr:'écrire'},{h:'做',p:'zuò',fr:'préparer'},
+                {h:'做',p:'zuò',fr:'faire'},{h:'开',p:'kāi',fr:'conduire'},
+                {h:'唱',p:'chàng',fr:'chanter'},{h:'打',p:'dǎ',fr:'jouer'},
+                {h:'打',p:'dǎ',fr:'jouer'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'骑',p:'qí',fr:'monter à'},{h:'游',p:'yóu',fr:'nager'}],
+             o:[{h:'汉语',p:'Hàn yǔ',fr:'chinois'},{h:'英语',p:'Yīng yǔ',fr:'anglais'},
+                {h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'},
+                {h:'饭',p:'fàn',fr:'la cuisine'},{h:'车',p:'chē',fr:'la voiture'},
+                {h:'中国歌',p:'Zhōng guó gē',fr:'des chansons chinoises'},{h:'网球',p:'wǎng qiú',fr:'au tennis'},
+                {h:'篮球',p:'lán qiú',fr:'au basket'},{h:'电脑',p:'diàn nǎo',fr:'un ordinateur'},
+                {h:'自行车',p:'zì xíng chē',fr:'vélo'},{h:'泳',p:'yǒng',fr:'nager'}]}},
+
+    {cadre:[{s:'s'},{h:'明天',p:'míng tiān'},{h:'能',p:'néng'},{s:'v'},{s:'o'},P('。')],
+     fr:'… peut … demain', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],
+             v:[{h:'来',p:'lái',fr:'venir'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'上',p:'shàng',fr:'aller au'},{h:'上',p:'shàng',fr:'assister au'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'做',p:'zuò',fr:'préparer'},{h:'看',p:'kàn',fr:'voir'},
+                {h:'教',p:'jiāo',fr:'enseigner'},{h:'送',p:'sòng',fr:'raccompagner'},
+                {h:'借',p:'jiè',fr:'prêter'},{h:'开',p:'kāi',fr:'conduire'}],
+             o:[{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'学校',p:'xué xiào',fr:'l’école'},
+                {h:'班',p:'bān',fr:'travail'},{h:'课',p:'kè',fr:'cours'},
+                {h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'票',p:'piào',fr:'les billets'},
+                {h:'晚饭',p:'wǎn fàn',fr:'le dîner'},{h:'电影',p:'diàn yǐng',fr:'le film'},
+                {h:'我汉语',p:'wǒ Hàn yǔ',fr:'le chinois'},{h:'我回家',p:'wǒ huí jiā',fr:'moi à la maison'},
+                {h:'我词典',p:'wǒ cí diǎn',fr:'un dictionnaire'},{h:'车',p:'chē',fr:'la voiture'}]}},
+
+    {cadre:[{s:'s'},{h:'今天',p:'jīn tiān'},{h:'不能',p:'bù néng'},{s:'v'},{s:'o'},P('。')],
+     fr:'… ne peut pas … aujourd’hui', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'去',p:'qù',fr:'aller à'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'来',p:'lái',fr:'venir'},{h:'上',p:'shàng',fr:'aller au'},
+                {h:'上',p:'shàng',fr:'assister au'},{h:'看',p:'kàn',fr:'voir'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'开',p:'kāi',fr:'conduire'},{h:'用',p:'yòng',fr:'utiliser'}],
+             o:[{h:'学校',p:'xué xiào',fr:'l’école'},{h:'上海',p:'Shàng hǎi',fr:'Shanghai'},
+                {h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'班',p:'bān',fr:'travail'},
+                {h:'课',p:'kè',fr:'cours'},{h:'电影',p:'diàn yǐng',fr:'le film'},
+                {h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'咖啡',p:'kā fēi',fr:'de café'},
+                {h:'晚饭',p:'wǎn fàn',fr:'le dîner'},{h:'作业',p:'zuò yè',fr:'les devoirs'},
+                {h:'车',p:'chē',fr:'la voiture'},{h:'电脑',p:'diàn nǎo',fr:'l’ordinateur'}]}},
+
+    {cadre:[{s:'s'},{h:'能',p:'néng'},{h:'不',p:'bu'},{h:'能',p:'néng'},{s:'v'},{s:'o'},P('？')],
+     fr:'… peut-il … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'他',p:'tā',fr:'il'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],
+             v:[{h:'帮',p:'bāng',fr:'aider'},{h:'等',p:'děng',fr:'attendre'},
+                {h:'教',p:'jiāo',fr:'enseigner'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'开',p:'kāi',fr:'ouvrir'},{h:'关',p:'guān',fr:'fermer'},
+                {h:'来',p:'lái',fr:'venir'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'送',p:'sòng',fr:'raccompagner'},
+                {h:'借',p:'jiè',fr:'prêter'},{h:'做',p:'zuò',fr:'préparer'}],
+             o:[{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},
+                {h:'我汉语',p:'wǒ Hàn yǔ',fr:'le chinois'},{h:'慢一点儿',p:'màn yì diǎnr',fr:'un peu plus lentement'},
+                {h:'窗户',p:'chuāng hu',fr:'la fenêtre'},{h:'门',p:'mén',fr:'la porte'},
+                {h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},
+                {h:'票',p:'piào',fr:'les billets'},{h:'我回家',p:'wǒ huí jiā',fr:'moi à la maison'},
+                {h:'我词典',p:'wǒ cí diǎn',fr:'ton dictionnaire'},{h:'晚饭',p:'wǎn fàn',fr:'le dîner'}]}},
+
+    {cadre:[{s:'s'},{h:'可以',p:'kě yǐ'},{s:'v'},{s:'o'},{h:'吗',p:'ma'},P('？')],
+     fr:'… peut-il … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'我们',p:'wǒ men',fr:'nous'},
+                {h:'孩子',p:'hái zi',fr:'les enfants'},{h:'学生',p:'xué sheng',fr:'les étudiants'}],
+             v:[{h:'用',p:'yòng',fr:'utiliser'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'借',p:'jiè',fr:'emprunter'},{h:'坐',p:'zuò',fr:'s’asseoir'},
+                {h:'问',p:'wèn',fr:'poser'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'开',p:'kāi',fr:'ouvrir'},{h:'关',p:'guān',fr:'fermer'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'找',p:'zhǎo',fr:'aller voir'}],
+             o:[{h:'你的电脑',p:'nǐ de diàn nǎo',fr:'ton ordinateur'},{h:'你的手机',p:'nǐ de shǒu jī',fr:'ton téléphone'},
+                {h:'你的词典',p:'nǐ de cí diǎn',fr:'ton dictionnaire'},{h:'这儿',p:'zhèr',fr:'ici'},
+                {h:'一个问题',p:'yí ge wèn tí',fr:'une question'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},
+                {h:'这个',p:'zhè ge',fr:'ceci'},{h:'咖啡',p:'kā fēi',fr:'du café'},
+                {h:'窗户',p:'chuāng hu',fr:'la fenêtre'},{h:'门',p:'mén',fr:'la porte'},
+                {h:'你的照片',p:'nǐ de zhào piàn',fr:'tes photos'},{h:'王老师',p:'Wáng lǎo shī',fr:'le professeur Wang'}]}},
+
+    {cadre:[{s:'s'},{h:'可',p:'kě'},{h:'不',p:'bu'},{h:'可以',p:'kě yǐ'},{s:'v'},{s:'o'},P('？')],
+     fr:'… peut-il … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'我们',p:'wǒ men',fr:'nous'},
+                {h:'孩子',p:'hái zi',fr:'les enfants'}],
+             v:[{h:'用',p:'yòng',fr:'utiliser'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'借',p:'jiè',fr:'emprunter'},{h:'坐',p:'zuò',fr:'s’asseoir'},
+                {h:'问',p:'wèn',fr:'poser'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'开',p:'kāi',fr:'ouvrir'},{h:'关',p:'guān',fr:'fermer'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'找',p:'zhǎo',fr:'aller voir'}],
+             o:[{h:'你的电脑',p:'nǐ de diàn nǎo',fr:'ton ordinateur'},{h:'你的手机',p:'nǐ de shǒu jī',fr:'ton téléphone'},
+                {h:'你的词典',p:'nǐ de cí diǎn',fr:'ton dictionnaire'},{h:'这儿',p:'zhèr',fr:'ici'},
+                {h:'一个问题',p:'yí ge wèn tí',fr:'une question'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},
+                {h:'这个',p:'zhè ge',fr:'ceci'},{h:'咖啡',p:'kā fēi',fr:'du café'},
+                {h:'窗户',p:'chuāng hu',fr:'la fenêtre'},{h:'门',p:'mén',fr:'la porte'},
+                {h:'你的照片',p:'nǐ de zhào piàn',fr:'tes photos'},{h:'王老师',p:'Wáng lǎo shī',fr:'le professeur Wang'}]}},
+
+    {cadre:[{s:'s'},{s:'t'},{h:'会',p:'huì'},{s:'v'},{s:'o'},{h:'吗',p:'ma'},P('？')],
+     fr:'… va-t-il … ?', lie:[['v','o']], libre:['s','t'],
+     listes:{s:[{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},
+                {h:'老师',p:'lǎo shī',fr:'le professeur'}],
+             t:[{h:'明天',p:'míng tiān',fr:'demain'},{h:'后天',p:'hòu tiān',fr:'après-demain'},
+                {h:'星期六',p:'xīng qī liù',fr:'samedi'},{h:'下个星期',p:'xià ge xīng qī',fr:'la semaine prochaine'}],
+             v:[{h:'来',p:'lái',fr:'venir'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'去',p:'qù',fr:'aller à'},{h:'回',p:'huí',fr:'rentrer à'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'做',p:'zuò',fr:'préparer'},{h:'看',p:'kàn',fr:'voir'},
+                {h:'上',p:'shàng',fr:'assister au'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'找',p:'zhǎo',fr:'venir voir'}],
+             o:[{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'学校',p:'xué xiào',fr:'l’école'},
+                {h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'家',p:'jiā',fr:'la maison'},
+                {h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'票',p:'piào',fr:'les billets'},
+                {h:'晚饭',p:'wǎn fàn',fr:'le dîner'},{h:'电影',p:'diàn yǐng',fr:'un film'},
+                {h:'课',p:'kè',fr:'cours'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},
+                {h:'中国菜',p:'Zhōng guó cài',fr:'de la cuisine chinoise'},{h:'我',p:'wǒ',fr:'moi'}]}},
+
+    {cadre:[{s:'t'},{h:'会',p:'huì'},{s:'v'},P('。')],
+     fr:'… il …', lie:[], libre:['t','v'],
+     listes:{t:[{h:'明天',p:'míng tiān',fr:'demain'},{h:'后天',p:'hòu tiān',fr:'après-demain'},
+                {h:'今天下午',p:'jīn tiān xià wǔ',fr:'cet après-midi'},{h:'今天晚上',p:'jīn tiān wǎn shang',fr:'ce soir'},
+                {h:'明天早上',p:'míng tiān zǎo shang',fr:'demain matin'},{h:'星期六',p:'xīng qī liù',fr:'samedi'},
+                {h:'星期天',p:'xīng qī tiān',fr:'dimanche'},{h:'下个星期',p:'xià ge xīng qī',fr:'la semaine prochaine'}],
+             v:[{h:'下雨',p:'xià yǔ',fr:'pleuvra'},{h:'下雪',p:'xià xuě',fr:'neigera'},
+                {h:'下大雨',p:'xià dà yǔ',fr:'pleuvra beaucoup'},{h:'下大雪',p:'xià dà xuě',fr:'neigera beaucoup'},
+                {h:'很冷',p:'hěn lěng',fr:'fera froid'},{h:'很热',p:'hěn rè',fr:'fera chaud'}]}},
+
+    {cadre:[{s:'l'},{h:'不可以',p:'bù kě yǐ'},{s:'v'},{s:'o'},P('。')],
+     fr:'Ici on ne peut pas …', lie:[['v','o']], libre:['l'],
+     listes:{l:[{h:'这儿',p:'zhèr',fr:'ici'},{h:'那儿',p:'nàr',fr:'là-bas'},
+                {h:'教室里',p:'jiào shì lǐ',fr:'dans la salle de cours'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},
+                {h:'医院里',p:'yī yuàn lǐ',fr:'à l’hôpital'}],
+             v:[{h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'prendre'},
+                {h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'看',p:'kàn',fr:'voir'},{h:'说',p:'shuō',fr:'parler'},
+                {h:'唱',p:'chàng',fr:'chanter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'用',p:'yòng',fr:'utiliser'},{h:'用',p:'yòng',fr:'utiliser'}],
+             o:[{h:'东西',p:'dōng xi',fr:'quelque chose'},{h:'饭',p:'fàn',fr:'un repas'},
+                {h:'咖啡',p:'kā fēi',fr:'de café'},{h:'茶',p:'chá',fr:'de thé'},
+                {h:'电话',p:'diàn huà',fr:'de coup de fil'},{h:'电视',p:'diàn shì',fr:'la télévision'},
+                {h:'电影',p:'diàn yǐng',fr:'de film'},{h:'话',p:'huà',fr:'à voix haute'},
+                {h:'歌',p:'gē',fr:'de chanson'},{h:'音乐',p:'yīn yuè',fr:'de musique'},
+                {h:'手机',p:'shǒu jī',fr:'son téléphone'},{h:'电脑',p:'diàn nǎo',fr:'un ordinateur'}]}},
+
+    {cadre:[{s:'s'},{h:'可以',p:'kě yǐ'},{s:'v'},{s:'o'},P('。')],
+     fr:'… peut …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'他',p:'tā',fr:'il'},{h:'学生',p:'xué sheng',fr:'les étudiants'}],
+             v:[{h:'用',p:'yòng',fr:'utiliser'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'借',p:'jiè',fr:'emprunter'},{h:'坐',p:'zuò',fr:'s’asseoir'},
+                {h:'问',p:'wèn',fr:'poser'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'开',p:'kāi',fr:'ouvrir'},{h:'关',p:'guān',fr:'fermer'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'找',p:'zhǎo',fr:'aller voir'}],
+             o:[{h:'我的电脑',p:'wǒ de diàn nǎo',fr:'mon ordinateur'},{h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},
+                {h:'我的词典',p:'wǒ de cí diǎn',fr:'mon dictionnaire'},{h:'这儿',p:'zhèr',fr:'ici'},
+                {h:'一个问题',p:'yí ge wèn tí',fr:'une question'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},
+                {h:'这个',p:'zhè ge',fr:'ceci'},{h:'咖啡',p:'kā fēi',fr:'du café'},
+                {h:'窗户',p:'chuāng hu',fr:'la fenêtre'},{h:'门',p:'mén',fr:'la porte'},
+                {h:'我的照片',p:'wǒ de zhào piàn',fr:'mes photos'},{h:'王老师',p:'Wáng lǎo shī',fr:'le professeur Wang'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Mettez à la forme négative',
+     de:{hz:'我会开车。',py:'wǒ huì kāi chē',fr:'Je sais conduire.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'不会',p:'bú huì'},{h:'开',p:'kāi'},{h:'车',p:'chē'},P('。')],fr:'Je ne sais pas conduire.'}},
+    {consigne:'Transformez en question par la forme alternative',
+     de:{hz:'他会做中国菜。',py:'tā huì zuò Zhōng guó cài',fr:'Il sait faire la cuisine chinoise.'},
+     vers:{seg:[{h:'他',p:'tā'},{h:'会',p:'huì'},{h:'不',p:'bu'},{h:'会',p:'huì'},{h:'做',p:'zuò'},{h:'中国菜',p:'Zhōng guó cài'},P('？')],fr:'Sait-il faire la cuisine chinoise ?'}},
+    {consigne:'Dites que la chose est impossible aujourd’hui',
+     de:{hz:'我去学校。',py:'wǒ qù xué xiào',fr:'Je vais à l’école.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'今天',p:'jīn tiān'},{h:'不能',p:'bù néng'},{h:'去',p:'qù'},{h:'学校',p:'xué xiào'},P('。')],fr:'Je ne peux pas aller à l’école aujourd’hui.'}},
+    {consigne:'Demandez-en la permission',
+     de:{hz:'我用你的电脑。',py:'wǒ yòng nǐ de diàn nǎo',fr:'J’utilise ton ordinateur.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'可以',p:'kě yǐ'},{h:'用',p:'yòng'},{h:'你的',p:'nǐ de'},{h:'电脑',p:'diàn nǎo'},{h:'吗',p:'ma'},P('？')],fr:'Puis-je utiliser ton ordinateur ?'}},
+    {consigne:'Demandez le service avec 能不能',
+     de:{hz:'你帮我。',py:'nǐ bāng wǒ',fr:'Tu m’aides.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'能',p:'néng'},{h:'不',p:'bu'},{h:'能',p:'néng'},{h:'帮',p:'bāng'},{h:'我',p:'wǒ'},P('？')],fr:'Peux-tu m’aider ?'}},
+    {consigne:'Annoncez ce qui va arriver demain',
+     de:{hz:'下雨。',py:'xià yǔ',fr:'Il pleut.'},
+     vers:{seg:[{h:'明天',p:'míng tiān'},{h:'会',p:'huì'},{h:'下雨',p:'xià yǔ'},P('。')],fr:'Il pleuvra demain.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'能',p:'néng'},{h:'说',p:'shuō'},{h:'汉语',p:'Hàn yǔ'},P('。')],bad:1,
+     bon:'我会说汉语。',why:'Une langue s’apprend : la compétence acquise se dit 会. 能 parlerait des circonstances du moment.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'明天',p:'míng tiān'},{h:'不会',p:'bú huì'},{h:'来',p:'lái'},P('。')],bad:2,
+     bon:'我明天不能来。',why:'不会来 dirait que venir est une chose qu’on n’a pas apprise. L’empêchement d’un jour, c’est 不能.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'会',p:'huì'},{h:'可以',p:'kě yǐ'},{h:'进来',p:'jìn lái'},{h:'吗',p:'ma'},P('？')],bad:1,
+     bon:'我可以进来吗？',why:'Deux auxiliaires ne se cumulent pas. La permission se demande avec 可以 seul.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'帮',p:'bāng'},{h:'我',p:'wǒ'},{h:'能',p:'néng'},{h:'不',p:'bu'},{h:'能',p:'néng'},P('？')],bad:3,
+     bon:'你能不能帮我？',why:'L’auxiliaire précède le verbe : il ne se rejette pas à la fin de la phrase.'},
+    {seg:[{h:'明天',p:'míng tiān'},{h:'下雨',p:'xià yǔ'},{h:'会',p:'huì'},P('。')],bad:2,
+     bon:'明天会下雨。',why:'会 se place devant le verbe, jamais après lui.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'会',p:'huì'},{h:'游泳',p:'yóu yǒng'},P('。')],bad:1,
+     bon:'我不会游泳。',why:'Une compétence ne s’achève pas : elle se nie par 不, jamais par 没.'}
+  ],
+
+  reemploi:[
+    {q:'Dites deux choses que vous savez faire et une que vous ne savez pas faire.',
+     verif:[{type:'contient',v:'会',msg:'La compétence apprise demande 会.'},
+            {type:'contient',v:'不会',msg:'Ce qu’on ne sait pas faire se dit 不会.'}],
+     modeles:[{hz:'我会说法语和英语，可是我不会说日语。',py:'wǒ huì shuō Fǎ yǔ hé Yīng yǔ, kě shì wǒ bú huì shuō Rì yǔ',fr:'Je sais parler français et anglais, mais je ne sais pas parler japonais.'}],
+     criteres:['会 et 不会 sont devant le verbe','Aucun 没 devant 会']},
+    {q:'On vous invite samedi, mais vous êtes prise. Dites que vous ne pouvez pas venir.',
+     verif:[{type:'contient',v:'不能',msg:'L’empêchement passager se dit 不能.'},
+            {type:'absent',v:'不会',msg:'不会 dirait que vous n’avez pas appris à venir.'}],
+     modeles:[{hz:'星期六我不能来，我要工作。',py:'xīng qī liù wǒ bù néng lái, wǒ yào gōng zuò',fr:'Samedi je ne peux pas venir, je dois travailler.'}],
+     criteres:['不能 et non 不会','L’auxiliaire précède le verbe']},
+    {q:'Demandez poliment à quelqu’un la permission d’utiliser son téléphone.',
+     verif:[{type:'contient',v:'可以',msg:'La permission se demande avec 可以.'},
+            {type:'un_parmi',v:['吗','可不可以'],msg:'On attend une question, avec 吗 ou par la forme alternative.'}],
+     modeles:[{hz:'我可以用一下你的手机吗？',py:'wǒ kě yǐ yòng yí xià nǐ de shǒu jī ma',fr:'Puis-je utiliser ton téléphone un instant ?'}],
+     criteres:['可以 est devant le verbe','La question emploie 吗 ou 可不可以, jamais les deux']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g204', hsk:2, fam:'verbe', th:['projets','achats'],
+  title:'Vouloir : 想 et 要',
+  resume:'Le français dit « vouloir » pour tout. Le chinois sépare l’envie qu’on a de la décision qu’on a prise, et cette frontière décide aussi de la manière de refuser.',
+
+  steps:[
+    {
+      t:'想 — l’envie',
+      p:[
+        '<b>想</b> devant un verbe dit une envie, un souhait, quelque chose qui ferait plaisir. 我想喝咖啡 — j’ai envie d’un café. Rien n’est décidé, rien n’est promis.',
+        'La négation est <b>不想</b> : je n’en ai pas envie. C’est doux, et c’est la forme qu’on emploie pour décliner sans blesser.'
+      ],
+      ex:[
+        {hz:'我想喝咖啡。',py:'wǒ xiǎng hē kā fēi',fr:'J’ai envie d’un café.'},
+        {hz:'今天我不想去学校。',py:'jīn tiān wǒ bù xiǎng qù xué xiào',fr:'Aujourd’hui je n’ai pas envie d’aller à l’école.'}
+      ],
+      check:{q:'On vous propose une sortie et vous n’en avez pas envie. Vous dites :',
+             a:['我不要去。','我不想去。'],ok:1,
+             why:'不想 dit l’absence d’envie. 不要 serait un refus net, presque brusque.'}
+    },
+    {
+      t:'要 — la décision prise',
+      p:[
+        '<b>要</b> devant un verbe dit une intention arrêtée, un projet sur lequel on ne revient pas. 我要买这个手机 — je vais acheter ce téléphone, c’est décidé.',
+        'La différence avec 想 est celle du souhait et du programme. 我想去中国 rêve du voyage ; 我要去中国 l’a déjà mis au calendrier.'
+      ],
+      ex:[
+        {hz:'我要买这个手机。',py:'wǒ yào mǎi zhè ge shǒu jī',fr:'Je vais acheter ce téléphone.'},
+        {hz:'他明年要去中国。',py:'tā míng nián yào qù Zhōng guó',fr:'Il ira en Chine l’an prochain.'}
+      ],
+      check:{q:'Vous avez réservé vos billets pour Pékin. Vous dites :',
+             a:['我想去北京。','我要去北京。'],ok:1,
+             why:'La décision est prise : c’est 要. 想 laisserait entendre que ce n’est encore qu’une envie.'}
+    },
+    {
+      t:'要 devant un nom — demander une chose',
+      p:[
+        'Suivi non plus d’un verbe mais d’un <b>nom</b>, 要 devient un verbe à part entière : vouloir, prendre, commander. C’est la phrase du restaurant et de la boutique.',
+        'On fait précéder le nom de sa quantité et de son classificateur : 我要一杯咖啡, et non 我要咖啡 tout court.'
+      ],
+      ex:[
+        {hz:'我要一杯咖啡。',py:'wǒ yào yì bēi kā fēi',fr:'Je voudrais un café.'},
+        {hz:'我们要两碗面。',py:'wǒ men yào liǎng wǎn miàn',fr:'Nous prendrons deux bols de nouilles.'}
+      ],
+      check:{q:'Laquelle commande poliment un thé ?',a:['我要茶。','我要一杯茶。'],ok:1,
+             why:'Le nom demande sa quantité et son classificateur : 一杯茶.'}
+    },
+    {
+      t:'要 qui conseille, 不要 qui défend',
+      p:[
+        'Devant un verbe, 要 peut aussi dire ce qu’il faut faire : 你要多喝水 — il faut boire beaucoup d’eau. Le conseil et l’intention partagent le même mot ; c’est la personne qui les distingue, 我要 pour moi, 你要 pour toi.',
+        'Sa négation <b>不要</b> ne dit donc pas « ne pas vouloir » mais <b>ne fais pas</b> : 你不要走 — ne pars pas. C’est une défense, pas un état d’âme.',
+        'Retenez le couple : 不想 refuse pour soi, 不要 interdit à l’autre.'
+      ],
+      ex:[
+        {hz:'你要多喝水。',py:'nǐ yào duō hē shuǐ',fr:'Il faut boire beaucoup d’eau.'},
+        {hz:'你不要打电话。',py:'nǐ bú yào dǎ diàn huà',fr:'Ne téléphone pas.',
+         note:'不 devant 要 se prononce bú.'}
+      ],
+      check:{q:'我不要去 dit plutôt :',a:['je n’ai pas envie d’y aller','je refuse d’y aller'],ok:1,
+             why:'不要 est net et tranchant. L’absence d’envie se dit 不想.'}
+    },
+    {
+      t:'想 devant un nom, et les questions',
+      p:[
+        'Devant un nom, <b>想</b> change lui aussi de sens : penser à, et donc regretter l’absence. 我很想我妈妈 — ma mère me manque.',
+        'On interroge par la forme alternative en doublant l’auxiliaire — <b>想不想</b>, <b>要不要</b> — ou avec 吗, jamais les deux ensemble.',
+        '要不要 sert d’ailleurs à proposer : 你要不要喝茶？ — tu veux un thé ?'
+      ],
+      ex:[
+        {hz:'我很想我妈妈。',py:'wǒ hěn xiǎng wǒ mā ma',fr:'Ma mère me manque beaucoup.'},
+        {hz:'你想不想去中国？',py:'nǐ xiǎng bu xiǎng qù Zhōng guó',fr:'As-tu envie d’aller en Chine ?'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['你要不要喝茶吗？','你要不要喝茶？'],ok:1,
+             why:'La forme alternative remplace 吗 : les cumuler est une faute.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Forme','Exemple','Ce qu’elle dit'],
+    rows:[
+      ['想 + verbe','我想喝咖啡','J’en ai envie'],
+      ['不想 + verbe','我不想去','Je n’en ai pas envie'],
+      ['要 + verbe','我要买手机','C’est décidé'],
+      ['要 + nom','我要一杯茶','Je commande, je prends'],
+      ['要 + conseil','你要多喝水','Il faut, tu devrais'],
+      ['不要 + verbe','你不要走','Ne fais pas cela'],
+      ['想 + nom','我很想我妈妈','Elle me manque']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我不要去。',py:'wǒ bú yào qù'},
+    good:{hz:'我不想去。',py:'wǒ bù xiǎng qù'},
+    why:'Le français décline poliment avec le même verbe que le refus : « je ne veux pas y aller ». En chinois, 不要 est une défense adressée à l’autre ou un refus abrupt. Décliner pour soi se dit 不想.'
+  },
+
+  voir:['g203','g201'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'想',p:'xiǎng'},{h:'喝',p:'hē'},{h:'咖啡',p:'kā fēi'},P('。')],cle:1,fr:'J’ai envie d’un café.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不想',p:'bù xiǎng'},{h:'去',p:'qù'},{h:'学校',p:'xué xiào'},P('。')],cle:1,fr:'Je n’ai pas envie d’aller à l’école.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'要',p:'yào'},{h:'买',p:'mǎi'},{h:'这个',p:'zhè ge'},{h:'手机',p:'shǒu jī'},P('。')],cle:1,fr:'Je vais acheter ce téléphone.'},
+    {seg:[{h:'他',p:'tā'},{h:'明年',p:'míng nián'},{h:'要',p:'yào'},{h:'去',p:'qù'},{h:'中国',p:'Zhōng guó'},P('。')],cle:2,fr:'Il ira en Chine l’an prochain.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'要',p:'yào'},{h:'一杯',p:'yì bēi'},{h:'咖啡',p:'kā fēi'},P('。')],cle:1,fr:'Je voudrais un café.'},
+    {seg:[{h:'我们',p:'wǒ men'},{h:'要',p:'yào'},{h:'两碗',p:'liǎng wǎn'},{h:'面',p:'miàn'},P('。')],cle:1,fr:'Nous prendrons deux bols de nouilles.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'要',p:'yào'},{h:'多喝',p:'duō hē'},{h:'水',p:'shuǐ'},P('。')],cle:1,fr:'Il faut boire beaucoup d’eau.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'不要',p:'bú yào'},{h:'打',p:'dǎ'},{h:'电话',p:'diàn huà'},P('。')],cle:1,fr:'Ne téléphone pas.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'很',p:'hěn'},{h:'想',p:'xiǎng'},{h:'我',p:'wǒ'},{h:'妈妈',p:'mā ma'},P('。')],cle:2,fr:'Ma mère me manque beaucoup.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'想',p:'xiǎng'},{h:'不',p:'bu'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},{h:'中国',p:'Zhōng guó'},P('？')],cle:1,fr:'As-tu envie d’aller en Chine ?'},
+    {seg:[{h:'你',p:'nǐ'},{h:'要',p:'yào'},{h:'不',p:'bu'},{h:'要',p:'yào'},{h:'喝',p:'hē'},{h:'茶',p:'chá'},P('？')],cle:1,fr:'Veux-tu du thé ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'以后',p:'yǐ hòu'},{h:'想',p:'xiǎng'},{h:'做',p:'zuò'},{h:'老师',p:'lǎo shī'},P('。')],cle:2,fr:'Plus tard, j’aimerais être professeure.'},
+    {seg:[{h:'她',p:'tā'},{h:'不想',p:'bù xiǎng'},{h:'做',p:'zuò'},{h:'作业',p:'zuò yè'},P('。')],cle:1,fr:'Elle n’a pas envie de faire ses devoirs.'},
+    {seg:[{h:'孩子',p:'hái zi'},{h:'不要',p:'bú yào'},{h:'看',p:'kàn'},{h:'电视',p:'diàn shì'},P('。')],cle:1,fr:'Ne regarde pas la télévision.'}
+  ],
+  leurres:['想','要','不想','不要','会','能'],
+
+  gabarits:[
+    {cadre:[{s:'s'},{h:'想',p:'xiǎng'},{s:'v'},{s:'o'},P('。')],
+     fr:'… a envie de …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我们',p:'wǒ men',fr:'nous'},
+                {h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'manger'},
+                {h:'看',p:'kàn',fr:'voir'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'去',p:'qù',fr:'aller en'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'听',p:'tīng',fr:'écouter'},{h:'回',p:'huí',fr:'rentrer à'}],
+             o:[{h:'咖啡',p:'kā fēi',fr:'un café'},{h:'茶',p:'chá',fr:'du thé'},
+                {h:'中国菜',p:'Zhōng guó cài',fr:'chinois'},{h:'面',p:'miàn',fr:'des nouilles'},
+                {h:'电影',p:'diàn yǐng',fr:'un film'},{h:'电视',p:'diàn shì',fr:'la télévision'},
+                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'英语',p:'Yīng yǔ',fr:'l’anglais'},
+                {h:'中国',p:'Zhōng guó',fr:'Chine'},{h:'手机',p:'shǒu jī',fr:'un téléphone'},
+                {h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'家',p:'jiā',fr:'la maison'}]}},
+
+    {cadre:[{s:'s'},{h:'不想',p:'bù xiǎng'},{s:'v'},{s:'o'},P('。')],
+     fr:'… n’a pas envie de …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},
+                {h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],
+             v:[{h:'去',p:'qù',fr:'aller à'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'上',p:'shàng',fr:'aller au'},{h:'上',p:'shàng',fr:'assister au'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'写',p:'xiě',fr:'écrire'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'回',p:'huí',fr:'rentrer à'}],
+             o:[{h:'学校',p:'xué xiào',fr:'l’école'},{h:'作业',p:'zuò yè',fr:'ses devoirs'},
+                {h:'班',p:'bān',fr:'travail'},{h:'课',p:'kè',fr:'cours'},
+                {h:'电话',p:'diàn huà',fr:'de coup de fil'},{h:'电视',p:'diàn shì',fr:'la télévision'},
+                {h:'晚饭',p:'wǎn fàn',fr:'le dîner'},{h:'咖啡',p:'kā fēi',fr:'de café'},
+                {h:'日语',p:'Rì yǔ',fr:'le japonais'},{h:'汉字',p:'Hàn zì',fr:'de caractères'},
+                {h:'衣服',p:'yī fu',fr:'de vêtements'},{h:'家',p:'jiā',fr:'la maison'}]}},
+
+    {cadre:[{s:'s'},{h:'想',p:'xiǎng'},{h:'不',p:'bu'},{h:'想',p:'xiǎng'},{s:'v'},{s:'o'},P('？')],
+     fr:'… a-t-il envie de … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'manger'},
+                {h:'看',p:'kàn',fr:'voir'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller en'},
+                {h:'去',p:'qù',fr:'aller à'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'听',p:'tīng',fr:'écouter'},{h:'回',p:'huí',fr:'rentrer à'}],
+             o:[{h:'咖啡',p:'kā fēi',fr:'un café'},{h:'茶',p:'chá',fr:'du thé'},
+                {h:'中国菜',p:'Zhōng guó cài',fr:'chinois'},{h:'面',p:'miàn',fr:'des nouilles'},
+                {h:'电影',p:'diàn yǐng',fr:'un film'},{h:'电视',p:'diàn shì',fr:'la télévision'},
+                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'中国',p:'Zhōng guó',fr:'Chine'},
+                {h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'手机',p:'shǒu jī',fr:'un téléphone'},
+                {h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'家',p:'jiā',fr:'la maison'}]}},
+
+    {cadre:[{s:'s'},{h:'要',p:'yào'},{s:'v'},{s:'o'},P('。')],
+     fr:'… va …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'买',p:'mǎi',fr:'acheter'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'去',p:'qù',fr:'aller en'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'看',p:'kàn',fr:'voir'},{h:'找',p:'zhǎo',fr:'chercher'},
+                {h:'回',p:'huí',fr:'rentrer à'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'做',p:'zuò',fr:'faire'},{h:'吃',p:'chī',fr:'prendre'},
+                {h:'上',p:'shàng',fr:'entrer à'},{h:'喝',p:'hē',fr:'boire'}],
+             o:[{h:'这个手机',p:'zhè ge shǒu jī',fr:'ce téléphone'},{h:'票',p:'piào',fr:'les billets'},
+                {h:'中国',p:'Zhōng guó',fr:'Chine'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},
+                {h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},{h:'工作',p:'gōng zuò',fr:'du travail'},
+                {h:'家',p:'jiā',fr:'la maison'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},
+                {h:'作业',p:'zuò yè',fr:'ses devoirs'},{h:'晚饭',p:'wǎn fàn',fr:'le dîner'},
+                {h:'大学',p:'dà xué',fr:'l’université'},{h:'咖啡',p:'kā fēi',fr:'un café'}]}},
+
+    {cadre:[{s:'s'},{h:'要',p:'yào'},{h:'不',p:'bu'},{h:'要',p:'yào'},{s:'v'},{s:'o'},P('？')],
+     fr:'… veut-il … ?', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'manger'},
+                {h:'看',p:'kàn',fr:'voir'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'回',p:'huí',fr:'rentrer à'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'借',p:'jiè',fr:'emprunter'},{h:'找',p:'zhǎo',fr:'aller voir'}],
+             o:[{h:'咖啡',p:'kā fēi',fr:'un café'},{h:'茶',p:'chá',fr:'du thé'},
+                {h:'面',p:'miàn',fr:'des nouilles'},{h:'水果',p:'shuǐ guǒ',fr:'des fruits'},
+                {h:'电影',p:'diàn yǐng',fr:'un film'},{h:'票',p:'piào',fr:'les billets'},
+                {h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'学校',p:'xué xiào',fr:'l’école'},
+                {h:'家',p:'jiā',fr:'la maison'},{h:'我的电脑',p:'wǒ de diàn nǎo',fr:'mon ordinateur'},
+                {h:'我的词典',p:'wǒ de cí diǎn',fr:'mon dictionnaire'},{h:'王老师',p:'Wáng lǎo shī',fr:'le professeur Wang'}]}},
+
+    {cadre:[{s:'s'},{h:'要',p:'yào'},{s:'n'},P('。')],
+     fr:'… voudrait …', lie:[], libre:['s','n'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'我们',p:'wǒ men',fr:'nous'},
+                {h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],
+             n:[{h:'一杯咖啡',p:'yì bēi kā fēi',fr:'un café'},{h:'两杯茶',p:'liǎng bēi chá',fr:'deux thés'},
+                {h:'一碗面',p:'yì wǎn miàn',fr:'un bol de nouilles'},{h:'三个包子',p:'sān ge bāo zi',fr:'trois petits pains farcis'},
+                {h:'一瓶水',p:'yì píng shuǐ',fr:'une bouteille d’eau'},{h:'一个面包',p:'yí ge miàn bāo',fr:'un pain'},
+                {h:'两个苹果',p:'liǎng ge píng guǒ',fr:'deux pommes'},{h:'一些水果',p:'yì xiē shuǐ guǒ',fr:'des fruits'},
+                {h:'一本书',p:'yì běn shū',fr:'un livre'},{h:'两张票',p:'liǎng zhāng piào',fr:'deux billets'},
+                {h:'一个手机',p:'yí ge shǒu jī',fr:'un téléphone'},{h:'一件衣服',p:'yí jiàn yī fu',fr:'un vêtement'}]}},
+
+    {cadre:[{s:'s'},{h:'不要',p:'bú yào'},{s:'v'},{s:'o'},P('。')],
+     fr:'Ne … pas', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'孩子',p:'hái zi',fr:'l’enfant'}],
+             v:[{h:'说',p:'shuō',fr:'parler'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'去',p:'qù',fr:'aller'},{h:'开',p:'kāi',fr:'ouvrir'},
+                {h:'关',p:'guān',fr:'fermer'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'找',p:'zhǎo',fr:'aller voir'}],
+             o:[{h:'话',p:'huà',fr:'à voix haute'},{h:'电话',p:'diàn huà',fr:'de coup de fil'},
+                {h:'电视',p:'diàn shì',fr:'la télévision'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},
+                {h:'这个',p:'zhè ge',fr:'ceci'},{h:'咖啡',p:'kā fēi',fr:'de café'},
+                {h:'那儿',p:'nàr',fr:'là-bas'},{h:'窗户',p:'chuāng hu',fr:'la fenêtre'},
+                {h:'门',p:'mén',fr:'la porte'},{h:'音乐',p:'yīn yuè',fr:'de musique'},
+                {h:'这个',p:'zhè ge',fr:'cela'},{h:'他',p:'tā',fr:'le voir'}]}},
+
+    {cadre:[{s:'s'},{h:'要',p:'yào'},{s:'v'},{s:'o'},P('。')],
+     fr:'… doit …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'他',p:'tā',fr:'il'},{h:'学生',p:'xué sheng',fr:'les étudiants'}],
+             v:[{h:'多喝',p:'duō hē',fr:'boire beaucoup'},{h:'多喝',p:'duō hē',fr:'boire beaucoup'},
+                {h:'多吃',p:'duō chī',fr:'manger beaucoup'},{h:'多吃',p:'duō chī',fr:'manger beaucoup'},
+                {h:'多说',p:'duō shuō',fr:'parler beaucoup'},{h:'多说',p:'duō shuō',fr:'parler beaucoup'},
+                {h:'多写',p:'duō xiě',fr:'écrire beaucoup'},{h:'多看',p:'duō kàn',fr:'lire beaucoup'},
+                {h:'多听',p:'duō tīng',fr:'écouter beaucoup'},{h:'多学',p:'duō xué',fr:'apprendre beaucoup'},
+                {h:'多做',p:'duō zuò',fr:'faire beaucoup'},{h:'多问',p:'duō wèn',fr:'poser beaucoup'}],
+             o:[{h:'水',p:'shuǐ',fr:'d’eau'},{h:'茶',p:'chá',fr:'de thé'},
+                {h:'水果',p:'shuǐ guǒ',fr:'de fruits'},{h:'菜',p:'cài',fr:'de légumes'},
+                {h:'汉语',p:'Hàn yǔ',fr:'chinois'},{h:'英语',p:'Yīng yǔ',fr:'anglais'},
+                {h:'汉字',p:'Hàn zì',fr:'de caractères'},{h:'书',p:'shū',fr:'de livres'},
+                {h:'音乐',p:'yīn yuè',fr:'de musique'},{h:'生词',p:'shēng cí',fr:'de mots nouveaux'},
+                {h:'作业',p:'zuò yè',fr:'d’exercices'},{h:'问题',p:'wèn tí',fr:'de questions'}]}},
+
+    {cadre:[{s:'s'},{h:'很',p:'hěn'},{h:'想',p:'xiǎng'},{s:'o'},P('。')],
+     fr:'… manque à …', lie:[], libre:['s','o'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'孩子',p:'hái zi',fr:'l’enfant'}],
+             o:[{h:'妈妈',p:'mā ma',fr:'sa mère'},{h:'爸爸',p:'bà ba',fr:'son père'},
+                {h:'朋友',p:'péng you',fr:'ses amis'},{h:'姐姐',p:'jiě jie',fr:'sa sœur aînée'},
+                {h:'哥哥',p:'gē ge',fr:'son frère aîné'},{h:'家',p:'jiā',fr:'sa maison'},
+                {h:'老师',p:'lǎo shī',fr:'son professeur'},{h:'同学',p:'tóng xué',fr:'ses camarades'},
+                {h:'学校',p:'xué xiào',fr:'son école'},{h:'中国',p:'Zhōng guó',fr:'la Chine'},
+                {h:'北京',p:'Běi jīng',fr:'Pékin'},{h:'上海',p:'Shàng hǎi',fr:'Shanghai'}]}},
+
+    {cadre:[{s:'s'},{s:'t'},{h:'想',p:'xiǎng'},{s:'v'},{s:'o'},P('。')],
+     fr:'… aimerait … ', lie:[['v','o']], libre:['s','t'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'}],
+             t:[{h:'明年',p:'míng nián',fr:'l’an prochain'},{h:'以后',p:'yǐ hòu',fr:'plus tard'},
+                {h:'下个月',p:'xià ge yuè',fr:'le mois prochain'},{h:'今年',p:'jīn nián',fr:'cette année'}],
+             v:[{h:'去',p:'qù',fr:'aller en'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'学',p:'xué',fr:'apprendre à'},{h:'找',p:'zhǎo',fr:'chercher'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'回',p:'huí',fr:'rentrer en'},{h:'看',p:'kàn',fr:'voir'},
+                {h:'上',p:'shàng',fr:'entrer à'},{h:'做',p:'zuò',fr:'devenir'}],
+             o:[{h:'中国',p:'Zhōng guó',fr:'Chine'},{h:'北京',p:'Běi jīng',fr:'Pékin'},
+                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'英语',p:'Yīng yǔ',fr:'l’anglais'},
+                {h:'开车',p:'kāi chē',fr:'conduire'},{h:'工作',p:'gōng zuò',fr:'du travail'},
+                {h:'房子',p:'fáng zi',fr:'une maison'},{h:'车',p:'chē',fr:'une voiture'},
+                {h:'法国',p:'Fǎ guó',fr:'France'},{h:'朋友',p:'péng you',fr:'ses amis'},
+                {h:'大学',p:'dà xué',fr:'l’université'},{h:'老师',p:'lǎo shī',fr:'professeur'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Dites que l’envie n’y est pas',
+     de:{hz:'我想去学校。',py:'wǒ xiǎng qù xué xiào',fr:'J’ai envie d’aller à l’école.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'不想',p:'bù xiǎng'},{h:'去',p:'qù'},{h:'学校',p:'xué xiào'},P('。')],fr:'Je n’ai pas envie d’aller à l’école.'}},
+    {consigne:'Faites de l’envie une décision prise',
+     de:{hz:'我想买这个手机。',py:'wǒ xiǎng mǎi zhè ge shǒu jī',fr:'J’ai envie d’acheter ce téléphone.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'要',p:'yào'},{h:'买',p:'mǎi'},{h:'这个手机',p:'zhè ge shǒu jī'},P('。')],fr:'Je vais acheter ce téléphone.'}},
+    {consigne:'Interrogez par la forme alternative',
+     de:{hz:'你想去中国。',py:'nǐ xiǎng qù Zhōng guó',fr:'Tu as envie d’aller en Chine.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'想',p:'xiǎng'},{h:'不',p:'bu'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},{h:'中国',p:'Zhōng guó'},P('？')],fr:'As-tu envie d’aller en Chine ?'}},
+    {consigne:'Ajoutez la quantité et le classificateur',
+     de:{hz:'我要咖啡。',py:'wǒ yào kā fēi',fr:'Je veux du café.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'要',p:'yào'},{h:'一杯',p:'yì bēi'},{h:'咖啡',p:'kā fēi'},P('。')],fr:'Je voudrais un café.'}},
+    {consigne:'Transformez le conseil en défense',
+     de:{hz:'你要多喝水。',py:'nǐ yào duō hē shuǐ',fr:'Il faut boire beaucoup d’eau.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'不要',p:'bú yào'},{h:'喝',p:'hē'},{h:'咖啡',p:'kā fēi'},P('。')],fr:'Ne bois pas de café.'}},
+    {consigne:'Proposez la chose avec 要不要',
+     de:{hz:'你喝茶。',py:'nǐ hē chá',fr:'Tu bois du thé.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'要',p:'yào'},{h:'不',p:'bu'},{h:'要',p:'yào'},{h:'喝',p:'hē'},{h:'茶',p:'chá'},P('？')],fr:'Veux-tu du thé ?'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'不要',p:'bú yào'},{h:'去',p:'qù'},P('。')],bad:1,
+     bon:'我不想去。',why:'不要 est une défense ou un refus abrupt. L’absence d’envie se dit 不想.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'要',p:'yào'},{h:'咖啡',p:'kā fēi'},P('。')],bad:2,
+     bon:'我要一杯咖啡。',why:'Devant un nom, 要 demande la quantité et son classificateur.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'想',p:'xiǎng'},{h:'不',p:'bu'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},{h:'吗',p:'ma'},P('？')],bad:5,
+     bon:'你想不想去？',why:'La forme alternative remplace 吗 : les cumuler est une faute.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没',p:'méi'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},P('。')],bad:1,
+     bon:'我不想去。',why:'Une envie ne s’achève pas : elle se nie par 不, jamais par 没.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'去',p:'qù'},{h:'想',p:'xiǎng'},{h:'中国',p:'Zhōng guó'},P('。')],bad:2,
+     bon:'我想去中国。',why:'L’auxiliaire précède le verbe : 想 ne se place pas après lui.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'很',p:'hěn'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},{h:'我',p:'wǒ'},{h:'妈妈',p:'mā ma'},P('。')],bad:3,
+     bon:'我很想我妈妈。',why:'Devant un nom, 想 suffit à dire que la personne manque : aucun verbe ne s’intercale.'}
+  ],
+
+  reemploi:[
+    {q:'Dites une chose dont vous avez envie aujourd’hui et une dont vous n’avez pas envie.',
+     verif:[{type:'contient',v:'想',msg:'L’envie se dit avec 想.'},
+            {type:'contient',v:'不想',msg:'L’absence d’envie se dit 不想.'}],
+     modeles:[{hz:'我想喝一杯咖啡，可是我不想做作业。',py:'wǒ xiǎng hē yì bēi kā fēi, kě shì wǒ bù xiǎng zuò zuò yè',fr:'J’ai envie d’un café, mais pas de faire mes devoirs.'}],
+     criteres:['想 et 不想 précèdent le verbe','Aucun 没 devant 想']},
+    {q:'Vous commandez au restaurant : demandez deux choses avec leur quantité.',
+     verif:[{type:'contient',v:'要',msg:'La commande se fait avec 要.'},
+            {type:'absent',v:'想要',msg:'Un seul auxiliaire suffit : 要.'}],
+     modeles:[{hz:'我要一碗面和一杯茶。',py:'wǒ yào yì wǎn miàn hé yì bēi chá',fr:'Je voudrais un bol de nouilles et un thé.'}],
+     criteres:['Chaque nom porte sa quantité et son classificateur','要 est employé devant le nom']},
+    {q:'Dites ce que vous comptez faire l’an prochain, puis donnez un conseil à quelqu’un.',
+     verif:[{type:'contient',v:'要',msg:'La décision prise et le conseil emploient tous deux 要.'},
+            {type:'un_parmi',v:['明年','以后','下个月','今年'],msg:'On attend une indication de temps.'}],
+     modeles:[{hz:'明年我要去中国。你要多说汉语。',py:'míng nián wǒ yào qù Zhōng guó. nǐ yào duō shuō Hàn yǔ',fr:'L’an prochain j’irai en Chine. Tu devrais parler chinois davantage.'}],
+     criteres:['L’indication de temps précède l’auxiliaire','要 précède le verbe']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g205', hsk:2, fam:'nom', th:['achats','famille'],
+  title:'Compter : les classificateurs, 几 et 多少',
+  resume:'Un nombre ne touche jamais directement un nom en chinois. Il faut entre eux un mot de mesure, et le choix de ce mot dépend de la forme de la chose comptée.',
+
+  steps:[
+    {
+      t:'Nombre + classificateur + nom',
+      p:[
+        'En français, le nombre se pose sur le nom : trois livres. En chinois, un troisième mot s’intercale toujours — <b>三本书</b>, littéralement trois volumes de livre.',
+        'Ce mot s’appelle un classificateur. Il n’est jamais facultatif : 三书 est aussi impossible que « trois de livre » en français.',
+        'Le passe-partout est <b>个</b>, qui perd son ton et se prononce ge. Quand on hésite, 个 dépanne — mais il ne convient pas partout.'
+      ],
+      ex:[
+        {hz:'我有三本书。',py:'wǒ yǒu sān běn shū',fr:'J’ai trois livres.'},
+        {hz:'她买了两件衣服。',py:'tā mǎi le liǎng jiàn yī fu',fr:'Elle a acheté deux vêtements.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我有三书。','我有三本书。'],ok:1,
+             why:'Le nombre ne touche jamais le nom : il faut un classificateur entre les deux.'}
+    },
+    {
+      t:'Les classificateurs à connaître',
+      p:[
+        'Chacun garde le souvenir d’une forme ou d’une nature. <b>本</b> pour ce qui est relié, <b>件</b> pour les vêtements et les affaires, <b>杯</b> pour ce qui est servi dans un verre, <b>张</b> pour ce qui est plat, <b>只</b> pour les petits animaux.',
+        'Deux méritent une note : <b>口</b> sert à compter les membres d’une famille — 我家有四口人 — et <b>位</b> est la forme respectueuse pour les personnes, 三位老师.'
+      ],
+      ex:[
+        {hz:'我要两杯咖啡。',py:'wǒ yào liǎng bēi kā fēi',fr:'Je voudrais deux cafés.'},
+        {hz:'我家有四口人。',py:'wǒ jiā yǒu sì kǒu rén',fr:'Nous sommes quatre à la maison.'}
+      ],
+      check:{q:'Pour compter les personnes de votre famille, on emploie :',a:['个','口'],ok:1,
+             why:'口 est le classificateur des membres d’un foyer. 个 conviendrait ailleurs, mais pas ici.'}
+    },
+    {
+      t:'几 — demander un petit nombre',
+      p:[
+        '<b>几</b> demande combien, quand la réponse attendue est petite, en général sous la dizaine. Il occupe la place du nombre et garde donc le classificateur : 你有<b>几</b>本书？',
+        'C’est le mot des questions sur la famille, l’âge d’un enfant, l’heure : 几点？ — quelle heure est-il ?'
+      ],
+      ex:[
+        {hz:'你家有几口人？',py:'nǐ jiā yǒu jǐ kǒu rén',fr:'Combien êtes-vous dans ta famille ?'},
+        {hz:'你有几个孩子？',py:'nǐ yǒu jǐ ge hái zi',fr:'Combien as-tu d’enfants ?'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['你有几书？','你有几本书？'],ok:1,
+             why:'几 prend la place du nombre : le classificateur reste obligatoire.'}
+    },
+    {
+      t:'多少 — demander une quantité quelconque',
+      p:[
+        '<b>多少</b> demande combien sans rien préjuger de la taille de la réponse. Il s’emploie pour les grands nombres, et le classificateur devient alors facultatif : 多少人 ou 多少个人.',
+        'C’est le mot du prix : <b>多少钱</b>？ — combien ça coûte ? On ne dit jamais 几钱.'
+      ],
+      ex:[
+        {hz:'这个多少钱？',py:'zhè ge duō shao qián',fr:'Combien coûte celui-ci ?'},
+        {hz:'你们学校有多少学生？',py:'nǐ men xué xiào yǒu duō shao xué sheng',fr:'Combien d’étudiants y a-t-il dans ton école ?'}
+      ],
+      check:{q:'Vous demandez le prix d’un vêtement. Vous dites :',a:['这件衣服几钱？','这件衣服多少钱？'],ok:1,
+             why:'Le prix se demande toujours avec 多少. 几钱 n’existe pas.'}
+    },
+    {
+      t:'两 et non 二, 这 et 那 devant le classificateur',
+      p:[
+        'Devant un classificateur, deux se dit <b>两</b> et non 二 : 两个人, 两本书. 二 sert à compter et à lire les nombres — 十二, 二月.',
+        '<b>这</b> et <b>那</b> obéissent à la même règle que les nombres : ils exigent le classificateur. 这<b>本</b>书, 那<b>件</b>衣服 — jamais 这书.',
+        'Et l’ordre ne bouge jamais : démonstratif ou nombre, puis classificateur, puis nom.'
+      ],
+      ex:[
+        {hz:'我有两个哥哥。',py:'wǒ yǒu liǎng ge gē ge',fr:'J’ai deux grands frères.'},
+        {hz:'这本书很有意思。',py:'zhè běn shū hěn yǒu yì si',fr:'Ce livre est très intéressant.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我有二个孩子。','我有两个孩子。'],ok:1,
+             why:'Devant un classificateur, deux se dit 两. 二 ne s’emploie que pour compter.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Classificateur','Exemple','Ce qu’il compte'],
+    rows:[
+      ['个','三个人','Le passe-partout'],
+      ['本','两本书','Ce qui est relié'],
+      ['件','一件衣服','Vêtements et affaires'],
+      ['杯','两杯咖啡','Ce qui est servi'],
+      ['张','三张票','Ce qui est plat'],
+      ['口','四口人','Les membres d’un foyer'],
+      ['只','两只猫','Les petits animaux']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我有二书。',py:'wǒ yǒu èr shū'},
+    good:{hz:'我有两本书。',py:'wǒ yǒu liǎng běn shū'},
+    why:'Deux fautes d’un coup, et toutes deux françaises. Le nombre ne touche pas le nom — il faut 本 entre les deux. Et devant un classificateur, deux se dit 两, jamais 二.'
+  },
+
+  voir:['g202','g204'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'有',p:'yǒu'},{h:'三',p:'sān'},{h:'本',p:'běn'},{h:'书',p:'shū'},P('。')],cle:3,fr:'J’ai trois livres.'},
+    {seg:[{h:'她',p:'tā'},{h:'买了',p:'mǎi le'},{h:'两',p:'liǎng'},{h:'件',p:'jiàn'},{h:'衣服',p:'yī fu'},P('。')],cle:3,fr:'Elle a acheté deux vêtements.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'要',p:'yào'},{h:'两',p:'liǎng'},{h:'杯',p:'bēi'},{h:'咖啡',p:'kā fēi'},P('。')],cle:3,fr:'Je voudrais deux cafés.'},
+    {seg:[{h:'我家',p:'wǒ jiā'},{h:'有',p:'yǒu'},{h:'四',p:'sì'},{h:'口',p:'kǒu'},{h:'人',p:'rén'},P('。')],cle:3,fr:'Nous sommes quatre à la maison.'},
+    {seg:[{h:'你家',p:'nǐ jiā'},{h:'有',p:'yǒu'},{h:'几',p:'jǐ'},{h:'口',p:'kǒu'},{h:'人',p:'rén'},P('？')],cle:2,fr:'Combien êtes-vous dans ta famille ?'},
+    {seg:[{h:'你',p:'nǐ'},{h:'有',p:'yǒu'},{h:'几',p:'jǐ'},{h:'个',p:'ge'},{h:'孩子',p:'hái zi'},P('？')],cle:2,fr:'Combien as-tu d’enfants ?'},
+    {seg:[{h:'这个',p:'zhè ge'},{h:'多少',p:'duō shao'},{h:'钱',p:'qián'},P('？')],cle:1,fr:'Combien coûte celui-ci ?'},
+    {seg:[{h:'这件',p:'zhè jiàn'},{h:'衣服',p:'yī fu'},{h:'多少',p:'duō shao'},{h:'钱',p:'qián'},P('？')],cle:2,fr:'Combien coûte ce vêtement ?'},
+    {seg:[{h:'我',p:'wǒ'},{h:'有',p:'yǒu'},{h:'两',p:'liǎng'},{h:'个',p:'ge'},{h:'哥哥',p:'gē ge'},P('。')],cle:2,fr:'J’ai deux grands frères.'},
+    {seg:[{h:'这',p:'zhè'},{h:'本',p:'běn'},{h:'书',p:'shū'},{h:'很',p:'hěn'},{h:'好',p:'hǎo'},P('。')],cle:1,fr:'Ce livre est très bien.'},
+    {seg:[{h:'那',p:'nà'},{h:'件',p:'jiàn'},{h:'衣服',p:'yī fu'},{h:'很',p:'hěn'},{h:'贵',p:'guì'},P('。')],cle:1,fr:'Ce vêtement est très cher.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'买了',p:'mǎi le'},{h:'三',p:'sān'},{h:'张',p:'zhāng'},{h:'票',p:'piào'},P('。')],cle:3,fr:'J’ai acheté trois billets.'},
+    {seg:[{h:'他',p:'tā'},{h:'有',p:'yǒu'},{h:'两',p:'liǎng'},{h:'只',p:'zhī'},{h:'猫',p:'māo'},P('。')],cle:3,fr:'Il a deux chats.'},
+    {seg:[{h:'你们',p:'nǐ men'},{h:'学校',p:'xué xiào'},{h:'有',p:'yǒu'},{h:'多少',p:'duō shao'},{h:'学生',p:'xué sheng'},P('？')],cle:3,fr:'Combien d’étudiants y a-t-il dans votre école ?'}
+  ],
+  leurres:['个','本','件','杯','张','口','只','几','多少'],
+
+  gabarits:[
+    {cadre:[{s:'s'},{h:'有',p:'yǒu'},{s:'q'},{s:'c'},{s:'n'},P('。')],
+     fr:'… a … …', lie:[['c','n']], libre:['s','q'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             q:[{h:'两',p:'liǎng',fr:'deux'},{h:'三',p:'sān',fr:'trois'},
+                {h:'四',p:'sì',fr:'quatre'},{h:'五',p:'wǔ',fr:'cinq'},
+                {h:'六',p:'liù',fr:'six'},{h:'七',p:'qī',fr:'sept'},
+                {h:'八',p:'bā',fr:'huit'},{h:'十',p:'shí',fr:'dix'}],
+             c:[{h:'个',p:'ge',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'本',p:'běn',fr:'—'},{h:'本',p:'běn',fr:'—'},
+                {h:'件',p:'jiàn',fr:'—'},{h:'张',p:'zhāng',fr:'—'},
+                {h:'张',p:'zhāng',fr:'—'},{h:'只',p:'zhī',fr:'—'},
+                {h:'只',p:'zhī',fr:'—'},{h:'个',p:'ge',fr:'—'}],
+             n:[{h:'孩子',p:'hái zi',fr:'enfants'},{h:'哥哥',p:'gē ge',fr:'grands frères'},
+                {h:'问题',p:'wèn tí',fr:'questions'},{h:'朋友',p:'péng you',fr:'amis'},
+                {h:'书',p:'shū',fr:'livres'},{h:'词典',p:'cí diǎn',fr:'dictionnaires'},
+                {h:'衣服',p:'yī fu',fr:'vêtements'},{h:'票',p:'piào',fr:'billets'},
+                {h:'照片',p:'zhào piàn',fr:'photos'},{h:'猫',p:'māo',fr:'chats'},
+                {h:'狗',p:'gǒu',fr:'chiens'},{h:'手机',p:'shǒu jī',fr:'téléphones'}]}},
+
+    {cadre:[{s:'s'},{h:'要',p:'yào'},{s:'q'},{s:'c'},{s:'n'},P('。')],
+     fr:'… voudrait … …', lie:[['c','n']], libre:['s','q'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'我们',p:'wǒ men',fr:'nous'},
+                {h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],
+             q:[{h:'两',p:'liǎng',fr:'deux'},{h:'三',p:'sān',fr:'trois'},
+                {h:'四',p:'sì',fr:'quatre'},{h:'五',p:'wǔ',fr:'cinq'},
+                {h:'六',p:'liù',fr:'six'},{h:'十',p:'shí',fr:'dix'}],
+             c:[{h:'杯',p:'bēi',fr:'—'},{h:'杯',p:'bēi',fr:'—'},
+                {h:'杯',p:'bēi',fr:'—'},{h:'碗',p:'wǎn',fr:'—'},
+                {h:'碗',p:'wǎn',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'瓶',p:'píng',fr:'—'},
+                {h:'瓶',p:'píng',fr:'—'},{h:'张',p:'zhāng',fr:'—'},
+                {h:'件',p:'jiàn',fr:'—'},{h:'本',p:'běn',fr:'—'}],
+             n:[{h:'咖啡',p:'kā fēi',fr:'cafés'},{h:'茶',p:'chá',fr:'thés'},
+                {h:'水',p:'shuǐ',fr:'verres d’eau'},{h:'面',p:'miàn',fr:'bols de nouilles'},
+                {h:'米饭',p:'mǐ fàn',fr:'bols de riz'},{h:'包子',p:'bāo zi',fr:'petits pains farcis'},
+                {h:'面包',p:'miàn bāo',fr:'pains'},{h:'水',p:'shuǐ',fr:'bouteilles d’eau'},
+                {h:'牛奶',p:'niú nǎi',fr:'bouteilles de lait'},{h:'票',p:'piào',fr:'billets'},
+                {h:'衣服',p:'yī fu',fr:'vêtements'},{h:'书',p:'shū',fr:'livres'}]}},
+
+    {cadre:[{s:'s'},{h:'有',p:'yǒu'},{h:'几',p:'jǐ'},{s:'c'},{s:'n'},P('？')],
+     fr:'Combien … a-t-il de … ?', lie:[['c','n']], libre:['s'],
+     listes:{s:[{h:'你家',p:'nǐ jiā',fr:'ta famille'},{h:'他家',p:'tā jiā',fr:'sa famille'},
+                {h:'你们家',p:'nǐ men jiā',fr:'votre famille'},{h:'她家',p:'tā jiā',fr:'sa famille'}],
+             c:[{h:'口',p:'kǒu',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'本',p:'běn',fr:'—'},
+                {h:'本',p:'běn',fr:'—'},{h:'件',p:'jiàn',fr:'—'},
+                {h:'张',p:'zhāng',fr:'—'},{h:'张',p:'zhāng',fr:'—'},
+                {h:'只',p:'zhī',fr:'—'},{h:'只',p:'zhī',fr:'—'}],
+             n:[{h:'人',p:'rén',fr:'personnes'},{h:'孩子',p:'hái zi',fr:'enfants'},
+                {h:'哥哥',p:'gē ge',fr:'grands frères'},{h:'姐姐',p:'jiě jie',fr:'grandes sœurs'},
+                {h:'房间',p:'fáng jiān',fr:'pièces'},{h:'书',p:'shū',fr:'livres'},
+                {h:'词典',p:'cí diǎn',fr:'dictionnaires'},{h:'衣服',p:'yī fu',fr:'vêtements'},
+                {h:'票',p:'piào',fr:'billets'},{h:'照片',p:'zhào piàn',fr:'photos'},
+                {h:'猫',p:'māo',fr:'chats'},{h:'狗',p:'gǒu',fr:'chiens'}]}},
+
+    {cadre:[{s:'d'},{s:'c'},{s:'n'},{h:'多少',p:'duō shao'},{h:'钱',p:'qián'},P('？')],
+     fr:'Combien coûte … ?', lie:[['c','n']], libre:['d'],
+     listes:{d:[{h:'这',p:'zhè',fr:'ce…-ci'},{h:'那',p:'nà',fr:'ce…-là'}],
+             c:[{h:'件',p:'jiàn',fr:'—'},{h:'件',p:'jiàn',fr:'—'},
+                {h:'本',p:'běn',fr:'—'},{h:'本',p:'běn',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'张',p:'zhāng',fr:'—'},
+                {h:'杯',p:'bēi',fr:'—'},{h:'碗',p:'wǎn',fr:'—'},
+                {h:'瓶',p:'píng',fr:'—'},{h:'只',p:'zhī',fr:'—'}],
+             n:[{h:'衣服',p:'yī fu',fr:'vêtement'},{h:'裙子',p:'qún zi',fr:'jupe'},
+                {h:'书',p:'shū',fr:'livre'},{h:'词典',p:'cí diǎn',fr:'dictionnaire'},
+                {h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'电脑',p:'diàn nǎo',fr:'ordinateur'},
+                {h:'面包',p:'miàn bāo',fr:'pain'},{h:'票',p:'piào',fr:'billet'},
+                {h:'咖啡',p:'kā fēi',fr:'café'},{h:'面',p:'miàn',fr:'bol de nouilles'},
+                {h:'水',p:'shuǐ',fr:'bouteille d’eau'},{h:'猫',p:'māo',fr:'chat'}]}},
+
+    {cadre:[{s:'d'},{s:'c'},{s:'n'},{h:'很',p:'hěn'},{s:'a'},P('。')],
+     fr:'Ce … est très …', lie:[['c','n']], libre:['d','a'],
+     listes:{d:[{h:'这',p:'zhè',fr:'ce…-ci'},{h:'那',p:'nà',fr:'ce…-là'}],
+             c:[{h:'本',p:'běn',fr:'—'},{h:'本',p:'běn',fr:'—'},
+                {h:'件',p:'jiàn',fr:'—'},{h:'件',p:'jiàn',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'张',p:'zhāng',fr:'—'},
+                {h:'杯',p:'bēi',fr:'—'},{h:'碗',p:'wǎn',fr:'—'},
+                {h:'只',p:'zhī',fr:'—'},{h:'只',p:'zhī',fr:'—'}],
+             n:[{h:'书',p:'shū',fr:'livre'},{h:'词典',p:'cí diǎn',fr:'dictionnaire'},
+                {h:'衣服',p:'yī fu',fr:'vêtement'},{h:'裙子',p:'qún zi',fr:'jupe'},
+                {h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'电脑',p:'diàn nǎo',fr:'ordinateur'},
+                {h:'包',p:'bāo',fr:'sac'},{h:'照片',p:'zhào piàn',fr:'photo'},
+                {h:'咖啡',p:'kā fēi',fr:'café'},{h:'面',p:'miàn',fr:'plat de nouilles'},
+                {h:'猫',p:'māo',fr:'chat'},{h:'狗',p:'gǒu',fr:'chien'}],
+             a:[{h:'好',p:'hǎo',fr:'bien'},{h:'贵',p:'guì',fr:'cher'},
+                {h:'便宜',p:'pián yi',fr:'bon marché'},{h:'大',p:'dà',fr:'grand'},
+                {h:'小',p:'xiǎo',fr:'petit'}]}},
+
+    {cadre:[{s:'s'},{h:'有',p:'yǒu'},{h:'多少',p:'duō shao'},{s:'n'},P('？')],
+     fr:'Combien … a-t-il de … ?', lie:[], libre:['s','n'],
+     listes:{s:[{h:'你们学校',p:'nǐ men xué xiào',fr:'votre école'},{h:'你们班',p:'nǐ men bān',fr:'votre classe'},
+                {h:'这个学校',p:'zhè ge xué xiào',fr:'cette école'},{h:'那个学校',p:'nà ge xué xiào',fr:'cette école-là'}],
+             n:[{h:'学生',p:'xué sheng',fr:'étudiants'},{h:'老师',p:'lǎo shī',fr:'professeurs'},
+                {h:'人',p:'rén',fr:'personnes'},{h:'中国人',p:'Zhōng guó rén',fr:'Chinois'},
+                {h:'外国人',p:'wài guó rén',fr:'étrangers'},{h:'孩子',p:'hái zi',fr:'enfants'},
+                {h:'书',p:'shū',fr:'livres'},{h:'电脑',p:'diàn nǎo',fr:'ordinateurs'},
+                {h:'教室',p:'jiào shì',fr:'salles de cours'},{h:'朋友',p:'péng you',fr:'amis'},
+                {h:'同学',p:'tóng xué',fr:'camarades'},{h:'女学生',p:'nǚ xué sheng',fr:'étudiantes'}]}},
+
+    {cadre:[{s:'s'},{h:'买了',p:'mǎi le'},{s:'q'},{s:'c'},{s:'n'},P('。')],
+     fr:'… a acheté … …', lie:[['c','n']], libre:['s','q'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'}],
+             q:[{h:'两',p:'liǎng',fr:'deux'},{h:'三',p:'sān',fr:'trois'},
+                {h:'四',p:'sì',fr:'quatre'},{h:'五',p:'wǔ',fr:'cinq'},
+                {h:'十',p:'shí',fr:'dix'}],
+             c:[{h:'件',p:'jiàn',fr:'—'},{h:'件',p:'jiàn',fr:'—'},
+                {h:'本',p:'běn',fr:'—'},{h:'本',p:'běn',fr:'—'},
+                {h:'张',p:'zhāng',fr:'—'},{h:'张',p:'zhāng',fr:'—'},
+                {h:'个',p:'ge',fr:'—'},{h:'个',p:'ge',fr:'—'},
+                {h:'瓶',p:'píng',fr:'—'},{h:'瓶',p:'píng',fr:'—'},
+                {h:'杯',p:'bēi',fr:'—'},{h:'碗',p:'wǎn',fr:'—'}],
+             n:[{h:'衣服',p:'yī fu',fr:'vêtements'},{h:'裙子',p:'qún zi',fr:'jupes'},
+                {h:'书',p:'shū',fr:'livres'},{h:'词典',p:'cí diǎn',fr:'dictionnaires'},
+                {h:'票',p:'piào',fr:'billets'},{h:'桌子',p:'zhuō zi',fr:'tables'},
+                {h:'面包',p:'miàn bāo',fr:'pains'},{h:'苹果',p:'píng guǒ',fr:'pommes'},
+                {h:'水',p:'shuǐ',fr:'bouteilles d’eau'},{h:'牛奶',p:'niú nǎi',fr:'bouteilles de lait'},
+                {h:'咖啡',p:'kā fēi',fr:'cafés'},{h:'面',p:'miàn',fr:'bols de nouilles'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Ajoutez le classificateur qui manque',
+     de:{hz:'我有三书。',py:'wǒ yǒu sān shū',fr:'J’ai trois livres.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'有',p:'yǒu'},{h:'三',p:'sān'},{h:'本',p:'běn'},{h:'书',p:'shū'},P('。')],fr:'J’ai trois livres.'}},
+    {consigne:'Corrigez la forme de « deux »',
+     de:{hz:'我有二个孩子。',py:'wǒ yǒu èr ge hái zi',fr:'J’ai deux enfants.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'有',p:'yǒu'},{h:'两',p:'liǎng'},{h:'个',p:'ge'},{h:'孩子',p:'hái zi'},P('。')],fr:'J’ai deux enfants.'}},
+    {consigne:'Demandez le nombre avec 几',
+     de:{hz:'我有三个孩子。',py:'wǒ yǒu sān ge hái zi',fr:'J’ai trois enfants.'},
+     vers:{seg:[{h:'你',p:'nǐ'},{h:'有',p:'yǒu'},{h:'几',p:'jǐ'},{h:'个',p:'ge'},{h:'孩子',p:'hái zi'},P('？')],fr:'Combien as-tu d’enfants ?'}},
+    {consigne:'Demandez le prix',
+     de:{hz:'这件衣服很贵。',py:'zhè jiàn yī fu hěn guì',fr:'Ce vêtement est cher.'},
+     vers:{seg:[{h:'这件',p:'zhè jiàn'},{h:'衣服',p:'yī fu'},{h:'多少',p:'duō shao'},{h:'钱',p:'qián'},P('？')],fr:'Combien coûte ce vêtement ?'}},
+    {consigne:'Ajoutez le classificateur après le démonstratif',
+     de:{hz:'这书很好。',py:'zhè shū hěn hǎo',fr:'Ce livre est bien.'},
+     vers:{seg:[{h:'这',p:'zhè'},{h:'本',p:'běn'},{h:'书',p:'shū'},{h:'很',p:'hěn'},{h:'好',p:'hǎo'},P('。')],fr:'Ce livre est très bien.'}},
+    {consigne:'Demandez la grande quantité avec 多少',
+     de:{hz:'我们学校有很多学生。',py:'wǒ men xué xiào yǒu hěn duō xué sheng',fr:'Notre école a beaucoup d’étudiants.'},
+     vers:{seg:[{h:'你们',p:'nǐ men'},{h:'学校',p:'xué xiào'},{h:'有',p:'yǒu'},{h:'多少',p:'duō shao'},{h:'学生',p:'xué sheng'},P('？')],fr:'Combien d’étudiants a votre école ?'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'有',p:'yǒu'},{h:'三',p:'sān'},{h:'书',p:'shū'},P('。')],bad:3,
+     bon:'我有三本书。',why:'Le nombre ne touche jamais le nom : il faut un classificateur entre les deux.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'有',p:'yǒu'},{h:'二',p:'èr'},{h:'个',p:'ge'},{h:'孩子',p:'hái zi'},P('。')],bad:2,
+     bon:'我有两个孩子。',why:'Devant un classificateur, deux se dit 两. 二 ne sert qu’à compter.'},
+    {seg:[{h:'这',p:'zhè'},{h:'书',p:'shū'},{h:'很',p:'hěn'},{h:'好',p:'hǎo'},P('。')],bad:1,
+     bon:'这本书很好。',why:'这 et 那 exigent le classificateur autant que les nombres.'},
+    {seg:[{h:'这件',p:'zhè jiàn'},{h:'衣服',p:'yī fu'},{h:'几',p:'jǐ'},{h:'钱',p:'qián'},P('？')],bad:2,
+     bon:'这件衣服多少钱？',why:'Le prix se demande avec 多少. 几钱 n’existe pas.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'有',p:'yǒu'},{h:'几',p:'jǐ'},{h:'书',p:'shū'},P('？')],bad:3,
+     bon:'你有几本书？',why:'几 occupe la place du nombre : le classificateur reste obligatoire.'},
+    {seg:[{h:'我家',p:'wǒ jiā'},{h:'有',p:'yǒu'},{h:'四',p:'sì'},{h:'个',p:'ge'},{h:'人',p:'rén'},P('。')],bad:3,
+     bon:'我家有四口人。',why:'Les membres d’un foyer se comptent en 口, pas en 个.'}
+  ],
+
+  reemploi:[
+    {q:'Dites combien vous êtes dans votre famille, puis demandez-le à votre interlocuteur.',
+     verif:[{type:'contient',v:'口',msg:'Les membres d’un foyer se comptent avec 口.'},
+            {type:'contient',v:'几',msg:'La question sur un petit nombre se pose avec 几.'}],
+     modeles:[{hz:'我家有四口人，你家有几口人？',py:'wǒ jiā yǒu sì kǒu rén, nǐ jiā yǒu jǐ kǒu rén',fr:'Nous sommes quatre chez moi, et vous ?'}],
+     criteres:['口 est employé pour la famille','几 précède le classificateur']},
+    {q:'Vous êtes au café : commandez deux choses avec leur quantité, puis demandez le prix.',
+     verif:[{type:'contient',v:'多少钱',msg:'Le prix se demande avec 多少钱.'},
+            {type:'absent',v:'几钱',msg:'几钱 n’existe pas.'}],
+     modeles:[{hz:'我要两杯咖啡和一个面包，一共多少钱？',py:'wǒ yào liǎng bēi kā fēi hé yí ge miàn bāo, yí gòng duō shao qián',fr:'Je voudrais deux cafés et un pain, combien en tout ?'}],
+     criteres:['Chaque nom porte son classificateur','两 et non 二 devant le classificateur']},
+    {q:'Décrivez deux objets que vous avez sous la main, en employant 这 et 那.',
+     verif:[{type:'contient',v:'这',msg:'On attend le démonstratif 这.'},
+            {type:'contient',v:'那',msg:'On attend aussi 那.'}],
+     modeles:[{hz:'这本书很好，那件衣服很贵。',py:'zhè běn shū hěn hǎo, nà jiàn yī fu hěn guì',fr:'Ce livre est très bien, ce vêtement-là est cher.'}],
+     criteres:['这 et 那 sont suivis de leur classificateur','L’ordre est démonstratif, classificateur, nom']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g206', hsk:2, fam:'phrase', th:['quotidien','presenter'],
+  title:'也, 都, 还, 再 : les adverbes et leur place',
+  resume:'Quatre petits mots que le français place où il veut. Le chinois leur assigne une seule position — entre le sujet et le verbe — et cette place ne se négocie jamais.',
+
+  steps:[
+    {
+      t:'也 — aussi',
+      p:[
+        '<b>也</b> se glisse <b>après le sujet et avant le verbe</b>. 我<b>也</b>是学生 — moi aussi je suis étudiante.',
+        'Le français peut rejeter « aussi » à la fin : « je suis étudiante aussi ». Le chinois ne le permet pas. 我是学生也 est impossible.',
+        'Devant 是, 有, un adjectif ou un auxiliaire, la règle ne change pas : 也 reste collé au sujet.'
+      ],
+      ex:[
+        {hz:'我也是学生。',py:'wǒ yě shì xué sheng',fr:'Moi aussi je suis étudiante.'},
+        {hz:'他也想去中国。',py:'tā yě xiǎng qù Zhōng guó',fr:'Lui aussi a envie d’aller en Chine.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['我是法国人也。','我也是法国人。'],ok:1,
+             why:'也 se place entre le sujet et le verbe, jamais en fin de phrase.'}
+    },
+    {
+      t:'都 — tous, tous les deux',
+      p:[
+        '<b>都</b> occupe la même position, mais il regarde <b>en arrière</b> : il totalise ce qui a été dit avant lui. 我们<b>都</b>是学生 — nous sommes tous étudiants.',
+        'C’est pourquoi le sujet doit être pluriel ou multiple. 我都去 n’a pas de sens si « je » est seul.',
+        'La place de la négation change tout : 我们<b>都不</b>去 dit qu’aucun n’y va, 我们<b>不都</b>去 dit que tous n’y vont pas — donc certains si.'
+      ],
+      ex:[
+        {hz:'我们都是学生。',py:'wǒ men dōu shì xué sheng',fr:'Nous sommes tous étudiants.'},
+        {hz:'他们都不喝咖啡。',py:'tā men dōu bù hē kā fēi',fr:'Aucun d’eux ne boit de café.'}
+      ],
+      check:{q:'« Aucun d’eux ne vient » se dit :',a:['他们不都来。','他们都不来。'],ok:1,
+             why:'都不 nie la totalité. 不都 dirait que tous ne viennent pas, donc que certains viennent.'}
+    },
+    {
+      t:'也 et 都 ensemble',
+      p:[
+        'Quand les deux se rencontrent, l’ordre est fixe : <b>也都</b>, jamais 都也.',
+        '他们<b>也都</b>是老师 — eux aussi sont tous professeurs.',
+        'Retenez la logique : 也 relie à ce qui précède, 都 totalise ; on relie d’abord, on totalise ensuite.'
+      ],
+      ex:[
+        {hz:'他们也都是老师。',py:'tā men yě dōu shì lǎo shī',fr:'Eux aussi sont tous professeurs.'},
+        {hz:'我们也都想去。',py:'wǒ men yě dōu xiǎng qù',fr:'Nous aussi voulons tous y aller.'}
+      ],
+      check:{q:'Laquelle est correcte ?',a:['他们都也来。','他们也都来。'],ok:1,
+             why:'L’ordre est 也都 et il ne s’inverse pas.'}
+    },
+    {
+      t:'还 — encore, en plus, pas encore',
+      p:[
+        '<b>还</b> ajoute quelque chose à ce qui est déjà là. 我<b>还</b>想喝一杯 — j’en veux encore un.',
+        'Associé à 没, il dit que la chose n’a pas encore eu lieu : 我<b>还没</b>吃晚饭 — je n’ai pas encore dîné. C’est la forme qu’on emploie quand on attend toujours l’événement.',
+        'Comme les autres, 还 se tient entre le sujet et le verbe.'
+      ],
+      ex:[
+        {hz:'我还想喝一杯茶。',py:'wǒ hái xiǎng hē yì bēi chá',fr:'J’ai encore envie d’un thé.'},
+        {hz:'我还没吃晚饭。',py:'wǒ hái méi chī wǎn fàn',fr:'Je n’ai pas encore dîné.'}
+      ],
+      check:{q:'« Je n’ai pas encore fait mes devoirs » se dit :',
+             a:['我不还做作业。','我还没做作业。'],ok:1,
+             why:'L’événement attendu se nie par 还没, jamais par 不.'}
+    },
+    {
+      t:'再 — encore une fois, mais plus tard',
+      p:[
+        '<b>再</b> annonce une répétition <b>à venir</b> : 明天<b>再</b>说 — on en reparlera demain. 请<b>再</b>说一遍 — répétez, s’il vous plaît.',
+        'Il ne raconte jamais le passé. Pour une répétition déjà accomplie, le chinois emploie 又, que vous verrez au niveau suivant.',
+        'Et la règle commune à tous les quatre : l’adverbe précède le verbe. Il ne se rejette ni à la fin, ni avant le sujet.'
+      ],
+      ex:[
+        {hz:'我明天再打电话。',py:'wǒ míng tiān zài dǎ diàn huà',fr:'Je rappellerai demain.'},
+        {hz:'请再说一遍。',py:'qǐng zài shuō yí biàn',fr:'Répétez, s’il vous plaît.'}
+      ],
+      check:{q:'Vous rappellerez demain. Vous dites :',
+             a:['我明天打电话再。','我明天再打电话。'],ok:1,
+             why:'再 précède le verbe. Aucun de ces adverbes ne se place après lui.'}
+    }
+  ],
+
+  tableau:{
+    cols:['Adverbe','Exemple','Ce qu’il fait'],
+    rows:[
+      ['也','我也是学生','Relie à ce qui précède'],
+      ['都','我们都去','Totalise ce qui précède'],
+      ['也都','他们也都是老师','Relie puis totalise'],
+      ['都不','他们都不来','Aucun ne vient'],
+      ['不都','他们不都来','Tous ne viennent pas'],
+      ['还','我还想喝一杯','Ajoute, en plus'],
+      ['还没','我还没吃饭','Cela n’a pas encore eu lieu'],
+      ['再','明天再说','Répétition à venir']
+    ]
+  },
+
+  piege:{
+    bad:{hz:'我是学生也。',py:'wǒ shì xué sheng yě'},
+    good:{hz:'我也是学生。',py:'wǒ yě shì xué sheng'},
+    why:'Le français autorise « je suis étudiante aussi » et l’on transpose la place du mot. En chinois, l’adverbe vit entre le sujet et le verbe : il ne se rejette jamais en fin de phrase.'
+  },
+
+  voir:['g202','g205'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'也',p:'yě'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},P('。')],cle:1,fr:'Moi aussi je suis étudiante.'},
+    {seg:[{h:'他',p:'tā'},{h:'也',p:'yě'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},{h:'中国',p:'Zhōng guó'},P('。')],cle:1,fr:'Lui aussi a envie d’aller en Chine.'},
+    {seg:[{h:'我们',p:'wǒ men'},{h:'都',p:'dōu'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},P('。')],cle:1,fr:'Nous sommes tous étudiants.'},
+    {seg:[{h:'他们',p:'tā men'},{h:'都',p:'dōu'},{h:'不喝',p:'bù hē'},{h:'咖啡',p:'kā fēi'},P('。')],cle:1,fr:'Aucun d’eux ne boit de café.'},
+    {seg:[{h:'他们',p:'tā men'},{h:'也都',p:'yě dōu'},{h:'是',p:'shì'},{h:'老师',p:'lǎo shī'},P('。')],cle:1,fr:'Eux aussi sont tous professeurs.'},
+    {seg:[{h:'我们',p:'wǒ men'},{h:'也都',p:'yě dōu'},{h:'想',p:'xiǎng'},{h:'去',p:'qù'},P('。')],cle:1,fr:'Nous aussi voulons tous y aller.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'还',p:'hái'},{h:'想',p:'xiǎng'},{h:'喝',p:'hē'},{h:'一杯',p:'yì bēi'},{h:'茶',p:'chá'},P('。')],cle:1,fr:'J’ai encore envie d’un thé.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'还没',p:'hái méi'},{h:'吃',p:'chī'},{h:'晚饭',p:'wǎn fàn'},P('。')],cle:1,fr:'Je n’ai pas encore dîné.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'明天',p:'míng tiān'},{h:'再',p:'zài'},{h:'打',p:'dǎ'},{h:'电话',p:'diàn huà'},P('。')],cle:2,fr:'Je rappellerai demain.'},
+    {seg:[{h:'请',p:'qǐng'},{h:'再',p:'zài'},{h:'说',p:'shuō'},{h:'一遍',p:'yí biàn'},P('。')],cle:1,fr:'Répétez, s’il vous plaît.'},
+    {seg:[{h:'她',p:'tā'},{h:'也',p:'yě'},{h:'不去',p:'bú qù'},{h:'学校',p:'xué xiào'},P('。')],cle:1,fr:'Elle non plus ne va pas à l’école.'},
+    {seg:[{h:'学生',p:'xué sheng'},{h:'都',p:'dōu'},{h:'来',p:'lái'},{h:'了',p:'le'},P('。')],cle:1,fr:'Tous les étudiants sont arrivés.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'还没',p:'hái méi'},{h:'看',p:'kàn'},{h:'这个电影',p:'zhè ge diàn yǐng'},P('。')],cle:1,fr:'Je n’ai pas encore vu ce film.'},
+    {seg:[{h:'你们',p:'nǐ men'},{h:'都',p:'dōu'},{h:'想',p:'xiǎng'},{h:'吃',p:'chī'},{h:'中国菜',p:'Zhōng guó cài'},{h:'吗',p:'ma'},P('？')],cle:1,fr:'Avez-vous tous envie de manger chinois ?'}
+  ],
+  leurres:['也','都','还','再','也都','还没'],
+
+  gabarits:[
+    {cadre:[{s:'s'},{h:'也',p:'yě'},{s:'v'},{s:'o'},P('。')],
+     fr:'… aussi …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},
+                {h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'听',p:'tīng',fr:'écouter'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'用',p:'yòng',fr:'utiliser'},{h:'回',p:'huí',fr:'rentrer à'}],
+             o:[{h:'咖啡',p:'kā fēi',fr:'du café'},{h:'茶',p:'chá',fr:'du thé'},
+                {h:'中国菜',p:'Zhōng guó cài',fr:'chinois'},{h:'电影',p:'diàn yǐng',fr:'un film'},
+                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'学校',p:'xué xiào',fr:'l’école'},
+                {h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'衣服',p:'yī fu',fr:'des vêtements'},
+                {h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'作业',p:'zuò yè',fr:'ses devoirs'},
+                {h:'电脑',p:'diàn nǎo',fr:'un ordinateur'},{h:'家',p:'jiā',fr:'la maison'}]}},
+
+    {cadre:[{s:'s'},{h:'也是',p:'yě shì'},{s:'n'},P('。')],
+     fr:'… aussi est …', lie:[], libre:['s','n'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},
+                {h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'}],
+             n:[{h:'学生',p:'xué sheng',fr:'étudiant'},{h:'大学生',p:'dà xué shēng',fr:'étudiant à l’université'},
+                {h:'老师',p:'lǎo shī',fr:'professeur'},{h:'英语老师',p:'Yīng yǔ lǎo shī',fr:'professeur d’anglais'},
+                {h:'医生',p:'yī shēng',fr:'médecin'},{h:'法国人',p:'Fǎ guó rén',fr:'français'},
+                {h:'中国人',p:'Zhōng guó rén',fr:'chinois'},{h:'北京人',p:'Běi jīng rén',fr:'pékinois'},
+                {h:'上海人',p:'Shàng hǎi rén',fr:'shanghaïen'},{h:'我的同学',p:'wǒ de tóng xué',fr:'mon camarade'},
+                {h:'我的朋友',p:'wǒ de péng you',fr:'mon ami'},{h:'我的老师',p:'wǒ de lǎo shī',fr:'mon professeur'}]}},
+
+    {cadre:[{s:'s'},{h:'都',p:'dōu'},{s:'v'},{s:'o'},P('。')],
+     fr:'… tous …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我们',p:'wǒ men',fr:'nous'},{h:'他们',p:'tā men',fr:'ils'},
+                {h:'她们',p:'tā men',fr:'elles'},{h:'你们',p:'nǐ men',fr:'vous'},
+                {h:'学生',p:'xué sheng',fr:'les étudiants'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'学',p:'xué',fr:'apprendre'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'听',p:'tīng',fr:'écouter'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'用',p:'yòng',fr:'utiliser'},{h:'回',p:'huí',fr:'rentrer à'}],
+             o:[{h:'咖啡',p:'kā fēi',fr:'du café'},{h:'茶',p:'chá',fr:'du thé'},
+                {h:'中国菜',p:'Zhōng guó cài',fr:'chinois'},{h:'电影',p:'diàn yǐng',fr:'un film'},
+                {h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'学校',p:'xué xiào',fr:'l’école'},
+                {h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'衣服',p:'yī fu',fr:'des vêtements'},
+                {h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'作业',p:'zuò yè',fr:'leurs devoirs'},
+                {h:'电脑',p:'diàn nǎo',fr:'un ordinateur'},{h:'家',p:'jiā',fr:'la maison'}]}},
+
+    {cadre:[{s:'s'},{h:'都',p:'dōu'},{s:'v'},{s:'o'},P('。')],
+     fr:'Aucun … ne …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我们',p:'wǒ men',fr:'nous'},{h:'他们',p:'tā men',fr:'ils'},
+                {h:'她们',p:'tā men',fr:'elles'},{h:'学生',p:'xué sheng',fr:'les étudiants'}],
+             v:[{h:'不喝',p:'bù hē',fr:'ne pas boire'},{h:'不吃',p:'bù chī',fr:'ne pas manger'},
+                {h:'不看',p:'bú kàn',fr:'ne pas regarder'},{h:'不学',p:'bù xué',fr:'ne pas apprendre'},
+                {h:'不去',p:'bú qù',fr:'ne pas aller à'},{h:'不打',p:'bù dǎ',fr:'ne pas passer'},
+                {h:'不买',p:'bù mǎi',fr:'ne pas acheter'},{h:'不听',p:'bù tīng',fr:'ne pas écouter'},
+                {h:'不做',p:'bú zuò',fr:'ne pas faire'},{h:'不用',p:'bú yòng',fr:'ne pas utiliser'},
+                {h:'不回',p:'bù huí',fr:'ne pas rentrer à'},{h:'不喜欢',p:'bù xǐ huan',fr:'ne pas aimer'}],
+             o:[{h:'咖啡',p:'kā fēi',fr:'de café'},{h:'中国菜',p:'Zhōng guó cài',fr:'chinois'},
+                {h:'电视',p:'diàn shì',fr:'la télévision'},{h:'日语',p:'Rì yǔ',fr:'le japonais'},
+                {h:'学校',p:'xué xiào',fr:'l’école'},{h:'电话',p:'diàn huà',fr:'de coup de fil'},
+                {h:'衣服',p:'yī fu',fr:'de vêtements'},{h:'音乐',p:'yīn yuè',fr:'de musique'},
+                {h:'作业',p:'zuò yè',fr:'leurs devoirs'},{h:'电脑',p:'diàn nǎo',fr:'d’ordinateur'},
+                {h:'家',p:'jiā',fr:'la maison'},{h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'}]}},
+
+    {cadre:[{s:'s'},{h:'也都',p:'yě dōu'},{s:'v'},{s:'o'},P('。')],
+     fr:'… aussi, tous, …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我们',p:'wǒ men',fr:'nous'},{h:'他们',p:'tā men',fr:'ils'},
+                {h:'她们',p:'tā men',fr:'elles'},{h:'你们',p:'nǐ men',fr:'vous'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'吃',p:'chī',fr:'manger'},
+                {h:'看',p:'kàn',fr:'regarder'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'去',p:'qù',fr:'aller à'},{h:'打',p:'dǎ',fr:'passer'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'听',p:'tīng',fr:'écouter'},
+                {h:'做',p:'zuò',fr:'faire'},{h:'用',p:'yòng',fr:'utiliser'},
+                {h:'回',p:'huí',fr:'rentrer à'},{h:'喜欢',p:'xǐ huan',fr:'aimer'}],
+             o:[{h:'茶',p:'chá',fr:'du thé'},{h:'中国菜',p:'Zhōng guó cài',fr:'chinois'},
+                {h:'电影',p:'diàn yǐng',fr:'un film'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},
+                {h:'学校',p:'xué xiào',fr:'l’école'},{h:'电话',p:'diàn huà',fr:'un coup de fil'},
+                {h:'衣服',p:'yī fu',fr:'des vêtements'},{h:'音乐',p:'yīn yuè',fr:'de la musique'},
+                {h:'作业',p:'zuò yè',fr:'leurs devoirs'},{h:'电脑',p:'diàn nǎo',fr:'un ordinateur'},
+                {h:'家',p:'jiā',fr:'la maison'},{h:'中国菜',p:'Zhōng guó cài',fr:'la cuisine chinoise'}]}},
+
+    {cadre:[{s:'s'},{h:'还想',p:'hái xiǎng'},{s:'v'},{s:'o'},P('。')],
+     fr:'… veut encore …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'喝',p:'hē',fr:'boire'},{h:'喝',p:'hē',fr:'boire'},
+                {h:'吃',p:'chī',fr:'manger'},{h:'吃',p:'chī',fr:'manger'},
+                {h:'喝',p:'hē',fr:'boire'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'听',p:'tīng',fr:'écouter'},{h:'去',p:'qù',fr:'aller à'},
+                {h:'问',p:'wèn',fr:'poser'},{h:'休息',p:'xiū xi',fr:'se reposer'}],
+             o:[{h:'一杯咖啡',p:'yì bēi kā fēi',fr:'un café'},{h:'一杯茶',p:'yì bēi chá',fr:'un thé'},
+                {h:'一个包子',p:'yí ge bāo zi',fr:'un petit pain farci'},{h:'一碗面',p:'yì wǎn miàn',fr:'un bol de nouilles'},
+                {h:'一瓶水',p:'yì píng shuǐ',fr:'une bouteille d’eau'},{h:'一件衣服',p:'yí jiàn yī fu',fr:'un vêtement'},
+                {h:'一本书',p:'yì běn shū',fr:'un livre'},{h:'英语',p:'Yīng yǔ',fr:'l’anglais'},
+                {h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'北京',p:'Běi jīng',fr:'Pékin'},
+                {h:'一个问题',p:'yí ge wèn tí',fr:'une question'},{h:'一会儿',p:'yí huìr',fr:'un moment'}]}},
+
+    {cadre:[{s:'s'},{h:'还没',p:'hái méi'},{s:'v'},{s:'o'},P('。')],
+     fr:'… n’a pas encore …', lie:[['v','o']], libre:['s'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'}],
+             v:[{h:'吃',p:'chī',fr:'prendre'},{h:'吃',p:'chī',fr:'prendre'},
+                {h:'做',p:'zuò',fr:'faire'},{h:'看',p:'kàn',fr:'voir'},
+                {h:'打',p:'dǎ',fr:'passer'},{h:'买',p:'mǎi',fr:'acheter'},
+                {h:'写',p:'xiě',fr:'écrire'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'去',p:'qù',fr:'aller à'},{h:'回',p:'huí',fr:'rentrer à'},
+                {h:'洗',p:'xǐ',fr:'laver'},{h:'喝',p:'hē',fr:'boire'}],
+             o:[{h:'晚饭',p:'wǎn fàn',fr:'le dîner'},{h:'早饭',p:'zǎo fàn',fr:'le petit déjeuner'},
+                {h:'作业',p:'zuò yè',fr:'ses devoirs'},{h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},
+                {h:'电话',p:'diàn huà',fr:'le coup de fil'},{h:'票',p:'piào',fr:'les billets'},
+                {h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'这个生词',p:'zhè ge shēng cí',fr:'ce mot nouveau'},
+                {h:'学校',p:'xué xiào',fr:'l’école'},{h:'家',p:'jiā',fr:'la maison'},
+                {h:'衣服',p:'yī fu',fr:'le linge'},{h:'咖啡',p:'kā fēi',fr:'son café'}]}},
+
+    {cadre:[{s:'s'},{s:'t'},{h:'再',p:'zài'},{s:'v'},{s:'o'},P('。')],
+     fr:'… le refera …', lie:[['v','o']], libre:['s','t'],
+     listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},
+                {h:'她',p:'tā',fr:'elle'}],
+             t:[{h:'明天',p:'míng tiān',fr:'demain'},{h:'后天',p:'hòu tiān',fr:'après-demain'},
+                {h:'下个星期',p:'xià ge xīng qī',fr:'la semaine prochaine'},{h:'晚上',p:'wǎn shang',fr:'ce soir'}],
+             v:[{h:'打',p:'dǎ',fr:'passer'},{h:'来',p:'lái',fr:'venir à'},
+                {h:'去',p:'qù',fr:'aller à'},{h:'看',p:'kàn',fr:'regarder'},
+                {h:'买',p:'mǎi',fr:'acheter'},{h:'做',p:'zuò',fr:'faire'},
+                {h:'写',p:'xiě',fr:'écrire'},{h:'学',p:'xué',fr:'apprendre'},
+                {h:'听',p:'tīng',fr:'écouter'},{h:'问',p:'wèn',fr:'poser'},
+                {h:'找',p:'zhǎo',fr:'aller voir'},{h:'说',p:'shuō',fr:'dire'}],
+             o:[{h:'电话',p:'diàn huà',fr:'un coup de fil'},{h:'我家',p:'wǒ jiā',fr:'chez moi'},
+                {h:'学校',p:'xué xiào',fr:'l’école'},{h:'这个电影',p:'zhè ge diàn yǐng',fr:'ce film'},
+                {h:'票',p:'piào',fr:'les billets'},{h:'作业',p:'zuò yè',fr:'ses devoirs'},
+                {h:'汉字',p:'Hàn zì',fr:'des caractères'},{h:'生词',p:'shēng cí',fr:'les mots nouveaux'},
+                {h:'音乐',p:'yīn yuè',fr:'de la musique'},{h:'一个问题',p:'yí ge wèn tí',fr:'une question'},
+                {h:'王老师',p:'Wáng lǎo shī',fr:'le professeur Wang'},{h:'一遍',p:'yí biàn',fr:'une fois'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Ajoutez 也 à la bonne place',
+     de:{hz:'我是学生。',py:'wǒ shì xué sheng',fr:'Je suis étudiante.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'也',p:'yě'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},P('。')],fr:'Moi aussi je suis étudiante.'}},
+    {consigne:'Dites que cela vaut pour tous',
+     de:{hz:'我们是学生。',py:'wǒ men shì xué sheng',fr:'Nous sommes étudiants.'},
+     vers:{seg:[{h:'我们',p:'wǒ men'},{h:'都',p:'dōu'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},P('。')],fr:'Nous sommes tous étudiants.'}},
+    {consigne:'Dites qu’aucun ne le fait',
+     de:{hz:'他们喝咖啡。',py:'tā men hē kā fēi',fr:'Ils boivent du café.'},
+     vers:{seg:[{h:'他们',p:'tā men'},{h:'都',p:'dōu'},{h:'不喝',p:'bù hē'},{h:'咖啡',p:'kā fēi'},P('。')],fr:'Aucun d’eux ne boit de café.'}},
+    {consigne:'Combinez les deux adverbes dans le bon ordre',
+     de:{hz:'他们是老师。',py:'tā men shì lǎo shī',fr:'Ils sont professeurs.'},
+     vers:{seg:[{h:'他们',p:'tā men'},{h:'也都',p:'yě dōu'},{h:'是',p:'shì'},{h:'老师',p:'lǎo shī'},P('。')],fr:'Eux aussi sont tous professeurs.'}},
+    {consigne:'Dites que ce n’est pas encore fait',
+     de:{hz:'我吃晚饭了。',py:'wǒ chī wǎn fàn le',fr:'J’ai dîné.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'还没',p:'hái méi'},{h:'吃',p:'chī'},{h:'晚饭',p:'wǎn fàn'},P('。')],fr:'Je n’ai pas encore dîné.'}},
+    {consigne:'Reportez l’action à demain avec 再',
+     de:{hz:'我打电话。',py:'wǒ dǎ diàn huà',fr:'Je téléphone.'},
+     vers:{seg:[{h:'我',p:'wǒ'},{h:'明天',p:'míng tiān'},{h:'再',p:'zài'},{h:'打',p:'dǎ'},{h:'电话',p:'diàn huà'},P('。')],fr:'Je rappellerai demain.'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},{h:'也',p:'yě'},P('。')],bad:3,
+     bon:'我也是学生。',why:'也 se place entre le sujet et le verbe, jamais en fin de phrase.'},
+    {seg:[{h:'他们',p:'tā men'},{h:'都也',p:'dōu yě'},{h:'来',p:'lái'},P('。')],bad:1,
+     bon:'他们也都来。',why:'L’ordre est 也都 : on relie d’abord, on totalise ensuite.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不',p:'bù'},{h:'还',p:'hái'},{h:'做',p:'zuò'},{h:'作业',p:'zuò yè'},P('。')],bad:1,
+     bon:'我还没做作业。',why:'Ce qui n’a pas encore eu lieu se nie par 还没, jamais par 不.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'明天',p:'míng tiān'},{h:'打',p:'dǎ'},{h:'电话',p:'diàn huà'},{h:'再',p:'zài'},P('。')],bad:4,
+     bon:'我明天再打电话。',why:'再 précède le verbe : aucun de ces adverbes ne se rejette à la fin.'},
+    {seg:[{h:'都',p:'dōu'},{h:'我们',p:'wǒ men'},{h:'是',p:'shì'},{h:'学生',p:'xué sheng'},P('。')],bad:0,
+     bon:'我们都是学生。',why:'都 regarde en arrière : il ne peut pas précéder le sujet qu’il totalise.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'都',p:'dōu'},{h:'喜欢',p:'xǐ huan'},{h:'中国菜',p:'Zhōng guó cài'},P('。')],bad:1,
+     bon:'我很喜欢中国菜。',why:'都 totalise une pluralité : un sujet unique ne peut pas être totalisé.'}
+  ],
+
+  reemploi:[
+    {q:'Votre amie est étudiante et française. Dites que vous l’êtes aussi.',
+     verif:[{type:'contient',v:'也',msg:'« Aussi » se dit 也, entre le sujet et le verbe.'},
+            {type:'absent',v:'也。',msg:'也 ne se place jamais en fin de phrase.'}],
+     modeles:[{hz:'我也是学生，我也是法国人。',py:'wǒ yě shì xué sheng, wǒ yě shì Fǎ guó rén',fr:'Moi aussi je suis étudiante, moi aussi je suis française.'}],
+     criteres:['也 est placé après le sujet','也 n’est pas en fin de phrase']},
+    {q:'Parlez de votre groupe d’amis : dites ce que vous faites tous, et ce qu’aucun ne fait.',
+     verif:[{type:'contient',v:'都',msg:'La totalité se dit 都.'},
+            {type:'contient',v:'都不',msg:'« Aucun ne » se dit 都不.'}],
+     modeles:[{hz:'我们都学汉语，我们都不喝咖啡。',py:'wǒ men dōu xué Hàn yǔ, wǒ men dōu bù hē kā fēi',fr:'Nous apprenons tous le chinois, et aucun de nous ne boit de café.'}],
+     criteres:['Le sujet de 都 est pluriel','都不 et non 不都']},
+    {q:'Il est dix-neuf heures. Dites deux choses que vous n’avez pas encore faites et ce que vous ferez demain.',
+     verif:[{type:'contient',v:'还没',msg:'Ce qui n’a pas encore eu lieu se dit 还没.'},
+            {type:'contient',v:'再',msg:'La répétition à venir se dit 再.'}],
+     modeles:[{hz:'我还没吃晚饭，还没做作业，我明天再做。',py:'wǒ hái méi chī wǎn fàn, hái méi zuò zuò yè, wǒ míng tiān zài zuò',fr:'Je n’ai pas encore dîné ni fait mes devoirs, je les ferai demain.'}],
+     criteres:['还没 et non 不还','再 précède le verbe']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g207', hsk:2, fam:'phrase', th:['espace','quotidien'],
+  title:'Se situer : 在, les 方位词, 从…到',
+  resume:'Le chinois pose le lieu avant le verbe, jamais après. Se situer, c’est donc placer 在 au bon endroit dans la phrase — et donner au nom son mot de position.',
+
+  steps:[
+    {t:'在 — le verbe « être quelque part »',p:['<b>在</b> n’est pas une préposition : c’est un verbe, et il se suffit à lui-même. Sujet, puis 在, puis le lieu. 他<b>在</b>家 — il est à la maison.','Il ne faut donc surtout pas lui ajouter 是. 他是在家 revient à poser deux verbes l’un derrière l’autre.','La négation est <b>不在</b>. Le 不 se prononce ici au deuxième ton, parce que 在 est au quatrième : bú zài.'],ex:[{hz:'他在家。',py:'tā zài jiā',fr:'Il est à la maison.',note:'Le français dit « est à » en deux mots ; le chinois n’en a qu’un, et c’est le verbe.'},{hz:'老师不在办公室。',py:'lǎo shī bú zài bàn gōng shì',fr:'Le professeur n’est pas dans son bureau.'},{hz:'我不在学校，我在图书馆。',py:'wǒ bú zài xué xiào wǒ zài tú shū guǎn',fr:'Je ne suis pas à l’école, je suis à la bibliothèque.'},{hz:'你在家吗？',py:'nǐ zài jiā ma',fr:'Es-tu à la maison ?'}],check:{q:'Laquelle est correcte ?',a:['他是在家。','他在家。'],ok:1,why:'在 est déjà le verbe de la phrase : 是 n’a rien à y faire.'}},
+    {t:'Les 方位词 — la position se met après le nom',p:['Un nom d’objet — 桌子, 包, 房间 — n’est pas encore un lieu. Il le devient quand on lui accroche un mot de position <b>après</b> lui : 桌子<b>上</b>, 包<b>里</b>.','C’est l’inverse exact du français, qui place « sur » et « dans » devant le nom. Et 上 comme 里 perdent alors leur ton : zhuō zi shang, bāo li.','Les positions plus longues se comportent pareil, toujours après le nom : 旁边, 前面, 后面, 里面, 外面, 下面, 对面, 中间. Un 的 peut s’intercaler, il reste facultatif.','Un nom qui est déjà un lieu — 家, 学校, 中国 — n’a besoin de rien.'],ex:[{hz:'书在桌子上。',py:'shū zài zhuō zi shang',fr:'Le livre est sur la table.',note:'上 vient après 桌子 et se dit sans ton.'},{hz:'我的手机在包里。',py:'wǒ de shǒu jī zài bāo li',fr:'Mon téléphone est dans le sac.'},{hz:'银行在学校旁边。',py:'yín háng zài xué xiào páng biān',fr:'La banque est à côté de l’école.'},{hz:'商店在医院对面。',py:'shāng diàn zài yī yuàn duì miàn',fr:'Le magasin est en face de l’hôpital.'}],check:{q:'Laquelle est correcte ?',a:['我的书在上桌子。','我的书在桌子上。'],ok:1,why:'Le mot de position suit le nom : 桌子上, jamais 上桌子.'}},
+    {t:'在 devant le verbe — le lieu précède l’action',p:['Dès qu’une action apparaît, le groupe <b>在 + lieu</b> se place entre le sujet et le verbe. 我<b>在家</b>吃饭.','Le français dit « je mange à la maison » et rejette le lieu à la fin. Le chinois ne le permet jamais : 我吃饭在家 est impossible.','Une seule règle à retenir pour toute la fiche : ce qui encadre l’action se dit avant elle.','La négation porte sur 在, pas sur le verbe : 我<b>不在</b>这儿工作.'],ex:[{hz:'我在家吃饭。',py:'wǒ zài jiā chī fàn',fr:'Je mange à la maison.'},{hz:'他在图书馆看书。',py:'tā zài tú shū guǎn kàn shū',fr:'Il lit à la bibliothèque.'},{hz:'我们在公园等你。',py:'wǒ men zài gōng yuán děng nǐ',fr:'Nous t’attendons au parc.'},{hz:'她不在这儿工作。',py:'tā bú zài zhèr gōng zuò',fr:'Elle ne travaille pas ici.',note:'不 se met devant 在, jamais devant 工作.'}],check:{q:'Laquelle est correcte ?',a:['我学习在图书馆。','我在图书馆学习。'],ok:1,why:'Le lieu se dit avant le verbe, jamais après.'}},
+    {t:'在 lieu, ou 在 action en cours ?',p:['C’est le seul endroit où le chinois est ambigu à l’œil, et il faut le savoir tout de suite. 我<b>在</b>吃饭 dit que je suis en train de manger ; 我<b>在家</b>吃饭 dit où je mange.','Ce qui tranche est mécanique : si 在 est suivi d’un lieu, il situe ; s’il touche directement le verbe, il marque le déroulement.','Les deux peuvent tenir dans la même phrase, et l’on ajoute alors 呢 à la fin : 我在家吃饭<b>呢</b> — je suis à la maison, en train de manger.'],ex:[{hz:'我在吃饭。',py:'wǒ zài chī fàn',fr:'Je suis en train de manger.',note:'在 touche le verbe : c’est le déroulement.'},{hz:'我在家吃饭。',py:'wǒ zài jiā chī fàn',fr:'Je mange à la maison.',note:'在 est suivi de 家 : c’est le lieu.'},{hz:'他在教室里学习呢。',py:'tā zài jiào shì li xué xí ne',fr:'Il est en train de travailler dans la salle de classe.'}],check:{q:'Que dit 她在商店买东西 ?',a:['Elle fait des achats au magasin.','Elle est en train de faire des achats.'],ok:0,why:'商店 est un lieu : 在 le situe. Sans lieu, 她在买东西 dirait le déroulement.'}},
+    {t:'从…到 — d’un point à un autre',p:['<b>从</b> marque le départ, <b>到</b> l’arrivée. Le couple se place lui aussi avant le verbe, comme tout ce qui encadre l’action.','Il vaut pour l’espace et pour le temps sans rien changer : 从家到学校, 从八点到十二点.','从…到 dit un trajet ou une durée ; il ne remplace pas 在, qui dit un point fixe.'],ex:[{hz:'从我家到学校很近。',py:'cóng wǒ jiā dào xué xiào hěn jìn',fr:'De chez moi à l’école, c’est tout près.'},{hz:'我从八点到十二点上课。',py:'wǒ cóng bā diǎn dào shí èr diǎn shàng kè',fr:'J’ai cours de huit heures à midi.',note:'从…到 encadre la durée et précède le verbe 上课.'},{hz:'他从北京到上海。',py:'tā cóng Běi jīng dào Shàng hǎi',fr:'Il va de Pékin à Shanghai.'}],check:{q:'Laquelle est correcte ?',a:['我从八点上课到十二点。','我从八点到十二点上课。'],ok:1,why:'从…到 forme un bloc entier, et le verbe vient après lui.'}},
+    {t:'L’ordre — le temps, puis le lieu, puis le verbe',p:['Quand la phrase porte un moment et un lieu, l’ordre est fixe : <b>sujet, temps, lieu, verbe</b>. 我<b>早上</b><b>在家</b>看书.','Le temps est le seul élément qui puisse aussi passer devant le sujet, pour le mettre en relief : 早上我在家看书. Le lieu, lui, ne bouge pas.','Le français range tout dans l’autre sens — « je lis à la maison le matin ». Il faut donc retourner la phrase entière, pas seulement déplacer un mot.'],ex:[{hz:'我早上在家看书。',py:'wǒ zǎo shang zài jiā kàn shū',fr:'Le matin, je lis à la maison.'},{hz:'明天我们在饭馆吃饭。',py:'míng tiān wǒ men zài fàn guǎn chī fàn',fr:'Demain, nous mangeons au restaurant.',note:'Le temps est passé devant le sujet : c’est permis, et seulement pour lui.'},{hz:'他晚上在公司工作。',py:'tā wǎn shang zài gōng sī gōng zuò',fr:'Le soir, il travaille au bureau.'}],check:{q:'Laquelle est correcte ?',a:['我在家早上看书。','我早上在家看书。'],ok:1,why:'Le temps précède le lieu, et les deux précèdent le verbe.'}},
+    {t:'Demander où et quand',p:['<b>在哪儿</b> demande le lieu et se met exactement là où se mettra la réponse — c’est la règle vue pour les questions, et elle ne souffre pas d’exception ici.','Pour un déplacement, on ne dit pas 在 mais le verbe de mouvement : <b>去哪儿</b>, 来哪儿 n’existant pas.','<b>什么时候</b> demande le moment et occupe la place du temps : avant le lieu, avant le verbe.'],ex:[{hz:'你在哪儿工作？',py:'nǐ zài nǎr gōng zuò',fr:'Où travailles-tu ?'},{hz:'你的手机在哪儿？',py:'nǐ de shǒu jī zài nǎr',fr:'Où est ton téléphone ?'},{hz:'你去哪儿？',py:'nǐ qù nǎr',fr:'Où vas-tu ?',note:'Un déplacement ne prend pas 在.'},{hz:'你什么时候在家？',py:'nǐ shén me shí hou zài jiā',fr:'Quand es-tu à la maison ?'}],check:{q:'Laquelle est correcte ?',a:['你在哪儿去？','你去哪儿？'],ok:1,why:'去 est un déplacement : il se passe de 在.'}},
+    {t:'À l’oral — 上哪儿去, 里头, 边上, 这儿 et 这里',reg:'oral',p:['Tout ce qui précède s’écrit et se dit. Ce qui suit se dit, beaucoup, et ne s’écrit pas en langue soutenue.','<b>上</b> + lieu + <b>去</b> remplace 去 + lieu dans la conversation : 你<b>上哪儿去</b>？ 我<b>上超市去</b>.','<b>里头</b>, <b>前头</b>, <b>后头</b>, <b>上头</b> valent 里面, 前面, 后面, 上面. Très courants, surtout au nord.','<b>边上</b> vaut 旁边 : 就在门<b>边上</b>.','<b>这儿</b> et <b>那儿</b> sont du nord, <b>这里</b> et <b>那里</b> du sud. Les deux sont justes : gardez celui que vous entendez autour de vous.','Un <b>呢</b> posé sur une phrase de lieu la radoucit et la rend vivante : 他在家呢 — mais si, il est à la maison.'],ex:[{hz:'你上哪儿去？',py:'nǐ shang nǎr qù',fr:'Tu vas où ?',note:'上…去 encadre le lieu ; la place du lieu ne change pas pour autant.',reg:'oral'},{hz:'我上超市去。',py:'wǒ shang chāo shì qù',fr:'Je file au supermarché.',reg:'oral'},{hz:'东西在包里头。',py:'dōng xi zài bāo lǐ tou',fr:'Les affaires sont dans le sac.',reg:'oral'},{hz:'他在门边上等你。',py:'tā zài mén biān shang děng nǐ',fr:'Il t’attend à côté de la porte.',reg:'oral'},{hz:'他在家呢。',py:'tā zài jiā ne',fr:'Mais si, il est à la maison.',reg:'oral'}],check:{q:'À l’oral, 你上哪儿去 signifie :',a:['Où vas-tu ?','Où es-tu ?'],ok:0,why:'上…去 encadre un déplacement. Pour le lieu où l’on se trouve, c’est 在哪儿.'}}
+  ],
+
+  tableau:{cols:['Forme','Exemple','Ce qu’elle fait'],rows:[['在 + lieu','他在家','在 est le verbe : être quelque part'],['不在','他不在家','La négation de 在 — jamais 没在'],['nom + 上 / 里','书在桌子上','Un objet devient un lieu'],['nom + 旁边 / 对面','银行在学校旁边','Position détachée, 的 facultatif'],['在 + lieu + verbe','我在家吃饭','Le lieu précède l’action'],['在 + verbe','我在吃饭','Sans lieu, 在 dit le déroulement'],['从…到','从我家到学校','Un trajet, ou une durée'],['temps + 在 lieu + verbe','我早上在家看书','L’ordre fixe de la phrase'],['在哪儿','你在哪儿工作','La question, à la place de la réponse'],['去哪儿','你去哪儿','Le déplacement, sans 在']]},
+  piege:{bad:{hz:'我吃饭在家。',py:'wǒ chī fàn zài jiā'},good:{hz:'我在家吃饭。',py:'wǒ zài jiā chī fàn'},why:'Le français place le lieu après le verbe — « je mange à la maison » — et l’on transpose sans y penser. En chinois, tout ce qui encadre l’action se dit avant elle : le lieu ne passe jamais derrière le verbe.'},
+  voir:['g201','g305'],
+
+  banque:[
+    {seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'家',p:'jiā'},P('。')],cle:1,fr:'Il est à la maison.'},
+    {seg:[{h:'老师',p:'lǎo shī'},{h:'不在',p:'bú zài'},{h:'办公室',p:'bàn gōng shì'},P('。')],cle:1,fr:'Le professeur n’est pas dans son bureau.'},
+    {seg:[{h:'书',p:'shū'},{h:'在',p:'zài'},{h:'桌子',p:'zhuō zi'},{h:'上',p:'shang'},P('。')],cle:3,fr:'Le livre est sur la table.'},
+    {seg:[{h:'我的手机',p:'wǒ de shǒu jī'},{h:'在',p:'zài'},{h:'包',p:'bāo'},{h:'里',p:'li'},P('。')],cle:3,fr:'Mon téléphone est dans le sac.'},
+    {seg:[{h:'银行',p:'yín háng'},{h:'在',p:'zài'},{h:'学校',p:'xué xiào'},{h:'旁边',p:'páng biān'},P('。')],cle:3,fr:'La banque est à côté de l’école.'},
+    {seg:[{h:'商店',p:'shāng diàn'},{h:'在',p:'zài'},{h:'医院',p:'yī yuàn'},{h:'对面',p:'duì miàn'},P('。')],cle:3,fr:'Le magasin est en face de l’hôpital.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'家',p:'jiā'},{h:'吃饭',p:'chī fàn'},P('。')],cle:1,fr:'Je mange à la maison.'},
+    {seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'图书馆',p:'tú shū guǎn'},{h:'看书',p:'kàn shū'},P('。')],cle:1,fr:'Il lit à la bibliothèque.'},
+    {seg:[{h:'她',p:'tā'},{h:'不在',p:'bú zài'},{h:'这儿',p:'zhèr'},{h:'工作',p:'gōng zuò'},P('。')],cle:1,fr:'Elle ne travaille pas ici.'},
+    {seg:[{h:'我们',p:'wǒ men'},{h:'在',p:'zài'},{h:'公园',p:'gōng yuán'},{h:'等你',p:'děng nǐ'},P('。')],cle:1,fr:'Nous t’attendons au parc.'},
+    {seg:[{h:'从',p:'cóng'},{h:'我家',p:'wǒ jiā'},{h:'到',p:'dào'},{h:'学校',p:'xué xiào'},{h:'很',p:'hěn'},{h:'近',p:'jìn'},P('。')],cle:0,fr:'De chez moi à l’école, c’est tout près.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'从',p:'cóng'},{h:'八点',p:'bā diǎn'},{h:'到',p:'dào'},{h:'十二点',p:'shí èr diǎn'},{h:'上课',p:'shàng kè'},P('。')],cle:3,fr:'J’ai cours de huit heures à midi.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'早上',p:'zǎo shang'},{h:'在',p:'zài'},{h:'家',p:'jiā'},{h:'看书',p:'kàn shū'},P('。')],cle:2,fr:'Le matin, je lis à la maison.'},
+    {seg:[{h:'他',p:'tā'},{h:'晚上',p:'wǎn shang'},{h:'在',p:'zài'},{h:'公司',p:'gōng sī'},{h:'工作',p:'gōng zuò'},P('。')],cle:2,fr:'Le soir, il travaille au bureau.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'在',p:'zài'},{h:'哪儿',p:'nǎr'},{h:'工作',p:'gōng zuò'},P('？')],cle:2,fr:'Où travailles-tu ?'},
+    {seg:[{h:'你',p:'nǐ'},{h:'什么时候',p:'shén me shí hou'},{h:'在',p:'zài'},{h:'家',p:'jiā'},P('？')],cle:1,fr:'Quand es-tu à la maison ?'}
+  ],
+  leurres:['在','不在','上','里','里面','旁边','前面','后面','对面','从','到','哪儿','什么时候'],
+  equiv:[['哪儿','哪里'],['旁边','边上'],['里面','里头'],['前面','前头'],['后面','后头'],['上面','上头'],['这儿','这里'],['那儿','那里']],
+
+  gabarits:[
+    {cadre:[{s:'s'},{h:'在',p:'zài'},{s:'l'},P('。')],fr:'… est à …',lie:[],libre:['s','l'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'办公室',p:'bàn gōng shì',fr:'dans le bureau'},{h:'医院',p:'yī yuàn',fr:'à l’hôpital'},{h:'银行',p:'yín háng',fr:'à la banque'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'公园',p:'gōng yuán',fr:'au parc'},{h:'车站',p:'chē zhàn',fr:'à la station'}]}},
+    {cadre:[{s:'s'},{h:'不在',p:'bú zài'},{s:'l'},P('。')],fr:'… n’est pas à …',lie:[],libre:['s','l'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'办公室',p:'bàn gōng shì',fr:'dans le bureau'},{h:'医院',p:'yī yuàn',fr:'à l’hôpital'},{h:'银行',p:'yín háng',fr:'à la banque'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'公园',p:'gōng yuán',fr:'au parc'},{h:'车站',p:'chē zhàn',fr:'à la station'}]}},
+    {cadre:[{s:'o'},{h:'在',p:'zài'},{s:'n'},{s:'w'},P('。')],fr:'… est … …',lie:[['n','w']],libre:['o'],listes:{o:[{h:'书',p:'shū',fr:'le livre'},{h:'我的书',p:'wǒ de shū',fr:'mon livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},{h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},{h:'钱',p:'qián',fr:'l’argent'},{h:'你的东西',p:'nǐ de dōng xi',fr:'tes affaires'}],n:[{h:'桌子',p:'zhuō zi',fr:'la table'},{h:'椅子',p:'yǐ zi',fr:'la chaise'},{h:'床',p:'chuáng',fr:'le lit'},{h:'包',p:'bāo',fr:'le sac'},{h:'房间',p:'fáng jiān',fr:'la chambre'},{h:'教室',p:'jiào shì',fr:'la salle de classe'},{h:'车',p:'chē',fr:'la voiture'},{h:'桌子',p:'zhuō zi',fr:'la table'},{h:'床',p:'chuáng',fr:'le lit'},{h:'门',p:'mén',fr:'la porte'},{h:'门',p:'mén',fr:'la porte'},{h:'椅子',p:'yǐ zi',fr:'la chaise'}],w:[{h:'上',p:'shang',fr:'sur'},{h:'上',p:'shang',fr:'sur'},{h:'上',p:'shang',fr:'sur'},{h:'里',p:'li',fr:'dans'},{h:'里',p:'li',fr:'dans'},{h:'里',p:'li',fr:'dans'},{h:'里',p:'li',fr:'dans'},{h:'下面',p:'xià miàn',fr:'sous'},{h:'下面',p:'xià miàn',fr:'sous'},{h:'后面',p:'hòu miàn',fr:'derrière'},{h:'外面',p:'wài miàn',fr:'dehors, devant'},{h:'旁边',p:'páng biān',fr:'à côté de'}]}},
+    {cadre:[{s:'a'},{h:'在',p:'zài'},{s:'b'},{s:'w'},P('。')],fr:'… est … …',lie:[['b','w']],libre:['a'],listes:{a:[{h:'银行',p:'yín háng',fr:'la banque'},{h:'商店',p:'shāng diàn',fr:'le magasin'},{h:'超市',p:'chāo shì',fr:'le supermarché'},{h:'咖啡馆',p:'kā fēi guǎn',fr:'le café'},{h:'饭馆',p:'fàn guǎn',fr:'le restaurant'},{h:'医院',p:'yī yuàn',fr:'l’hôpital'}],b:[{h:'学校',p:'xué xiào',fr:'l’école'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'公园',p:'gōng yuán',fr:'le parc'},{h:'公园',p:'gōng yuán',fr:'le parc'},{h:'图书馆',p:'tú shū guǎn',fr:'la bibliothèque'},{h:'图书馆',p:'tú shū guǎn',fr:'la bibliothèque'},{h:'车站',p:'chē zhàn',fr:'la station'},{h:'火车站',p:'huǒ chē zhàn',fr:'la gare'},{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'我家',p:'wǒ jiā',fr:'chez moi'}],w:[{h:'旁边',p:'páng biān',fr:'à côté de'},{h:'对面',p:'duì miàn',fr:'en face de'},{h:'前面',p:'qián miàn',fr:'devant'},{h:'后面',p:'hòu miàn',fr:'derrière'},{h:'旁边',p:'páng biān',fr:'à côté de'},{h:'对面',p:'duì miàn',fr:'en face de'},{h:'旁边',p:'páng biān',fr:'à côté de'},{h:'对面',p:'duì miàn',fr:'en face de'},{h:'旁边',p:'páng biān',fr:'à côté de'},{h:'对面',p:'duì miàn',fr:'en face de'},{h:'旁边',p:'páng biān',fr:'à côté de'},{h:'附近',p:'fù jìn',fr:'près de'}]}},
+    {cadre:[{s:'s'},{h:'在',p:'zài'},{s:'l'},{s:'v'},P('。')],fr:'… fait … à …',lie:[['l','v']],libre:['s'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'家',p:'jiā',fr:'à la maison'},{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'饭馆',p:'fàn guǎn',fr:'au restaurant'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'咖啡馆',p:'kā fēi guǎn',fr:'au café'},{h:'公园',p:'gōng yuán',fr:'au parc'}],v:[{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'睡觉',p:'shuì jiào',fr:'dormir'},{h:'学习',p:'xué xí',fr:'étudier'},{h:'上课',p:'shàng kè',fr:'avoir cours'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'工作',p:'gōng zuò',fr:'travailler'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'喝咖啡',p:'hē kā fēi',fr:'boire un café'},{h:'等你',p:'děng nǐ',fr:'t’attendre'}]}},
+    {cadre:[{s:'s'},{h:'不在',p:'bú zài'},{s:'l'},{s:'v'},P('。')],fr:'… ne fait pas … à …',lie:[['l','v']],libre:['s'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'家',p:'jiā',fr:'à la maison'},{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'饭馆',p:'fàn guǎn',fr:'au restaurant'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'咖啡馆',p:'kā fēi guǎn',fr:'au café'},{h:'公园',p:'gōng yuán',fr:'au parc'}],v:[{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'睡觉',p:'shuì jiào',fr:'dormir'},{h:'学习',p:'xué xí',fr:'étudier'},{h:'上课',p:'shàng kè',fr:'avoir cours'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'工作',p:'gōng zuò',fr:'travailler'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'喝咖啡',p:'hē kā fēi',fr:'boire un café'},{h:'等你',p:'děng nǐ',fr:'t’attendre'}]}},
+    {cadre:[{h:'从',p:'cóng'},{s:'a'},{h:'到',p:'dào'},{s:'b'},{h:'很',p:'hěn'},{s:'d'},P('。')],fr:'De … à …, c’est …',lie:[['a','b']],libre:['d'],listes:{a:[{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'我家',p:'wǒ jiā',fr:'chez moi'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'宿舍',p:'sù shè',fr:'le dortoir'},{h:'宿舍',p:'sù shè',fr:'le dortoir'},{h:'公司',p:'gōng sī',fr:'le bureau'},{h:'车站',p:'chē zhàn',fr:'la station'},{h:'这儿',p:'zhèr',fr:'ici'}],b:[{h:'学校',p:'xué xiào',fr:'l’école'},{h:'公司',p:'gōng sī',fr:'le bureau'},{h:'车站',p:'chē zhàn',fr:'la station'},{h:'超市',p:'chāo shì',fr:'le supermarché'},{h:'图书馆',p:'tú shū guǎn',fr:'la bibliothèque'},{h:'公园',p:'gōng yuán',fr:'le parc'},{h:'医院',p:'yī yuàn',fr:'l’hôpital'},{h:'教室',p:'jiào shì',fr:'la salle de classe'},{h:'学校',p:'xué xiào',fr:'l’école'},{h:'饭馆',p:'fàn guǎn',fr:'le restaurant'},{h:'机场',p:'jī chǎng',fr:'l’aéroport'},{h:'火车站',p:'huǒ chē zhàn',fr:'la gare'}],d:[{h:'近',p:'jìn',fr:'près'},{h:'远',p:'yuǎn',fr:'loin'}]}},
+    {cadre:[{s:'s'},{h:'从',p:'cóng'},{s:'h1'},{h:'到',p:'dào'},{s:'h2'},{s:'v'},P('。')],fr:'… fait … de … à …',lie:[['h1','h2']],libre:['s','v'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],h1:[{h:'八点',p:'bā diǎn',fr:'huit heures'},{h:'八点',p:'bā diǎn',fr:'huit heures'},{h:'九点',p:'jiǔ diǎn',fr:'neuf heures'},{h:'九点',p:'jiǔ diǎn',fr:'neuf heures'},{h:'十点',p:'shí diǎn',fr:'dix heures'},{h:'两点',p:'liǎng diǎn',fr:'deux heures'},{h:'两点',p:'liǎng diǎn',fr:'deux heures'},{h:'三点',p:'sān diǎn',fr:'trois heures'},{h:'三点',p:'sān diǎn',fr:'trois heures'},{h:'四点',p:'sì diǎn',fr:'quatre heures'},{h:'七点',p:'qī diǎn',fr:'sept heures'},{h:'十一点',p:'shí yī diǎn',fr:'onze heures'}],h2:[{h:'十点',p:'shí diǎn',fr:'dix heures'},{h:'十二点',p:'shí èr diǎn',fr:'midi'},{h:'十一点',p:'shí yī diǎn',fr:'onze heures'},{h:'十二点',p:'shí èr diǎn',fr:'midi'},{h:'十二点',p:'shí èr diǎn',fr:'midi'},{h:'四点',p:'sì diǎn',fr:'quatre heures'},{h:'五点',p:'wǔ diǎn',fr:'cinq heures'},{h:'五点',p:'wǔ diǎn',fr:'cinq heures'},{h:'六点',p:'liù diǎn',fr:'six heures'},{h:'六点',p:'liù diǎn',fr:'six heures'},{h:'九点',p:'jiǔ diǎn',fr:'neuf heures'},{h:'十二点',p:'shí èr diǎn',fr:'midi'}],v:[{h:'上课',p:'shàng kè',fr:'avoir cours'},{h:'工作',p:'gōng zuò',fr:'travailler'},{h:'学习',p:'xué xí',fr:'étudier'},{h:'看书',p:'kàn shū',fr:'lire'}]}},
+    {cadre:[{s:'s'},{s:'t'},{h:'在',p:'zài'},{s:'l'},{s:'v'},P('。')],fr:'…, …, fait … à …',lie:[['l','v']],libre:['s','t'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],t:[{h:'早上',p:'zǎo shang',fr:'le matin'},{h:'晚上',p:'wǎn shang',fr:'le soir'},{h:'今天',p:'jīn tiān',fr:'aujourd’hui'},{h:'明天',p:'míng tiān',fr:'demain'},{h:'昨天',p:'zuó tiān',fr:'hier'},{h:'每天',p:'měi tiān',fr:'tous les jours'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'家',p:'jiā',fr:'à la maison'},{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'饭馆',p:'fàn guǎn',fr:'au restaurant'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'咖啡馆',p:'kā fēi guǎn',fr:'au café'},{h:'公园',p:'gōng yuán',fr:'au parc'}],v:[{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'睡觉',p:'shuì jiào',fr:'dormir'},{h:'学习',p:'xué xí',fr:'étudier'},{h:'上课',p:'shàng kè',fr:'avoir cours'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'工作',p:'gōng zuò',fr:'travailler'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'喝咖啡',p:'hē kā fēi',fr:'boire un café'},{h:'等你',p:'děng nǐ',fr:'t’attendre'}]}},
+    {cadre:[{s:'s'},{h:'在',p:'zài'},{h:'哪儿',p:'nǎr'},{s:'v'},P('？')],fr:'Où … fait-… … ?',lie:[],libre:['s','v'],listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],v:[{h:'工作',p:'gōng zuò',fr:'travailler'},{h:'学习',p:'xué xí',fr:'étudier'},{h:'看书',p:'kàn shū',fr:'lire'},{h:'吃饭',p:'chī fàn',fr:'manger'},{h:'睡觉',p:'shuì jiào',fr:'dormir'},{h:'上课',p:'shàng kè',fr:'avoir cours'},{h:'买东西',p:'mǎi dōng xi',fr:'faire des achats'},{h:'喝咖啡',p:'hē kā fēi',fr:'boire un café'},{h:'等朋友',p:'děng péng you',fr:'attendre un ami'},{h:'住',p:'zhù',fr:'habiter'},{h:'学汉语',p:'xué Hàn yǔ',fr:'apprendre le chinois'},{h:'喝茶',p:'hē chá',fr:'boire du thé'}]}},
+    {cadre:[{s:'s'},{h:'什么时候',p:'shén me shí hou'},{h:'在',p:'zài'},{s:'l'},P('？')],fr:'Quand … est-… à … ?',lie:[],libre:['s','l'],listes:{s:[{h:'你',p:'nǐ',fr:'tu'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'办公室',p:'bàn gōng shì',fr:'dans le bureau'},{h:'医院',p:'yī yuàn',fr:'à l’hôpital'},{h:'银行',p:'yín háng',fr:'à la banque'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'公园',p:'gōng yuán',fr:'au parc'},{h:'车站',p:'chē zhàn',fr:'à la station'}]}},
+    {cadre:[{s:'o'},{h:'在',p:'zài'},{s:'n'},{s:'w'},P('。')],fr:'… est … … (oral)',lie:[['n','w']],libre:['o'],reg:'oral',listes:{o:[{h:'书',p:'shū',fr:'le livre'},{h:'我的书',p:'wǒ de shū',fr:'mon livre'},{h:'手机',p:'shǒu jī',fr:'le téléphone'},{h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},{h:'钱',p:'qián',fr:'l’argent'},{h:'你的东西',p:'nǐ de dōng xi',fr:'tes affaires'}],n:[{h:'包',p:'bāo',fr:'le sac'},{h:'房间',p:'fáng jiān',fr:'la chambre'},{h:'教室',p:'jiào shì',fr:'la salle de classe'},{h:'车',p:'chē',fr:'la voiture'},{h:'门',p:'mén',fr:'la porte'},{h:'门',p:'mén',fr:'la porte'},{h:'桌子',p:'zhuō zi',fr:'la table'},{h:'床',p:'chuáng',fr:'le lit'},{h:'桌子',p:'zhuō zi',fr:'la table'},{h:'门',p:'mén',fr:'la porte'},{h:'椅子',p:'yǐ zi',fr:'la chaise'},{h:'床',p:'chuáng',fr:'le lit'}],w:[{h:'里头',p:'lǐ tou',fr:'dedans'},{h:'里头',p:'lǐ tou',fr:'dedans'},{h:'里头',p:'lǐ tou',fr:'dedans'},{h:'里头',p:'lǐ tou',fr:'dedans'},{h:'后头',p:'hòu tou',fr:'derrière'},{h:'前头',p:'qián tou',fr:'devant'},{h:'上头',p:'shàng tou',fr:'dessus'},{h:'上头',p:'shàng tou',fr:'dessus'},{h:'边上',p:'biān shang',fr:'à côté de'},{h:'边上',p:'biān shang',fr:'à côté de'},{h:'边上',p:'biān shang',fr:'à côté de'},{h:'边上',p:'biān shang',fr:'à côté de'}]}},
+    {cadre:[{s:'s'},{h:'上',p:'shàng'},{s:'l'},{h:'去',p:'qù'},P('。')],fr:'… file à … (oral)',lie:[],libre:['s','l'],reg:'oral',listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我们',p:'wǒ men',fr:'nous'}],l:[{h:'家',p:'jiā',fr:'à la maison'},{h:'学校',p:'xué xiào',fr:'à l’école'},{h:'教室',p:'jiào shì',fr:'en classe'},{h:'图书馆',p:'tú shū guǎn',fr:'à la bibliothèque'},{h:'公司',p:'gōng sī',fr:'au bureau'},{h:'办公室',p:'bàn gōng shì',fr:'dans le bureau'},{h:'医院',p:'yī yuàn',fr:'à l’hôpital'},{h:'银行',p:'yín háng',fr:'à la banque'},{h:'商店',p:'shāng diàn',fr:'au magasin'},{h:'超市',p:'chāo shì',fr:'au supermarché'},{h:'公园',p:'gōng yuán',fr:'au parc'},{h:'车站',p:'chē zhàn',fr:'à la station'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Ajoutez le lieu 在家',de:{hz:'我吃饭。',py:'wǒ chī fàn',fr:'Je mange.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'家',p:'jiā'},{h:'吃饭',p:'chī fàn'},P('。')],fr:'Je mange à la maison.'}},
+    {consigne:'Ajoutez le lieu 在图书馆',de:{hz:'他看书。',py:'tā kàn shū',fr:'Il lit.'},vers:{seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'图书馆',p:'tú shū guǎn'},{h:'看书',p:'kàn shū'},P('。')],fr:'Il lit à la bibliothèque.'}},
+    {consigne:'Mettez à la forme négative',de:{hz:'他在家。',py:'tā zài jiā',fr:'Il est à la maison.'},vers:{seg:[{h:'他',p:'tā'},{h:'不在',p:'bú zài'},{h:'家',p:'jiā'},P('。')],fr:'Il n’est pas à la maison.'}},
+    {consigne:'Mettez à la forme négative',de:{hz:'我在这儿工作。',py:'wǒ zài zhèr gōng zuò',fr:'Je travaille ici.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'不在',p:'bú zài'},{h:'这儿',p:'zhèr'},{h:'工作',p:'gōng zuò'},P('。')],fr:'Je ne travaille pas ici.'}},
+    {consigne:'Transformez en question de lieu',de:{hz:'他在公司工作。',py:'tā zài gōng sī gōng zuò',fr:'Il travaille au bureau.'},vers:{seg:[{h:'他',p:'tā'},{h:'在',p:'zài'},{h:'哪儿',p:'nǎr'},{h:'工作',p:'gōng zuò'},P('？')],fr:'Où travaille-t-il ?'}},
+    {consigne:'Ajoutez le moment 早上',de:{hz:'我在家看书。',py:'wǒ zài jiā kàn shū',fr:'Je lis à la maison.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'早上',p:'zǎo shang'},{h:'在',p:'zài'},{h:'家',p:'jiā'},{h:'看书',p:'kàn shū'},P('。')],fr:'Le matin, je lis à la maison.'}},
+    {consigne:'Reliez les deux lieux par 从…到',de:{hz:'学校很远。',py:'xué xiào hěn yuǎn',fr:'L’école est loin.'},vers:{seg:[{h:'从',p:'cóng'},{h:'我家',p:'wǒ jiā'},{h:'到',p:'dào'},{h:'学校',p:'xué xiào'},{h:'很',p:'hěn'},{h:'远',p:'yuǎn'},P('。')],fr:'De chez moi à l’école, c’est loin.'}},
+    {consigne:'Dites-le comme à l’oral',de:{hz:'你去哪儿？',py:'nǐ qù nǎr',fr:'Où vas-tu ?'},vers:{seg:[{h:'你',p:'nǐ'},{h:'上',p:'shang'},{h:'哪儿',p:'nǎr'},{h:'去',p:'qù'},P('？')],fr:'Tu vas où ?',reg:'oral'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'我',p:'wǒ'},{h:'吃饭',p:'chī fàn'},{h:'在',p:'zài'},{h:'家',p:'jiā'},P('。')],bad:2,bon:'我在家吃饭。',why:'Le lieu se dit avant le verbe : 在家 doit passer devant 吃饭.'},
+    {seg:[{h:'他',p:'tā'},{h:'是',p:'shì'},{h:'在',p:'zài'},{h:'家',p:'jiā'},P('。')],bad:1,bon:'他在家。',why:'在 est déjà le verbe de la phrase : 是 est de trop.'},
+    {seg:[{h:'我的书',p:'wǒ de shū'},{h:'在',p:'zài'},{h:'上',p:'shang'},{h:'桌子',p:'zhuō zi'},P('。')],bad:2,bon:'我的书在桌子上。',why:'Le mot de position suit le nom : 桌子上, et non 上桌子.'},
+    {seg:[{h:'他',p:'tā'},{h:'没在',p:'méi zài'},{h:'家',p:'jiā'},P('。')],bad:1,bon:'他不在家。',why:'La négation de 在 est 不在. 没在 nierait une action en train de se faire.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'家',p:'jiā'},{h:'早上',p:'zǎo shang'},{h:'看书',p:'kàn shū'},P('。')],bad:3,bon:'我早上在家看书。',why:'Le temps précède le lieu : 早上 passe devant 在家.'},
+    {seg:[{h:'银行',p:'yín háng'},{h:'在',p:'zài'},{h:'旁边',p:'páng biān'},{h:'学校',p:'xué xiào'},P('。')],bad:2,bon:'银行在学校旁边。',why:'La position se met après le nom de lieu, jamais devant.'},
+    {seg:[{h:'你',p:'nǐ'},{h:'在',p:'zài'},{h:'哪儿',p:'nǎr'},{h:'去',p:'qù'},P('？')],bad:1,bon:'你去哪儿？',why:'Un déplacement ne prend pas 在 : on demande 去哪儿.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'从',p:'cóng'},{h:'八点',p:'bā diǎn'},{h:'上课',p:'shàng kè'},{h:'到',p:'dào'},{h:'十二点',p:'shí èr diǎn'},P('。')],bad:3,bon:'我从八点到十二点上课。',why:'从…到 forme un bloc entier, et le verbe se place après lui.'}
+  ],
+
+  reemploi:[
+    {q:'Dites où vous êtes en ce moment et ce que vous y faites.',verif:[{type:'contient',v:'在',msg:'Le lieu se marque par 在.'}],modeles:[{hz:'我在家看书。',py:'wǒ zài jiā kàn shū',fr:'Je lis à la maison.'},{hz:'我在图书馆学习。',py:'wǒ zài tú shū guǎn xué xí',fr:'J’étudie à la bibliothèque.'}],criteres:['在 + lieu est placé avant le verbe','Aucun lieu après le verbe']},
+    {q:'Dites où se trouvent trois objets autour de vous.',verif:[{type:'contient',v:'在',msg:'La localisation se dit avec 在.'},{type:'un_parmi',v:['上','里','旁边','下面'],msg:'Un nom d’objet devient un lieu grâce à un mot de position : 上, 里, 旁边, 下面.'}],modeles:[{hz:'我的手机在桌子上，我的书在包里。',py:'wǒ de shǒu jī zài zhuō zi shang wǒ de shū zài bāo li',fr:'Mon téléphone est sur la table, mon livre est dans le sac.'}],criteres:['Chaque objet reçoit un mot de position','Le mot de position suit le nom']},
+    {q:'Dites de quelle heure à quelle heure et à quel endroit vous travaillez.',verif:[{type:'contient',v:'从',msg:'Le début se marque par 从.'},{type:'contient',v:'到',msg:'La fin se marque par 到.'},{type:'contient',v:'在',msg:'Le lieu se marque par 在.'}],modeles:[{hz:'我从八点到十二点在公司工作。',py:'wǒ cóng bā diǎn dào shí èr diǎn zài gōng sī gōng zuò',fr:'Je travaille au bureau de huit heures à midi.'}],criteres:['从…到 précède le lieu','Le lieu précède le verbe','Le verbe ferme la phrase']}
+  ]
+},
+
+/* ------------------------------------------------------------------ */
+{
+  id:'g208', hsk:2, fam:'phrase', th:['avis','decrire'],
+  title:'Comparer : 比, 没有, 跟…一样, 最',
+  resume:'Le chinois n’a pas de mot pour « plus ». 比 porte seul la comparaison, l’écart se place après l’adjectif, et 很 disparaît parce que la comparaison le remplace.',
+
+  steps:[
+    {t:'比 — comparer, sans mot pour « plus »',p:['La comparaison tient dans un seul mot : <b>A 比 B + adjectif</b>. 我<b>比</b>他高 — littéralement « moi, comparée à lui, grande ».','Il n’existe aucun équivalent de « plus ». L’adjectif reste nu, et c’est 比 qui porte tout le sens.','Surtout, on ne met <b>pas 很</b>. 他比我很高 est faux. La raison est celle que vous connaissez déjà : dans 他很高, 很 n’est pas « très », c’est le support obligatoire de l’adjectif prédicat. Or 比 fournit ce support lui-même, donc 很 devient inutile — et fautif. Même exclusion pour 非常 et 太.'],ex:[{hz:'我比他高。',py:'wǒ bǐ tā gāo',fr:'Je suis plus grande que lui.',note:'Trois mots, aucun ne signifie « plus ».'},{hz:'我姐姐比我忙。',py:'wǒ jiě jie bǐ wǒ máng',fr:'Ma sœur aînée est plus occupée que moi.'},{hz:'这个包比那个包贵。',py:'zhè ge bāo bǐ nà ge bāo guì',fr:'Ce sac est plus cher que celui-là.'},{hz:'今天比昨天冷。',py:'jīn tiān bǐ zuó tiān lěng',fr:'Il fait plus froid aujourd’hui qu’hier.'}],check:{q:'Laquelle est correcte ?',a:['他比我很高。','他比我高。'],ok:1,why:'比 remplace le support 很 : les deux ne peuvent pas coexister.'}},
+    {t:'更 — renforcer la comparaison',p:['Quand les deux termes possèdent déjà la qualité et qu’on veut dire « encore plus », on pose <b>更</b> devant l’adjectif : 我比他<b>更</b>高.','更 se place entre B et l’adjectif, jamais ailleurs. 我更高比他 est un calque du français et ne se dit pas.','更 peut aussi s’employer sans 比, quand la comparaison est comprise : 他高，她<b>更</b>高.'],ex:[{hz:'我比他更高。',py:'wǒ bǐ tā gèng gāo',fr:'Je suis encore plus grande que lui.'},{hz:'他高，她更高。',py:'tā gāo tā gèng gāo',fr:'Il est grand, elle l’est encore plus.',note:'Sans 比 : le terme de comparaison vient de la phrase précédente.'},{hz:'这个手机比那个手机更贵。',py:'zhè ge shǒu jī bǐ nà ge shǒu jī gèng guì',fr:'Ce téléphone est encore plus cher que celui-là.'}],check:{q:'Laquelle est correcte ?',a:['我更高比他。','我比他更高。'],ok:1,why:'更 se glisse devant l’adjectif, après le terme comparé.'}},
+    {t:'L’écart se place après l’adjectif',p:['C’est le second grand décalage avec le français. Le français enveloppe l’adjectif — « un peu plus grand », « deux ans de plus » — ; le chinois le fait suivre.','Petit écart : <b>一点儿</b> après l’adjectif. 我比他高<b>一点儿</b>.','Écart chiffré : la quantité se pose au même endroit. 我比他<b>大两岁</b>, 这个包比那个包<b>贵十块</b>.','Le calque 我比他很多高 ou 我比他两岁大 vient directement de l’ordre français. Rien ne se glisse jamais entre 比 et l’adjectif, sauf 更.'],ex:[{hz:'我比他高一点儿。',py:'wǒ bǐ tā gāo yì diǎnr',fr:'Je suis un peu plus grande que lui.'},{hz:'我比我弟弟大两岁。',py:'wǒ bǐ wǒ dì di dà liǎng suì',fr:'J’ai deux ans de plus que mon frère cadet.',note:'大 puis la quantité. L’ordre inverse est impossible.'},{hz:'这个包比那个包贵十块。',py:'zhè ge bāo bǐ nà ge bāo guì shí kuài',fr:'Ce sac coûte dix yuans de plus que celui-là.'},{hz:'我比他早半个小时。',py:'wǒ bǐ tā zǎo bàn ge xiǎo shí',fr:'Je suis en avance d’une demi-heure sur lui.'}],check:{q:'Laquelle est correcte ?',a:['我比他两岁大。','我比他大两岁。'],ok:1,why:'L’adjectif d’abord, la quantité ensuite.'}},
+    {t:'没有 — nier la comparaison',p:['Pour dire qu’on possède <b>moins</b> la qualité, on remplace 比 par <b>没有</b> : 我<b>没有</b>他高 — je ne suis pas aussi grande que lui.','La construction ne change pas : A 没有 B + adjectif. Et 很 reste exclu, pour la même raison qu’avec 比.','Attention à ne pas confondre : ce 没有 n’est ni celui de la possession — 我没有钱 — ni celui du passé. Ici, il compare.','On ne dit pas 我不比他高 à ce niveau : cette forme existe, elle a un autre sens, et vous la verrez plus tard.'],ex:[{hz:'我没有他高。',py:'wǒ méi yǒu tā gāo',fr:'Je ne suis pas aussi grande que lui.'},{hz:'这个菜没有那个菜好吃。',py:'zhè ge cài méi yǒu nà ge cài hǎo chī',fr:'Ce plat est moins bon que celui-là.'},{hz:'今天没有昨天冷。',py:'jīn tiān méi yǒu zuó tiān lěng',fr:'Il fait moins froid aujourd’hui qu’hier.'},{hz:'我的汉语没有他好。',py:'wǒ de Hàn yǔ méi yǒu tā hǎo',fr:'Mon chinois n’est pas aussi bon que le sien.'}],check:{q:'Comment dire « je suis moins occupée que lui » ?',a:['我没有他忙。','我不比他忙。'],ok:0,why:'没有 est la négation ordinaire de la comparaison. 不比 dit autre chose.'}},
+    {t:'跟…一样 — dire l’égalité',p:['L’égalité se dit <b>A 跟 B 一样</b>, avec ou sans adjectif derrière. 我<b>跟</b>他<b>一样</b>高.','<b>和</b> remplace 跟 sans rien changer : 我和他一样高. Les deux sont justes, 跟 est plus courant à l’oral.','Sans adjectif, 一样 dit l’identité : 我的书跟你的<b>一样</b> — mon livre est le même que le tien.','Erreur fréquente : 我跟他一样<b>的</b>高. Il n’y a pas de 的. La négation se fait sur 一样 : 我跟他<b>不一样</b>高.'],ex:[{hz:'我跟他一样高。',py:'wǒ gēn tā yí yàng gāo',fr:'Je suis aussi grande que lui.'},{hz:'我的书跟你的一样。',py:'wǒ de shū gēn nǐ de yí yàng',fr:'Mon livre est le même que le tien.',note:'一样 se suffit : aucun adjectif n’est nécessaire.'},{hz:'我和我姐姐一样忙。',py:'wǒ hé wǒ jiě jie yí yàng máng',fr:'Je suis aussi occupée que ma sœur aînée.'},{hz:'这个包跟那个包不一样大。',py:'zhè ge bāo gēn nà ge bāo bù yí yàng dà',fr:'Ce sac n’est pas de la même taille que celui-là.'}],check:{q:'Laquelle est correcte ?',a:['我跟他一样的高。','我跟他一样高。'],ok:1,why:'一样 se colle directement à l’adjectif, sans 的.'}},
+    {t:'最 — le superlatif',p:['<b>最</b> se pose devant l’adjectif : 他<b>最</b>高. Aucun article, aucun « de tous ».','Pour nommer le groupe, on l’énonce avant, et la phrase se ferme souvent par <b>的</b> : 他是我们班<b>最</b>高<b>的</b>.','La question correspondante est 谁最… ou 哪个最… — le mot interrogatif occupe, comme toujours, la place de la réponse.'],ex:[{hz:'他最高。',py:'tā zuì gāo',fr:'C’est lui le plus grand.'},{hz:'她是我们班最忙的。',py:'tā shì wǒ men bān zuì máng de',fr:'C’est la plus occupée de notre classe.',note:'Le groupe est nommé avant 最, et 的 ferme la phrase.'},{hz:'谁最累？',py:'shéi zuì lèi',fr:'Qui est le plus fatigué ?'}],check:{q:'Laquelle est correcte ?',a:['他是最高的我们班。','他是我们班最高的。'],ok:1,why:'Le groupe précède 最, comme tout ce qui encadre en chinois.'}},
+    {t:'比较 — le faux ami',p:['<b>比较</b> contient 比, et c’est exactement le piège. 今天<b>比较</b>冷 ne compare aujourd’hui à rien : cela veut dire « il fait assez froid ».','比较 atténue, il ne compare pas. Il vaut « plutôt, assez », et se place devant l’adjectif comme 很.','La règle pratique : dès qu’il y a un second terme, c’est <b>比</b> ; s’il n’y en a pas, c’est <b>比较</b> ou 很. On ne dit jamais 我比较他高.'],ex:[{hz:'今天比较冷。',py:'jīn tiān bǐ jiào lěng',fr:'Il fait assez froid aujourd’hui.',note:'Aucun second terme : rien n’est comparé.'},{hz:'这个菜比较贵。',py:'zhè ge cài bǐ jiào guì',fr:'Ce plat est plutôt cher.'},{hz:'汉字比较难。',py:'Hàn zì bǐ jiào nán',fr:'Les caractères sont assez difficiles.'}],check:{q:'Que dit 他比较高 ?',a:['Il est plutôt grand.','Il est plus grand.'],ok:0,why:'比较 n’a pas de second terme : il atténue au lieu de comparer.'}},
+    {t:'À l’oral — 差不多 et 差远了',reg:'oral',p:['Deux formes que vous entendrez sans arrêt et qui ne figurent dans aucune liste d’examen.','<b>差不多</b> dit l’égalité approximative — « à peu près pareil ». 我跟他<b>差不多</b>高. Seul, il répond à une comparaison : 差不多.','<b>差远了</b> dit l’écart énorme, et toujours à son propre désavantage ou à celui dont on parle. 我的汉语比他的<b>差远了</b> — mon chinois, à côté du sien, c’est le jour et la nuit.','Les deux sont familières et parfaitement courantes entre amis. 差不多 s’écrit sans problème ; 差远了 reste de l’oral.'],ex:[{hz:'我跟他差不多高。',py:'wǒ gēn tā chà bu duō gāo',fr:'On fait à peu près la même taille.',reg:'oral'},{hz:'这个跟那个差不多。',py:'zhè ge gēn nà ge chà bu duō',fr:'C’est kif-kif.',note:'差不多 se suffit, sans adjectif.',reg:'oral'},{hz:'我的汉语比他的差远了。',py:'wǒ de Hàn yǔ bǐ tā de chà yuǎn le',fr:'Mon chinois, à côté du sien, c’est loin d’y être.',reg:'oral'},{hz:'我比他差远了。',py:'wǒ bǐ tā chà yuǎn le',fr:'Je lui arrive pas à la cheville.',reg:'oral'}],check:{q:'À l’oral, 我跟他差不多 signifie :',a:['On est à peu près pareils.','Il est bien meilleur que moi.'],ok:0,why:'差不多 dit l’égalité approximative. L’écart énorme, c’est 差远了.'}}
+  ],
+
+  tableau:{cols:['Forme','Exemple','Ce qu’elle fait'],rows:[['A 比 B + adj','我比他高','Supériorité — sans 很'],['A 比 B 更 + adj','我比他更高','Renforce, 更 devant l’adjectif'],['A 比 B + adj + 一点儿','我比他高一点儿','Petit écart, après l’adjectif'],['A 比 B + adj + quantité','我比他大两岁','Écart chiffré, après l’adjectif'],['A 没有 B + adj','我没有他高','Infériorité — la négation ordinaire'],['A 跟 B 一样 (+ adj)','我跟他一样高','Égalité, sans 的'],['A 跟 B 不一样 + adj','我跟他不一样高','Négation de l’égalité'],['最 + adj','他是我们班最高的','Superlatif, groupe énoncé avant'],['比较 + adj','今天比较冷','Atténue — ne compare rien'],['差不多 / 差远了','我跟他差不多高','Oral : presque pareil / très loin']]},
+  piege:{bad:{hz:'她比我很高。',py:'tā bǐ wǒ hěn gāo'},good:{hz:'她比我高。',py:'tā bǐ wǒ gāo'},why:'Le français dit « bien plus grande » et l’on cherche un mot pour l’intensité. Mais 很 n’était jamais une intensité : c’était le support de l’adjectif prédicat. La comparaison fournit ce support, donc 很 n’a plus rien à soutenir. Pour renforcer, c’est 更 — et il se place devant l’adjectif.'},
+  voir:['g202'],
+
+  banque:[
+    {seg:[{h:'我',p:'wǒ'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},{h:'高',p:'gāo'},P('。')],cle:1,fr:'Je suis plus grande que lui.'},
+    {seg:[{h:'我姐姐',p:'wǒ jiě jie'},{h:'比',p:'bǐ'},{h:'我',p:'wǒ'},{h:'忙',p:'máng'},P('。')],cle:1,fr:'Ma sœur aînée est plus occupée que moi.'},
+    {seg:[{h:'这个包',p:'zhè ge bāo'},{h:'比',p:'bǐ'},{h:'那个包',p:'nà ge bāo'},{h:'贵',p:'guì'},P('。')],cle:1,fr:'Ce sac est plus cher que celui-là.'},
+    {seg:[{h:'今天',p:'jīn tiān'},{h:'比',p:'bǐ'},{h:'昨天',p:'zuó tiān'},{h:'冷',p:'lěng'},P('。')],cle:1,fr:'Il fait plus froid aujourd’hui qu’hier.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},{h:'更',p:'gèng'},{h:'高',p:'gāo'},P('。')],cle:3,fr:'Je suis encore plus grande que lui.'},
+    {seg:[{h:'这个手机',p:'zhè ge shǒu jī'},{h:'比',p:'bǐ'},{h:'那个手机',p:'nà ge shǒu jī'},{h:'更',p:'gèng'},{h:'贵',p:'guì'},P('。')],cle:3,fr:'Ce téléphone est encore plus cher.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},{h:'高',p:'gāo'},{h:'一点儿',p:'yì diǎnr'},P('。')],cle:4,fr:'Je suis un peu plus grande que lui.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'比',p:'bǐ'},{h:'我弟弟',p:'wǒ dì di'},{h:'大',p:'dà'},{h:'两岁',p:'liǎng suì'},P('。')],cle:1,fr:'J’ai deux ans de plus que mon frère cadet.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没有',p:'méi yǒu'},{h:'他',p:'tā'},{h:'高',p:'gāo'},P('。')],cle:1,fr:'Je ne suis pas aussi grande que lui.'},
+    {seg:[{h:'这个菜',p:'zhè ge cài'},{h:'没有',p:'méi yǒu'},{h:'那个菜',p:'nà ge cài'},{h:'好吃',p:'hǎo chī'},P('。')],cle:1,fr:'Ce plat est moins bon que celui-là.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'跟',p:'gēn'},{h:'他',p:'tā'},{h:'一样',p:'yí yàng'},{h:'高',p:'gāo'},P('。')],cle:3,fr:'Je suis aussi grande que lui.'},
+    {seg:[{h:'我的书',p:'wǒ de shū'},{h:'跟',p:'gēn'},{h:'你的',p:'nǐ de'},{h:'一样',p:'yí yàng'},P('。')],cle:3,fr:'Mon livre est le même que le tien.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'和',p:'hé'},{h:'我姐姐',p:'wǒ jiě jie'},{h:'一样',p:'yí yàng'},{h:'忙',p:'máng'},P('。')],cle:3,fr:'Je suis aussi occupée que ma sœur aînée.'},
+    {seg:[{h:'这个包',p:'zhè ge bāo'},{h:'跟',p:'gēn'},{h:'那个包',p:'nà ge bāo'},{h:'不一样',p:'bù yí yàng'},{h:'大',p:'dà'},P('。')],cle:3,fr:'Ce sac n’est pas de la même taille.'},
+    {seg:[{h:'她',p:'tā'},{h:'是',p:'shì'},{h:'我们班',p:'wǒ men bān'},{h:'最',p:'zuì'},{h:'忙',p:'máng'},{h:'的',p:'de'},P('。')],cle:3,fr:'C’est la plus occupée de notre classe.'},
+    {seg:[{h:'今天',p:'jīn tiān'},{h:'比较',p:'bǐ jiào'},{h:'冷',p:'lěng'},P('。')],cle:1,fr:'Il fait assez froid aujourd’hui.'},
+    {seg:[{h:'汉字',p:'Hàn zì'},{h:'比较',p:'bǐ jiào'},{h:'难',p:'nán'},P('。')],cle:1,fr:'Les caractères sont assez difficiles.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'跟',p:'gēn'},{h:'他',p:'tā'},{h:'差不多',p:'chà bu duō'},{h:'高',p:'gāo'},P('。')],cle:3,fr:'On fait à peu près la même taille.',reg:'oral'}
+  ],
+  leurres:['比','没有','跟','和','一样','不一样','更','最','比较','差不多','一点儿','很'],
+  equiv:[['跟','和'],['一点儿','一点']],
+
+  gabarits:[
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{s:'j'},P('。')],fr:'… est plus … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{s:'j'},P('。')],fr:'… est plus … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'这个包',p:'zhè ge bāo',fr:'ce sac'},{h:'这件衣服',p:'zhè jiàn yī fu',fr:'ce vêtement'},{h:'这个手机',p:'zhè ge shǒu jī',fr:'ce téléphone'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'这个杯子',p:'zhè ge bēi zi',fr:'cette tasse'},{h:'这个电脑',p:'zhè ge diàn nǎo',fr:'cet ordinateur'},{h:'这个房间',p:'zhè ge fáng jiān',fr:'cette chambre'},{h:'这张桌子',p:'zhè zhāng zhuō zi',fr:'cette table'},{h:'我的包',p:'wǒ de bāo',fr:'mon sac'},{h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},{h:'我的书',p:'wǒ de shū',fr:'mon livre'},{h:'我的车',p:'wǒ de chē',fr:'ma voiture'}],b:[{h:'那个包',p:'nà ge bāo',fr:'ce sac-là'},{h:'那件衣服',p:'nà jiàn yī fu',fr:'ce vêtement-là'},{h:'那个手机',p:'nà ge shǒu jī',fr:'ce téléphone-là'},{h:'那本书',p:'nà běn shū',fr:'ce livre-là'},{h:'那个杯子',p:'nà ge bēi zi',fr:'cette tasse-là'},{h:'那个电脑',p:'nà ge diàn nǎo',fr:'cet ordinateur-là'},{h:'那个房间',p:'nà ge fáng jiān',fr:'cette chambre-là'},{h:'那张桌子',p:'nà zhāng zhuō zi',fr:'cette table-là'},{h:'你的包',p:'nǐ de bāo',fr:'ton sac'},{h:'你的手机',p:'nǐ de shǒu jī',fr:'ton téléphone'},{h:'你的书',p:'nǐ de shū',fr:'ton livre'},{h:'你的车',p:'nǐ de chē',fr:'ta voiture'}],j:[{h:'贵',p:'guì',fr:'cher'},{h:'便宜',p:'pián yi',fr:'bon marché'},{h:'大',p:'dà',fr:'grand'},{h:'小',p:'xiǎo',fr:'petit'},{h:'新',p:'xīn',fr:'neuf'},{h:'好',p:'hǎo',fr:'bien'}]}},
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{h:'更',p:'gèng'},{s:'j'},P('。')],fr:'… est encore plus … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{s:'j'},{h:'一点儿',p:'yì diǎnr'},P('。')],fr:'… est un peu plus … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{s:'j'},{s:'q'},P('。')],fr:'… a … de plus que …',lie:[['a','b'],['j','q']],libre:[],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'大',p:'dà',fr:'âgé'},{h:'大',p:'dà',fr:'âgé'},{h:'大',p:'dà',fr:'âgé'},{h:'小',p:'xiǎo',fr:'jeune'},{h:'小',p:'xiǎo',fr:'jeune'},{h:'高',p:'gāo',fr:'grand'},{h:'高',p:'gāo',fr:'grand'},{h:'高',p:'gāo',fr:'grand'},{h:'早',p:'zǎo',fr:'en avance'},{h:'早',p:'zǎo',fr:'en avance'},{h:'晚',p:'wǎn',fr:'en retard'},{h:'晚',p:'wǎn',fr:'en retard'}],q:[{h:'两岁',p:'liǎng suì',fr:'de deux ans'},{h:'三岁',p:'sān suì',fr:'de trois ans'},{h:'五岁',p:'wǔ suì',fr:'de cinq ans'},{h:'一岁',p:'yí suì',fr:'d’un an'},{h:'两岁',p:'liǎng suì',fr:'de deux ans'},{h:'三公分',p:'sān gōng fēn',fr:'de trois centimètres'},{h:'五公分',p:'wǔ gōng fēn',fr:'de cinq centimètres'},{h:'十公分',p:'shí gōng fēn',fr:'de dix centimètres'},{h:'半个小时',p:'bàn ge xiǎo shí',fr:'d’une demi-heure'},{h:'一个小时',p:'yí ge xiǎo shí',fr:'d’une heure'},{h:'十分钟',p:'shí fēn zhōng',fr:'de dix minutes'},{h:'二十分钟',p:'èr shí fēn zhōng',fr:'de vingt minutes'}]}},
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{s:'j'},{s:'q'},P('。')],fr:'… coûte … de plus que …',lie:[['a','b'],['j','q']],libre:[],listes:{a:[{h:'这个包',p:'zhè ge bāo',fr:'ce sac'},{h:'这件衣服',p:'zhè jiàn yī fu',fr:'ce vêtement'},{h:'这个手机',p:'zhè ge shǒu jī',fr:'ce téléphone'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'这个杯子',p:'zhè ge bēi zi',fr:'cette tasse'},{h:'这个电脑',p:'zhè ge diàn nǎo',fr:'cet ordinateur'},{h:'这个房间',p:'zhè ge fáng jiān',fr:'cette chambre'},{h:'这张桌子',p:'zhè zhāng zhuō zi',fr:'cette table'},{h:'我的包',p:'wǒ de bāo',fr:'mon sac'},{h:'我的手机',p:'wǒ de shǒu jī',fr:'mon téléphone'},{h:'我的书',p:'wǒ de shū',fr:'mon livre'},{h:'我的车',p:'wǒ de chē',fr:'ma voiture'}],b:[{h:'那个包',p:'nà ge bāo',fr:'ce sac-là'},{h:'那件衣服',p:'nà jiàn yī fu',fr:'ce vêtement-là'},{h:'那个手机',p:'nà ge shǒu jī',fr:'ce téléphone-là'},{h:'那本书',p:'nà běn shū',fr:'ce livre-là'},{h:'那个杯子',p:'nà ge bēi zi',fr:'cette tasse-là'},{h:'那个电脑',p:'nà ge diàn nǎo',fr:'cet ordinateur-là'},{h:'那个房间',p:'nà ge fáng jiān',fr:'cette chambre-là'},{h:'那张桌子',p:'nà zhāng zhuō zi',fr:'cette table-là'},{h:'你的包',p:'nǐ de bāo',fr:'ton sac'},{h:'你的手机',p:'nǐ de shǒu jī',fr:'ton téléphone'},{h:'你的书',p:'nǐ de shū',fr:'ton livre'},{h:'你的车',p:'nǐ de chē',fr:'ta voiture'}],j:[{h:'贵',p:'guì',fr:'cher'},{h:'贵',p:'guì',fr:'cher'},{h:'贵',p:'guì',fr:'cher'},{h:'贵',p:'guì',fr:'cher'},{h:'贵',p:'guì',fr:'cher'},{h:'贵',p:'guì',fr:'cher'},{h:'便宜',p:'pián yi',fr:'bon marché'},{h:'便宜',p:'pián yi',fr:'bon marché'},{h:'便宜',p:'pián yi',fr:'bon marché'},{h:'便宜',p:'pián yi',fr:'bon marché'},{h:'便宜',p:'pián yi',fr:'bon marché'},{h:'便宜',p:'pián yi',fr:'bon marché'}],q:[{h:'五块',p:'wǔ kuài',fr:'de cinq yuans'},{h:'十块',p:'shí kuài',fr:'de dix yuans'},{h:'二十块',p:'èr shí kuài',fr:'de vingt yuans'},{h:'三十块',p:'sān shí kuài',fr:'de trente yuans'},{h:'五十块',p:'wǔ shí kuài',fr:'de cinquante yuans'},{h:'一百块',p:'yì bǎi kuài',fr:'de cent yuans'},{h:'五块',p:'wǔ kuài',fr:'de cinq yuans'},{h:'十块',p:'shí kuài',fr:'de dix yuans'},{h:'二十块',p:'èr shí kuài',fr:'de vingt yuans'},{h:'三十块',p:'sān shí kuài',fr:'de trente yuans'},{h:'五十块',p:'wǔ shí kuài',fr:'de cinquante yuans'},{h:'一百块',p:'yì bǎi kuài',fr:'de cent yuans'}]}},
+    {cadre:[{s:'a'},{h:'没有',p:'méi yǒu'},{s:'b'},{s:'j'},P('。')],fr:'… est moins … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'a'},{h:'跟',p:'gēn'},{s:'b'},{h:'一样',p:'yí yàng'},{s:'j'},P('。')],fr:'… est aussi … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'a'},{h:'的',p:'de'},{s:'n'},{h:'跟',p:'gēn'},{s:'b'},{h:'的',p:'de'},{h:'一样',p:'yí yàng'},P('。')],fr:'Le … de … est le même que celui de …',lie:[['a','b']],libre:['n'],listes:{a:[{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'你',p:'nǐ',fr:'toi'},{h:'你',p:'nǐ',fr:'toi'},{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],b:[{h:'你',p:'nǐ',fr:'toi'},{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我',p:'wǒ',fr:'moi'},{h:'他',p:'tā',fr:'lui'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'你们',p:'nǐ men',fr:'vous'},{h:'我',p:'wǒ',fr:'moi'}],n:[{h:'包',p:'bāo',fr:'sac'},{h:'手机',p:'shǒu jī',fr:'téléphone'},{h:'书',p:'shū',fr:'livre'},{h:'衣服',p:'yī fu',fr:'vêtement'},{h:'杯子',p:'bēi zi',fr:'tasse'},{h:'电脑',p:'diàn nǎo',fr:'ordinateur'},{h:'车',p:'chē',fr:'voiture'},{h:'房间',p:'fáng jiān',fr:'chambre'}]}},
+    {cadre:[{s:'a'},{h:'跟',p:'gēn'},{s:'b'},{h:'不一样',p:'bù yí yàng'},{s:'j'},P('。')],fr:'… n’est pas aussi … que …',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'小',p:'xiǎo',fr:'jeune'},{h:'胖',p:'pàng',fr:'fort'},{h:'瘦',p:'shòu',fr:'mince'}]}},
+    {cadre:[{s:'s'},{h:'最',p:'zuì'},{s:'j'},P('。')],fr:'C’est … le plus …',lie:[],libre:['s','j'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'s'},{h:'是',p:'shì'},{s:'g'},{h:'最',p:'zuì'},{s:'j'},{h:'的',p:'de'},P('。')],fr:'… est le plus … de …',lie:[],libre:['s','g','j'],listes:{s:[{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],g:[{h:'我们班',p:'wǒ men bān',fr:'notre classe'},{h:'我们家',p:'wǒ men jiā',fr:'notre famille'},{h:'我们学校',p:'wǒ men xué xiào',fr:'notre école'},{h:'我们公司',p:'wǒ men gōng sī',fr:'notre entreprise'},{h:'他们班',p:'tā men bān',fr:'leur classe'},{h:'我们几个',p:'wǒ men jǐ ge',fr:'nous tous'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'a'},{h:'比',p:'bǐ'},{s:'b'},{s:'j'},{h:'吗',p:'ma'},P('？')],fr:'… est-… plus … que … ?',lie:[['a','b']],libre:['j'],listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'瘦',p:'shòu',fr:'mince'},{h:'胖',p:'pàng',fr:'fort'},{h:'早',p:'zǎo',fr:'en avance'},{h:'快',p:'kuài',fr:'rapide'}]}},
+    {cadre:[{s:'x'},{h:'比较',p:'bǐ jiào'},{s:'j'},P('。')],fr:'… est plutôt …',lie:[['x','j']],libre:[],listes:{x:[{h:'今天',p:'jīn tiān',fr:'aujourd’hui'},{h:'今天',p:'jīn tiān',fr:'aujourd’hui'},{h:'这儿',p:'zhèr',fr:'ici'},{h:'天气',p:'tiān qì',fr:'le temps'},{h:'这个菜',p:'zhè ge cài',fr:'ce plat'},{h:'这个包',p:'zhè ge bāo',fr:'ce sac'},{h:'这本书',p:'zhè běn shū',fr:'ce livre'},{h:'汉字',p:'Hàn zì',fr:'les caractères'},{h:'汉语',p:'Hàn yǔ',fr:'le chinois'},{h:'这个房间',p:'zhè ge fáng jiān',fr:'cette chambre'},{h:'这件衣服',p:'zhè jiàn yī fu',fr:'ce vêtement'},{h:'他',p:'tā',fr:'il'}],j:[{h:'冷',p:'lěng',fr:'froid'},{h:'热',p:'rè',fr:'chaud'},{h:'远',p:'yuǎn',fr:'loin'},{h:'好',p:'hǎo',fr:'beau'},{h:'贵',p:'guì',fr:'cher'},{h:'贵',p:'guì',fr:'cher'},{h:'难',p:'nán',fr:'difficile'},{h:'难',p:'nán',fr:'difficiles'},{h:'难',p:'nán',fr:'difficile'},{h:'大',p:'dà',fr:'grande'},{h:'新',p:'xīn',fr:'neuf'},{h:'忙',p:'máng',fr:'occupé'}]}},
+    {cadre:[{s:'a'},{h:'跟',p:'gēn'},{s:'b'},{h:'差不多',p:'chà bu duō'},{s:'j'},P('。')],fr:'… est à peu près aussi … que …',lie:[['a','b']],libre:['j'],reg:'oral',listes:{a:[{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'我',p:'wǒ',fr:'je'},{h:'他',p:'tā',fr:'il'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我妹妹',p:'wǒ mèi mei',fr:'ma sœur cadette'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'老师',p:'lǎo shī',fr:'le professeur'},{h:'我爸爸',p:'wǒ bà ba',fr:'mon père'}],b:[{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我弟弟',p:'wǒ dì di',fr:'mon frère cadet'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我',p:'wǒ',fr:'moi'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'我妈妈',p:'wǒ mā ma',fr:'ma mère'}],j:[{h:'高',p:'gāo',fr:'grand'},{h:'大',p:'dà',fr:'âgé'},{h:'忙',p:'máng',fr:'occupé'},{h:'累',p:'lèi',fr:'fatigué'},{h:'胖',p:'pàng',fr:'fort'},{h:'瘦',p:'shòu',fr:'mince'}]}},
+    {cadre:[{s:'a'},{h:'的',p:'de'},{s:'n'},{h:'比',p:'bǐ'},{s:'b'},{h:'的',p:'de'},{h:'差远了',p:'chà yuǎn le'},P('。')],fr:'Le … de … est très loin de celui de …',lie:[['a','b']],libre:['n'],reg:'oral',listes:{a:[{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'你',p:'nǐ',fr:'toi'},{h:'你',p:'nǐ',fr:'toi'},{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我哥哥',p:'wǒ gē ge',fr:'mon frère aîné'},{h:'我姐姐',p:'wǒ jiě jie',fr:'ma sœur aînée'},{h:'我朋友',p:'wǒ péng you',fr:'mon amie'},{h:'我们',p:'wǒ men',fr:'nous'},{h:'老师',p:'lǎo shī',fr:'le professeur'}],b:[{h:'你',p:'nǐ',fr:'toi'},{h:'他',p:'tā',fr:'lui'},{h:'她',p:'tā',fr:'elle'},{h:'我',p:'wǒ',fr:'moi'},{h:'他',p:'tā',fr:'lui'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'我',p:'wǒ',fr:'moi'},{h:'你们',p:'nǐ men',fr:'vous'},{h:'我',p:'wǒ',fr:'moi'}],n:[{h:'汉语',p:'Hàn yǔ',fr:'chinois'},{h:'英语',p:'Yīng yǔ',fr:'anglais'},{h:'中文',p:'Zhōng wén',fr:'chinois'},{h:'汉字',p:'Hàn zì',fr:'caractères'},{h:'法语',p:'Fǎ yǔ',fr:'français'},{h:'菜',p:'cài',fr:'cuisine'}]}}
+  ],
+
+  transfo:[
+    {consigne:'Comparez avec 比',de:{hz:'他很高。',py:'tā hěn gāo',fr:'Il est grand.'},vers:{seg:[{h:'他',p:'tā'},{h:'比',p:'bǐ'},{h:'我',p:'wǒ'},{h:'高',p:'gāo'},P('。')],fr:'Il est plus grand que moi.'}},
+    {consigne:'Renforcez avec 更',de:{hz:'我比他高。',py:'wǒ bǐ tā gāo',fr:'Je suis plus grande que lui.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},{h:'更',p:'gèng'},{h:'高',p:'gāo'},P('。')],fr:'Je suis encore plus grande que lui.'}},
+    {consigne:'Ajoutez le petit écart 一点儿',de:{hz:'这个包比那个包贵。',py:'zhè ge bāo bǐ nà ge bāo guì',fr:'Ce sac est plus cher.'},vers:{seg:[{h:'这个包',p:'zhè ge bāo'},{h:'比',p:'bǐ'},{h:'那个包',p:'nà ge bāo'},{h:'贵',p:'guì'},{h:'一点儿',p:'yì diǎnr'},P('。')],fr:'Ce sac est un peu plus cher.'}},
+    {consigne:'Renversez la comparaison avec 没有',de:{hz:'他比我高。',py:'tā bǐ wǒ gāo',fr:'Il est plus grand que moi.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'没有',p:'méi yǒu'},{h:'他',p:'tā'},{h:'高',p:'gāo'},P('。')],fr:'Je ne suis pas aussi grande que lui.'}},
+    {consigne:'Dites l’égalité avec 跟…一样',de:{hz:'我比他忙。',py:'wǒ bǐ tā máng',fr:'Je suis plus occupée que lui.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'跟',p:'gēn'},{h:'他',p:'tā'},{h:'一样',p:'yí yàng'},{h:'忙',p:'máng'},P('。')],fr:'Je suis aussi occupée que lui.'}},
+    {consigne:'Niez l’égalité',de:{hz:'我跟他一样高。',py:'wǒ gēn tā yí yàng gāo',fr:'Je suis aussi grande que lui.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'跟',p:'gēn'},{h:'他',p:'tā'},{h:'不一样',p:'bù yí yàng'},{h:'高',p:'gāo'},P('。')],fr:'Je ne suis pas de la même taille que lui.'}},
+    {consigne:'Mettez au superlatif dans 我们班',de:{hz:'她很忙。',py:'tā hěn máng',fr:'Elle est occupée.'},vers:{seg:[{h:'她',p:'tā'},{h:'是',p:'shì'},{h:'我们班',p:'wǒ men bān'},{h:'最',p:'zuì'},{h:'忙',p:'máng'},{h:'的',p:'de'},P('。')],fr:'C’est la plus occupée de notre classe.'}},
+    {consigne:'Transformez en question',de:{hz:'他比我高。',py:'tā bǐ wǒ gāo',fr:'Il est plus grand que moi.'},vers:{seg:[{h:'他',p:'tā'},{h:'比',p:'bǐ'},{h:'我',p:'wǒ'},{h:'高',p:'gāo'},{h:'吗',p:'ma'},P('？')],fr:'Est-il plus grand que moi ?'}},
+    {consigne:'Dites-le comme à l’oral',de:{hz:'我跟他一样高。',py:'wǒ gēn tā yí yàng gāo',fr:'Je fais la même taille que lui.'},vers:{seg:[{h:'我',p:'wǒ'},{h:'跟',p:'gēn'},{h:'他',p:'tā'},{h:'差不多',p:'chà bu duō'},{h:'高',p:'gāo'},P('。')],fr:'On fait à peu près la même taille.',reg:'oral'}}
+  ],
+
+  fixes:[
+    {seg:[{h:'她',p:'tā'},{h:'比',p:'bǐ'},{h:'我',p:'wǒ'},{h:'很',p:'hěn'},{h:'高',p:'gāo'},P('。')],bad:3,bon:'她比我高。',why:'比 remplace le support 很 : la comparaison porte déjà l’adjectif.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'更',p:'gèng'},{h:'高',p:'gāo'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},P('。')],bad:1,bon:'我比他更高。',why:'更 se place devant l’adjectif, après le terme comparé.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},{h:'两岁',p:'liǎng suì'},{h:'大',p:'dà'},P('。')],bad:3,bon:'我比他大两岁。',why:'L’écart chiffré suit l’adjectif, il ne le précède jamais.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'不',p:'bù'},{h:'比',p:'bǐ'},{h:'他',p:'tā'},{h:'高',p:'gāo'},P('。')],bad:1,bon:'我没有他高。',why:'La négation ordinaire de la comparaison est 没有.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'跟',p:'gēn'},{h:'他',p:'tā'},{h:'一样',p:'yí yàng'},{h:'的',p:'de'},{h:'高',p:'gāo'},P('。')],bad:4,bon:'我跟他一样高。',why:'一样 se colle à l’adjectif : pas de 的.'},
+    {seg:[{h:'他',p:'tā'},{h:'是',p:'shì'},{h:'最',p:'zuì'},{h:'高',p:'gāo'},{h:'的',p:'de'},{h:'我们班',p:'wǒ men bān'},P('。')],bad:5,bon:'他是我们班最高的。',why:'Le groupe s’énonce avant 最, comme tout ce qui encadre.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'比较',p:'bǐ jiào'},{h:'他',p:'tā'},{h:'高',p:'gāo'},P('。')],bad:1,bon:'我比他高。',why:'比较 n’accepte aucun second terme : dès qu’il y en a un, c’est 比.'},
+    {seg:[{h:'我',p:'wǒ'},{h:'没有',p:'méi yǒu'},{h:'他',p:'tā'},{h:'很',p:'hěn'},{h:'高',p:'gāo'},P('。')],bad:3,bon:'我没有他高。',why:'很 est exclu avec 没有 comme avec 比, pour la même raison.'}
+  ],
+
+  reemploi:[
+    {q:'Comparez-vous à quelqu’un de votre famille : taille, âge, occupation.',verif:[{type:'contient',v:'比',msg:'La supériorité se dit avec 比.'},{type:'absent',v:'比很',msg:'很 ne s’emploie jamais après 比.'}],modeles:[{hz:'我比我弟弟大两岁，他比我高。',py:'wǒ bǐ wǒ dì di dà liǎng suì tā bǐ wǒ gāo',fr:'J’ai deux ans de plus que mon frère cadet, et il est plus grand que moi.'}],criteres:['比 est suivi directement de l’adjectif','L’écart chiffré vient après l’adjectif','Aucun 很 après 比']},
+    {q:'Dites une chose où vous êtes moins bonne que quelqu’un, et une où vous êtes à égalité.',verif:[{type:'contient',v:'没有',msg:'L’infériorité se dit avec 没有.'},{type:'contient',v:'一样',msg:'L’égalité se dit avec 跟…一样.'},{type:'absent',v:'一样的',msg:'一样 ne prend pas de 的 devant l’adjectif.'}],modeles:[{hz:'我的汉语没有他好，我跟他一样忙。',py:'wǒ de Hàn yǔ méi yǒu tā hǎo wǒ gēn tā yí yàng máng',fr:'Mon chinois n’est pas aussi bon que le sien, mais je suis aussi occupée que lui.'}],criteres:['没有 remplace 比 sans rien changer d’autre','跟…一样 sans 的']},
+    {q:'Désignez le plus grand, le plus occupé ou le plus jeune de votre entourage.',verif:[{type:'contient',v:'最',msg:'Le superlatif se dit avec 最.'},{type:'absent',v:'最的',msg:'的 ferme la phrase, il ne suit pas 最.'}],modeles:[{hz:'我哥哥是我们家最高的。',py:'wǒ gē ge shì wǒ men jiā zuì gāo de',fr:'Mon frère aîné est le plus grand de la famille.'}],criteres:['Le groupe est nommé avant 最','最 précède l’adjectif','的 ferme la phrase']}
   ]
 },
 
@@ -1301,7 +2911,7 @@ const GRAMMAR=[
     why:'在 et 着 ne disent pas la même chose et ne se cumulent pas. 在 précède le verbe et décrit une action qui se déroule ; 着 le suit et décrit un état qui dure.'
   },
 
-  voir:['g303','g304'],
+  voir:['g303','g304','g207'],
 
   banque:[
     {seg:[{h:'我',p:'wǒ'},{h:'在',p:'zài'},{h:'看',p:'kàn'},{h:'书',p:'shū'},P('。')],cle:1,fr:'Je suis en train de lire.'},

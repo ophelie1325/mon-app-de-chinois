@@ -36,7 +36,7 @@ function vGramHome(){
   ${themeSelect()}
 
   <div class="gsub">Les fiches de mon niveau</div>
-  ${dispo.length?dispo.map(g=>ligneFiche(g)).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. Les neuf fiches écrites couvrent « Se présenter », « Présenter et décrire quelqu’un », « Raconter au passé », « Loisirs, habitudes, quotidien », « Le voyage », « Le travail et les études » et « Le logement », en HSK 2 et HSK 3.')}
+  ${dispo.length?dispo.map(g=>ligneFiche(g)).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. '+couverture(['GRAMMAR']))}
 
   <div class="gsub">Explorer</div>
   <button class="grow c-indigo" onclick="go('index')">
@@ -108,7 +108,7 @@ function vDecouv(){
   ${i===0?`<div class="gres">${esc(g.resume)}</div>`:''}
 
   <div class="gsec">
-    <h3>${esc(st.t)}</h3>
+    <h3>${esc(st.t)}${badgeReg(st.reg)}</h3>
     ${st.p.map(p=>`<p>${p}</p>`).join('')}
     ${(st.ex||[]).map(exBloc).join('')}
   </div>
@@ -119,9 +119,16 @@ function vDecouv(){
   <button class="btn pale mt" onclick="go('fiche',{g:'${g.id}'})">Voir la fiche complète tout de suite</button>`;
 }
 
+/* Pastille de registre. Un contenu porte « reg » quand il relève d’un
+   registre particulier : reg:'oral' pour ce qui se dit couramment mais
+   ne s’écrit pas en langue soutenue. La pastille n’est qu’un repère
+   d’usage : la forme reste enseignée, exigée et évaluée comme les autres. */
+const REGN={oral:'oral',ecrit:'écrit',poli:'poli',fam:'familière'};
+function badgeReg(r){return r?`<span class="reg">${esc(REGN[r]||r)}</span>`:'';}
+
 function exBloc(e){
   return `<div class="gex">
-    <div class="hz">${esc(e.hz)}</div>
+    <div class="hz">${esc(e.hz)}${badgeReg(e.reg)}</div>
     <div class="py">${pinyin(e.py)}</div>
     <div class="fr">${esc(e.fr)}</div>
     ${e.note?`<div class="note">${esc(e.note)}</div>`:''}
@@ -181,7 +188,7 @@ function vFiche(){
   <div class="gres">${esc(g.resume)}</div>
 
   ${g.steps.map(st=>`<div class="gsec">
-    <h3>${esc(st.t)}</h3>
+    <h3>${esc(st.t)}${badgeReg(st.reg)}</h3>
     ${st.p.map(p=>`<p>${p}</p>`).join('')}
     ${(st.ex||[]).map(exBloc).join('')}
   </div>`).join('')}
@@ -228,7 +235,12 @@ function fillGabarit(ga){
     grp.forEach(k=>{acc[k]=ga.listes[k][i];lie[k]=1;});
   });
   Object.keys(ga.listes).forEach(k=>{if(!lie[k])acc[k]=shuffle(ga.listes[k])[0];});
-  return {seg:ga.cadre.map(t=>t.s?acc[t.s]:t),fr:ga.fr,
+  /* Le registre d’une phrase engendrée est celui du gabarit, ou celui
+     du premier élément tiré qui en porte un : une liste peut mêler une
+     forme orale à des formes neutres. */
+  let reg=ga.reg||'';
+  if(!reg)Object.keys(acc).forEach(k=>{if(!reg&&acc[k]&&acc[k].reg)reg=acc[k].reg;});
+  return {seg:ga.cadre.map(t=>t.s?acc[t.s]:t),fr:ga.fr,reg:reg,
           mots:Object.keys(ga.listes).map(k=>acc[k].fr)};
 }
 
@@ -284,7 +296,7 @@ function exRep(q){
     return t.p?`<button class="tile tok ${cl}" ${fait?'disabled':''} onclick="repRep(${k},${q.s.cle})">${esc(t.h)}</button>`
               :`<span class="u-bc-transparent u-bs-none tile">${esc(t.h)}</span>`;
   }).join('')}</div>
-  <p class="sm mt">${esc(q.s.fr)}</p>
+  <p class="sm mt">${esc(q.s.fr)}${badgeReg(q.s.reg)}</p>
   ${fait?`<div class="verdict ${ctx.res[ctx.i]?'ok':'no'}">
     ${ctx.res[ctx.i]?'Bien vu.':'L’élément attendu était '+esc(q.s.seg[q.s.cle].h)+'.'}
     <div class="gpy mt">${pinyin(segPy(q.s.seg))}</div></div>${boutonSuite()}`:''}`;
@@ -294,7 +306,7 @@ function repRep(k,cle){ctx.rep=k;noter(k===cle);}
 /* --- Substitution : reconstruire la phrase engendrée par le gabarit --- */
 function exSub(q){
   return assemblage(segMots(q.d.seg),q.d.seg,
-    `Construisez la phrase : <b>${esc(q.d.fr)}</b>${q.d.mots.length?' <span class="sm">('+q.d.mots.map(esc).join(', ')+')</span>':''}`);
+    `Construisez la phrase : <b>${esc(q.d.fr)}</b>${badgeReg(q.d.reg)}${q.d.mots.length?' <span class="sm">('+q.d.mots.map(esc).join(', ')+')</span>':''}`);
 }
 
 /* --- Transformation : réécrire la phrase selon la consigne --- */
@@ -335,13 +347,26 @@ function verifAssemblage(){
   noter(ctx.pose.map(x=>x.m.h).join('')===attendu);
 }
 
+/* Deux formes de registres différents ne s’opposent pas : 什么 et 啥
+   conviennent tous deux, 很好 et 挺好的 aussi. Proposer l’une comme
+   leurre de l’autre reviendrait à compter fausse une réponse juste. Le
+   champ « equiv » d’une fiche déclare ces classes, et l’on retire de la
+   liste des leurres toute forme de la même classe que la bonne réponse.
+   Sans « equiv », la classe se réduit à la bonne réponse elle-même et le
+   comportement reste celui d’avant. */
+function classeEquiv(g,x){
+  const c=(g.equiv||[]).find(a=>a.indexOf(x)>=0);
+  return c?c.slice():[x];
+}
+
 /* --- Complétion : replacer l’outil manquant --- */
 function exComp(q,g){
   const fait=ctx.res[ctx.i]!=null;
   const bon=q.s.seg[q.s.cle].h;
   ctx.choix=ctx.choix||{};
   if(!ctx.choix[ctx.i]){
-    const autres=shuffle((g.leurres||[]).filter(x=>x!==bon)).slice(0,3);
+    const exclus=classeEquiv(g,bon);
+    const autres=shuffle((g.leurres||[]).filter(x=>exclus.indexOf(x)<0)).slice(0,3);
     ctx.choix[ctx.i]=shuffle(autres.concat([bon]));
   }
   const opts=ctx.choix[ctx.i];
@@ -351,7 +376,7 @@ function exComp(q,g){
       ?`<span class="u-bb-3-solid-gold u-ph4">${fait?esc(bon):'&nbsp;'}</span>`
       :esc(t.h)).join('')}
   </div>
-  <p class="sm">${esc(q.s.fr)}</p>
+  <p class="sm">${esc(q.s.fr)}${badgeReg(q.s.reg)}</p>
   <div class="opts mt">${opts.map(o=>{
     let cl='';
     if(fait)cl=o===bon?'ok':(o===ctx.rep?'no':'');

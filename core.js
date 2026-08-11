@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260803c';
+const BUILD='20260803l';
 
 /* --- Cohérence de la livraison ---------------------------------------
    Le marqueur figure à trois endroits : la constante ci-dessus, la
@@ -895,10 +895,27 @@ function setLevel(l){S.settings.level=l;save();ctx={};render();}
 
 function setTheme(t){S.settings.theme=t;save();ctx={};render();}
 
-function nothing(){
+/* Ce que le contenu couvre réellement, lu dans les données plutôt
+   qu’écrit en dur : la phrase suit d’elle-même l’ajout d’une fiche,
+   d’un texte ou d’une liste de mots. */
+function couverture(sources){
+  const arrs=(sources||['WORDS','GRAMMAR','TEXTS','PROD','HSKX']).map(DATA);
+  const th=new Set(),lv=new Set();
+  arrs.forEach(a=>a.forEach(o=>{
+    (o.th||[]).forEach(t=>th.add(t));
+    if(o.hsk)lv.add(o.hsk);
+  }));
+  if(!th.size)return '';
+  const noms=DATA('THEMES').filter(t=>th.has(t.id)).map(t=>'« '+t.n+' »');
+  const niv=Array.from(lv).sort().map(n=>'HSK '+n);
+  const liste=l=>l.length>1?l.slice(0,-1).join(', ')+' et '+l[l.length-1]:l[0];
+  return 'Le contenu couvre pour l’instant '+liste(noms)+', en '+liste(niv)+'.';
+}
+
+function nothing(msg){
   return `<div class="void"><span class="em">空</span>
     <p><b>Rien à ce filtre</b></p>
-    <p class="sm">Le contenu couvre pour l’instant « Se présenter » et « Présenter et décrire quelqu’un », en HSK 2 et HSK 3. Changez de niveau ou de thème.</p></div>`;
+    <p class="sm">${esc(msg||couverture())} Changez de niveau ou de thème.</p></div>`;
 }
 
 function ribbon(){
