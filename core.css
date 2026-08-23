@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20260803l
+   core.css — livraison 20260818k
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20260803l';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20260818k';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -575,6 +575,7 @@ body.exo{padding-bottom:24px}
 .grow.c-jade .em{background:var(--jade-s);color:var(--jade-d)}
 .grow.c-indigo .em{background:var(--indigo-s);color:var(--indigo-d)}
 .grow.c-plum .em{background:var(--plum-s);color:var(--plum-d)}
+.grow.c-clay .em{background:var(--clay-s);color:var(--clay-d)}
 .grow .st.ok{background:var(--jade-s);color:var(--jade-d)}
 .grow .st.due{background:var(--red-s);color:var(--red-d)}
 

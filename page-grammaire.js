@@ -7,7 +7,7 @@
    correction faite une fois vaut pour les deux rendus.
    ===================================================================== */
 
-const FAMCLASS={nom:'c-indigo',verbe:'c-jade',phrase:'c-plum'};
+const FAMCLASS={nom:'c-indigo',verbe:'c-jade',phrase:'c-plum',oral:'c-clay'};
 
 function gById(id){return GRAMMAR.find(g=>g.id===id);}
 function famOf(k){return FAM.find(f=>f.k===k)||FAM[2];}
