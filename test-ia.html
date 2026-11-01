@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FBF6EE">
+<title>Comparer les IA — Coach Chinois</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap">
+<style>
+:root{--bg:#FBF6EE;--card:#FFFDF8;--ink:#2B2420;--mut:#7A6E64;--line:#E8DDCC;
+  --red:#B8342E;--gold:#B98526;--jade:#3D7A69;--indigo:#3E4E7A;
+  --t1:#2F6FB5;--t2:#3D8A4F;--t3:#B98526;--t4:#B8342E;--t0:#9A9088}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Quicksand,sans-serif;padding:0 0 60px}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+header{background:var(--red);color:#fff;padding:22px 18px 18px;position:relative;overflow:hidden;margin-bottom:16px}
+header .em{position:absolute;right:-6px;top:-24px;font:700 120px/1 'Noto Sans SC';opacity:.13}
+header h1{margin:0;font-size:22px}
+header p{margin:4px 0 0;opacity:.9;font-size:14px}
+h2{font-size:17px;margin:22px 0 8px;color:var(--red)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 12px}
+.mut{color:var(--mut)}.sm{font-size:14px}
+label{display:block;font-weight:600;margin:8px 0 4px;font-size:14px}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+textarea{min-height:64px}
+.hz,textarea.hz{font-family:'Noto Sans SC',sans-serif}
+.btn{font:700 15px Quicksand,sans-serif;border:0;border-radius:10px;padding:10px 14px;background:var(--red);color:#fff;
+  box-shadow:0 3px 0 #7d211d;cursor:pointer;margin:6px 6px 0 0}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #7d211d}
+.btn.pale{background:#F3E9DA;color:var(--ink);box-shadow:0 3px 0 #D9C8AE}
+.btn.jade{background:var(--jade);box-shadow:0 3px 0 #27524a}
+.btn.sm{font-size:13px;padding:6px 10px}
+.btn:disabled{opacity:.5}
+.prov{border-left:4px solid var(--gold)}
+.prov.off{opacity:.6}
+.phead{display:flex;align-items:center;gap:8px}
+.phead b{font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-height:220px;overflow:auto}
+.chip{font:600 12px Quicksand;border:1px solid var(--line);background:#fff;border-radius:14px;padding:4px 9px;cursor:pointer}
+.chip.free{border-color:var(--jade);color:var(--jade)}
+.res{border-left:4px solid var(--indigo)}
+.res h3{margin:0 0 2px;font-size:15px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{font:600 12px Quicksand;border-radius:12px;padding:3px 9px;background:#EFE7DA}
+.tag.ok{background:#DCEDE6;color:#24584b}.tag.ko{background:#F6DCD9;color:#8e2620}
+.zh{font:600 20px/1.45 'Noto Sans SC',sans-serif}
+.py{font-size:15px}
+.s1{color:var(--t1)}.s2{color:var(--t2)}.s3{color:var(--t3)}.s4{color:var(--t4)}.s0{color:var(--t0)}
+.line{padding:6px 0;border-top:1px dashed var(--line)}
+.line:first-child{border-top:0}
+.pre{white-space:pre-wrap;font-family:'Noto Sans SC',Quicksand,sans-serif;font-size:15px}
+details{margin-top:8px}summary{cursor:pointer;color:var(--mut);font-size:13px}
+details pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:#F6F0E6;padding:8px;border-radius:8px}
+.note{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.note button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#fff;font:700 14px Quicksand;cursor:pointer}
+.note button.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.err{color:#8e2620}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:8px}
+.check input{width:18px;height:18px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+</style>
+</head>
+<body>
+<header><span class="em">测</span><h1>Comparer les IA</h1>
+<p>Les trois mêmes épreuves envoyées à chaque modèle, avec les vraies consignes de l’appli.</p></header>
+<div class="wrap">
+
+<h2>1. Les clés et les modèles</h2>
+<p class="mut sm">Les clés restent dans ce navigateur. Elles ne sont envoyées qu’au service concerné. Plusieurs modèles d’un même service se séparent par des virgules.</p>
+<div id="provs"></div>
+<label class="check"><input type="checkbox" id="memo" onchange="memorise()"> Mémoriser les clés sur cet appareil</label>
+
+<h2>2. Les épreuves</h2>
+<div id="tests"></div>
+<button class="btn" id="goall" onclick="toutLancer()">Tout lancer</button>
+<p class="mut sm" id="etat"></p>
+
+<h2>3. Les résultats</h2>
+<div id="results"><div class="box mut sm">Rien de lancé pour l’instant.</div></div>
+
+<h2>4. Le bilan</h2>
+<div class="box">
+  <p class="mut sm">Notez chaque réponse de 1 à 5 dans les résultats, puis copiez le bilan et collez-le dans la conversation avec Claude.</p>
+  <div id="bilan"></div>
+  <textarea id="bilantxt" readonly rows="6" style="margin-top:10px;font-size:12px"></textarea>
+  <button class="btn jade" onclick="copier()">Copier le bilan</button>
+</div>
+</div>
+
+<script src="data-words.js" onerror="void 0"></script>
+<script>
+/* =====================================================================
+   test-ia.html — banc d’essai des fournisseurs d’IA pour Coach Chinois.
+   Page autonome. Elle reprend telles quelles les consignes de l’appli
+   (correction, traducteur, conversation) et le contrôle du pinyin de
+   core.js, pour juger les modèles dans les conditions réelles.
+   ===================================================================== */
+
+/* ---------- Contrôle du pinyin, copié de core.js ---------- */
+const TONES={'āēīōūǖ':1,'áéíóúǘ':2,'ǎěǐǒǔǚ':3,'àèìòùǜ':4};
+function toneOf(syl){for(const c of syl.toLowerCase())for(const k in TONES)if(k.includes(c))return TONES[k];return 0;}
+const VOW={a:'aāáǎà',e:'eēéěè',i:'iīíǐì',o:'oōóǒò',u:'uūúǔù','ü':'üǖǘǚǜ'};
+function stripTone(sy){let r='';for(const c of sy){let hit=false;for(const k in VOW){const i=VOW[k].indexOf(c);if(i>=0){r+=(c===c.toUpperCase()&&c!==k?k.toUpperCase():k);hit=true;break;}}if(!hit)r+=c;}return r;}
+function setTone(sy,n){const base=stripTone(sy),low=base.toLowerCase();if(n===0)return base;let pos=-1;
+  if(low.includes('a'))pos=low.indexOf('a');else if(low.includes('e'))pos=low.indexOf('e');else if(low.includes('ou'))pos=low.indexOf('o');
+  else for(let i=low.length-1;i>=0;i--){if('aeiouü'.includes(low[i])){pos=i;break;}}
+  if(pos<0)return base;return base.slice(0,pos)+VOW[low[pos]][n]+base.slice(pos+1);}
+const SYL=new Set((
+ 'a ai an ang ao e ê ei en eng er o ou '+
+ 'yi ya yao ye you yan yin yang ying yong wu wa wo wai wei wan wen wang weng yu yue yuan yun '+
+ 'ba bo bai bei bao ban ben bang beng bi bie biao bian bin bing bu '+
+ 'pa po pai pei pao pou pan pen pang peng pi pie piao pian pin ping pu '+
+ 'ma mo me mai mei mao mou man men mang meng mi mie miao miu mian min ming mu '+
+ 'fa fo fei fou fan fen fang feng fu '+
+ 'da de dai dei dao dou dan dang deng dong di dia die diao diu dian ding du duo dui duan dun '+
+ 'ta te tai tei tao tou tan tang teng tong ti tie tiao tian ting tu tuo tui tuan tun '+
+ 'na ne nai nei nao nou nan nen nang neng nong ni nie niao niu nian nin niang ning nu nuo nuan nü nüe '+
+ 'la le lo lai lei lao lou lan lang leng long li lia lie liao liu lian lin liang ling lu luo luan lun lü lüe '+
+ 'ga ge gai gei gao gou gan gen gang geng gong gu gua guo guai gui guan gun guang '+
+ 'ka ke kai kei kao kou kan ken kang keng kong ku kua kuo kuai kui kuan kun kuang '+
+ 'ha he hai hei hao hou han hen hang heng hong hu hua huo huai hui huan hun huang '+
+ 'ji jia jie jiao jiu jian jin jiang jing jiong ju jue juan jun '+
+ 'qi qia qie qiao qiu qian qin qiang qing qiong qu que quan qun '+
+ 'xi xia xie xiao xiu xian xin xiang xing xiong xu xue xuan xun '+
+ 'zha zhe zhi zhai zhei zhao zhou zhan zhen zhang zheng zhong zhu zhua zhuo zhuai zhui zhuan zhun zhuang '+
+ 'cha che chi chai chao chou chan chen chang cheng chong chu chua chuo chuai chui chuan chun chuang '+
+ 'sha she shi shai shei shao shou shan shen shang sheng shu shua shuo shuai shui shuan shun shuang '+
+ 're ri rao rou ran ren rang reng rong ru rua ruo rui ruan run '+
+ 'za ze zi zai zei zao zou zan zen zang zeng zong zu zuo zui zuan zun '+
+ 'ca ce ci cai cao cou can cen cang ceng cong cu cuo cui cuan cun '+
+ 'sa se si sai sao sou san sen sang seng song su suo sui suan sun '+
+ 'ng hm hng m n yo').split(' '));
+const HAN_RE=/[㐀-䶿一-鿿豈-﫿]/;
+const PY_PONCT=/[\s,，.。、·？?！!;；:："“”‘’'`()（）《》「」…—–\-]+/;
+function hanChars(s){return Array.from(String(s||'')).filter(c=>HAN_RE.test(c));}
+function pySyls(py){return String(py||'').split(PY_PONCT).map(t=>t.trim()).filter(Boolean);}
+function pyBare(s){return stripTone(String(s||'').toLowerCase()).replace(/v/g,'ü');}
+const PYDICT={};
+function pinyinCheck(hz,py,skipDict){
+  const han=hanChars(hz),toks=pySyls(py);
+  if(!han.length)return{ok:true,code:'',why:'',paires:[],doute:[]};
+  if(!toks.length)return{ok:false,code:'vide',why:'pinyin absent',paires:[],doute:[]};
+  const syls=[];
+  for(const t of toks){
+    if(/^[A-Za-zÀ-ÿ'’-]+$/.test(t)&&!SYL.has(pyBare(t))&&String(hz).toLowerCase().includes(t.toLowerCase()))continue;
+    const nu0=t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+    if(/^(ng|hm|hng|m|n|ê)$/.test(nu0)){syls.push({raw:t,nu:nu0,ton:0,er:false});continue;}
+    const n=pyBare(t);let er=false,val=SYL.has(n);
+    if(!val&&n.length>2&&n.slice(-1)==='r'&&SYL.has(n.slice(0,-1))){val=true;er=true;}
+    if(!val)return{ok:false,code:'syllabe',why:'syllabe impossible : '+t,paires:[],doute:[]};
+    const ton=toneOf(t),nu=er?n.slice(0,-1):n,attendu=setTone(nu,ton)+(er?'r':'');
+    if(String(t).toLowerCase().replace(/v/g,'ü')!==attendu)
+      return{ok:false,code:'marque',why:'ton mal placé : '+t+' (attendu '+attendu+')',paires:[],doute:[]};
+    syls.push({raw:t,nu:nu,ton:ton,er:er});
+  }
+  const paires=[];let i=0;
+  for(const s of syls){if(i>=han.length)break;paires.push({c:han[i],s:s});i+=(s.er&&han[i+1]==='儿')?2:1;}
+  if(i!==han.length||paires.length!==syls.length)
+    return{ok:false,code:'compte',why:han.length+' caractères pour '+syls.length+' syllabes',paires:[],doute:[]};
+  const doute=[];
+  if(!skipDict)paires.forEach(p=>{const r=PYDICT[p.c];if(r&&r.size===1&&!r.has(p.s.nu+p.s.ton))doute.push(p.c+' lu '+p.s.raw);});
+  return{ok:true,code:doute.length?'doute':'',why:doute.length?'lecture inhabituelle : '+doute.join(', '):'',paires:paires,doute:doute};
+}
+function pyLearn(hz,py){const r=pinyinCheck(hz,py,true);if(!r.ok)return;
+  r.paires.forEach(p=>{(PYDICT[p.c]=PYDICT[p.c]||new Set()).add(p.s.nu+p.s.ton);});}
+(window.WORDS||[]).forEach(w=>pyLearn(w.hz,w.py));
+(window.CHARS||[]).forEach(c=>pyLearn(c.hz,c.py));
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pinyinHTML(py){return String(py||'').split(/(\s+|[,，.。?？!！])/).map(p=>{
+  if(!p.trim()||/^[,，.。?？!！]$/.test(p))return esc(p);return '<span class="s'+toneOf(p)+'">'+esc(p)+'</span>';}).join('');}
+
+/* ---------- Fournisseurs ---------- */
+const PROV={
+  gemini:{n:'Google Gemini',type:'gemini',models:'gemini-flash-latest',
+    note:'Gratuit avec quota. Si cette page est sur la même adresse que l’appli, la clé est reprise de ses réglages.'},
+  mistral:{n:'Mistral',type:'oai',url:'https://api.mistral.ai/v1/chat/completions',list:'https://api.mistral.ai/v1/models',
+    models:'mistral-small-latest, mistral-large-latest',pause:1100,
+    note:'Gratuit avec l’offre Experiment (vérification par SMS). Les requêtes peuvent servir à entraîner leurs modèles.'},
+  deepseek:{n:'DeepSeek',type:'oai',url:'https://api.deepseek.com/chat/completions',list:'https://api.deepseek.com/models',
+    models:'deepseek-chat',note:'Payant mais très bon marché : le compte doit être crédité de quelques dollars.'},
+  openrouter:{n:'OpenRouter',type:'oai',url:'https://openrouter.ai/api/v1/chat/completions',list:'https://openrouter.ai/api/v1/models',
+    models:'',note:'Une seule clé pour Qwen, Kimi, GLM, DeepSeek… Les modèles marqués « free » sont gratuits, avec une limite quotidienne. Utilisez « Lister les modèles » pour les choisir.'},
+  anthropic:{n:'Anthropic',type:'anthropic',models:'claude-haiku-4-5-20251001',
+    note:'Payant. C’est le second fournisseur déjà prévu dans l’appli.'}
+};
+const ORDRE=['gemini','mistral','deepseek','openrouter','anthropic'];
+const CFG={};          // clés, modèles, inclusion
+let GOPT={ver:'v1beta',auth:'query'};
+const MEMO='coach-test-ia';
+
+function initCfg(){
+  ORDRE.forEach(k=>CFG[k]={key:'',models:PROV[k].models,on:true});
+  try{
+    const m=JSON.parse(localStorage.getItem(MEMO)||'null');
+    if(m&&m.cfg){ORDRE.forEach(k=>{if(m.cfg[k])Object.assign(CFG[k],m.cfg[k]);});document.getElementById('memo').checked=true;}
+  }catch(e){}
+  try{
+    const app=JSON.parse(localStorage.getItem('coach-chinois-v2')||'null');
+    const s=app&&app.settings;
+    if(s&&s.apikey){
+      if(s.provider==='gemini'&&!CFG.gemini.key){CFG.gemini.key=s.apikey;if(s.gmodel)CFG.gemini.models=s.gmodel;}
+      if(s.provider==='anthropic'&&!CFG.anthropic.key)CFG.anthropic.key=s.apikey;
+    }
+    if(s&&s.gver)GOPT.ver=s.gver;
+    if(s&&s.gauth)GOPT.auth=s.gauth;
+  }catch(e){}
+}
+function memorise(){
+  try{
+    if(document.getElementById('memo').checked)localStorage.setItem(MEMO,JSON.stringify({cfg:CFG}));
+    else localStorage.removeItem(MEMO);
+  }catch(e){}
+}
+function setCfg(k,champ,v){CFG[k][champ]=v;if(champ==='on')renderProvs();memorise();}
+
+function renderProvs(){
+  document.getElementById('provs').innerHTML=ORDRE.map(k=>{const p=PROV[k],c=CFG[k];
+    return `<div class="box prov ${c.on?'':'off'}">
+      <div class="phead"><input type="checkbox" ${c.on?'checked':''} onchange="setCfg('${k}','on',this.checked)" aria-label="Inclure ${esc(p.n)}"><b>${esc(p.n)}</b></div>
+      <p class="mut sm" style="margin:4px 0 0">${esc(p.note)}</p>
+      <label>Clé</label>
+      <input type="password" autocomplete="off" value="${esc(c.key)}" oninput="setCfg('${k}','key',this.value.trim())" placeholder="Collez la clé ici">
+      <label>Modèles</label>
+      <input type="text" value="${esc(c.models)}" id="mod-${k}" oninput="setCfg('${k}','models',this.value)">
+      <button class="btn pale sm" onclick="lister('${k}')">Lister les modèles</button>
+      <div class="chips" id="chips-${k}"></div>
+    </div>`;}).join('');
+}
+function ajouteModele(k,id){
+  const l=CFG[k].models.split(',').map(x=>x.trim()).filter(Boolean);
+  if(l.indexOf(id)<0)l.push(id);
+  CFG[k].models=l.join(', ');document.getElementById('mod-'+k).value=CFG[k].models;memorise();
+}
+
+/* ---------- Appels réseau ---------- */
+async function requete(url,opt){
+  const ac=new AbortController(),t=setTimeout(()=>ac.abort(),90000);
+  try{return await fetch(url,Object.assign({signal:ac.signal},opt));}
+  catch(e){
+    if(e&&e.name==='AbortError')throw new Error('pas de réponse en 90 secondes');
+    throw new Error('appel bloqué par le navigateur (CORS) ou réseau coupé');
+  }finally{clearTimeout(t);}
+}
+async function errDe(r){
+  let d=null,txt='';try{txt=await r.text();d=JSON.parse(txt);}catch(e){}
+  const m=(d&&((d.error&&(d.error.message||d.error))||d.message||d.detail))||txt;
+  return 'erreur '+r.status+(m?' : '+String(typeof m==='string'?m:JSON.stringify(m)).slice(0,220):'');
+}
+function gURL(path,k){
+  return 'https://generativelanguage.googleapis.com/'+GOPT.ver+'/'+path+
+    (GOPT.auth==='query'?(path.indexOf('?')>=0?'&':'?')+'key='+encodeURIComponent(k):'');
+}
+function gHead(k){const h={'content-type':'application/json'};if(GOPT.auth==='header')h['x-goog-api-key']=k;return h;}
+
+async function lister(k){
+  const el=document.getElementById('chips-'+k),key=CFG[k].key,p=PROV[k];
+  el.innerHTML='<span class="mut sm">Recherche…</span>';
+  try{
+    let ids=[];
+    if(p.type==='gemini'){
+      if(!key)throw new Error('collez d’abord la clé');
+      const r=await requete(gURL('models',key),{headers:gHead(key)});
+      if(!r.ok)throw new Error(await errDe(r));
+      const d=await r.json();
+      ids=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).indexOf('generateContent')>=0)
+        .map(m=>String(m.name).replace('models/','')).filter(x=>!/tts|image|embedding|vision|live|audio/.test(x)).map(x=>({id:x}));
+    }else if(p.type==='anthropic'){
+      ids=['claude-haiku-4-5-20251001'].map(x=>({id:x}));
+    }else{
+      const h=key?{Authorization:'Bearer '+key}:{};
+      const r=await requete(p.list,{headers:h});
+      if(!r.ok)throw new Error(await errDe(r));
+      const d=await r.json();
+      ids=(d.data||[]).map(m=>({id:m.id,free:/:free$/.test(m.id)||(m.pricing&&Number(m.pricing.prompt)===0&&Number(m.pricing.completion)===0)}));
+      if(k==='openrouter'){
+        ids=ids.filter(m=>/qwen|deepseek|moonshot|kimi|glm|z-ai|zhipu|minimax|baidu|ernie|mistral|gemini/i.test(m.id));
+        ids.sort((a,b)=>(b.free?1:0)-(a.free?1:0)||a.id.localeCompare(b.id));
+      }
+    }
+    if(!ids.length){el.innerHTML='<span class="mut sm">Aucun modèle trouvé.</span>';return;}
+    el.innerHTML=ids.slice(0,60).map(m=>`<button class="chip ${m.free?'free':''}" onclick="ajouteModele('${k}','${esc(m.id)}')">${esc(m.id)}${m.free?' · gratuit':''}</button>`).join('')+
+      '<p class="mut sm" style="width:100%;margin:4px 0 0">Touchez un modèle pour l’ajouter à la liste.</p>';
+  }catch(e){el.innerHTML='<span class="err sm">'+esc(e.message)+'</span>';}
+}
+
+/* Un appel, quel que soit le fournisseur. msgs : [{role:'user'|'assistant',text}] */
+const JSONHINT='\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balise de code ni commentaire.';
+async function appel(k,model,sys,msgs,o){
+  const p=PROV[k],key=CFG[k].key,json=!!o.json;
+  if(p.type==='gemini'){
+    const body={contents:msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]}))};
+    if(sys)body.systemInstruction={parts:[{text:sys}]};
+    const gc={};if(typeof o.temp==='number')gc.temperature=o.temp;
+    if(json){gc.responseMimeType='application/json';if(o.schema)gc.responseSchema=o.schema;}
+    body.generationConfig=gc;
+    let r=await requete(gURL('models/'+encodeURIComponent(model)+':generateContent',key),{method:'POST',headers:gHead(key),body:JSON.stringify(body)});
+    if(!r.ok&&r.status===400&&json&&o.schema){
+      delete gc.responseSchema;body.systemInstruction={parts:[{text:(sys||'')+JSONHINT}]};
+      r=await requete(gURL('models/'+encodeURIComponent(model)+':generateContent',key),{method:'POST',headers:gHead(key),body:JSON.stringify(body)});
+    }
+    if(!r.ok)throw new Error(await errDe(r));
+    const d=await r.json();
+    const parts=((d.candidates||[])[0]||{}).content;
+    const txt=((parts&&parts.parts)||[]).map(x=>x.text||'').join('');
+    if(!txt)throw new Error('réponse vide — contenu peut-être bloqué par les filtres');
+    return txt;
+  }
+  if(p.type==='anthropic'){
+    const body={model:model,max_tokens:4000,messages:msgs.map(m=>({role:m.role,content:m.text}))};
+    if(sys||json)body.system=(sys||'')+(json?JSONHINT:'');
+    if(typeof o.temp==='number')body.temperature=o.temp;
+    const r=await requete('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify(body)});
+    if(!r.ok)throw new Error(await errDe(r));
+    const d=await r.json();
+    return (d.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n');
+  }
+  /* Format compatible OpenAI : Mistral, DeepSeek, OpenRouter. */
+  const messages=[];
+  if(sys||json)messages.push({role:'system',content:(sys||'')+(json?JSONHINT:'')});
+  msgs.forEach(m=>messages.push({role:m.role,content:m.text}));
+  const body={model:model,messages:messages};
+  if(typeof o.temp==='number')body.temperature=o.temp;
+  if(json)body.response_format={type:'json_object'};
+  const h={'content-type':'application/json',Authorization:'Bearer '+key};
+  if(k==='openrouter')h['X-Title']='Coach Chinois - test IA';
+  let r=await requete(p.url,{method:'POST',headers:h,body:JSON.stringify(body)});
+  if(!r.ok&&r.status===400&&json){delete body.response_format;r=await requete(p.url,{method:'POST',headers:h,body:JSON.stringify(body)});}
+  if(!r.ok)throw new Error(await errDe(r));
+  const d=await r.json();
+  if(d.error)throw new Error(String(d.error.message||JSON.stringify(d.error)).slice(0,220));
+  const msg=((d.choices||[])[0]||{}).message||{};
+  let txt=msg.content;
+  if(Array.isArray(txt))txt=txt.map(x=>x.text||'').join('');
+  if(!txt)throw new Error('réponse vide');
+  return String(txt);
+}
+function litJSON(txt){
+  let t=String(txt).replace(/```json|```/g,'').trim();
+  const a=t.indexOf('{'),b=t.lastIndexOf('}');
+  if(a>0||b<t.length-1){if(a>=0&&b>a)t=t.slice(a,b+1);}
+  return JSON.parse(t);
+}
+
+/* ---------- Les trois épreuves : consignes reprises de l’appli ---------- */
+const NIV=3;
+const DEF={
+  corr:'我是2020年来了中国。我很喜欢吃中国菜，我每天吃饭在饭馆。我有三个书。',
+  trad:'Désolée, je suis en retard, il y avait des bouchons.',
+  chat:'是的，我是新来的。我是法国人，去年来了北京。'
+};
+const INP=Object.assign({},DEF);
+
+function promptCorr(text){
+  const consigne='Présente-toi en trois phrases : depuis quand tu es en Chine, ce que tu aimes manger, ce que tu possèdes.';
+  return `Tu es professeur de chinois pour une apprenante francophone de niveau HSK${NIV}.
+Consigne : ${consigne}
+Texte de l’apprenante :
+${text}
+
+Réponds en français, brièvement :
+1. Version corrigée en chinois, avec pinyin.
+2. Les erreurs, une par ligne : écrit → attendu, puis la règle en une phrase.
+3. Une reformulation plus naturelle si elle existe.
+Pas de préambule ni de conclusion.`;
+}
+function tradSys(){
+  return `Tu es professeur de chinois pour une apprenante francophone de niveau HSK${NIV}.
+Tu traduis, et tu fournis en même temps de quoi fabriquer des exercices de mémorisation.
+
+Règles absolues sur le pinyin :
+— syllabe par syllabe, séparées par des espaces : « míng zi », jamais « míngzi » ;
+— accents de ton, jamais de chiffres ; ton neutre non marqué ;
+— exactement autant de syllabes que de caractères chinois, sans exception.
+Si tu n’es pas certain d’un ton, laisse le champ pinyin vide plutôt que de deviner.
+
+Le champ « seg » découpe une phrase chinoise en mots, dans l’ordre, sous forme
+de tableau : ["我","很","喜欢","中国","菜"]. Recollés, ils doivent redonner la
+phrase exactement, sans rien ajouter ni retrancher. Six à dix morceaux au plus.
+
+Tout le français est rédigé avec des apostrophes typographiques (’).`;
+}
+function tradPrompt(q){
+  return `Traduis en chinois simplifié ce texte français, dans la langue la plus ordinaire.
+
+Texte :
+${q}
+
+Renseigne :
+· type — « mot » si c’est une unité lexicale, « morceau » si c’est un bout de
+  phrase ou une structure incomplète (一边…一边, 有点儿, 从…开始), « phrase » si
+  c’est une phrase complète qui se suffit à elle-même. Ne compte pas les
+  caractères : 中华人民共和国 est un mot, 我去 est une phrase.
+· hz, py, fr — la traduction principale, sous sa forme la plus ordinaire.
+· note — une remarque de langue brève, ou une chaîne vide.
+· seg — le découpage de hz, si c’est une phrase ou un morceau.
+· syn — deux à quatre synonymes ou équivalents proches. Pour chacun, « note »
+  dit ce qui le sépare du mot principal et dans quel cas on le préfère. C’est
+  la partie la plus utile : sois précis, pas décoratif.
+· alts — si c’est une phrase : deux ou trois autres formulations correctes.
+  « reg » donne le registre (courant, écrit, soutenu, oral familier) et « note »
+  dit ce qui change. Tableau vide si c’est un mot.
+· ex — deux ou trois phrases d’exemple courtes contenant exactement hz, avec
+  leur pinyin, leur traduction et leur découpage. Indispensables : ce sont
+  elles qui alimenteront les exercices. Tableau vide seulement si hz est
+  lui-même une phrase complète.
+· vois — deux mots réellement confondables avec hz par une francophone, qui se
+  traduisent pareil en français mais ne s’emploient pas dans les mêmes cas
+  (会/能/可以, 二/两, 才/就). « note » énonce la règle qui les sépare.
+· faute — une version fautive mais plausible de la première phrase d’exemple,
+  du genre d’erreur que fait une francophone, avec la note qui explique
+  l’erreur. Le champ hz contient la phrase fautive entière.
+· decomp — pour au plus trois caractères de hz : leurs composants, le rôle de
+  chacun (clé sémantique, élément phonétique), et ce que le composant signifie.
+  « note » dit comment la composition aide à retenir le caractère.
+
+Forme attendue de l’objet JSON :
+{"type":"","hz":"","py":"","fr":"","note":"","seg":[],"syn":[{"hz":"","py":"","fr":"","note":""}],
+"alts":[{"hz":"","py":"","fr":"","reg":"","note":"","seg":[]}],"ex":[{"hz":"","py":"","fr":"","seg":[]}],
+"vois":[{"hz":"","py":"","fr":"","note":""}],"faute":{"hz":"","note":""},
+"decomp":[{"c":"","parts":[{"p":"","role":"","sens":""}],"note":""}]}`;
+}
+const TXT={type:'STRING'},SEG={type:'ARRAY',items:TXT};
+const VOISIN={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,note:TXT},required:['hz','py','fr','note']};
+const PHRASE={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,seg:SEG},required:['hz','py','fr','seg']};
+const VARIANTE={type:'OBJECT',properties:{hz:TXT,py:TXT,fr:TXT,reg:TXT,note:TXT,seg:SEG},required:['hz','py','fr','reg','note','seg']};
+const PART={type:'OBJECT',properties:{p:TXT,role:TXT,sens:TXT},required:['p','role','sens']};
+const CARACT={type:'OBJECT',properties:{c:TXT,parts:{type:'ARRAY',items:PART},note:TXT},required:['c','parts','note']};
+const FAUTE={type:'OBJECT',properties:{hz:TXT,note:TXT},required:['hz','note']};
+const TRADKEYS=['type','hz','py','fr','note','seg','syn','alts','ex','vois','faute','decomp'];
+const TRADSCHEMA={type:'OBJECT',properties:{type:TXT,hz:TXT,py:TXT,fr:TXT,note:TXT,seg:SEG,
+  syn:{type:'ARRAY',items:VOISIN},alts:{type:'ARRAY',items:VARIANTE},ex:{type:'ARRAY',items:PHRASE},
+  vois:{type:'ARRAY',items:VOISIN},faute:FAUTE,decomp:{type:'ARRAY',items:CARACT}},required:TRADKEYS};
+
+/* Vocabulaire du thème « Se présenter », HSK 3, tel qu’il est dans data-words.js. */
+const VOCAB3=[['介绍','jiè shào','présenter (quelqu’un)'],['自己','zì jǐ','soi-même'],['国家','guó jiā','pays'],
+  ['城市','chéng shì','ville'],['结婚','jié hūn','se marier'],['同事','tóng shì','collègue'],['邻居','lín jū','voisin'],
+  ['经理','jīng lǐ','directeur, responsable'],['护士','hù shi','infirmier, infirmière'],['留学生','liú xué shēng','étudiant étranger'],
+  ['爱好','ài hào','passe-temps, centre d’intérêt'],['关系','guān xi','relation, lien'],['认真','rèn zhēn','sérieux, appliqué'],
+  ['特别','tè bié','particulier ; particulièrement'],['公司','gōng sī','entreprise, société'],['欢迎','huān yíng','accueillir ; bienvenue'],
+  ['以前','yǐ qián','avant, autrefois'],['妻子','qī zi','épouse']];
+function chatSys(){
+  const mots=(window.WORDS||[]).filter(w=>w.hsk===NIV&&(w.th||[]).indexOf('presenter')>=0).map(w=>[w.hz,w.py,w.fr]);
+  const liste=(mots.length?mots:VOCAB3).map(w=>w[0]+'  '+w[1]+'  = '+w[2]).join('\n');
+  return `Tu es un partenaire de conversation chinois. Tu joues ce rôle : une personne que l’apprenante rencontre pour la première fois et qui cherche à faire connaissance.
+Sujet de l’échange : Se présenter. Niveau de l’apprenante : HSK ${NIV}.
+Registre courant et détendu. Tu peux employer 嗯, 行, 没事儿, et un peu de 儿化 : 这儿, 哪儿, 一点儿.
+
+Vocabulaire autorisé. N’emploie aucun autre mot de contenu :
+${liste}
+Restent permis les outils grammaticaux de base : 的 了 吗 呢 吧 不 也 很 和 在 有 是 我 你 您 他 她 这 那 什么 谁 几 多少 怎么 可以 会 想 要 请.
+
+Point de langue de la leçon, à faire apparaître naturellement dans tes questions : La structure 是…的 : préciser les circonstances.
+
+Règles absolues :
+— Deux ou trois phrases courtes par tour, jamais davantage.
+— Tu restes dans ton personnage. Aucune explication, aucune correction, aucune traduction à l’intérieur du message chinois.
+— Tu poses UNE SEULE question par tour. Jamais deux, jamais trois. Une question, puis tu t’arrêtes.
+— Le pinyin s’écrit SYLLABE PAR SYLLABE, séparées par des espaces, avec les marques de ton : « míng zi » et non « míngzi ». Exactement une syllabe par caractère chinois, ponctuation exclue.
+— Tu réponds uniquement par un objet JSON conforme au schéma demandé.
+
+Forme attendue : {"hz":"","py":"","fr":"","gloss":[{"hz":"","py":"","fr":""}],"pistes":[{"hz":"","py":"","fr":""}]}
+« pistes » : deux ou trois réponses possibles pour l’apprenante. « gloss » : les mots difficiles de ton message.`;
+}
+const CHAT_ITEM={type:'object',properties:{hz:{type:'string'},py:{type:'string'},fr:{type:'string'}},required:['hz','py','fr']};
+const CHAT_SCHEMA={type:'object',properties:{hz:{type:'string'},py:{type:'string'},fr:{type:'string'},
+  gloss:{type:'array',items:CHAT_ITEM},pistes:{type:'array',items:CHAT_ITEM}},required:['hz','py','fr','pistes']};
+const TOUR1={hz:'您好，请问您是新来的同事吗？',py:'nín hǎo, qǐng wèn nín shì xīn lái de tóng shì ma',fr:'Bonjour, êtes-vous la nouvelle collègue ?',pistes:[]};
+
+const TESTS=[
+  {id:'corr',n:'Correction d’un écrit',em:'写',
+   d:'La consigne du module Production écrite. Trois erreurs volontaires : 是…的, la place du complément de lieu, le classificateur. Réponses attendues : 我是2020年来中国的 · 我每天在饭馆吃饭 · 三本书.',
+   build:t=>({sys:'',msgs:[{role:'user',text:promptCorr(t)}],o:{}})},
+  {id:'trad',n:'Traduction en registre oral',em:'译',
+   d:'La consigne du Traducteur, du français vers le chinois, avec sa sortie JSON. Attendu, à peu près : 不好意思，我迟到了，路上堵车。',
+   build:t=>({sys:tradSys(),msgs:[{role:'user',text:tradPrompt(t)}],o:{json:true,schema:TRADSCHEMA,temp:.3}})},
+  {id:'chat',n:'Conversation (聊)',em:'聊',
+   d:'La consigne du module Conversation, HSK 3. Le partenaire a ouvert ; voici votre réponse, avec une erreur volontaire sur 是…的. Il doit enchaîner avec une seule question, sans vous corriger.',
+   build:t=>({sys:chatSys(),msgs:[{role:'user',text:'(La conversation commence. Salue-moi et pose ta première question.)'},
+     {role:'assistant',text:JSON.stringify(TOUR1)},{role:'user',text:t}],o:{json:true,schema:CHAT_SCHEMA,temp:.8}})}
+];
+
+function renderTests(){
+  document.getElementById('tests').innerHTML=TESTS.map(T=>`<div class="box">
+    <b><span class="hz">${T.em}</span> ${esc(T.n)}</b>
+    <p class="mut sm" style="margin:4px 0 6px">${esc(T.d)}</p>
+    <textarea class="${T.id==='trad'?'':'hz'}" rows="2" oninput="INP['${T.id}']=this.value">${esc(INP[T.id])}</textarea>
+    <button class="btn pale sm" onclick="lancer(['${T.id}'])">Lancer cette épreuve seule</button>
+  </div>`).join('');
+}
+
+/* ---------- Contrôles automatiques ---------- */
+function nz(s){return String(s||'').replace(/[\s，。？！、,.?!；;：:]/g,'');}
+function lignesPy(list){
+  let ok=0,tot=0;const pb=[];
+  list.filter(x=>x&&x.hz&&HAN_RE.test(x.hz)).forEach(x=>{tot++;const r=pinyinCheck(x.hz,x.py||'');
+    if(r.ok&&!r.doute.length)ok++;else pb.push(x.hz+' — '+(r.ok?r.why:r.why||'refusé'));});
+  return {ok:ok,tot:tot,pb:pb};
+}
+function controle(T,txt,inputDefaut){
+  const tags=[];let data=null,pyR=null;
+  if(T.id==='corr'){
+    if(inputDefaut){
+      const t=nz(txt);
+      [['来中国的','是…的'],['在饭馆吃饭','place du lieu'],['三本书','classificateur']].forEach(a=>
+        tags.push({ok:t.indexOf(a[0])>=0,t:'Erreur repérée : '+a[1]}));
+    }
+    return {tags:tags,data:null,py:null};
+  }
+  try{data=litJSON(txt);tags.push({ok:true,t:'JSON lisible'});}
+  catch(e){tags.push({ok:false,t:'JSON illisible : l’appli planterait'});return {tags:tags,data:null,py:null};}
+  if(T.id==='trad'){
+    const manque=TRADKEYS.filter(k=>!(k in data));
+    tags.push({ok:!manque.length,t:manque.length?'Champs manquants : '+manque.join(', '):'Tous les champs présents'});
+    if(inputDefaut){
+      tags.push({ok:nz(data.hz).indexOf('迟到')>=0,t:'迟到 (en retard)'});
+      tags.push({ok:nz(data.hz).indexOf('堵车')>=0,t:'堵车 (bouchons)'});
+    }
+    const segOk=Array.isArray(data.seg)&&data.seg.join('')===String(data.hz||'');
+    tags.push({ok:segOk,t:segOk?'Découpage juste':'Découpage qui ne recolle pas'});
+    const arr=k=>Array.isArray(data[k])?data[k]:[];
+    pyR=lignesPy([{hz:data.hz,py:data.py}].concat(arr('syn'),arr('alts'),arr('ex'),arr('vois')));
+  }else{
+    const manque=['hz','py','fr','pistes'].filter(k=>!(k in data));
+    tags.push({ok:!manque.length,t:manque.length?'Champs manquants : '+manque.join(', '):'Tous les champs présents'});
+    const nq=(String(data.hz||'').match(/[？?]/g)||[]).length;
+    tags.push({ok:nq===1,t:nq===1?'Une seule question':nq+' questions (la consigne en veut une)'});
+    const fr=/[A-Za-zÀ-ÿ]{3,}/.test(String(data.hz||''));
+    tags.push({ok:!fr,t:fr?'Du français dans la réplique chinoise':'Reste dans son rôle'});
+    const p=Array.isArray(data.pistes)?data.pistes:[];
+    tags.push({ok:p.length>=2,t:p.length+' piste'+(p.length>1?'s':'')+' de réponse'});
+    pyR=lignesPy([{hz:data.hz,py:data.py}].concat(p,Array.isArray(data.gloss)?data.gloss:[]));
+  }
+  if(pyR&&pyR.tot)tags.push({ok:pyR.ok===pyR.tot,t:'Pinyin : '+pyR.ok+' ligne'+(pyR.ok>1?'s':'')+' conforme'+(pyR.ok>1?'s':'')+' sur '+pyR.tot});
+  return {tags:tags,data:data,py:pyR};
+}
+
+/* ---------- Exécution ---------- */
+const RES={};   // RES[test][prov|model] = {...}
+const NOTES={};
+let enCours=0;
+function attente(ms){return new Promise(r=>setTimeout(r,ms));}
+function cibles(){
+  const l=[];
+  ORDRE.forEach(k=>{if(!CFG[k].on||!CFG[k].key)return;
+    CFG[k].models.split(',').map(x=>x.trim()).filter(Boolean).forEach(m=>l.push({k:k,m:m}));});
+  return l;
+}
+async function lancer(ids){
+  const cs=cibles();
+  if(!cs.length){etat('Aucun service prêt : cochez-en un et collez sa clé.');return;}
+  const tests=TESTS.filter(T=>ids.indexOf(T.id)>=0);
+  const parProv={};
+  cs.forEach(c=>{(parProv[c.k]=parProv[c.k]||[]).push(c);});
+  tests.forEach(T=>{RES[T.id]=RES[T.id]||{};cs.forEach(c=>{RES[T.id][c.k+'|'+c.m]={k:c.k,m:c.m,busy:true};});});
+  renderRes();
+  const total=tests.length*cs.length;let fini=0;enCours++;
+  document.getElementById('goall').disabled=true;
+  etat('En cours : 0 sur '+total+'…');
+  /* Les services tournent en parallèle ; à l’intérieur d’un service,
+     les appels se suivent, pour ne pas dépasser les limites gratuites. */
+  await Promise.all(Object.keys(parProv).map(async k=>{
+    for(const c of parProv[k])for(const T of tests){
+      const inp=INP[T.id],b=T.build(inp),id=c.k+'|'+c.m,t0=performance.now();
+      let r={k:c.k,m:c.m};
+      try{
+        const txt=await appel(c.k,c.m,b.sys,b.msgs,b.o);
+        r.ms=performance.now()-t0;r.txt=txt;
+        Object.assign(r,controle(T,txt,inp===DEF[T.id]));
+      }catch(e){r.ms=performance.now()-t0;r.err=e.message||String(e);}
+      RES[T.id][id]=r;fini++;etat('En cours : '+fini+' sur '+total+'…');renderRes();
+      if(PROV[c.k].pause)await attente(PROV[c.k].pause);
+    }
+  }));
+  enCours--;
+  if(!enCours)document.getElementById('goall').disabled=false;
+  etat('Terminé : '+fini+' réponse'+(fini>1?'s':'')+'. Notez-les, puis copiez le bilan.');
+}
+function toutLancer(){return lancer(TESTS.map(T=>T.id));}
+function etat(m){document.getElementById('etat').textContent=m;}
+
+/* ---------- Affichage ---------- */
+function sec(ms){return (ms/1000).toFixed(1).replace('.',',')+' s';}
+function ligneZh(o,extra){
+  if(!o||!o.hz)return '';
+  const r=HAN_RE.test(o.hz)?pinyinCheck(o.hz,o.py||''):{ok:true,doute:[]};
+  return `<div class="line"><div class="zh">${esc(o.hz)}</div>
+    ${o.py?`<div class="py">${pinyinHTML(o.py)}${r.ok&&!r.doute.length?'':` <span class="err sm">— ${esc(r.why||'pinyin refusé')}</span>`}</div>`:''}
+    ${o.fr?`<div class="sm">${esc(o.fr)}</div>`:''}
+    ${extra?`<div class="mut sm">${esc(extra)}</div>`:''}</div>`;
+}
+function corps(T,r){
+  if(T.id==='corr'||!r.data)return `<div class="pre">${esc(r.txt||'')}</div>`;
+  const d=r.data,A=k=>Array.isArray(d[k])?d[k]:[];
+  if(T.id==='trad')return ligneZh(d,d.note)+
+    (A('alts').length?'<p class="mut sm" style="margin:8px 0 0"><b>Autres formulations</b></p>'+A('alts').map(x=>ligneZh(x,[x.reg,x.note].filter(Boolean).join(' — '))).join(''):'')+
+    (A('syn').length?'<p class="mut sm" style="margin:8px 0 0"><b>Synonymes</b></p>'+A('syn').map(x=>ligneZh(x,x.note)).join(''):'')+
+    (A('ex').length?'<p class="mut sm" style="margin:8px 0 0"><b>Exemples</b></p>'+A('ex').map(x=>ligneZh(x)).join(''):'')+
+    (A('vois').length?'<p class="mut sm" style="margin:8px 0 0"><b>À ne pas confondre</b></p>'+A('vois').map(x=>ligneZh(x,x.note)).join(''):'')+
+    (d.faute&&d.faute.hz?'<p class="mut sm" style="margin:8px 0 0"><b>Version fautive</b></p>'+ligneZh({hz:d.faute.hz},d.faute.note):'');
+  return ligneZh(d)+
+    (A('pistes').length?'<p class="mut sm" style="margin:8px 0 0"><b>Pistes de réponse</b></p>'+A('pistes').map(x=>ligneZh(x)).join(''):'')+
+    (A('gloss').length?'<p class="mut sm" style="margin:8px 0 0"><b>Mots expliqués</b></p>'+A('gloss').map(x=>ligneZh(x)).join(''):'');
+}
+function noter(t,id,n){NOTES[t+'#'+id]=n;renderRes();}
+function renderRes(){
+  const el=document.getElementById('results');
+  const blocs=TESTS.filter(T=>RES[T.id]).map(T=>{
+    const cartes=Object.keys(RES[T.id]).map(id=>{const r=RES[T.id][id],p=PROV[r.k];
+      const nt=NOTES[T.id+'#'+id];
+      let h=`<div class="box res"><h3>${esc(p.n)} · ${esc(r.m)}</h3>`;
+      if(r.busy)return h+'<p class="mut sm">En attente de la réponse…</p></div>';
+      h+=`<p class="mut sm" style="margin:0">${sec(r.ms)}</p>`;
+      if(r.err)return h+`<p class="err sm">${esc(r.err)}</p></div>`;
+      h+=`<div class="tags">${(r.tags||[]).map(t=>`<span class="tag ${t.ok?'ok':'ko'}">${esc(t.t)}</span>`).join('')}</div>`;
+      h+=corps(T,r);
+      if(r.py&&r.py.pb.length)h+=`<p class="err sm">Pinyin à revoir : ${r.py.pb.map(esc).join(' · ')}</p>`;
+      h+=`<details><summary>Réponse brute</summary><pre>${esc(r.txt)}</pre></details>`;
+      h+=`<div class="note"><span class="sm">Votre note :</span>${[1,2,3,4,5].map(n=>
+        `<button class="${nt===n?'on':''}" onclick="noter('${T.id}','${esc(id)}',${n})">${n}</button>`).join('')}</div>`;
+      return h+'</div>';
+    }).join('');
+    return `<h2 style="color:var(--indigo)"><span class="hz">${T.em}</span> ${esc(T.n)}</h2>`+cartes;
+  });
+  el.innerHTML=blocs.length?blocs.join(''):'<div class="box mut sm">Rien de lancé pour l’instant.</div>';
+  renderBilan();
+}
+function renderBilan(){
+  const ids={};
+  TESTS.forEach(T=>Object.keys(RES[T.id]||{}).forEach(id=>ids[id]=1));
+  const L=Object.keys(ids);
+  if(!L.length){document.getElementById('bilan').innerHTML='';document.getElementById('bilantxt').value='';return;}
+  const cell=(T,id)=>{const r=(RES[T.id]||{})[id];if(!r)return '—';if(r.busy)return '…';if(r.err)return 'échec';
+    const ok=(r.tags||[]).filter(t=>t.ok).length,n=(r.tags||[]).length,nt=NOTES[T.id+'#'+id];
+    return ok+'/'+n+' contrôles · '+sec(r.ms)+(nt?' · note '+nt:'');};
+  document.getElementById('bilan').innerHTML='<table><tr><th>Modèle</th>'+TESTS.map(T=>'<th>'+esc(T.n)+'</th>').join('')+'</tr>'+
+    L.map(id=>{const [k,m]=id.split('|');return '<tr><td>'+esc(PROV[k].n+' · '+m)+'</td>'+TESTS.map(T=>'<td>'+esc(cell(T,id))+'</td>').join('')+'</tr>';}).join('')+'</table>';
+  let txt='Bilan du test des IA — Coach Chinois\n';
+  L.forEach(id=>{const [k,m]=id.split('|');txt+='\n'+PROV[k].n+' · '+m+'\n';
+    TESTS.forEach(T=>{const r=(RES[T.id]||{})[id];if(!r||r.busy)return;
+      txt+='  '+T.n+' : ';
+      if(r.err){txt+='échec — '+r.err+'\n';return;}
+      txt+=sec(r.ms)+(NOTES[T.id+'#'+id]?', note '+NOTES[T.id+'#'+id]+'/5':'')+'\n';
+      (r.tags||[]).forEach(t=>txt+='    '+(t.ok?'[oui] ':'[non] ')+t.t+'\n');
+      if(r.py&&r.py.pb.length)txt+='    Pinyin à revoir : '+r.py.pb.join(' · ')+'\n';
+      txt+='    Réponse : '+String(r.txt||'').replace(/\s+/g,' ').slice(0,600)+'\n';
+    });});
+  document.getElementById('bilantxt').value=txt;
+}
+async function copier(){
+  const t=document.getElementById('bilantxt');
+  if(!t.value){etat('Le bilan est vide : lancez d’abord les épreuves.');return;}
+  try{await navigator.clipboard.writeText(t.value);etat('Bilan copié.');}
+  catch(e){t.focus();t.select();try{document.execCommand('copy');etat('Bilan copié.');}catch(_){etat('Sélectionnez le texte du bilan et copiez-le à la main.');}}
+}
+
+initCfg();renderProvs();renderTests();
+</script>
+</body>
+</html>
