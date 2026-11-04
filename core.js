@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260818k';
+const BUILD='20260818l';
 
 /* --- Cohérence de la livraison ---------------------------------------
    Le marqueur figure à trois endroits : la constante ci-dessus, la
@@ -236,9 +236,9 @@ const SYL=new Set((
  'sa se si sai sao sou san sen sang seng song su suo sui suan sun '+
  'ng hm hng m n yo').split(' '));
 
-const HAN_RE=/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+const HAN_RE=/[㐀-䶿一-鿿豈-﫿]/;
 
-const PY_PONCT=/[\s,，.。、·？?！!;；:：""“”‘’'`()（）《》「」…—–\-]+/;
+const PY_PONCT=/[\s,，.。、·？?！!;；:："“”‘’'`()（）《》「」…—–\-]+/;
 
 function hanChars(s){return Array.from(String(s||'')).filter(c=>HAN_RE.test(c));}
 
@@ -263,7 +263,7 @@ function pinyinCheck(hz,py,skipDict){
        &&String(hz).toLowerCase().includes(t.toLowerCase()))continue;
     /* Interjections nasales : 嗯 ǹg, 呣 ḿ, 哼 hng… la marque de ton ne
        porte pas sur une voyelle, on ne contrôle donc pas sa place. */
-    const nu0=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const nu0=t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
     if(/^(ng|hm|hng|m|n|ê)$/.test(nu0)){syls.push({raw:t,nu:nu0,ton:0,er:false});continue;}
     const n=pyBare(t);
     let er=false,val=SYL.has(n);
