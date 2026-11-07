@@ -70,11 +70,15 @@ td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertic
 
 <h2>1. Les clés et les modèles</h2>
 <p class="mut sm">Les clés restent dans ce navigateur. Elles ne sont envoyées qu’au service concerné. Plusieurs modèles d’un même service se séparent par des virgules.</p>
+<p class="mut sm">Le réglage de réflexion s’écrit après le modèle, derrière un @. Gemini : <b>@minimal</b>, <b>@low</b>, <b>@medium</b>, <b>@high</b> (tous les modèles n’acceptent pas tous les niveaux). DeepSeek : <b>@off</b> (sans réflexion), <b>@on</b> (avec), ou <b>@high</b>. Sans @, le service choisit lui-même. Plus de réflexion, c’est souvent plus juste, mais toujours plus lent.</p>
 <div id="provs"></div>
 <label class="check"><input type="checkbox" id="memo" onchange="memorise()"> Mémoriser les clés sur cet appareil</label>
 
 <h2>2. Les épreuves</h2>
 <div id="tests"></div>
+<label for="essais">Nombre d’essais par modèle</label>
+<input type="number" id="essais" min="1" max="5" value="2" style="width:80px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px">
+<p class="mut sm" style="margin:4px 0 0">Deux essais au moins : une IA ne répond pas deux fois pareil, une seule réponse ne suffit pas pour juger.</p>
 <button class="btn" id="goall" onclick="toutLancer()">Tout lancer</button>
 <p class="mut sm" id="etat"></p>
 
@@ -175,13 +179,13 @@ function pinyinHTML(py){return String(py||'').split(/(\s+|[,，.。?？!！])/).
 
 /* ---------- Fournisseurs ---------- */
 const PROV={
-  gemini:{n:'Google Gemini',type:'gemini',models:'gemini-flash-latest',
+  gemini:{n:'Google Gemini',type:'gemini',models:'gemini-3.8-flash@low, gemini-3.6-flash@minimal, gemini-3.5-flash-lite',
     note:'Gratuit avec quota. Si cette page est sur la même adresse que l’appli, la clé est reprise de ses réglages.'},
   mistral:{n:'Mistral',type:'oai',url:'https://api.mistral.ai/v1/chat/completions',list:'https://api.mistral.ai/v1/models',
-    models:'mistral-small-latest, mistral-large-latest',pause:1100,
+    models:'mistral-small-latest, mistral-medium-latest',pause:2500,
     note:'Gratuit avec l’offre Experiment (vérification par SMS). Les requêtes peuvent servir à entraîner leurs modèles.'},
   deepseek:{n:'DeepSeek',type:'oai',url:'https://api.deepseek.com/chat/completions',list:'https://api.deepseek.com/models',
-    models:'deepseek-chat',note:'Payant mais très bon marché : le compte doit être crédité de quelques dollars.'},
+    models:'deepseek-flash@off, deepseek-flash@on, deepseek-v4-pro',note:'Payant mais très bon marché : le compte doit être crédité de quelques dollars.'},
   openrouter:{n:'OpenRouter',type:'oai',url:'https://openrouter.ai/api/v1/chat/completions',list:'https://openrouter.ai/api/v1/models',
     models:'',note:'Une seule clé pour Qwen, Kimi, GLM, DeepSeek… Les modèles marqués « free » sont gratuits, avec une limite quotidienne. Utilisez « Lister les modèles » pour les choisir.'},
   anthropic:{n:'Anthropic',type:'anthropic',models:'claude-haiku-4-5-20251001',
@@ -196,13 +200,15 @@ function initCfg(){
   ORDRE.forEach(k=>CFG[k]={key:'',models:PROV[k].models,on:true});
   try{
     const m=JSON.parse(localStorage.getItem(MEMO)||'null');
-    if(m&&m.cfg){ORDRE.forEach(k=>{if(m.cfg[k])Object.assign(CFG[k],m.cfg[k]);});document.getElementById('memo').checked=true;}
+    if(m&&m.cfg){ORDRE.forEach(k=>{if(m.cfg[k]){Object.assign(CFG[k],m.cfg[k]);
+      /* Ancienne mémoire (avant les modèles conseillés de novembre 2026) : on garde la clé, pas la liste. */
+      if((m.v||1)<2)CFG[k].models=PROV[k].models;}});document.getElementById('memo').checked=true;}
   }catch(e){}
   try{
     const app=JSON.parse(localStorage.getItem('coach-chinois-v2')||'null');
     const s=app&&app.settings;
     if(s&&s.apikey){
-      if(s.provider==='gemini'&&!CFG.gemini.key){CFG.gemini.key=s.apikey;if(s.gmodel)CFG.gemini.models=s.gmodel;}
+      if(s.provider==='gemini'&&!CFG.gemini.key){CFG.gemini.key=s.apikey;}
       if(s.provider==='anthropic'&&!CFG.anthropic.key)CFG.anthropic.key=s.apikey;
     }
     if(s&&s.gver)GOPT.ver=s.gver;
@@ -211,7 +217,7 @@ function initCfg(){
 }
 function memorise(){
   try{
-    if(document.getElementById('memo').checked)localStorage.setItem(MEMO,JSON.stringify({cfg:CFG}));
+    if(document.getElementById('memo').checked)localStorage.setItem(MEMO,JSON.stringify({v:2,cfg:CFG}));
     else localStorage.removeItem(MEMO);
   }catch(e){}
 }
@@ -227,9 +233,11 @@ function renderProvs(){
       <label>Modèles</label>
       <input type="text" value="${esc(c.models)}" id="mod-${k}" oninput="setCfg('${k}','models',this.value)">
       <button class="btn pale sm" onclick="lister('${k}')">Lister les modèles</button>
+      <button class="btn pale sm" onclick="conseilles('${k}')">Modèles conseillés</button>
       <div class="chips" id="chips-${k}"></div>
     </div>`;}).join('');
 }
+function conseilles(k){CFG[k].models=PROV[k].models;document.getElementById('mod-'+k).value=CFG[k].models;memorise();}
 function ajouteModele(k,id){
   const l=CFG[k].models.split(',').map(x=>x.trim()).filter(Boolean);
   if(l.indexOf(id)<0)l.push(id);
@@ -289,23 +297,38 @@ async function lister(k){
 
 /* Un appel, quel que soit le fournisseur. msgs : [{role:'user'|'assistant',text}] */
 const JSONHINT='\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balise de code ni commentaire.';
+function decoupe(m){const i=m.lastIndexOf('@');return i>0?{id:m.slice(0,i).trim(),lvl:m.slice(i+1).trim().toLowerCase()}:{id:m.trim(),lvl:''};}
+/* Nouvel essai automatique si le service répond « trop de requêtes » (429) ou « surchargé » (503). */
+async function requeteBis(url,opt){
+  for(let i=0;;i++){
+    const r=await requete(url,opt);
+    if((r.status!==429&&r.status!==503)||i>=3)return r;
+    const ra=Number(r.headers.get('retry-after'));
+    const ms=ra>0?Math.min(ra*1000,60000):[4000,10000,20000][i];
+    etat('Trop de requêtes : nouvel essai dans '+Math.round(ms/1000)+' s…');
+    await attente(ms);
+  }
+}
 async function appel(k,model,sys,msgs,o){
-  const p=PROV[k],key=CFG[k].key,json=!!o.json;
+  const p=PROV[k],key=CFG[k].key,json=!!o.json,dm=decoupe(model),lvl=dm.lvl;
+  model=dm.id;
   if(p.type==='gemini'){
     const body={contents:msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]}))};
     if(sys)body.systemInstruction={parts:[{text:sys}]};
-    const gc={};if(typeof o.temp==='number')gc.temperature=o.temp;
+    const gc={},g3=/^gemini-([3-9]|flash-|pro-)/.test(model);
+    if(typeof o.temp==='number'&&!g3)gc.temperature=o.temp;
+    if(lvl)gc.thinkingConfig={thinkingLevel:lvl};
     if(json){gc.responseMimeType='application/json';if(o.schema)gc.responseSchema=o.schema;}
     body.generationConfig=gc;
-    let r=await requete(gURL('models/'+encodeURIComponent(model)+':generateContent',key),{method:'POST',headers:gHead(key),body:JSON.stringify(body)});
+    let r=await requeteBis(gURL('models/'+encodeURIComponent(model)+':generateContent',key),{method:'POST',headers:gHead(key),body:JSON.stringify(body)});
     if(!r.ok&&r.status===400&&json&&o.schema){
       delete gc.responseSchema;body.systemInstruction={parts:[{text:(sys||'')+JSONHINT}]};
-      r=await requete(gURL('models/'+encodeURIComponent(model)+':generateContent',key),{method:'POST',headers:gHead(key),body:JSON.stringify(body)});
+      r=await requeteBis(gURL('models/'+encodeURIComponent(model)+':generateContent',key),{method:'POST',headers:gHead(key),body:JSON.stringify(body)});
     }
     if(!r.ok)throw new Error(await errDe(r));
     const d=await r.json();
     const parts=((d.candidates||[])[0]||{}).content;
-    const txt=((parts&&parts.parts)||[]).map(x=>x.text||'').join('');
+    const txt=((parts&&parts.parts)||[]).filter(x=>!x.thought).map(x=>x.text||'').join('');
     if(!txt)throw new Error('réponse vide — contenu peut-être bloqué par les filtres');
     return txt;
   }
@@ -327,10 +350,16 @@ async function appel(k,model,sys,msgs,o){
   const body={model:model,messages:messages};
   if(typeof o.temp==='number')body.temperature=o.temp;
   if(json)body.response_format={type:'json_object'};
+  if(lvl){
+    if(k==='deepseek'){
+      if(lvl==='off')body.thinking={type:'disabled'};
+      else{body.thinking={type:'enabled'};if(lvl!=='on')body.reasoning_effort=lvl;delete body.temperature;}
+    }else body.reasoning_effort=lvl;
+  }
   const h={'content-type':'application/json',Authorization:'Bearer '+key};
   if(k==='openrouter')h['X-Title']='Coach Chinois - test IA';
-  let r=await requete(p.url,{method:'POST',headers:h,body:JSON.stringify(body)});
-  if(!r.ok&&r.status===400&&json){delete body.response_format;r=await requete(p.url,{method:'POST',headers:h,body:JSON.stringify(body)});}
+  let r=await requeteBis(p.url,{method:'POST',headers:h,body:JSON.stringify(body)});
+  if(!r.ok&&r.status===400&&json){delete body.response_format;r=await requeteBis(p.url,{method:'POST',headers:h,body:JSON.stringify(body)});}
   if(!r.ok)throw new Error(await errDe(r));
   const d=await r.json();
   if(d.error)throw new Error(String(d.error.message||JSON.stringify(d.error)).slice(0,220));
@@ -545,10 +574,12 @@ const RES={};   // RES[test][prov|model] = {...}
 const NOTES={};
 let enCours=0;
 function attente(ms){return new Promise(r=>setTimeout(r,ms));}
+function nbEssais(){const v=parseInt((document.getElementById('essais')||{}).value,10);return v>=1&&v<=5?v:1;}
 function cibles(){
-  const l=[];
+  const l=[],n=nbEssais();
   ORDRE.forEach(k=>{if(!CFG[k].on||!CFG[k].key)return;
-    CFG[k].models.split(',').map(x=>x.trim()).filter(Boolean).forEach(m=>l.push({k:k,m:m}));});
+    CFG[k].models.split(',').map(x=>x.trim()).filter(Boolean).forEach(m=>{
+      for(let e=1;e<=n;e++)l.push({k:k,m:n>1?m+' · essai '+e:m,mod:m});});});
   return l;
 }
 async function lancer(ids){
@@ -569,7 +600,7 @@ async function lancer(ids){
       const inp=INP[T.id],b=T.build(inp),id=c.k+'|'+c.m,t0=performance.now();
       let r={k:c.k,m:c.m};
       try{
-        const txt=await appel(c.k,c.m,b.sys,b.msgs,b.o);
+        const txt=await appel(c.k,c.mod,b.sys,b.msgs,b.o);
         r.ms=performance.now()-t0;r.txt=txt;
         Object.assign(r,controle(T,txt,inp===DEF[T.id]));
       }catch(e){r.ms=performance.now()-t0;r.err=e.message||String(e);}
