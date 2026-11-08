@@ -7,7 +7,20 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20260818l';
+const BUILD='20261108a';
+
+/* --- Modèle d’IA -------------------------------------------------------
+   Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
+   gemini-3.8-flash a été juste aux trois épreuves, deux essais sur deux.
+   Le modèle est nommé en clair : l’alias « gemini-flash-latest » change
+   de cible sans prévenir. La réflexion se règle par fonction :
+   low quand on attend la réponse pour continuer (conversation,
+   traducteur), medium pour la correction et le bilan, high pour
+   l’enrichissement en lot, où le temps ne compte pas. */
+const GMODEL='gemini-3.8-flash';
+const DSMODEL='deepseek-flash';
+const AMODEL='claude-haiku-4-5-20251001';
+const IA_NOM={gemini:'Gemini',anthropic:'Anthropic',deepseek:'DeepSeek'};
 
 /* --- Cohérence de la livraison ---------------------------------------
    Le marqueur figure à trois endroits : la constante ci-dessus, la
@@ -65,7 +78,7 @@ let memoryOnly=false;
 function loadState(){
   const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',fav:[],enrich:{},
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
-      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,chatOneQ:true,chatTurns:7,chatDemote:true,
+      pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,backup:'none',backupKey:'',chatOneQ:true,chatTurns:7,chatDemote:true,
       voices:{d:'',A:'',B:'',C:''}}};
   try{
     const raw=localStorage.getItem(KEY);
@@ -126,6 +139,12 @@ function normState(S){
   S.settings.pause=Math.min(5,Math.max(0,Number(S.settings.pause)||0));
   S.settings.voices=obj(S.settings.voices);
   if(['none','gemini','anthropic'].indexOf(S.settings.provider)<0)S.settings.provider='none';
+  if(['none','deepseek','anthropic'].indexOf(S.settings.backup)<0)S.settings.backup='none';
+  S.settings.backupKey=String(S.settings.backupKey||'');
+  /* Anciens choix de modèle (alias « latest », génération 2) : on passe
+     au modèle retenu. Un modèle de génération 3 choisi exprès est gardé. */
+  const gm=String(S.settings.gmodel||'');
+  if(!gm||/latest|^gemini-[0-2]\./.test(gm)){S.settings.gmodel=GMODEL;S.settings.gjson=true;}
   return S;
 }
 function save(){
@@ -305,6 +324,100 @@ function pyLearn(hz,py){
   return true;
 }
 
+/* ---- Réparation du pinyin renvoyé par l’IA ----------------------------
+   Trois défauts relevés au banc d’essai, dont la bonne forme est certaine :
+   · erhua détaché après 哪 这 那 点 会 玩 : « nǎ er », « zhè r » → nǎr, zhèr
+     (le 儿 de 儿子, 女儿 n’est pas touché) ;
+   · erhua sans 儿 dans les caractères : 有点 « diǎnr » → diǎn ;
+   · ton changé de 一 et de 不 devant un autre ton : yī ge → yí ge,
+     bù shì → bú shì, yí qǐ → yì qǐ. 一 reste yī quand il compte ou
+     numérote : fin de mot, 第一, 星期一, 十一, 一月, 一号, 一年级 ;
+     celui du verbe redoublé (看一看) n’est pas touché non plus.
+   Si l’alignement caractères ↔ syllabes échoue, rien n’est touché :
+   pinyinCheck tranchera ensuite, comme avant. */
+const ER_BASE='哪这那点会玩';
+const PY_SEP=new RegExp('('+PY_PONCT.source+')');
+function pyRepair(hz,py){
+  hz=String(hz||'');py=String(py||'');
+  if(!py||!HAN_RE.test(hz))return py;
+  const han=[];Array.from(hz).forEach((c,i)=>{if(HAN_RE.test(c))han.push({c:c,i:i});});
+  const parts=py.split(PY_SEP),toks=[];
+  parts.forEach((t,pi)=>{if(pi%2===0&&t)toks.push({pi:pi,t:t});});
+  let i=0;
+  for(const T of toks){
+    const t=T.t,n=pyBare(t);
+    if(n==='r'){if(han[i]&&han[i].c==='儿'){T.h=i;T.rSeul=true;T.ton=0;i++;continue;}return py;}
+    if(/^[A-Za-zÀ-ÿ'’-]+$/.test(t)&&!SYL.has(n)&&hz.toLowerCase().includes(t.toLowerCase())){T.h=-1;continue;}
+    const nu0=t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+    if(/^(ng|hm|hng|m|n|ê)$/.test(nu0)){T.h=i;T.ton=0;T.nu=nu0;i++;continue;}
+    let er=false;
+    if(!SYL.has(n)){if(n.length>2&&n.slice(-1)==='r'&&SYL.has(n.slice(0,-1)))er=true;else return py;}
+    if(i>=han.length)return py;
+    T.h=i;T.er=er;T.ton=toneOf(t);T.nu=er?n.slice(0,-1):n;
+    T.er2=er&&!!han[i+1]&&han[i+1].c==='儿';
+    i+=T.er2?2:1;
+  }
+  if(i!==han.length)return py;
+  const colle=(a,b)=>han[b]&&han[a]&&han[b].i===han[a].i+1;
+  const suivant=k=>{for(let j=k+1;j<toks.length;j++)if(!toks[j].del&&toks[j].h>=0)return toks[j];return null;};
+  for(let k=0;k<toks.length;k++){
+    const T=toks[k];
+    if(T.h<0)continue;
+    const c=han[T.h].c,P=k>0?toks[k-1]:null;
+    /* 1. erhua détaché */
+    if(c==='儿'&&P&&!P.del&&P.h===T.h-1&&!P.er&&colle(T.h-1,T.h)&&
+       (T.rSeul||(T.nu==='er'&&ER_BASE.includes(han[T.h-1].c)))){
+      P.t+='r';T.del=true;continue;
+    }
+    /* 2. erhua sans 儿 */
+    if(T.er&&!T.er2){T.t=T.t.slice(0,-1);T.er=false;continue;}
+    /* 3. 一 */
+    /* 看一看, 商量一商量 : le 一 du verbe redoublé n’est pas touché. */
+    const redouble=c==='一'&&[1,2].some(n=>{const z=Array.from(hz),j=han[T.h].i;
+      return j-n>=0&&z.slice(j-n,j).join('')===z.slice(j+1,j+1+n).join('');});
+    if(c==='一'&&T.nu==='yi'&&T.ton!==0&&!redouble){
+      const pc=colle(T.h-1,T.h)?han[T.h-1].c:'';
+      const nx=colle(T.h,T.h+1)?han[T.h+1].c:'';
+      const nx2=colle(T.h+1,T.h+2)?han[T.h+2].c:'';
+      const S2=suivant(k);
+      let v=0;
+      if(!nx||(pc&&'第期零〇一二三四五六七八九十'.includes(pc))||
+         '零〇一二三四五六七八九十月号'.includes(nx)||(nx==='年'&&nx2==='级'))v=1;
+      else if(S2&&S2.h===T.h+1){
+        if(S2.ton===4||(S2.ton===0&&nx==='个'))v=2;
+        else if(S2.ton>=1&&S2.ton<=3)v=4;
+      }
+      if(v&&v!==T.ton)T.t=setTone(T.t,v);
+      continue;
+    }
+    /* 4. 不 */
+    if(c==='不'&&T.nu==='bu'&&T.ton!==0){
+      const S2=suivant(k);
+      if(colle(T.h,T.h+1)&&S2&&S2.h===T.h+1){
+        if(S2.ton===4&&T.ton!==2)T.t=setTone(T.t,2);
+        else if(S2.ton>=1&&S2.ton<=3&&T.ton===2)T.t=setTone(T.t,4);
+      }
+    }
+  }
+  toks.forEach(T=>{
+    if(T.del){parts[T.pi]='';if(T.pi>0&&/^\s+$/.test(parts[T.pi-1]))parts[T.pi-1]='';}
+    else parts[T.pi]=T.t;
+  });
+  return parts.join('');
+}
+/* Répare tout pinyin d’un objet renvoyé par l’IA : chaque objet qui porte
+   un champ py à côté de son chinois (hz, ou mieux pour les reformulations). */
+function pyRepairDeep(o){
+  if(Array.isArray(o)){o.forEach(pyRepairDeep);return o;}
+  if(!o||typeof o!=='object')return o;
+  if(typeof o.py==='string'){
+    const z=typeof o.hz==='string'?o.hz:(typeof o.mieux==='string'?o.mieux:null);
+    if(z)try{o.py=pyRepair(z,o.py);}catch(e){}
+  }
+  for(const k in o)if(o[k]&&typeof o[k]==='object')pyRepairDeep(o[k]);
+  return o;
+}
+
 function buildPyDict(){
   DATA('WORDS').forEach(w=>pyLearn(w.hz,w.py));
   DATA('CHARS').forEach(c=>pyLearn(c.hz,c.py));
@@ -475,9 +588,11 @@ function param(n){try{return new URLSearchParams(location.search).get(n);}catch(
 function DATA(n){return (typeof window!=='undefined'&&window[n])||[];}
 
 
-/* --- Correction assistée (facultative) --- */
+/* --- Correction assistée (facultative) ---
+   Réflexion « medium » : c’est là qu’une erreur coûte le plus cher, et
+   une dizaine de secondes reste acceptable pour une correction. */
 async function correct(text,consigne){
-  const p=S.settings.provider,k=S.settings.apikey;
+  const p=S.settings.provider,k=(S.settings.apikey||'').trim();
   if(p==='none'||!k)throw new Error('aucune clé');
   const prompt=`Tu es professeur de chinois pour une apprenante francophone de niveau HSK${S.settings.level}.
 Consigne : ${consigne}
@@ -489,20 +604,15 @@ Réponds en français, brièvement :
 2. Les erreurs, une par ligne : écrit → attendu, puis la règle en une phrase.
 3. Une reformulation plus naturelle si elle existe.
 Pas de préambule ni de conclusion.`;
-  if(p==='anthropic'){
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
-    if(!r.ok)throw new Error('erreur '+r.status);
-    const d=await r.json();
-    return d.content.filter(c=>c.type==='text').map(c=>c.text).join('\n');
-  }
-  const r=await fetch(gURL('models/'+encodeURIComponent(S.settings.gmodel||'gemini-flash-latest')+':generateContent'),
-    {method:'POST',headers:gHead(),body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
-  if(!r.ok)throw new Error('erreur '+r.status);
-  const d=await r.json();
-  return ((d.candidates||[])[0]?.content?.parts||[]).map(x=>x.text||'').join('\n');
+  const msgs=[{role:'user',text:prompt}];
+  let err;
+  try{return await iaTexte(p,k,null,msgs,'medium',false);}catch(e){err=e;}
+  const b=secours();
+  if(!b)throw err;
+  try{
+    const t=await iaTexte(b,S.settings.backupKey.trim(),null,msgs,'medium',false);
+    viaSecours(b,err);return t;
+  }catch(e2){throw new Error(err.message+' — secours '+IA_NOM[b]+' : '+e2.message);}
 }
 
 /* ---- Teintes du tracé -----------------------------------------------
@@ -528,28 +638,114 @@ function teintesTrace(){
    correct() n’est pas un tuyau neutre : elle enrobe sa consigne dans un
    gabarit de correction de copie. Lui demander du JSON revenait à donner
    au modèle deux ordres contradictoires, et la lecture échouait presque
-   toujours. Tout ce qui attend une structure passe donc par ici. */
-async function askJSON(sys,user,schema,temp){
-  const p=S.settings.provider,k=(S.settings.apikey||'').trim();
+   toujours. Tout ce qui attend une structure passe donc par ici.
+   niveau : réflexion demandée (low par défaut). */
+async function askJSON(sys,user,schema,temp,niveau){
+  return await iaJSON(sys,[{role:'user',parts:[{text:user}]}],schema,temp,niveau);
+}
+/* Même chose avec un historique au format Gemini (module 聊). Le nom est
+   resté ; depuis novembre 2026 l’appel suit le fournisseur choisi et
+   passe au secours en cas d’échec, comme le reste. */
+async function gemJSON(sys,contents,schema,temp,niveau){
+  return await iaJSON(sys,contents,schema,temp,niveau);
+}
+
+/* ---- Le circuit commun : fournisseur principal, puis secours ---- */
+function secours(){
+  const b=S.settings.backup,k=(S.settings.backupKey||'').trim();
+  return (b&&b!=='none'&&b!==S.settings.provider&&k)?b:null;
+}
+function viaSecours(b,err){
+  const why=String((err&&err.message)||'').slice(0,80);
+  try{toast(IA_NOM[S.settings.provider]+' indisponible'+(why?' ('+why+')':'')+' : réponse fournie par le secours, '+IA_NOM[b]+'.');}catch(e){}
+}
+function versMsgs(contents){
+  return (contents||[]).map(c=>({role:c.role==='model'?'assistant':'user',
+    text:((c.parts||[]).map(x=>x.text||'').join(''))}));
+}
+function litObjet(txt){
+  let t=String(txt||'').replace(/```json|```/g,'').trim();
+  const a=t.indexOf('{'),b=t.lastIndexOf('}');
+  if((a>0||b<t.length-1)&&a>=0&&b>a)t=t.slice(a,b+1);
+  try{return JSON.parse(t);}catch(e){throw new Error('Réponse illisible du modèle.');}
+}
+async function iaJSON(sys,contents,schema,temp,niveau){
+  const p=S.settings.provider,k=(S.settings.apikey||'').trim(),lv=niveau||'low';
   if(p==='none'||!k)throw new Error('aucune clé');
-  if(p==='anthropic'){
+  let err;
+  try{
+    const o=(p==='gemini')?await gemObjet(sys,contents,schema,temp,lv)
+                          :litObjet(await iaTexte(p,k,sys,versMsgs(contents),lv,true));
+    return pyRepairDeep(o);
+  }catch(e){err=e;}
+  const b=secours();
+  if(!b)throw err;
+  try{
+    const o=litObjet(await iaTexte(b,S.settings.backupKey.trim(),sys,versMsgs(contents),lv,true));
+    viaSecours(b,err);
+    return pyRepairDeep(o);
+  }catch(e2){throw new Error(err.message+' — secours '+IA_NOM[b]+' : '+e2.message);}
+}
+
+const JSON_SEUL='\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balise de code ni commentaire.';
+
+/* Un appel texte vers n’importe quel fournisseur. msgs : [{role,text}].
+   json : la réponse attendue est un objet. */
+async function iaTexte(fournisseur,cle,sys,msgs,niveau,json){
+  if(fournisseur==='gemini'){
+    const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]}));
+    const r=await gemCall(S.settings.gmodel||GMODEL,sys?sys+(json?JSON_SEUL:''):(json?JSON_SEUL.trim():null),contents,null,undefined,niveau);
+    if(!r.ok)throw new Error(r.msg+(r.status?' ('+r.status+')':''));
+    return r.txt;
+  }
+  if(fournisseur==='anthropic'){
+    const body={model:AMODEL,max_tokens:4000,messages:msgs.map(m=>({role:m.role,content:m.text}))};
+    if(sys||json)body.system=(sys||'')+(json?JSON_SEUL:'');
     let r;
     try{
       r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-        headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:4000,
-          temperature:(typeof temp==='number')?temp:1,
-          system:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balise de code ni commentaire.',
-          messages:[{role:'user',content:user}]})});
+        headers:{'content-type':'application/json','x-api-key':cle,'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
     }catch(e){throw new Error('réseau injoignable, ou requête bloquée par le navigateur');}
     if(!r.ok)throw new Error('erreur '+r.status);
     const d=await r.json();
-    const txt=(d.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n');
-    try{return JSON.parse(String(txt).replace(/```json|```/g,'').trim());}
-    catch(e){throw new Error('Réponse illisible du modèle.');}
+    const t=(d.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n');
+    if(!t)throw new Error('réponse vide');
+    return t;
   }
-  return await gemJSON(sys,[{parts:[{text:user}]}],schema,temp);
+  if(fournisseur==='deepseek'){
+    /* Sans réflexion il répond en deux secondes ; avec, il est juste mais
+       lent : on ne la demande que pour la correction et les lots. Il lui
+       arrive d’expliquer en chinois : la consigne le lui interdit. */
+    const pense=niveau==='medium'||niveau==='high';
+    const consigne=(sys?sys+'\n\n':'')+'Rédige toutes les explications et notes en français.'+(json?JSON_SEUL:'');
+    const body={model:DSMODEL,messages:[{role:'system',content:consigne}].concat(msgs.map(m=>({role:m.role,content:m.text}))),
+      thinking:{type:pense?'enabled':'disabled'}};
+    if(json)body.response_format={type:'json_object'};
+    let r;
+    try{
+      r=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',
+        headers:{'content-type':'application/json',Authorization:'Bearer '+cle},body:JSON.stringify(body)});
+    }catch(e){throw new Error('réseau injoignable, ou requête bloquée par le navigateur');}
+    if(!r.ok){let m='';try{const d=await r.json();m=(d.error&&d.error.message)||'';}catch(e){}
+      throw new Error('erreur '+r.status+(m?' : '+String(m).slice(0,120):''));}
+    const d=await r.json();
+    const t=(((d.choices||[])[0]||{}).message||{}).content;
+    if(!t)throw new Error('réponse vide');
+    return String(t);
+  }
+  throw new Error('fournisseur inconnu');
+}
+
+/* Essai du secours, depuis les Réglages. */
+async function testSecours(){
+  const b=S.settings.backup,k=(S.settings.backupKey||'').trim();
+  ctx.testB={busy:true};render();
+  try{
+    const t=await iaTexte(b,k,null,[{role:'user',text:'Écris « bonjour » en chinois, sans rien d’autre.'}],'low',false);
+    ctx.testB={ok:true,msg:'Le secours répond ('+IA_NOM[b]+') : '+String(t).trim().slice(0,30)};
+  }catch(e){ctx.testB={ok:false,msg:'Le secours ne répond pas : '+(e.message||e)};}
+  render();
 }
 
 /* ---- Essai de la clé : sonder les quatre combinaisons et tout rapporter ---- */
@@ -601,17 +797,15 @@ async function testKey(){
       cause='Le réseau ou le navigateur bloque tous les appels.';
     return fin(false,cause,essais);
   }
-  /* gemini-2.5-flash est fermé aux nouveaux comptes depuis 2026 : les alias
-     « latest » suivent le modèle courant et ne se périment pas. */
-  const pref=['gemini-flash-latest','gemini-2.5-flash-lite','gemini-flash-lite-latest',
-              'gemini-2.0-flash','gemini-2.5-flash','gemini-2.5-pro'];
+  /* Modèle retenu en premier, puis la génération précédente en repli. */
+  const pref=[GMODEL,'gemini-3.6-flash','gemini-3.5-flash-lite','gemini-flash-latest'];
   const cands=pref.filter(x=>noms.indexOf(x)>=0)
     .concat(noms.filter(x=>pref.indexOf(x)<0&&!/tts|image|embedding|vision|live|native-audio/.test(x)));
   S.settings.gver=bon[0];S.settings.gauth=bon[1];save();
   const SCH={type:'object',properties:{hz:{type:'string'}},required:['hz']};
   const MSG=[{role:'user',parts:[{text:'Écris « bonjour » en chinois.'}]}];
   for(const m of cands.slice(0,6)){
-    let r=await gemCall(m,'Tu réponds en JSON.',MSG,SCH);
+    let r=await gemCall(m,'Tu réponds en JSON.',MSG,SCH,undefined,'low');
     if(r.ok){
       S.settings.gmodel=m;S.settings.gjson=true;save();
       return fin(true,'Tout fonctionne. Modèle retenu : '+m+', en '+bon[0]+', clé dans l’'+authNom(bon[1])+
@@ -619,7 +813,7 @@ async function testKey(){
         essais.concat(noms.length+' modèles accessibles'));
     }
     essais.push(m+' · JSON structuré → '+r.status+' : '+r.msg);
-    r=await gemCall(m,'Tu réponds uniquement par un objet JSON brut.',MSG,null);
+    r=await gemCall(m,'Tu réponds uniquement par un objet JSON brut.',MSG,null,undefined,'low');
     if(r.ok){
       S.settings.gmodel=m;S.settings.gjson=false;save();
       return fin(true,'Fonctionne avec '+m+', mais ce modèle refuse la sortie JSON structurée : '+
@@ -649,35 +843,41 @@ async function gErrMsg(r){
   return {status:r.status,gstatus:e.status||'',message:e.message||''};
 }
 
-async function gemJSON(sys,contents,schema,temp){
-  const m=S.settings.gmodel||'gemini-flash-latest';
+async function gemObjet(sys,contents,schema,temp,niveau){
+  const m=S.settings.gmodel||GMODEL;
   const strict=S.settings.gjson!==false;
   const sys2=strict?sys:sys+'\n\nRéponds UNIQUEMENT par un objet JSON brut, sans balises de code ni commentaire.';
-  const r=await gemCall(m,sys2,contents,strict?schema:null,temp);
+  const r=await gemCall(m,sys2,contents,strict?schema:null,temp,niveau);
   if(!r.ok)throw new Error(r.msg+(r.status?' ('+r.status+')':''));
-  try{return JSON.parse(String(r.txt).replace(/```json|```/g,'').trim());}
-  catch(e){throw new Error('Réponse illisible du modèle.');}
+  return litObjet(r.txt);
 }
 
-/* ---- Un appel de génération, avec le message d’erreur de Google ---- */
-async function gemCall(model,sys,contents,schema,temp){
+/* ---- Un appel de génération, avec le message d’erreur de Google ----
+   Génération 3 : la température est abandonnée par Google (ignorée, et
+   refusée à terme) ; on règle la réflexion à la place. Les générations
+   antérieures gardent la température : le traducteur descend à 0,3. */
+async function gemCall(model,sys,contents,schema,temp,niveau){
+  const g3=/^gemini-(?:[3-9]|\d\d)/.test(model);
   const body={contents:contents};
   if(sys)body.systemInstruction={parts:[{text:sys}]};
-  /* La température par défaut convient à la conversation et à la
-     correction. Traduire n’est pas une tâche où l’on veut de la variété :
-     le traducteur descend à 0,3. */
-  const t=(typeof temp==='number')?temp:.8;
-  body.generationConfig=schema
-    ?{responseMimeType:'application/json',responseSchema:schema,temperature:t}
-    :{temperature:t};
-  let r;
-  try{r=await fetch(gURL('models/'+model+':generateContent'),{method:'POST',headers:gHead(),body:JSON.stringify(body)});}
-  catch(e){return {ok:false,status:0,msg:'réseau injoignable, ou requête bloquée par le navigateur'};}
+  const gc={};
+  if(!g3)gc.temperature=(typeof temp==='number')?temp:.8;
+  if(g3&&niveau)gc.thinkingConfig={thinkingLevel:niveau};
+  if(schema){gc.responseMimeType='application/json';gc.responseSchema=schema;}
+  body.generationConfig=gc;
+  const envoi=async()=>{
+    try{return await fetch(gURL('models/'+model+':generateContent'),{method:'POST',headers:gHead(),body:JSON.stringify(body)});}
+    catch(e){return null;}
+  };
+  let r=await envoi();
+  /* Un modèle qui refuse ce niveau de réflexion : on réessaie sans. */
+  if(r&&r.status===400&&gc.thinkingConfig){delete gc.thinkingConfig;r=await envoi();}
+  if(!r)return {ok:false,status:0,msg:'réseau injoignable, ou requête bloquée par le navigateur'};
   if(!r.ok){const e=await gErrMsg(r);
     return {ok:false,status:e.status,gstatus:e.gstatus,msg:(e.message||gemErr(e.status,'')).slice(0,220)};}
   let d={};try{d=await r.json();}catch(e){return {ok:false,status:200,msg:'réponse illisible'};}
   const txt=((d.candidates||[])[0]&&(d.candidates||[])[0].content&&(d.candidates||[])[0].content.parts||[])
-            .map(x=>x.text||'').join('');
+            .filter(x=>!x.thought).map(x=>x.text||'').join('');
   if(!txt)return {ok:false,status:200,msg:'réponse vide — contenu peut-être bloqué par les filtres'};
   return {ok:true,txt:txt};
 }
@@ -705,7 +905,7 @@ async function testAnthropic(k,fin){
     r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
                'anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:16,messages:[{role:'user',content:'Réponds : ok'}]})});
+      body:JSON.stringify({model:AMODEL,max_tokens:16,messages:[{role:'user',content:'Réponds : ok'}]})});
   }catch(e){return fin(false,'Impossible de joindre Anthropic. Vérifiez la connexion, ou un blocage du navigateur.');}
   if(r.status===401)return fin(false,'Clé refusée (401). Vérifiez qu’elle est complète et active.');
   if(r.status===400)return fin(false,'Requête refusée (400). La clé est probablement mal collée.');

@@ -252,7 +252,7 @@ Ajoute des reformulations plus naturelles quand la phrase est correcte mais mala
 Termine par un bilan de deux phrases, encourageant et précis. Réponds en JSON.`;
   const trans=c.turns.map(t=>(t.who==='me'?'APPRENANTE : ':'PARTENAIRE : ')+t.hz).join('\n');
   try{
-    const d=await gemJSON(sys,[{role:'user',parts:[{text:trans}]}],DEB_SCHEMA);
+    const d=await gemJSON(sys,[{role:'user',parts:[{text:trans}]}],DEB_SCHEMA,undefined,'medium');
     (d.reformulations||[]).forEach(r=>{r.pyOk=pinyinCheck(r.mieux||'',r.py||'').ok;});
     c.debrief=d;c.done=true;
     c.retro=chatRetro(d,c);

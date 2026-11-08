@@ -70,7 +70,25 @@ function vReglages(){
           ${ctx.test.det.map(d=>`<p class="u-mb1 mut sm">${esc(d)}</p>`).join('')}</div>`:''}`:''}
       <p class="mut sm mt">${S.settings.provider==='gemini'
         ?'Clé gratuite via Google AI Studio. Sur le palier gratuit, les données envoyées peuvent servir à entraîner le modèle.'
-        :'Clé via la console Anthropic. Facturation à la consommation, indépendante de l’abonnement Claude.'}</p>`:''}
+        :'Clé via la console Anthropic. Facturation à la consommation, indépendante de l’abonnement Claude.'}</p>
+      <p class="u-mb2 sm mt"><b>Secours</b></p>
+      <p class="mut sm">Facultatif. Si le service principal ne répond pas — quota épuisé, panne, réseau —, la demande passe à un second service, et un message le signale.</p>
+      <div class="selwrap"><select onchange="S.settings.backup=this.value;ctx.testB=null;save();render()">
+        <option value="none" ${S.settings.backup==='none'?'selected':''}>Aucun secours</option>
+        ${S.settings.provider!=='deepseek'?`<option value="deepseek" ${S.settings.backup==='deepseek'?'selected':''}>DeepSeek — payant, très bon marché</option>`:''}
+        ${S.settings.provider!=='anthropic'?`<option value="anthropic" ${S.settings.backup==='anthropic'?'selected':''}>Anthropic — payant à l’usage</option>`:''}
+      </select></div>
+      ${S.settings.backup!=='none'&&S.settings.backup!==S.settings.provider?`
+        <input type="password" placeholder="Collez la clé du secours ici" value="${esc(S.settings.backupKey||'')}"
+          oninput="S.settings.backupKey=this.value.trim();save()" class="u-mt3">
+        <p class="mut sm">${(S.settings.backupKey||'').trim()
+          ?`Clé du secours enregistrée : ${(S.settings.backupKey||'').trim().length} caractères, se termine par …${esc((S.settings.backupKey||'').trim().slice(-4))}.`
+          :'Aucune clé de secours enregistrée pour l’instant.'}</p>
+        <button class="btn jade mt" onclick="testSecours()">Tester le secours</button>
+        ${ctx.testB?`<div class="u-mt3 verdict ${ctx.testB.busy?'':(ctx.testB.ok?'ok':'no')}">${ctx.testB.busy?'Essai en cours…':esc(ctx.testB.msg)}</div>`:''}
+        <p class="mut sm mt">${S.settings.backup==='deepseek'
+          ?'Clé via platform.deepseek.com, compte crédité de quelques dollars. Moins sûr que Gemini au banc d’essai : à garder pour dépanner.'
+          :'Clé via la console Anthropic. Facturation à la consommation, indépendante de l’abonnement Claude.'}</p>`:''}`:''}
   </div>
 
   <h2 class="sec">Module 聊</h2>
@@ -211,7 +229,7 @@ async function enrGo(){
     const lot=reste.slice(i,i+10);
     ctx.enr.mot=lot[0].hz;render();
     try{
-      const o=await askJSON(enrSys(),enrPrompt(lot),ENRSCHEMA,.3);
+      const o=await askJSON(enrSys(),enrPrompt(lot),ENRSCHEMA,.3,'high');
       ((o&&o.mots)||[]).forEach(m=>{
         const w=lot.find(x=>x.hz===m.hz);if(!w)return;
         S.enrich[w.id]=enrNettoie(m);
