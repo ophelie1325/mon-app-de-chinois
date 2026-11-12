@@ -1,6 +1,6 @@
 /* ---------- Progrès ---------- */
 function vProgres(){
-  const all=motsActifs().concat(CHARS);
+  const all=motsActifs().concat(CHARS.filter(carActif));
   const seen=all.filter(w=>S.items[w.id]).length;
   const mast=all.filter(w=>mastered(w.id)).length;
   const todo=pool().filter(w=>due(w.id)).length;

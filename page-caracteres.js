@@ -1,6 +1,6 @@
 /* ---------- Caractères ---------- */
 function vChars(){
-  const P=CHARS.filter(fits);
+  const P=CHARS.filter(c=>fits(c)&&carActif(c));
   if(!P.length)return header('Caractères')+levelPills()+nothing();
   ctx.c=ctx.c||P[0].id;
   const c=P.find(x=>x.id===ctx.c)||P[0];

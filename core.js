@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261112b';
+const BUILD='20261112c';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -659,15 +659,32 @@ function fits(o){
   return true;
 }
 
-/* Les mots versés depuis les fiches de grammaire (src sans « lecon »)
-   dorment tant qu’aucune de leurs fiches (champ g) n’a été découverte :
-   on n’ajoute pas d’un coup des centaines d’inconnus aux séances. Les
-   mots des leçons restent les seuls à nourrir leçons, textes et 聊. */
+/* Un mot n’entre dans les séances qu’une fois rencontré : dans une
+   leçon commencée de son niveau et de son thème (mots des leçons), ou
+   dans une fiche de grammaire découverte (champ g), que la fiche ait
+   été ouverte seule ou par l’étape « Point de langue » d’une leçon. Un
+   mot déjà travaillé ne se rendort jamais. Les leçons, textes et 聊
+   continuent de puiser dans tous les mots des leçons (motsLecon). */
 function deLecon(w){return !w.src||w.src.indexOf('lecon')>=0;}
-function motActif(w){
-  if(deLecon(w))return true;
+function lecVue(l){return ((S.lessons||{})[l.id]||[]).length>0;}
+function ficheVue(id){
   const g=S.gram||{};
-  return (w.g||[]).some(id=>g[id]&&g[id].vu);
+  if(g[id]&&g[id].vu)return true;
+  return DATA('LESSONS').some(l=>l.steps.some((st,i)=>st.k==='gram'&&st.ref===id&&((S.lessons||{})[l.id]||[]).indexOf(i)>=0));
+}
+function motActif(w){
+  if(S.items[w.id])return true;
+  if(deLecon(w)){
+    const L=DATA('LESSONS');
+    if(!L.length)return true;   /* page sans les leçons : lecture tolérante */
+    if(L.some(l=>l.hsk===w.hsk&&(w.th||[]).indexOf(l.theme)>=0&&lecVue(l)))return true;
+  }
+  return (w.g||[]).some(ficheVue);
+}
+/* Un caractère se montre dès qu’un mot actif le contient. */
+function carActif(c){
+  if(S.items[c.id])return true;
+  return motsActifs().some(w=>w.hz.indexOf(c.hz)>=0);
 }
 function motsLecon(){return DATA('WORDS').filter(deLecon);}
 function motsActifs(){return DATA('WORDS').filter(motActif);}
