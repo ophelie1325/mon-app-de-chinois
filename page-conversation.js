@@ -115,7 +115,7 @@ const DEB_SCHEMA={type:'object',properties:{
   required:['bilan','erreurs']};
 
 /* ---- Données et prompt ---- */
-function chatWords(theme,hsk){return WORDS.filter(w=>w.hsk===hsk&&(w.th||[]).includes(theme));}
+function chatWords(theme,hsk){return motsLecon().filter(w=>w.hsk===hsk&&(w.th||[]).includes(theme));}
 
 function chatGram(theme,hsk){return GRAMMAR.filter(g=>g.hsk===hsk&&(g.th||[]).includes(theme));}
 

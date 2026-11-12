@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261112a';
+const BUILD='20261112b';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -659,7 +659,20 @@ function fits(o){
   return true;
 }
 
-function pool(){return DATA('WORDS').filter(fits);}
+/* Les mots versés depuis les fiches de grammaire (src sans « lecon »)
+   dorment tant qu’aucune de leurs fiches (champ g) n’a été découverte :
+   on n’ajoute pas d’un coup des centaines d’inconnus aux séances. Les
+   mots des leçons restent les seuls à nourrir leçons, textes et 聊. */
+function deLecon(w){return !w.src||w.src.indexOf('lecon')>=0;}
+function motActif(w){
+  if(deLecon(w))return true;
+  const g=S.gram||{};
+  return (w.g||[]).some(id=>g[id]&&g[id].vu);
+}
+function motsLecon(){return DATA('WORDS').filter(deLecon);}
+function motsActifs(){return DATA('WORDS').filter(motActif);}
+
+function pool(){return DATA('WORDS').filter(w=>fits(w)&&motActif(w));}
 
 /* Les favoris ne portent ni niveau ni thème : ils ne passent donc pas
    par fits(). C’est voulu — en révision, le niveau et le thème ne
@@ -1188,7 +1201,7 @@ function header(title,sub){
    Lecture tolérante : une page qui ne charge pas tous les fichiers de
    données compte les absents pour zéro. */
 function levelPills(mini){
-  const n=l=>DATA('WORDS').filter(w=>w.hsk===l).length
+  const n=l=>motsActifs().filter(w=>w.hsk===l).length
             +DATA('TEXTS').filter(t=>t.hsk===l).length
             +DATA('GRAMMAR').filter(g=>g.hsk===l).length;
   return `<div class="hsk${mini?' mini':''}">${[1,2,3,4,5,6].map(l=>{
@@ -1216,7 +1229,7 @@ function setTheme(t){S.settings.theme=t;save();ctx={};render();}
    qu’écrit en dur : la phrase suit d’elle-même l’ajout d’une fiche,
    d’un texte ou d’une liste de mots. */
 function couverture(sources){
-  const arrs=(sources||['WORDS','GRAMMAR','TEXTS','PROD','HSKX']).map(DATA);
+  const arrs=(sources||['WORDS','GRAMMAR','TEXTS','PROD','HSKX']).map(n=>n==='WORDS'?motsActifs():DATA(n));
   const th=new Set(),lv=new Set();
   arrs.forEach(a=>a.forEach(o=>{
     (o.th||[]).forEach(t=>th.add(t));

@@ -568,10 +568,10 @@ function docTools(t,mode){
 
 function makeRep(t){
   const txt=t.lines.map(l=>l.hz).join('');
-  const dansTh=DATA('WORDS').filter(w=>w.hsk===t.hsk&&(w.th||[]).some(x=>(t.th||[]).includes(x))&&txt.includes(w.hz));
-  const dansTout=DATA('WORDS').filter(w=>w.hsk===t.hsk&&txt.includes(w.hz));
+  const dansTh=motsLecon().filter(w=>w.hsk===t.hsk&&(w.th||[]).some(x=>(t.th||[]).includes(x))&&txt.includes(w.hz));
+  const dansTout=motsLecon().filter(w=>w.hsk===t.hsk&&txt.includes(w.hz));
   const dedans=shuffle(dansTh.length>=5?dansTh:dansTout).slice(0,5);
-  const dehors=shuffle(DATA('WORDS').filter(w=>w.hsk===t.hsk&&!txt.includes(w.hz))).slice(0,3);
+  const dehors=shuffle(motsLecon().filter(w=>w.hsk===t.hsk&&!txt.includes(w.hz))).slice(0,3);
   return {items:shuffle(dedans.concat(dehors)).map(w=>({hz:w.hz,py:w.py,fr:w.fr,dans:txt.includes(w.hz)})),
           sel:{},checked:false};
 }
@@ -655,7 +655,7 @@ function vocabQuestions(words,n){
 }
 
 function lessonQuiz(l,mode){
-  const words=DATA('WORDS').filter(w=>w.hsk===l.hsk&&(w.th||[]).includes(l.theme));
+  const words=motsLecon().filter(w=>w.hsk===l.hsk&&(w.th||[]).includes(l.theme));
   if(mode==='mots')return vocabQuestions(words,Math.min(8,words.length));
   const qs=vocabQuestions(words,4);
   const g=DATA('GRAMMAR').find(x=>l.steps.some(s=>s.k==='gram'&&s.ref===x.id));

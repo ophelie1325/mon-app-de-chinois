@@ -27,7 +27,7 @@ function vLecon(){
   const l=LESSONS.find(x=>x.id===ctx.l);
   if(!l)return vParcours();
   const done=S.lessons[l.id]||[];
-  const words=WORDS.filter(w=>w.hsk===l.hsk&&w.th.includes(l.theme));
+  const words=motsLecon().filter(w=>w.hsk===l.hsk&&w.th.includes(l.theme));
   const m=words.filter(w=>mastered(w.id)).length;
   const tamp=TAMPON&&TAMPON.l===l.id?TAMPON.i:-1;TAMPON=null;
   const prochaine=l.steps.findIndex((s,i)=>!done.includes(i));
