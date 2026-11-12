@@ -12,28 +12,6 @@
    La séance (épreuves par palier) est inchangée, plus bas.
    ===================================================================== */
 
-/* ---- Les quatre états d’un mot --------------------------------------
-   Seul endroit où ils sont définis.
-     pas encore vu : jamais présenté ;
-     fragile       : boîte 0 ou 1 après au moins une erreur ;
-     su            : boîte 4 ou 5 ;
-     en cours      : tout le reste. */
-function etatMot(id){
-  const r=S.items[id];
-  if(!r||!r.seen)return 'neuf';
-  if(r.box>=4)return 'su';
-  if(r.box<=1&&r.ko>0)return 'frag';
-  return 'cours';
-}
-const ETATS={
-  su:   {n:'Su',           p:'sus',            c:'#3D7A69',f:1,  t:'il revient de loin en loin, pour vérifier'},
-  cours:{n:'En cours',     p:'en cours',       c:'#D9A441',f:.6, t:'bien parti, encore quelques révisions'},
-  frag: {n:'Fragile',      p:'fragiles',       c:'#B8342E',f:.25,t:'il revient souvent, jusqu’à ce qu’il tienne'},
-  neuf: {n:'Pas encore vu',p:'pas encore vus', c:'#DCCFBD',f:0,  t:'il arrivera dans une prochaine séance'}
-};
-/* Du plus fragile au plus sûr : sert au tri et au choix de la séance. */
-const RANG={frag:0,cours:1,neuf:2,su:3};
-
 /* « À revoir » : ce qui entre dans la prochaine séance, c’est-à-dire
    l’échéance passée, ou le mot rencontré mais jamais présenté. */
 function aRevoir(w){return due(w.id);}
@@ -193,6 +171,7 @@ function ouvrirMot(id){go('mot',{id:id});}
 function vVocab(){
   if(ctx.session){
     if(ctx.session.done)return vocabScore();
+    if(ctx.session.asso&&!ctx.session.asso.fini)return vocabAsso();
     return vocabDrill();
   }
   return vocabAccueil();
@@ -602,8 +581,13 @@ function startIds(ids,rappel){
   if(!ids.length)return toast('Aucun mot à réviser.');
   /* La séance est empilée comme une vue à part entière : la croix de
      fermeture ramène ainsi à l’écran d’où l’on vient. */
+  /* Au moins 4 mots fragiles : la séance s’ouvre par un jeu
+     d’association sur ces mots (6 au plus), pour les remettre en tête
+     avant les épreuves. Il ne note rien. */
+  const frag=ids.filter(id=>etatMot(id)==='frag').slice(0,6);
+  const asso=frag.length>=4?{ids:frag,g:shuffle(frag),d:shuffle(frag),sel:null,faits:[],rate:null}:null;
   go('vocab',{
-    session:{ids:ids,i:0,right:0,vus:0,quick:false,rappel:!!rappel,repush:{}},
+    session:{ids:ids,i:0,right:0,vus:0,quick:false,rappel:!!rappel,repush:{},premier:{},asso:asso},
     show:0,
     d:makeDrill(anyWord(ids[0]))
   });
@@ -832,17 +816,48 @@ function vocabDrill(){
 }
 
 function vocabScore(){
-  const Z=ctx.session,n=Z.ids.length;
-  const pct=Math.round(Z.right/n*100);
+  const Z=ctx.session,P=Z.premier||{};
+  const ids=Object.keys(P),n=ids.length,k=ids.filter(id=>P[id]).length;
+  const rates=ids.filter(id=>!P[id]).map(anyWord).filter(Boolean);
+  const pct=n?Math.round(k/n*100):0;
+  const bien=pct>=75;
   return header('Séance terminée')+`
-  <div class="box">
-    <div class="score"><div class="n">${Z.right}<small> / ${n}</small></div><div class="lbl">${pct}% de réussite</div></div>
-    <div class="u-mv44 bar"><i class="${pct>=75?'ok':'no'}" style="width:${pct}%"></i></div>
-    <p class="mut sm">Les mots ratés reviendront dès la prochaine séance.</p>
+  <div class="box vb-fin">
+    <div class="score"><div class="n">${k}<small> sur ${n}</small></div><div class="lbl">du premier coup</div></div>
+    <div class="u-mv44 bar"><i class="${bien?'ok':pct>=50?'mi':'no'}" style="width:${pct}%"></i></div>
   </div>
-  <button class="btn" onclick="back();startSeance()">Nouvelle séance</button>
+  ${coach(bien?'saut':'encourage',bien?'Belle séance\u202F! Ce qui est su revient de moins en moins souvent.'
+    :(rates.length?'Les mots ratés reviendront dès la prochaine séance, jusqu’à ce qu’ils tiennent.':'On continue\u202F: ça s’installe.'))}
+  ${rates.length?`<h2 class="sec">À retravailler</h2><div class="vb-list">${rates.map(ligneMot).join('')}</div>`:''}
+  <button class="btn mt" onclick="back();startSeance()">Nouvelle séance</button>
   <button class="btn pale mt" onclick="back()">Retour au vocabulaire</button>`;
 }
+
+/* ---- Le jeu d’association d’ouverture ------------------------------ */
+function sensCourt(w){return String(w.fr||'').split(/[;；]/)[0].trim();}
+function vocabAsso(){
+  const A=ctx.session.asso;
+  const W=id=>anyWord(id)||{hz:'',fr:''};
+  const fini=A.faits.length===A.ids.length;
+  const cl=(id,cote)=>A.faits.indexOf(id)>=0?'fait':(A.sel===id&&cote==='g'?'sel':(A.rate&&A.rate[cote]===id?'rate':''));
+  return header('Échauffement',A.ids.length+' mots fragiles de la séance')+`
+  ${coach('pense',fini?'C’est fait. On passe aux épreuves\u202F!':'Retrouvez les paires\u202F: touchez un mot, puis son sens.')}
+  <div class="vb-asso">
+    <div class="col">${A.g.map(id=>`<button class="vb-ap hz ${cl(id,'g')}" ${A.faits.indexOf(id)>=0?'disabled':''} onclick="assoG('${jq(id)}')">${esc(W(id).hz)}</button>`).join('')}</div>
+    <div class="col">${A.d.map(id=>`<button class="vb-ap ${cl(id,'d')}" ${A.faits.indexOf(id)>=0?'disabled':''} onclick="assoD('${jq(id)}')">${esc(sensCourt(W(id)))}</button>`).join('')}</div>
+  </div>
+  <button class="btn ${fini?'':'pale'} mt" onclick="assoFin()">${fini?'Commencer les épreuves':'Passer l’échauffement'}</button>`;
+}
+function assoG(id){const A=ctx.session.asso;A.sel=id;A.rate=null;render();}
+function assoD(id){
+  const A=ctx.session.asso;
+  if(!A.sel){toast('Touchez d’abord un mot en chinois.');return;}
+  if(A.sel===id){A.faits.push(id);A.sel=null;A.rate=null;beep('ok');}
+  else{A.rate={g:A.sel,d:id};A.sel=null;beep('no');}
+  render();
+  if(A.faits.length===A.ids.length)setTimeout(()=>{if(ctx.session&&ctx.session.asso===A&&!A.fini)assoFin();},900);
+}
+function assoFin(){const A=ctx.session.asso;if(A)A.fini=true;render();scrollTo(0,0);}
 
 function curWord(){return anyWord(ctx.session.ids[ctx.session.i]);}
 
@@ -864,8 +879,17 @@ function replanifie(id,ok){
 
 /* Une seule porte pour noter, quel que soit le type d’épreuve : elle
    retient aussi le type servi, pour ne pas le resservir aussitôt. */
+/* Premier essai de chaque mot dans la séance : c’est lui que compte
+   l’écran de fin (« 7 sur 10 du premier coup »). Le réemploi, jugé par
+   le modèle, vaut une réussite dès qu’il n’est pas un échec. */
+function notePremier(id,g,kind){
+  const Z=ctx.session;if(!Z)return;
+  Z.premier=Z.premier||{};
+  if(!(id in Z.premier))Z.premier[id]=(g===2||(kind==='remploi'&&g>=1));
+}
 function vGrade(g){
   const d=ctx.d;if(!d)return;
+  notePremier(d.w.id,g,d.kind);
   grade(d.w.id,g);
   const r=S.items[d.w.id];if(r){r.last=d.kind;save();}
   if(g===2)ctx.session.right++;
@@ -1012,6 +1036,7 @@ async function vRemploi(){
 }
 function vRemploiJuge(g){
   const d=ctx.d;if(!d)return;
+  notePremier(d.w.id,g,d.kind);
   grade(d.w.id,g);
   if(g===2)ctx.session.right++;
   beep(g===2?'ok':'no');
@@ -1058,6 +1083,6 @@ function mountTrace(){
 
 function vReveal(){
   const d=ctx.d;if(!d||d.ans!=null)return;
-  d.ans=-1;beep('no');grade(d.w.id,0);render();
+  d.ans=-1;beep('no');notePremier(d.w.id,0,d.kind);grade(d.w.id,0);render();
   setTimeout(()=>TW.forEach((t,i)=>setTimeout(()=>t.animateCharacter(),i*900)),120);
 }

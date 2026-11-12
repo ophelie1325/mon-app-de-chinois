@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261112f';
+const BUILD='20261112g';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -650,6 +650,29 @@ function etatDot(id){
 }
 
 function mastered(id){const r=S.items[id];return !!r&&r.box>=4;}
+
+/* ---- Les quatre états d’un mot --------------------------------------
+   Seul endroit où ils sont définis (Vocabulaire, Progrès).
+     pas encore vu : jamais présenté ;
+     fragile       : boîte 0 ou 1 après au moins une erreur ;
+     su            : boîte 4 ou 5 ;
+     en cours      : tout le reste. */
+function etatMot(id){
+  const r=S.items[id];
+  if(!r||!r.seen)return 'neuf';
+  if(r.box>=4)return 'su';
+  if(r.box<=1&&r.ko>0)return 'frag';
+  return 'cours';
+}
+const ETATS={
+  su:   {n:'Su',           p:'sus',            c:'#3D7A69',f:1,  t:'il revient de loin en loin, pour vérifier'},
+  cours:{n:'En cours',     p:'en cours',       c:'#D9A441',f:.6, t:'bien parti, encore quelques révisions'},
+  frag: {n:'Fragile',      p:'fragiles',       c:'#B8342E',f:.25,t:'il revient souvent, jusqu’à ce qu’il tienne'},
+  neuf: {n:'Pas encore vu',p:'pas encore vus', c:'#DCCFBD',f:0,  t:'il arrivera dans une prochaine séance'}
+};
+/* Du plus fragile au plus sûr : sert au tri et au choix de la séance. */
+const RANG={frag:0,cours:1,neuf:2,su:3};
+
 
 /* --- Filtres --- */
 function fits(o){

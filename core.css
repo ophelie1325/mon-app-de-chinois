@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261112f
+   core.css — livraison 20261112g
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261112f';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261112g';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1110,3 +1110,17 @@ body.exo .vb-mot{margin-bottom:-24px}
 @media (prefers-reduced-motion:reduce){
   .vb-panel.anim,#app.fresh .vb-tile,#app.fresh .vb-glyph,#app.fresh .vb-lit{animation:none}
 }
+
+/* ---- Vocabulaire, lot 2 : échauffement, fin de séance, Progrès ---- */
+.bar i.gr{background:var(--line2)}
+.pg-et{display:flex;align-items:center;gap:6px;width:112px;flex:none}
+.pg-et i{width:9px;height:9px;border-radius:50%;flex:none}
+.vb-asso{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px}
+.vb-asso .col{display:flex;flex-direction:column;gap:9px}
+.vb-ap{min-height:56px;padding:10px 12px;border-radius:16px;background:var(--card);border:1.5px solid var(--line2);
+  box-shadow:0 4px 0 var(--line);font-size:14.5px;line-height:1.3;text-align:center;transition:background .2s,border-color .2s}
+.vb-ap.hz{font-size:22px;font-weight:700}
+.vb-ap.sel{border-color:var(--red);background:var(--red-s);color:var(--red-d)}
+.vb-ap.fait{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:none;opacity:.75}
+.vb-ap.rate{border-color:var(--red);animation:secoue .35s}
+.vb-fin .score .n small{font-size:.5em}
