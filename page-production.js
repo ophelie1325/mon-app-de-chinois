@@ -5,7 +5,10 @@ function vProd(){
   ctx.p=ctx.p||P[0].id;
   const p=P.find(x=>x.id===ctx.p)||P[0];
   const lbl={ordre:'Remettre en ordre',trad:'Traduire',libre:'Écrire librement'};
-  return header('Production écrite',lbl[p.type])+ribbon()+`
+  const dit={ordre:'Pensez à l’ordre chinois\u202F: qui, quand, où, puis l’action.',
+    trad:'Traduisez la phrase, puis comparez avec le modèle.',
+    libre:'Écrivez quelques phrases à votre manière. La correction est facultative.'};
+  return header('Production écrite',lbl[p.type])+ribbon()+coach('pinceau',dit[p.type])+`
   <div class="pills">${P.map((x,i)=>`<button class="pill ${x.id===p.id?'on':''}"
     onclick="ctx.p='${x.id}';ctx.built=[];ctx.res=null;ctx.aiout=null;render()">${i+1}. ${lbl[x.type]}</button>`).join('')}</div>
   ${p.type==='ordre'?pOrdre(p):p.type==='trad'?pTrad(p):pLibre(p)}

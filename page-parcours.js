@@ -29,26 +29,32 @@ function vLecon(){
   const done=S.lessons[l.id]||[];
   const words=WORDS.filter(w=>w.hsk===l.hsk&&w.th.includes(l.theme));
   const m=words.filter(w=>mastered(w.id)).length;
+  const tamp=TAMPON&&TAMPON.l===l.id?TAMPON.i:-1;TAMPON=null;
+  const prochaine=l.steps.findIndex((s,i)=>!done.includes(i));
   const steps=l.steps.map((s,i)=>{
     const isDone=done.includes(i);
     const open=isDone||i===0||done.includes(i-1);
     const state=isDone?'Terminé':open?'À faire':'Verrouillé';
-    return `<button class="pstep ${isDone?'done':open?'open':''}"
+    return `<button class="pstep ${isDone?'done':open?'open':''}${i===tamp?' tampon':''}"
       onclick="${open?`openStep('${l.id}',${i})`:`toast('Terminez d’abord l’étape précédente.')`}">
       <span class="pseal">${isDone?'✓':STEPMARK[s.k]||'·'}</span>
       <span class="lab"><b>${esc(s.label)}</b><span>${state}</span></span>
     </button>`;
   }).join('');
-  return header(l.title,l.intro)+`
+  const dit=prochaine<0?'Toutes les étapes sont faites. Bravo\u202F!'
+    :done.length?`On reprend à l’étape ${prochaine+1}\u202F: <b>${esc(l.steps[prochaine].label)}</b>.`
+    :`On commence par l’étape 1\u202F: <b>${esc(l.steps[0].label)}</b>.`;
+  return header(l.title,l.intro)+coach('lit',dit)+`
   <div class="box">
     <div class="bar"><i class="no" style="width:${done.length/l.steps.length*100}%"></i></div>
     <p class="u-mh3 mut sm">${done.length} / ${l.steps.length} étapes · ${m} mot${m>1?'s':''} acquis sur ${words.length}</p>
   </div>
   <div class="path">${steps}</div>
-  ${done.length===l.steps.length?`<div class="u-ta-center box">
-    <p class="u-tx5 u-m0 u-c-red u-fw-700 hz">成</p>
-    <p><b>Thème terminé</b></p>
-    <p class="mut sm">Passez au niveau supérieur pour reprendre le même thème avec plus de moyens.</p></div>`:''}`;
+  ${done.length===l.steps.length?`<div class="box fin-lecon">
+    ${banban('lanterne','',1)}
+    <div><p class="cheng">成</p>
+    <p class="u-m0"><b>Thème terminé</b></p>
+    <p class="mut sm">Passez au niveau supérieur pour reprendre le même thème avec plus de moyens.</p></div></div>`:''}`;
 }
 
 function openStep(lid,i){

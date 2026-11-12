@@ -32,6 +32,7 @@ function vGramHome(){
   const dispo=GRAMMAR.filter(fits);
   const revoir=GRAMMAR.filter(g=>S.items[g.id]&&due(g.id));
   return `${header('Grammaire','Fiches, découverte et systématisation')}
+  ${coach('pinceau','Une fiche se fait en trois temps\u202F: la découverte, les exemples, puis les exercices.')}
   ${levelPills(l=>GRAMMAR.filter(g=>g.hsk===l).length)}
   ${themeSelect()}
 

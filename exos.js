@@ -617,7 +617,7 @@ function comp(mode,titre,sub){
   const dialogue=t.lines.some(l=>l.who);
   const replie=ctx.doc===false;
   const seq=seqOf(t);
-  return header(titre,sub)+ribbon()+`
+  return header(titre,sub)+ribbon()+(mode==='CE'?coach('lit','Lisez d’abord le texte en entier, sans vous arrêter sur chaque mot. Les questions viennent ensuite.'):'')+`
   <div class="box">
     <p><b>${esc(t.title)}</b> <span class="mut sm">${esc(t.fr)}</span></p>
     <button class="btn jade" onclick='speakSeq(${seq})'>Écouter en entier</button>
@@ -688,7 +688,19 @@ function qAnswer(j){
 function qNext(){
   const Q=ctx.quiz;
   if(Q.i<Q.qs.length-1){Q.i++;render();scrollTo(0,0);}
-  else{Q.done=true;render();scrollTo(0,0);}
+  else{
+    Q.done=true;render();scrollTo(0,0);
+    const r=quizScore(Q);
+    if(r.pass)bravo({texte:r.right+' bonne'+(r.right>1?'s':'')+' réponse'+(r.right>1?'s':'')+' sur '+r.total+
+      (Q.mode==='bilan'?'. Bilan réussi.':'. Les mots sont en place.')});
+  }
+}
+/* Le score d’une série et le seuil de validation : 75 % pour le bilan,
+   60 % pour les mots du texte. Un seul calcul pour l’écran et le bandeau. */
+function quizScore(Q){
+  const total=Q.qs.length,right=Q.ans.filter((a,k)=>a===Q.qs[k].ok).length;
+  const seuil=Q.mode==='bilan'?Math.ceil(total*.75):Math.ceil(total*.6);
+  return {total:total,right:right,seuil:seuil,pass:right>=seuil};
 }
 
 function qRestart(){
@@ -708,13 +720,12 @@ function vQuiz(){
   const right=Q.ans.filter((a,k)=>a===Q.qs[k].ok).length;
 
   if(Q.done){
-    const total=Q.qs.length,pct=Math.round(right/total*100);
-    const seuil=Q.mode==='bilan'?Math.ceil(total*.75):Math.ceil(total*.6);
-    const pass=right>=seuil;
+    const {total,seuil,pass}=quizScore(Q),pct=Math.round(right/total*100);
     const faibles=Q.qs.map((q,k)=>[q,Q.ans[k]]).filter(([q,a])=>a!==q.ok);
     const parType=k=>faibles.filter(([q])=>q.kind===k).length;
     return header(titre,l.title)+`
     <div class="box">
+      ${pass?'':banban('encourage','pose-score',1)}
       <div class="score"><div class="n">${right}<small> / ${total}</small></div>
         <div class="lbl">${pct}% de réponses justes</div></div>
       <div class="u-mv44 bar"><i class="${pass?'ok':'no'}" style="width:${pct}%"></i></div>

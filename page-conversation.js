@@ -188,7 +188,8 @@ function chatSetup(){
   ctx.creg=ctx.creg||(h<=2?'reg2':'reg3');
   ctx.cth=ctx.cth||(dispo.some(t=>t.id===S.settings.theme)?S.settings.theme:(dispo[0]||{}).id);
   if(!dispo.length)return header('聊 — Conversation')+levelPills()+nothing();
-  return header('聊 — Conversation','Dialoguer sur un thème, puis faire le point')+ribbon()+`
+  return header('聊 — Conversation','Dialoguer sur un thème, puis faire le point')+ribbon()+
+    coach('pense','Choisissez un thème. Je vous pose des questions, vous répondez en chinois, puis on fait le point ensemble.')+`
   ${levelPills()}
   <div class="box">
     <p class="u-mb2 mut sm">Thème</p>

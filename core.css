@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261108a
+   core.css — livraison 20261112a
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261108a';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261112a';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -116,118 +116,128 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
    Le panneau d’accueil et les tuiles de modules. Nulle part ailleurs.
    ===================================================================== */
 
-/* ---------- Le panneau rouge ----------
-   Quatre couches de fond, de la plus proche à la plus lointaine :
-   les lanternes en haut à droite, la frise d’écailles en pied, le
-   treillis de fenêtre en diagonale, puis l’aplat. */
+/* ---------- Le panneau rouge (maquette « 3D, version 4 ») ----------
+   Un rouge laque en dégradé, éclairé en bas à droite. Le 伴 en filigrane
+   en bas à gauche, trois lanternes en haut à droite, Bànbàn debout en
+   bas à droite, la bulle 加油 entre les lanternes et sa tête. Le texte
+   et le bouton tiennent dans la colonne de gauche. */
 .hero{
-  position:relative;overflow:hidden;border-radius:28px;padding:22px 20px 20px;margin:14px 0 6px;
-  color:#FBEFE0;
-  background-color:var(--panneau);
-  background-image:
-    radial-gradient(circle at 50% 100%,transparent 8.5px,rgba(240,208,138,.45) 8.5px,rgba(240,208,138,.45) 10px,transparent 10px),
-    repeating-linear-gradient(45deg,rgba(243,217,166,.09) 0 1px,transparent 1px 14px),
-    repeating-linear-gradient(-45deg,rgba(243,217,166,.09) 0 1px,transparent 1px 14px);
-  background-repeat:repeat-x,repeat,repeat;
-  background-position:bottom left,0 0,0 0;
-  background-size:22px 12px,auto,auto;
-  box-shadow:inset 0 0 0 1.5px rgba(198,160,83,.7);
+  position:relative;overflow:hidden;border-radius:30px;padding:22px 20px 20px;margin:14px 0 6px;
+  min-height:296px;color:#FFF3E6;
+  background:radial-gradient(circle at 75% 90%,#C93A31 0,#A82C27 45%,#7E1F1C 100%);
+  box-shadow:0 18px 30px -16px rgba(150,40,35,.7),inset 0 2px 0 rgba(255,255,255,.25),
+    inset 0 0 0 1.5px rgba(198,160,83,.5);
 }
-/* Les deux lanternes suspendues, qui se balancent en décalé.
-   transform-box:view-box est indispensable : sans lui le pivot est faux. */
-.hero .lant{position:absolute;right:8px;top:-4px;width:60px;height:92px;pointer-events:none}
-@keyframes sw2{from{transform:rotate(-4.5deg)}to{transform:rotate(4.5deg)}}
-.hero .lant .c1{transform-box:view-box;transform-origin:20px 3px;
-  animation:sw2 2.3s ease-in-out infinite alternate}
-.hero .lant .c2{transform-box:view-box;transform-origin:44px 3px;
-  animation:sw2 2.7s ease-in-out infinite alternate;animation-delay:-.5s}
-
-/* Le filigrane 汉, en bas à gauche. */
 .hero .mark{
-  position:absolute;left:-16px;bottom:-40px;font-family:var(--han-serif);font-weight:700;
-  font-size:132px;line-height:1;color:#F3D9A6;opacity:.13;pointer-events:none;
+  position:absolute;left:-12px;bottom:-38px;font-family:var(--han-serif);font-weight:700;
+  font-size:150px;line-height:1;color:#F3D9A6;opacity:.12;pointer-events:none;
 }
-/* 汉语 annonce le bonjour. Le texte reste à distance des lanternes. */
-.hero h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.01em;position:relative;z-index:1;
-  max-width:calc(100% - 92px)}
+/* Les lanternes : pivot en haut du fil, balancement décalé, halo qui vacille. */
+.lant3{position:absolute;top:-4px;z-index:1;transform-origin:50% 0;pointer-events:none;
+  animation:balance 2.6s ease-in-out infinite alternate}
+.lant3 svg{display:block;width:100%;overflow:visible;filter:drop-shadow(0 0 10px rgba(255,170,80,.55))}
+.lant3 .halo{opacity:.6;filter:blur(9px);animation:vacille 2.2s ease-in-out infinite}
+.lant3.l1{right:16px;width:38px}
+.lant3.l2{right:60px;top:-18px;width:30px;animation-duration:3.1s;animation-delay:-.8s}
+.lant3.l3{right:100px;top:-26px;width:24px;animation-duration:2.8s;animation-delay:-1.6s}
+@keyframes balance{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+@keyframes vacille{0%,100%{opacity:.55}45%{opacity:.85}60%{opacity:.6}}
+
+/* Bànbàn, debout en bas à droite. Il salue, ou il dort. */
+.hero .panda{position:absolute;right:-4px;bottom:-6px;width:150px;height:auto;z-index:2;pointer-events:none}
+.hero .panda.salue{transform-origin:50% 100%;animation:salue 2.6s ease-in-out infinite}
+.hero .panda.dort{width:168px;bottom:-2px;right:-6px;transform-origin:50% 100%;animation:souffle 3.6s ease-in-out infinite}
+@keyframes salue{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}50%{transform:rotate(2deg)}75%{transform:rotate(-4deg)}}
+@keyframes souffle{0%,100%{transform:scale(1)}50%{transform:scale(1.03,1.045)}}
+
+/* La bulle 加油 ! : sous les lanternes, au-dessus de la tête. Elle ne
+   doit recouvrir ni le texte, ni les lanternes, ni le panda. */
+.hero .bulle{
+  position:absolute;z-index:3;right:14px;top:94px;white-space:nowrap;
+  background:#fff;color:var(--ink);font-size:15px;font-weight:700;padding:5px 12px;
+  border-radius:18px 18px 18px 4px;box-shadow:0 10px 20px -10px rgba(0,0,0,.45);
+  animation:pop .5s .9s cubic-bezier(.3,1.4,.5,1) both;
+}
+.hero .bulle .hz{font-size:19px}
+
+/* La colonne de gauche. 汉语 annonce le bonjour. */
+.hero .col{position:relative;z-index:2;max-width:calc(100% - 132px)}
+.hero h1{margin:0;font-size:24px;font-weight:700;line-height:1.15;letter-spacing:-.01em}
 .hero h1::before{
   content:'汉语';display:block;font-family:var(--han-serif);font-weight:500;
   font-size:14px;letter-spacing:.34em;color:#F3D9A6;opacity:.92;margin-bottom:7px;
 }
-.hero .sub{font-size:14px;opacity:.86;margin-top:3px;position:relative;z-index:1;
-  max-width:calc(100% - 92px)}
-/* Le séparateur à losange. */
-.hero .rule{
-  position:relative;height:1.5px;border-radius:0;margin:16px 0 14px;
-  background:linear-gradient(90deg,rgba(243,217,166,.35),rgba(243,217,166,.35));
-}
-.hero .rule::after{
-  content:'';position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-3px 0 0 -2.5px;
-  background:#F3D9A6;transform:rotate(45deg);
-}
-.hero .figs{display:flex;position:relative;z-index:1}
-.hero .fig{padding:0 14px;border-left:1px solid rgba(243,217,166,.28)}
+.hero .sub{font-size:14px;opacity:.88;margin-top:4px}
+.hero .prog{margin-top:13px}
+.hero .prog .lb{font-size:12px;margin-bottom:5px;opacity:.88;line-height:1.3}
+.hero .prog .tr{height:8px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
+.hero .prog .tr i{display:block;height:100%;border-radius:99px;background:#F3D9A6;
+  transform-origin:left;animation:remplit 1.1s .4s cubic-bezier(.2,.9,.3,1) both}
+/* Les trois chiffres, en ligne compacte. */
+.hero .figs{display:flex;margin-top:13px}
+.hero .fig{padding:0 9px;border-left:1px solid rgba(243,217,166,.3);min-width:0}
 .hero .fig:first-child{padding-left:0;border-left:0}
-.hero .fig b{display:block;font-size:24px;line-height:1.1}
+.hero .fig b{display:block;font-size:19px;line-height:1.1}
 .hero .fig:first-child b{color:#F3D9A6}
-.hero .fig span{display:block;font-size:10.5px;opacity:.72;letter-spacing:.03em}
+.hero .fig:not(:last-child) span{white-space:nowrap}
+.hero .fig span{display:block;font-size:9.5px;opacity:.75;letter-spacing:.04em;text-transform:uppercase;line-height:1.25}
 .hero .cta{
-  display:block;width:100%;margin-top:16px;padding:15px;border-radius:17px;
-  background:#FFF6EC;color:var(--red-d);font-size:16.5px;
-  box-shadow:0 5px 0 rgba(0,0,0,.2);position:relative;z-index:1;
+  display:block;position:relative;z-index:3;width:calc(100% - 132px);min-width:168px;
+  margin-top:16px;padding:13px 14px;border-radius:18px;line-height:1.3;
+  background:#FFF6EC;color:var(--red-d);font-size:15.5px;
+  box-shadow:0 6px 0 rgba(0,0,0,.22);
 }
-.hero .cta:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.hero .cta:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.22)}
 
-/* ---------- Les tuiles de modules ----------
-   Le caractère emblème paraît deux fois : en petit et en couleur au
-   fil de la tuile, et en grand filigrane rouge qui déborde en haut à
-   droite. Le filigrane est tiré de l’attribut data-em. */
+/* Le titre de la grille, qui porte son trait d’encre. */
+.titre-acc{margin:22px 0 2px;font-size:20px;font-weight:700;line-height:1.2}
+
+/* ---------- Les tuiles de modules, façon encre ----------
+   Fond blanc, bord teinté de la couleur du module, liseré coloré en bas,
+   lavis flou dans le coin, emblème en ZCOOL XiaoWei, et le même
+   caractère en grand filigrane à 10 % en bas à droite (attribut
+   data-em). La couleur du module passe par --c. */
+.c-red{--c:var(--red)}     .c-gold{--c:var(--gold-d)}     .c-jade{--c:var(--jade)}
+.c-indigo{--c:var(--indigo)} .c-plum{--c:var(--plum)}     .c-clay{--c:var(--clay)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 .mod{
   position:relative;overflow:hidden;
-  background:var(--tuile);border:1.5px solid var(--line);border-radius:17px 5px 17px 5px;
-  padding:14px;text-align:left;box-shadow:0 4px 0 rgba(120,90,50,.06);
+  background:
+    radial-gradient(circle at calc(100% + 4px) -4px,
+      color-mix(in srgb,var(--c,#B8342E) 24%,transparent) 0,
+      color-mix(in srgb,var(--c,#B8342E) 9%,transparent) 36px,transparent 66px),
+    #fff;
+  border:1.5px solid color-mix(in srgb,var(--c,#B8342E) 28%,#EEE4D6);border-radius:20px;
+  padding:14px 14px 16px;text-align:left;
+  box-shadow:0 14px 26px -16px rgba(90,40,20,.5),inset 0 -4px 0 var(--c,#B8342E);
   display:flex;flex-direction:column;gap:6px;min-height:126px;
 }
 .mod::before{
-  content:attr(data-em);position:absolute;top:-18px;right:-12px;
-  font-family:var(--han-serif);font-weight:700;font-size:78px;line-height:1;
-  color:#B8342E;opacity:.12;pointer-events:none;
+  content:attr(data-em);position:absolute;right:-6px;bottom:-26px;
+  font-family:'ZCOOL XiaoWei',var(--han-serif);font-size:104px;line-height:1;
+  color:var(--c,#B8342E);opacity:.1;pointer-events:none;
 }
-.mod:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(120,90,50,.06)}
+.mod:active{transform:translateY(3px);box-shadow:0 6px 14px -10px rgba(90,40,20,.5),inset 0 -4px 0 var(--c,#B8342E)}
 .mod .emb{
-  position:relative;z-index:1;width:46px;height:46px;flex:none;border-radius:8px;
-  display:grid;place-items:center;line-height:1;
-  font-family:var(--han-serif);font-weight:700;font-size:26px;
-  border:1.5px solid transparent;background:transparent;
+  position:relative;z-index:1;height:44px;flex:none;display:flex;align-items:center;line-height:1;
+  font-family:'ZCOOL XiaoWei',var(--han-serif);font-size:34px;color:var(--c,#B8342E);
 }
 .mod b{position:relative;z-index:1;font-size:15px;font-weight:700;line-height:1.25;margin-top:auto}
 .mod span{position:relative;z-index:1;font-size:11.5px;color:var(--muted);line-height:1.3}
 .mod.wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:14px;min-height:0}
-.mod.wide::before{font-size:62px;top:-14px;right:-8px}
-.mod.wide .emb{width:44px;height:44px;font-size:24px}
+.mod.wide::before{font-size:84px;bottom:-22px;right:4px}
+.mod.wide .emb{font-size:32px;width:40px;justify-content:center}
 .mod.wide .col{position:relative;z-index:1;flex:1;min-width:0}
 .mod.wide b{margin-top:0;display:block;font-size:17px}
 
-.c-red{border-color:#F0CFCB}    .c-red .emb,.c-red b{color:var(--red)}          .c-red .bar i{background:var(--red)}
-.c-gold{border-color:#F0DDB4}   .c-gold .emb,.c-gold b{color:var(--gold-d)}     .c-gold .bar i{background:var(--gold)}
-.c-jade{border-color:#C6DFD8}   .c-jade .emb,.c-jade b{color:var(--jade)}       .c-jade .bar i{background:var(--jade)}
-.c-indigo{border-color:#C9D5E7} .c-indigo .emb,.c-indigo b{color:var(--indigo)} .c-indigo .bar i{background:var(--indigo)}
-.c-plum{border-color:#E6C9D6}   .c-plum .emb,.c-plum b{color:var(--plum)}       .c-plum .bar i{background:var(--plum)}
-.c-clay{border-color:#EFD2BC}   .c-clay .emb,.c-clay b{color:var(--clay)}       .c-clay .bar i{background:var(--clay)}
+.c-red .emb,.c-red b{color:var(--red)}          .c-red .bar i{background:var(--red)}
+.c-gold .emb,.c-gold b{color:var(--gold-d)}     .c-gold .bar i{background:var(--gold)}
+.c-jade .emb,.c-jade b{color:var(--jade)}       .c-jade .bar i{background:var(--jade)}
+.c-indigo .emb,.c-indigo b{color:var(--indigo)} .c-indigo .bar i{background:var(--indigo)}
+.c-plum .emb,.c-plum b{color:var(--plum)}       .c-plum .bar i{background:var(--plum)}
+.c-clay .emb,.c-clay b{color:var(--clay)}       .c-clay .bar i{background:var(--clay)}
 
-/* Le sceau au repos : le fond pâle et le filet de la couleur du module.
-   Seul le remplissage distingue les états ; la géométrie ne bouge pas. */
-.c-red .emb{background:var(--red-s);border-color:#F0CFCB}
-.c-gold .emb{background:var(--gold-s);border-color:#F0DDB4}
-.c-jade .emb{background:var(--jade-s);border-color:#C6DFD8}
-.c-indigo .emb{background:var(--indigo-s);border-color:#C9D5E7}
-.c-plum .emb{background:var(--plum-s);border-color:#E6C9D6}
-.c-clay .emb{background:var(--clay-s);border-color:#EFD2BC}
-
-/* La tuile du module en cours : coins presque vifs, quatre cornières
-   or, et l’emblème en sceau rouge plein, caractère réservé en crème.
-   Ces règles viennent après les couleurs de module, pour les couvrir. */
+/* La tuile du module en cours : le filet or et quatre cornières or. */
 .mod.cur{border-color:var(--or-filet)}
 .mod.cur::after{
   content:'';position:absolute;inset:6px;pointer-events:none;
@@ -236,9 +246,6 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
   background-position:0 0,0 0,100% 0,100% 0,0 100%,0 100%,100% 100%,100% 100%;
   background-size:14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px,14px 1.5px,1.5px 14px;
   background-repeat:no-repeat;
-}
-.mod.cur .emb,.mod.cur.wide .emb{
-  background:var(--red);border-color:var(--red);color:#FBF6EE;
 }
 
 /* La barre d’avancement des tuiles. */
@@ -299,12 +306,29 @@ button{font-family:inherit;font-weight:700;cursor:pointer;border:0;background:no
 .back svg{width:20px;height:20px}
 .back:active{background:var(--line)}
 .htitle{flex:1;min-width:0;font-size:21px;font-weight:700;line-height:1.25}
+/* ---------- Le trait d’encre ----------
+   Sous les titres d’écran et de section, à la largeur exacte du texte,
+   révélé de gauche à droite comme un coup de pinceau. Son épaisseur
+   suit le corps du titre (em), pour rester proportionné partout. */
+.ink{position:relative;display:inline-block;max-width:100%}
+.ink .encre{position:absolute;left:-3%;width:106%;bottom:-.36em;height:.5em;overflow:visible;
+  pointer-events:none;z-index:-1}
+/* Le coup de pinceau ne se donne qu’à l’arrivée sur l’écran : l’en-tête
+   est reconstruit à chaque réponse, il ne doit pas se redessiner. */
+#app.fresh .ink .encre{animation:pinceau .75s .15s cubic-bezier(.45,.05,.3,1) both}
+.htitle .ink{z-index:0}
+.htitle small{margin-top:7px!important}
+h2.sec .ink{z-index:0}
+h2.sec .ink .encre{bottom:-.5em;height:.62em;opacity:.85}
+.titre-acc .ink .encre{bottom:-.34em;height:.46em}
+.encre-defs{position:absolute;width:0;height:0;overflow:hidden}
+@keyframes pinceau{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 .htitle small{display:block;font-size:13.5px;color:var(--muted);font-weight:600;margin-top:2px}
 
 /* ---------- Blocs et libellés ---------- */
 .box{background:var(--card);border:1.5px solid var(--line);border-radius:14px;
   padding:17px;margin-bottom:11px}
-h2.sec{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 11px}
+h2.sec{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 14px}
 p{margin:0 0 10px}
 .mut{color:var(--muted);font-size:14.5px;font-weight:600}
 .sm{font-size:13.5px}
@@ -379,6 +403,14 @@ p{margin:0 0 10px}
 .pstep.done .pseal{background:var(--red);border-color:var(--red);color:#FFF6EC}
 .pstep.done .lab b{color:var(--ink)}
 .pstep.done .lab span{color:var(--jade)}
+.pstep.open .pseal{animation:sonne 1.6s ease-out infinite}
+.pstep.tampon .pseal{animation:tampon .55s .25s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes sonne{0%{box-shadow:0 0 0 0 rgba(184,52,46,.45)}100%{box-shadow:0 0 0 14px rgba(184,52,46,0)}}
+@keyframes tampon{0%{opacity:0;transform:scale(2.3) rotate(-14deg)}55%{opacity:1;transform:scale(.9) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+/* La leçon validée : Bànbàn et sa lanterne à côté du 成. */
+.fin-lecon{display:flex;align-items:center;gap:12px;text-align:left}
+.fin-lecon .bb{width:104px;height:auto;flex:none}
+.fin-lecon .cheng{font-family:var(--han-serif);font-size:var(--tx-5);font-weight:700;color:var(--red);line-height:1;margin:0 0 4px}
 
 /* ---------- Bandeau de rappel du parcours ---------- */
 .ribbon{display:flex;align-items:center;gap:9px;background:var(--red-s);border:1.5px solid #F0CFCB;
@@ -664,16 +696,76 @@ h3 .reg{font-size:.58rem}
 ::view-transition-new(root){animation:vIn .2s cubic-bezier(.22,.9,.3,1)}
 
 
+/* ---------- Animations d’apparat ----------
+   Entrées en cascade et barres qui se remplissent : seulement à
+   l’arrivée sur un écran (#app.fresh), pas à chaque réponse. */
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes remplit{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pop{0%{opacity:0;transform:scale(.2)}60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
+@keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+#app.fresh .hero{animation:monte .55s cubic-bezier(.2,.9,.3,1.25) both}
+#app.fresh .grid>.mod{animation:monte .55s cubic-bezier(.2,.9,.3,1.25) both;
+  animation-delay:calc(.15s + var(--i,0) * .06s)}
+#app.fresh .pstep{animation:monte .5s cubic-bezier(.2,.9,.3,1.25) both}
+#app.fresh .pstep:nth-child(2){animation-delay:.06s} #app.fresh .pstep:nth-child(3){animation-delay:.12s}
+#app.fresh .pstep:nth-child(4){animation-delay:.18s} #app.fresh .pstep:nth-child(5){animation-delay:.24s}
+#app.fresh .pstep:nth-child(6){animation-delay:.3s}  #app.fresh .pstep:nth-child(7){animation-delay:.36s}
+#app.fresh .pstep:nth-child(8){animation-delay:.42s} #app.fresh .pstep:nth-child(9){animation-delay:.48s}
+#app.fresh .bar i{transform-origin:left;animation:remplit 1s .35s cubic-bezier(.2,.9,.3,1) both}
+#app.fresh .coach{animation:monte .5s .05s cubic-bezier(.2,.9,.3,1.25) both}
+
+/* Le tremblement d’une réponse fausse. */
+@keyframes secoue{0%,100%{transform:none}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.secoue{animation:secoue .45s ease}
+
+/* ---------- Bànbàn qui parle ---------- */
+.coach{display:flex;align-items:flex-end;gap:6px;margin:4px 0 14px}
+.coach .bb{width:76px;height:auto;flex:none}
+.coach .bb.bob{animation:flotte 3s ease-in-out infinite}
+.coach .say{position:relative;flex:1;min-width:0;margin-bottom:18px;padding:11px 14px;font-size:14.5px;line-height:1.45;
+  background:#fff;border:1.5px solid var(--line);border-radius:20px 20px 20px 6px;
+  box-shadow:0 12px 22px -14px rgba(90,40,20,.45)}
+.coach .say b{color:var(--red-d)}
+/* La pose posée à côté d’un score, sans bulle. */
+.pose-score{display:block;width:96px;height:auto;margin:0 auto 4px}
+
+/* ---------- Le bandeau Bravo ---------- */
+@keyframes voile{from{opacity:0}to{opacity:1}}
+@keyframes bandeau{from{transform:translateY(105%)}to{transform:none}}
+@keyframes saute{0%,100%{transform:translateY(0) scale(1,1)}25%{transform:translateY(4px) scale(1.06,.94)}50%{transform:translateY(-38px) scale(.96,1.05)}75%{transform:translateY(0) scale(1.05,.95)}}
+@keyframes tombe{0%{opacity:0;transform:translate(0,-30px) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translate(var(--dx),330px) rotate(var(--r))}}
+.bravo-voile{position:fixed;inset:0;z-index:60;background:rgba(30,20,15,.28);animation:voile .25s both}
+.bravo{position:absolute;left:0;right:0;bottom:0;max-width:620px;margin:0 auto;overflow:hidden;
+  padding:20px 20px calc(24px + env(safe-area-inset-bottom));background:#fff;border-radius:30px 30px 0 0;
+  box-shadow:0 -20px 40px -20px rgba(0,0,0,.35);animation:bandeau .45s cubic-bezier(.2,.9,.3,1.15) both}
+.bravo .row{display:flex;align-items:center;gap:12px;position:relative;z-index:2}
+.bravo .bb{width:112px;height:auto;flex:none}
+.bravo .saute{animation:saute .9s .35s cubic-bezier(.3,.8,.4,1) 2}
+.bravo h3{margin:0;font-size:25px;line-height:1.15;color:var(--jade-d)}
+.bravo h3 .hz{display:block;font-size:20px}
+.bravo .py{margin:2px 0 0;font-size:13px;letter-spacing:.03em}
+.bravo p{margin:6px 0 0;font-size:15px}
+.bravo .btn{position:relative;z-index:2;margin-top:16px}
+.bravo .fx{position:absolute;left:50%;top:40%;z-index:1;pointer-events:none}
+.bravo .fx i{position:absolute;display:block;width:10px;height:16px;border-radius:4px;
+  animation:tombe 1.6s cubic-bezier(.3,.6,.5,1) both}
+
+
 /* =====================================================================
    V. ADAPTATIONS
    ===================================================================== */
 @media (max-width:340px){
   .grid{grid-template-columns:1fr}
+  .hero .col{max-width:calc(100% - 112px)}
+  .hero .fig span{white-space:normal!important;font-size:8.5px;letter-spacing:0}
+  .hero .fig{padding:0 6px}
   .hsk .sk{padding:5px 0;font-size:14px}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
-  .hero .lant .c1,.hero .lant .c2{transform:none!important}
+  .lant3,.hero .panda,.coach .bb{transform:none!important}
+  .ink .encre{clip-path:none!important}
+  .bravo .fx{display:none}
   ::view-transition-old(root),::view-transition-new(root){animation:none!important}
 }
 
@@ -831,17 +923,6 @@ h3 .reg{font-size:.58rem}
 .tbox.tw3{width:102px;height:102px}
 
 .u-lh-12{line-height:1.2 !important}
-
-/* ---- Lanternes de l’accueil ---------------------------------------
-   Le dessin est en SVG dans page-accueil.js — points, courbes, rayons.
-   Tout ce qui relève de l’aspect est ici : sans quoi un changement de
-   palette laisserait les lanternes à l’ancienne teinte, en silence. */
-.lant .l-fil{stroke:var(--lant-or);stroke-width:1.1;fill:none}
-.lant .l-cerne{fill:var(--lant-corps);stroke:var(--lant-or);stroke-width:1.4}
-.lant .l-corps{fill:var(--lant-corps);stroke:var(--lant-or);stroke-width:1.4}
-.lant .l-cotes{stroke:var(--lant-or);stroke-width:.9;fill:none;opacity:.8}
-.lant .l-franges{stroke:var(--lant-or);stroke-width:1.3;stroke-linecap:round;fill:none}
-.lant .l-armature{fill:var(--lant-armature)}
 
 /* ---- Icônes en tracé fin ------------------------------------------
    Les SVG posés dans le JavaScript ne portent que leur géométrie. La

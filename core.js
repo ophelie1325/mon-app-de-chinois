@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261108a';
+const BUILD='20261112a';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -463,7 +463,117 @@ function applyFont(){
 /* --- Effets sonores --- */
 let AC=null;
 
+/* =====================================================================
+   BÀNBÀN 伴伴, LA MASCOTTE
+   Huit poses détourées, dans img/. Une pose a toujours un rôle : on ne
+   pose pas le panda pour décorer, il dit quelque chose de l’écran.
+   ===================================================================== */
+const POSES={
+  salut:'fait signe de la patte',saut:'saute de joie',encourage:'lève la patte pour encourager',
+  pense:'réfléchit, la patte au menton',pinceau:'tient un pinceau',lit:'lit un livre',
+  lanterne:'tient une lanterne allumée',dort:'dort, roulé en boule'
+};
+function banban(p,cl,tout){
+  return `<img class="bb ${cl||''}" src="img/banban-${p}.webp" alt="Bànbàn ${POSES[p]||''}"`+
+    `${tout?'':' loading="lazy"'} decoding="async">`;
+}
+/* Le panda qui parle : la pose à gauche, la bulle à droite. */
+function coach(p,html){
+  return `<div class="coach">${banban(p,'bob',1)}<div class="say">${html}</div></div>`;
+}
+/* Une activité aujourd’hui, c’est ce que touchStreak a déjà noté. */
+function actifAujourdhui(){return !!(S.streak&&S.streak.last===new Date().toDateString());}
+
+/* ---------- Le trait d’encre sous les titres ----------
+   Une touche d’encre de Chine qui bave un peu : un aplat dont les bords
+   sont dérangés par un bruit fractal, en dégradé rouge laque → ocre.
+   Le SVG est étiré à la largeur exacte du titre ; le filtre et le
+   dégradé sont déclarés une seule fois dans la page, au démarrage. */
+const ENCRE_DEFS=`<svg class="encre-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="encreGrad" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="#B8342E"/><stop offset=".5" stop-color="#B4482C"/><stop offset="1" stop-color="#C08A2E"/>
+  </linearGradient>
+  <filter id="encreBave" x="-3%" y="-90%" width="106%" height="280%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.045 0.6" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feGaussianBlur in="d" stdDeviation=".22"/>
+  </filter>
+</defs></svg>`;
+function encre(){
+  return `<svg class="encre" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <g filter="url(#encreBave)" fill="url(#encreGrad)">
+      <path d="M2 8.2C18 5.6 46 4.6 78 5.2S150 4.4 186 5.6C193 5.9 198 6.6 198 7.6C198 8.6 193 8.9 186 9.1C150 9.9 112 9.4 80 10.1S24 11.6 7 11.3C3 11.2 1 10.4 1.2 9.4C1.3 8.9 1.6 8.5 2 8.2Z"/>
+      <circle cx="4.6" cy="9.3" r="2.6"/>
+      <path d="M116 5.4C146 4.6 172 4.8 191 5.8" stroke="url(#encreGrad)" stroke-width=".7" fill="none" stroke-dasharray="22 3 10 4 26 2" opacity=".75"/>
+      <path d="M104 10.6C136 10.4 160 10 181 9.6" stroke="url(#encreGrad)" stroke-width=".6" fill="none" stroke-dasharray="14 5 20 3" opacity=".6"/>
+    </g></svg>`;
+}
+/* Les titres de section reçoivent leur trait après l’affichage : il y en
+   a dans toutes les pages, inutile de toucher chaque gabarit. */
+function encrerTitres(racine){
+  (racine||document).querySelectorAll('h2.sec:not(.enc)').forEach(h=>{
+    h.classList.add('enc');
+    h.innerHTML=`<span class="ink">${h.innerHTML}${encre()}</span>`;
+  });
+}
+
+/* ---------- Le tremblement sur une réponse fausse ----------
+   beep('no') est appelé partout où une réponse est fausse : c’est le
+   seul point d’entrée. On secoue le bouton touché s’il porte la marque
+   d’erreur, sinon le verdict d’erreur du même bloc. Le bouton est
+   retrouvé par son rang, puisque render() a refait le DOM entre-temps. */
+let DERNIER_BTN=-1,A_SECOUER=false;
+document.addEventListener('click',e=>{
+  const b=e.target&&e.target.closest?e.target.closest('#app button'):null;
+  DERNIER_BTN=b?[...document.querySelectorAll('#app button')].indexOf(b):-1;
+},true);
+function secoue(){
+  if(!A_SECOUER)return;
+  A_SECOUER=false;
+  const bs=document.querySelectorAll('#app button');
+  const b=bs[DERNIER_BTN];
+  let el=null;
+  if(b&&/(^|\s)(no|mauvais)(\s|$)/.test(b.className))el=b;
+  else{
+    const bloc=b&&b.closest('.box');
+    el=bloc&&bloc.querySelector('.verdict.no');
+    if(!el){const v=document.querySelectorAll('#app .verdict.no');if(v.length===1)el=v[0];}
+  }
+  if(!el)return;
+  el.classList.remove('secoue');void el.offsetWidth;el.classList.add('secoue');
+}
+
+/* ---------- Le bandeau Bravo ----------
+   Il monte du bas, Bànbàn saute deux fois, des confettis tombent. Il vit
+   hors de #app : un render() ne l’efface pas. */
+function bravo(o){
+  o=o||{};
+  fermeBravo();
+  const couleurs=['#D9483C','#B8342E','#F3D9A6','#E8B64A','#3D7A69'];
+  let conf='';
+  for(let k=0;k<22;k++){
+    const x=Math.round(Math.random()*300-150),y=Math.round(-90-Math.random()*70);
+    conf+=`<i style="left:${x}px;top:${y}px;background:${couleurs[k%5]};--dx:${Math.round(Math.random()*320-160)}px;`+
+      `--r:${Math.round(Math.random()*1000-500)}deg;animation-delay:${(.25+Math.random()*.45).toFixed(2)}s"></i>`;
+  }
+  const d=document.createElement('div');
+  d.className='bravo-voile';
+  d.innerHTML=`<div class="bravo" role="dialog" aria-modal="true" aria-label="Bravo">
+    <div class="fx" aria-hidden="true">${conf}</div>
+    <div class="row">${banban(o.pose||'saut','saute',1)}
+      <div><h3><span class="hz">太棒了！</span>${esc(o.titre||'Bravo\u202F!')}</h3>
+        <p class="py"><span class="s4">tài</span> <span class="s4">bàng</span> <span class="s0">le</span></p>
+        ${o.texte?`<p>${esc(o.texte)}</p>`:''}</div></div>
+    <button class="btn jade" onclick="fermeBravo()">Continuer</button></div>`;
+  d.addEventListener('click',e=>{if(e.target===d)fermeBravo();});
+  document.body.appendChild(d);
+  try{d.querySelector('button').focus({preventScroll:true});}catch(e){}
+}
+function fermeBravo(){document.querySelectorAll('.bravo-voile').forEach(x=>x.remove());}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fermeBravo();});
+
 function beep(kind){
+  if(kind==='no'){A_SECOUER=true;setTimeout(secoue,0);}
   if(!S.settings.sfx)return;
   try{
     const Ctx=window.AudioContext||window.webkitAudioContext;
@@ -987,6 +1097,7 @@ let view='',ctx={},stack=[];
 /* Le sens d’entrée de la prochaine vue. Vide : aucune animation, ce qui
    évite de faire clignoter l’écran à chaque redessin d’un exercice. */
 let NAVDIR='';
+let PREMIER_RENDU=false;
 /* Les vues où l’on est en train de faire quelque chose, par opposition à
    celles où l’on consulte : la barre d’onglets s’y efface et le bouton
    de tête devient une croix de fermeture. */
@@ -1016,6 +1127,10 @@ function render(){
   if(!view||!V[view])view=window.HOMEVIEW||Object.keys(V)[0]||'';
   const f=V[view];
   document.body.classList.toggle('exo',isExoView());
+  /* Les entrées en cascade ne jouent qu’à l’arrivée sur un écran, pas à
+     chaque réponse : render() refait tout le DOM à chaque clic. */
+  app.classList.toggle('fresh',!!NAVDIR||!PREMIER_RENDU);
+  PREMIER_RENDU=true;
   try{app.innerHTML=f?f():'';}
   catch(e){
     app.innerHTML=`<div class="box"><h2>Cet écran n’a pas pu s’afficher</h2>
@@ -1029,6 +1144,7 @@ function render(){
     void app.offsetWidth;
     app.classList.add(d);
   }
+  encrerTitres(app);
   if(typeof window.MOUNT==='function'){try{window.MOUNT();}catch(e){}}
   if(ctx.scrollTo){
     const el=document.getElementById(ctx.scrollTo);
@@ -1049,6 +1165,7 @@ function poseBarre(){
 
 function boot(){
   poseBarre();
+  if(!document.querySelector('.encre-defs'))document.body.insertAdjacentHTML('afterbegin',ENCRE_DEFS);
   if(buildCheck()==='reload')return;
   try{buildPyDict();}catch(e){}
   render();
@@ -1061,7 +1178,7 @@ function header(title,sub){
   const x=isExoView();
   return `<div class="top">
     <button class="${x?'xclose':'back'}" onclick="back()" aria-label="${x?'Fermer':'Retour'}">${ico(x?'close':'back')}</button>
-    <div class="htitle">${esc(title)}${sub?`<small>${esc(sub)}</small>`:''}</div>
+    <div class="htitle"><span class="ink">${esc(title)}${encre()}</span>${sub?`<small>${esc(sub)}</small>`:''}</div>
   </div>`;
 }
 
@@ -1126,12 +1243,21 @@ function ribbon(){
     <button onclick="finishStep()">Terminé</button></div>`;
 }
 
+/* L’étape qui vient d’être validée : son sceau se tamponne une fois,
+   au retour sur le chemin, et pas à chaque affichage. */
+let TAMPON=null;
 function finishStep(){
   const {l,i}=ctx.from;
   S.lessons[l]=S.lessons[l]||[];
-  if(!S.lessons[l].includes(i))S.lessons[l].push(i);
+  const neuf=!S.lessons[l].includes(i);
+  if(neuf)S.lessons[l].push(i);
   touchStreak();save();stopSpeech();
-  view='lecon';ctx={l:l};render();scrollTo(0,0);
+  if(neuf)TAMPON={l:l,i:i};
+  view='lecon';ctx={l:l};NAVDIR='in-l';render();scrollTo(0,0);
+  const L=DATA('LESSONS').find(x=>x.id===l);
+  if(neuf&&L&&S.lessons[l].length===L.steps.length)
+    setTimeout(()=>bravo({pose:'lanterne',titre:'Thème validé\u202F!',
+      texte:L.title+'\u202F: les '+L.steps.length+' étapes sont faites.'}),650);
 }
 
 function exportJSON(){
