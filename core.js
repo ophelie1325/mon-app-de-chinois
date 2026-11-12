@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261112c';
+const BUILD='20261112d';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
