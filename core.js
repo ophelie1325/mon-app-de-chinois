@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261112e';
+const BUILD='20261112f';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -1135,6 +1135,9 @@ const EXOVIEWS=['exo','mots','bilan'];
 function isExoView(){
   if(EXOVIEWS.indexOf(view)>=0)return true;
   if(view==='vocab'&&ctx&&ctx.session)return true;
+  /* Les vues plein écran d’une page (fiche d’un mot, tracé) : la page
+     les déclare dans window.PLEINVIEWS. */
+  if((window.PLEINVIEWS||[]).indexOf(view)>=0)return true;
   return false;
 }
 function go(v,c){stopSpeech();stack.push([view,ctx]);view=v;ctx=c||{};NAVDIR='in-r';render();scrollTo(0,0);}
