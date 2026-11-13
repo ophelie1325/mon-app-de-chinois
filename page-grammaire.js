@@ -80,7 +80,7 @@ function vIndex(){
     if(!l.length)return '';
     return `<div class="gsub">${esc(f.n)}</div>${l.map(g=>ligneFiche(g,g.hsk>S.settings.level)).join('')}`;
   }).join('')}
-  <p class="sm mt">Il reste ${36-GRAMMAR.length} fiches à écrire pour couvrir le programme jusqu’au HSK 6.</p>`;
+  <p class="sm mt">${GRAMMAR.length} fiches, du HSK ${Math.min(...GRAMMAR.map(g=>g.hsk))} au HSK ${Math.max(...GRAMMAR.map(g=>g.hsk))}.</p>`;
 }
 
 function vRevoir(){
