@@ -315,14 +315,15 @@ function vCar(){
   if(c.son&&c.son.hz){fam=crFamille(c.son.hz).filter(x=>x.id!==c.id);famTitre='La même famille de son';}
   else{const f=crFamille(c.hz).filter(x=>x.id!==c.id);if(f.length){fam=f;famTitre='Il donne le son à';}}
   const nTraits=c.traits||'';
-  return `<div class="vb-mot cr-car">
+  return `<div class="vb-mot cr-car ${ficheCls()}">
   <div class="vb-top cr-top">
-    <div class="vb-th"><button class="vb-back" onclick="back()" aria-label="Retour">${ico('back')}</button><span>${esc(kick)}</span></div>
+    <div class="vb-th"><button class="vb-back" onclick="back()" aria-label="Retour">${ico('back')}</button><span class="vb-mini" aria-hidden="true">${esc(c.hz)}</span><span>${esc(kick)}</span></div>
     <div class="cr-tian" aria-hidden="true"><svg viewBox="0 0 196 196" focusable="false"><path d="M98 0V196M0 98H196" stroke="rgba(245,225,180,.65)" stroke-width="1.5" stroke-dasharray="6 7"/><path d="M0 0L196 196M196 0L0 196" stroke="rgba(245,225,180,.35)" stroke-width="1.2" stroke-dasharray="4 8"/></svg></div>
     <div class="cr-glyph" id="cr-glyph" role="img" aria-label="${esc(c.hz)}${cle?', la clé '+esc(cle.hz):''}"><span>${esc(c.hz)}</span></div>
   </div>
   ${banban('pinceau','vb-bb cr-bb',1)}
   <div class="vb-sheet">
+    ${ficheGrip()}
     <div class="vb-pron cr-pron">
       ${crAnneau(c,e)}
       ${R.length?`<div class="vb-tones">${R.map(courbe).join('')}</div>`:''}

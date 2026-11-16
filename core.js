@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261116h';
+const BUILD='20261116i';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -1314,6 +1314,9 @@ function render(){
      chaque réponse : render() refait tout le DOM à chaque clic. */
   app.classList.toggle('fresh',!!NAVDIR||!PREMIER_RENDU);
   PREMIER_RENDU=true;
+  /* Fiche partagée : la feuille défile seule ; un nouveau dessin du même
+     écran ne doit pas la ramener en haut. */
+  const fe=!NAVDIR&&app.querySelector('.vb-split .vb-sheet'),feY=fe?fe.scrollTop:0;
   try{app.innerHTML=f?f():'';}
   catch(e){
     app.innerHTML=`<div class="box"><h2>Cet écran n’a pas pu s’afficher</h2>
@@ -1327,6 +1330,7 @@ function render(){
     void app.offsetWidth;
     app.classList.add(d);
   }
+  if(fe){const f2=app.querySelector('.vb-split .vb-sheet');if(f2)f2.scrollTop=feY;}
   encrerTitres(app);
   if(typeof window.MOUNT==='function'){try{window.MOUNT();}catch(e){}}
   if(ctx.scrollTo){
@@ -1462,4 +1466,21 @@ function importJSON(inp){
 function wipe(){
   if(!confirm('Effacer toute la progression ? Cette action est définitive.'))return;
   S.items={};S.written=[];S.lessons={};S.streak={n:0,last:''};save();render();toast('Progression effacée.');
+}
+
+/* Fiche d’un mot ou d’un caractère (16 novembre 2026, souhait d’Ophélie) :
+   « partagé » = le grand glyphe reste en haut, seule la feuille blanche
+   défile ; « plein » = la feuille prend l’écran, le glyphe se réduit à une
+   bande. La poignée bascule de l’un à l’autre ; le choix est retenu. */
+function ficheCls(){return 'vb-split'+(S.settings.ficheVue==='plein'?' plein':'');}
+function ficheGrip(){
+  const p=S.settings.ficheVue==='plein';
+  return `<button class="vb-grip" onclick="ficheBascule()" aria-expanded="${p}" aria-label="${p?'Réduire la fiche':'Agrandir la fiche'}" title="Agrandir ou réduire la fiche"><i></i></button>`;
+}
+function ficheBascule(){
+  const p=S.settings.ficheVue!=='plein';
+  S.settings.ficheVue=p?'plein':'partage';save();
+  const m=document.querySelector('#app .vb-mot');if(m)m.classList.toggle('plein',p);
+  const b=document.querySelector('#app .vb-grip');
+  if(b){b.setAttribute('aria-expanded',String(p));b.setAttribute('aria-label',p?'Réduire la fiche':'Agrandir la fiche');}
 }

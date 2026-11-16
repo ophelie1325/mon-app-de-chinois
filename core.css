@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261116h
+   core.css — livraison 20261116i
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261116h';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261116i';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1302,3 +1302,22 @@ a.vb-chip{color:inherit;text-decoration:none}
 .ton-leg i.att{background:#8DA2B3;opacity:.6}
 .ton-leg i.moi{background:#2C2723;height:3px}
 .ton-res .dire-row+.dire-row{margin-top:6px}
+
+/* ---- Fiche partagée (16 novembre 2026) : glyphe fixe, feuille qui défile
+   seule ; « plein » : la feuille prend l’écran, le glyphe devient une bande ---- */
+.vb-mot.vb-split{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.vb-split .vb-top{flex:none;transition:height .3s cubic-bezier(.2,.9,.3,1)}
+.vb-split .vb-sheet{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* Le décalage collant se compte depuis le bord intérieur de la feuille
+   (après sa marge de 24 px) : top:-24px colle la poignée tout en haut. */
+.vb-grip{position:sticky;top:-24px;z-index:4;display:flex;justify-content:center;align-items:center;
+  width:calc(100% + 40px);height:26px;margin:-24px -20px 14px;background:#fff;border-radius:30px 30px 0 0}
+.vb-grip i{display:block;width:44px;height:5px;border-radius:3px;background:#D9CFC4;transition:background .2s}
+.vb-grip:hover i,.vb-grip:focus-visible i{background:#A89A8B}
+.vb-mini{display:none;font-family:var(--han-serif);font-weight:700;font-size:24px;line-height:1;
+  max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vb-split.plein .vb-top{height:100px}
+.vb-split.plein .vb-mini{display:inline-block}
+.vb-split.plein .vb-glyph,.vb-split.plein .vb-wm,.vb-split.plein .cr-tian,
+.vb-split.plein .cr-glyph,.vb-split.plein .vb-bb{display:none}
+@media (prefers-reduced-motion:reduce){.vb-split .vb-top,.vb-grip i{transition:none}}

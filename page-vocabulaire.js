@@ -448,14 +448,15 @@ function vMot(){
   const fam=M.filter(m=>m.id!==w.id&&cars.some(c=>m.hz.indexOf(c)>=0)).slice(0,8);
   const dec=cars.map(carDe).filter(c=>c&&(c.cle||c.type));
   const cls=(w.cl||[]);
-  return `<div class="vb-mot">
+  return `<div class="vb-mot ${ficheCls()}">
   <div class="vb-top">
-    <div class="vb-th"><button class="vb-back" onclick="back()" aria-label="Retour">${ico('back')}</button><span>${esc(kick)}</span></div>
+    <div class="vb-th"><button class="vb-back" onclick="back()" aria-label="Retour">${ico('back')}</button><span class="vb-mini" aria-hidden="true">${esc(w.hz)}</span><span>${esc(kick)}</span></div>
     ${cars[0]?`<span class="vb-wm" aria-hidden="true">${esc(cars[0])}</span>`:''}
     <div class="vb-glyph ${taille}">${esc(w.hz)}</div>
   </div>
   ${banban('pinceau','vb-bb',1)}
   <div class="vb-sheet">
+    ${ficheGrip()}
     <div class="vb-pron">
       <div class="vb-pyring" style="border-color:${E.c}" role="img" aria-label="${esc(w.py)}, ${E.n.toLowerCase()}">${pinyin(w.py||'')}</div>
       ${tons?`<div class="vb-tones">${tons}</div>`:''}
