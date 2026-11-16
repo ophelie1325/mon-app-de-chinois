@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261116d
+   core.css — livraison 20261116e
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261116d';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261116e';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1245,3 +1245,38 @@ a.vb-chip{color:inherit;text-decoration:none}
 .cr-ind .btn{width:auto;display:inline-flex;align-items:center;gap:5px;padding:8px 14px}
 .cr-ind .ico{width:16px;height:16px}
 @media (prefers-reduced-motion:reduce){#app.fresh .cr-glyph{animation:none}}
+/* Caractères, lot 2 : la séance d’écriture */
+.cr-seance{padding-bottom:104px}
+.cr-ind{flex-wrap:wrap}
+.cr-indl{flex-basis:100%;font-size:14px;color:#4A433D}
+.cr-indl .hz,.cr-cons .hz{font-weight:700;font-size:17px}
+.cr-q{font-size:15px;font-weight:700;margin:14px 0 8px}
+.cr-q .hz{font-size:19px}
+.cr-q4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.cr-q4 .opt.han{text-align:center;font-size:34px;font-family:var(--han-serif);font-weight:700;padding:12px 6px;min-height:72px}
+.cr-quoi{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;margin:4px 0 14px;text-align:center}
+.cr-quoi b{font-size:18px;flex-basis:100%}
+.cr-quoi .py{font-size:20px}
+.cr-slots{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0 16px}
+.cr-plus{font-size:20px;color:var(--muted);font-weight:700}
+.cr-slot{width:68px;height:78px;border-radius:16px;border:2px dashed #C9B9A3;background:#FEFCF8;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;color:var(--ink)}
+.cr-slot .hz{font-family:var(--han-serif);font-size:32px;font-weight:700;line-height:1.1;min-height:1.1em}
+.cr-slot small{font-size:11px;color:var(--muted)}
+.cr-slot.plein{border-style:solid;border-color:#3F5568}
+.cr-slot.ok{border-color:var(--jade);background:var(--jade-s)}
+.cr-slot.no{border-color:var(--red);background:var(--red-s)}
+.cr-slot.res{background:#3F5568;border:0;color:#F5EBDD}
+.cr-slot.res small{color:#D7DEE5}
+.cr-tuiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 12px}
+.cr-tuile{min-height:64px;border-radius:16px;background:var(--card);border:2px solid var(--line2);box-shadow:0 4px 0 var(--line);
+  font-family:var(--han-serif);font-size:32px;font-weight:700}
+.cr-tuile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.cr-tuile[disabled]{opacity:.4;box-shadow:none}
+.cr-tuile.ok{opacity:1;border-color:var(--jade);background:var(--jade-s);color:var(--jade-d)}
+.cr-tuile.no{border-color:var(--red);background:var(--red-s);color:var(--red-d)}
+.cr-saisie input{width:100%;font-size:20px;padding:12px 14px;border-radius:14px;border:2px solid var(--line2);background:#FEFCF8}
+.cr-saisie .row{flex-wrap:wrap}
+.cr-saisie .ico{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
+.cr-seance .verdict .hz{font-weight:700;font-size:17px}
+.cr-seance .cr-comp{margin:8px 0}
