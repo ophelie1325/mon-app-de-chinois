@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261116a';
+const BUILD='20261116b';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -1168,6 +1168,8 @@ function back(){
   stopSpeech();
   const p=stack.pop();
   if(p){view=p[0];ctx=p[1];NAVDIR='in-l';render();scrollTo(0,0);return;}
+  /* Page ouverte sur une fiche par un lien d’une autre page : on y revient. */
+  if(window.RETOUR_HIST&&history.length>1){history.back();return;}
   nav('home');
 }
 function tab(id){nav(id);}

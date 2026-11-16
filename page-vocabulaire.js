@@ -623,7 +623,7 @@ function chargerHW(fait){
     document.head.appendChild(s);
   }
   s.addEventListener('load',fait);
-  s.addEventListener('error',()=>{const st=document.getElementById('vtst');
+  s.addEventListener('error',()=>{const st=document.getElementById('vtst')||document.getElementById('cr-st');
     if(st)st.textContent='Les tracés n’ont pas pu se charger. Vérifiez la connexion.';});
 }
 function mountTracer(){

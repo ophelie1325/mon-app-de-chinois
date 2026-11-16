@@ -8,3 +8,8 @@
 - `diagdom.js` — rendu des treize pages sous jsdom, et grammaire.html en détail (sommaires, écrans, piège, fiche, douze sessions de douze items).
 
 Dépendances hors dépôt : `pip install pypinyin`, `npm install jsdom` dans un dossier à part, puis `NODE_PATH=<ce dossier>/node_modules node outils/diagdom.js`.
+
+## Formes anciennes (écran Caractères)
+- `formes/` : SVG des formes sur os, bronze et sceau, projet *Ancient Chinese Characters* de Wikimedia Commons (domaine public ou CC0), passés par svgo ; `formes/index.js` (window.FORMES) et `formes/CREDITS.md`.
+- Récupération du 16 novembre 2026 : Wikimedia répond 429 à l’espace de travail, les fichiers ont donc été cherchés (API Commons, forme traditionnelle d’abord, puis simplifiée) et téléchargés depuis le navigateur de l’application de bureau.
+- Un caractère absent de `window.FORMES` (ajouté après cette date) n’affiche pas la section « D’où il vient » ; une forme à `null` affiche « pas de forme connue ».

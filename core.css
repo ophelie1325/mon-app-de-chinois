@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261116a
+   core.css — livraison 20261116b
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261116a';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261116b';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1146,3 +1146,102 @@ body.exo .vb-mot{margin-bottom:-24px}
 .dire-row .btn{flex:1 1 0;min-width:0;padding:10px 8px}
 .dire-note{margin-top:10px!important;font-size:12.5px;color:var(--muted)}
 .dire-pas{font-size:13px;color:var(--muted);margin:8px 0 0}
+
+/* =====================================================================
+   Caractères (refonte de novembre 2026, couleur « lavis »). Préfixe cr-.
+   La charpente vient de Vocabulaire (vb-) ; ici, la teinte et ce qui est
+   propre aux caractères.
+   ===================================================================== */
+.cr-num{background:linear-gradient(#5A7286,#3F5568)!important;color:#F5EBDD!important;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)!important}
+.cr-btn,.cr-btn[disabled]{background:#3F5568;color:#F5EBDD;box-shadow:0 6px 0 #2B3B49}
+.cr-btn[disabled]{opacity:.55;cursor:default}
+.cr-pills .pill.on{background:#3F5568;color:#F5EBDD;box-shadow:0 4px 0 #2B3B49;border-color:#3F5568}
+.cr-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin:18px 0 6px;background:#EFE6D8;border-radius:16px}
+.cr-seg button{padding:9px 4px;border-radius:12px;font-size:13.5px;text-align:center;color:#5E564F}
+.cr-seg button.on{background:#fff;color:var(--ink);box-shadow:0 3px 8px -4px rgba(40,40,50,.4)}
+.cr-leg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--muted);margin:10px 2px 0}
+.cr-leg span{display:flex;align-items:center;gap:4px}
+.cr-leg i{width:9px;height:9px;border-radius:50%;display:block}
+.cr-leg i.pas{background:#fff;border:1.5px dashed #C9B9A3}
+.cr-grp{margin-top:18px;content-visibility:auto;contain-intrinsic-size:auto 160px}
+.cr-gh{display:flex;align-items:center;gap:10px;padding:0 2px 8px}
+.cr-gh .k{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:13px;background:#fff;
+  font-family:var(--han-serif);font-size:24px;font-weight:700;color:#C63A22;box-shadow:0 6px 12px -8px rgba(40,40,50,.5)}
+.cr-gh b{display:block;font-size:14.5px}
+.cr-gh small{display:block;font-size:11.5px;color:var(--muted)}
+.cr-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.cr-ct{position:relative;aspect-ratio:1;display:grid;place-items:center;border-radius:16px;
+  background:linear-gradient(#6F879A,#4E6578);color:#FBF6EE;font-family:var(--han-serif);font-size:27px;font-weight:700;
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),0 8px 14px -10px rgba(40,50,60,.6)}
+.cr-ct:active{transform:translateY(2px)}
+.cr-ct .d{position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.75)}
+.cr-ct small{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-family:var(--ui);font-size:9.5px;font-weight:700;color:rgba(251,246,238,.85)}
+.cr-ct.vu{background:#fff;color:#B8AEA2;border:1.5px dashed #DCCFBD;box-shadow:none}
+.cr-ct.vu small{color:#A89D92}
+.cr-pas{font-size:11px;color:var(--muted);flex:none}
+.cr-note{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.cr-v{color:#C63A22}
+/* La fiche */
+.cr-top{background:radial-gradient(circle at 75% 90%,#8DA2B3 0,#627A8E 50%,#475D70 100%);color:#FBF6EE;height:316px}
+.cr-top .vb-back{color:#FBF6EE;background:rgba(255,255,255,.2)}
+.cr-tian{position:absolute;left:50%;top:70px;width:196px;height:196px;margin-left:-98px;border:2px solid rgba(245,225,180,.65);border-radius:6px}
+.cr-tian svg{position:absolute;inset:0;width:100%;height:100%}
+.cr-glyph{position:absolute;left:50%;top:76px;width:184px;height:184px;margin-left:-92px;display:grid;place-items:center}
+.cr-glyph svg{width:100%;height:100%;display:block}
+.cr-glyph span{font-family:var(--han-serif);font-weight:700;font-size:150px;line-height:1;color:#FBF6EE}
+#app.fresh .cr-glyph{animation:monte .5s .05s cubic-bezier(.2,.9,.3,1.25) both}
+.cr-bb{top:232px;width:80px}
+.cr-pron{justify-content:flex-start;padding-right:64px}
+.cr-pyring{position:relative;display:inline-flex;padding:12px 30px 14px;font-family:var(--han);font-size:30px;font-weight:700}
+.cr-pyring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform:rotate(-4deg)}
+.cr-pyring span{position:relative}
+.cr-type{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:#E8EEF3;color:#3F5568;font-size:13px}
+.cr-expl{font-size:13.5px;line-height:1.5;color:#4A433D;margin-top:8px;background:var(--bg);border-radius:16px;padding:10px 12px}
+.cr-expl .hz{font-weight:700;font-size:16px}
+.cr-car .vb-act.on{background:#3F5568;color:#F5EBDD;box-shadow:0 5px 0 #2B3B49}
+.cr-car .vb-act.on:active{box-shadow:0 1px 0 #2B3B49}
+.cr-ident{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cr-idc{background:var(--bg);border-radius:16px;padding:10px 8px;text-align:center}
+.cr-idc[hidden]{display:none}
+.cr-idc .v{font-size:22px;font-weight:700;line-height:1.2}
+.cr-idc .v.hz{font-family:var(--han-serif)}
+.cr-idc small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.cr-idc svg{width:30px;height:30px;display:block;margin:2px auto 0}
+.cr-comp{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.cr-crow{display:flex;gap:12px;align-items:center;background:var(--bg);border-radius:16px;padding:10px 12px;font-size:13.5px;line-height:1.45}
+.cr-crow .c{font-family:var(--han-serif);font-size:32px;font-weight:700;width:42px;text-align:center;flex:none}
+.cr-crow em{font-style:normal;font-size:11.5px;padding:2px 8px;border-radius:999px;background:#fff;color:#5E564F;margin-left:6px}
+.cr-fiab{display:flex;gap:4px;margin-top:6px;max-width:150px}
+.cr-fiab i{flex:1;height:6px;border-radius:9px;background:#E6DCCD}
+.cr-fiab i.on{background:#3D7A69}
+.cr-ft{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.cr-tl{position:relative;padding-top:4px}
+.cr-ans{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin:0 2px 8px}
+.cr-frise{position:relative;display:flex;align-items:stretch;gap:8px}
+.cr-vig{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.cr-rail{position:relative;align-self:stretch;display:flex;justify-content:center}
+.cr-rail::before{content:'';position:absolute;left:-4px;right:-4px;top:50%;height:2.5px;margin-top:-1px;background:#C9B9A3}
+.cr-vig:first-child .cr-rail::before{left:0}
+.cr-vig:last-child .cr-rail::before{right:4px}
+.cr-vig:last-child .cr-rail::after{content:'';position:absolute;right:0;top:50%;width:8px;height:8px;margin-top:-4.5px;
+  border-top:2.5px solid #C9B9A3;border-right:2.5px solid #C9B9A3;transform:rotate(45deg)}
+.cr-vig .pt{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #3F5568;margin:4px 0 2px;position:relative;z-index:1}
+.cr-vbox{width:100%;aspect-ratio:1;min-height:0;overflow:hidden;border-radius:14px;display:grid;place-items:center;text-align:center;font-size:10px;line-height:1.25;
+  color:#A89D92;background:#fff;border:1.5px dotted #D9CBB6;padding:4px}
+.cr-vbox.img{background:var(--bg);border:0;padding:6px}
+.cr-vbox.img img{width:100%;height:100%;object-fit:contain;display:block}
+.cr-vbox.actu{line-height:1;border:0;background:#3F5568;color:#F5EBDD;font-family:var(--han-serif);font-size:38px;font-weight:700}
+.cr-vig b{font-size:11.5px}
+.cr-vig small{font-size:10px;color:var(--muted);margin-top:-4px;text-align:center;min-height:1em}
+a.vb-chip{color:inherit;text-decoration:none}
+.cr-go{color:var(--muted);font-size:12px}
+.cr-dim{opacity:.7}
+.cr-car .vb-go{background:#E2B24B}
+/* Le tracé */
+.cr-pad{width:232px;height:232px;margin:6px auto 0;border-radius:20px;border:2px solid var(--line2);
+  background:#fefcf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M50 0V100M0 50H100M0 0L100 100M100 0L0 100' stroke='%23E8DDCB' stroke-width='.7' stroke-dasharray='2.5 3' fill='none'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.cr-cons{font-size:14px;margin:0 0 10px}
+.cr-ind{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px}
+.cr-ind .btn{width:auto;display:inline-flex;align-items:center;gap:5px;padding:8px 14px}
+.cr-ind .ico{width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){#app.fresh .cr-glyph{animation:none}}
