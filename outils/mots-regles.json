@@ -1,0 +1,9 @@
+{
+  "_lisezmoi": "Règles de découpage des phrases des fiches en vrais mots (chantier du 12 novembre 2026, ne pas les rouvrir ; les compléter quand une coupe fautive apparaît). separer : jamais retenus comme mots. forcer : découpage imposé d’un segment entier. ajouter : mots reconnus même hors dictionnaire. fragments : moitié d’un verbe séparable ou d’un redoublement, rattachée au mot entier (null : écartée). noms : prénoms et noms de personne, jamais versés.",
+  "separer": ["见过", "说起来", "遍地", "中国菜", "日本菜", "不知", "有时", "在家", "拿走", "不大", "不难", "不见", "一句话", "一眼", "下个月", "半年", "完了", "就要", "有人", "有没有", "好多"],
+  "forcer": {"他的话": ["他", "的", "话"], "日本菜": ["日本", "菜"]},
+  "ajouter": ["点儿", "这儿", "那儿", "哪儿", "红绿灯", "日本", "法国", "中国", "美国", "英国"],
+  "fragments": {"干": "干净", "清": "清楚", "结": "结婚", "觉": "睡觉", "生": "生气", "气": "生气", "样": null, "乐": "快乐", "净": "干净", "散": "散步", "兴": "高兴", "婚": "结婚", "澡": "洗澡", "楚": "清楚", "谢": "谢谢", "儿": null},
+  "noms": ["小王", "老王", "小李", "李明"],
+  "pinyin_fixe": {"告诉": "gào su", "多少": "duō shao", "地方": "dì fang", "东西": "dōng xi"}
+}
