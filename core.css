@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261116e
+   core.css — livraison 20261116f
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261116e';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261116f';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1280,3 +1280,19 @@ a.vb-chip{color:inherit;text-decoration:none}
 .cr-saisie .ico{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
 .cr-seance .verdict .hz{font-weight:700;font-size:17px}
 .cr-seance .cr-comp{margin:8px 0}
+/* Caractères, lot 3 : « Mon ton », la courbe de la voix */
+.cr-car .vb-acts{grid-template-columns:repeat(2,minmax(0,1fr))}
+.vb-act.ton.ecoute{background:var(--red);color:#FFF3E6;animation:direPulse 1.3s ease-out infinite}
+.ton-res{background:#fff}
+.ton-res.v-ok{background:var(--jade-s)}
+.ton-svg{width:100%;height:auto;display:block;margin:2px 0 4px}
+.ton-svg .g{stroke:#E2D6C4;stroke-width:1;stroke-dasharray:3 4}
+.ton-svg text{font-size:10px;fill:#A89D92;font-family:var(--ui)}
+.ton-svg .att{fill:none;stroke:#8DA2B3;stroke-width:10;stroke-linecap:round;opacity:.45}
+.ton-svg .moi{fill:none;stroke:#2C2723;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.ton-leg{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-bottom:8px}
+.ton-leg span{display:flex;align-items:center;gap:5px}
+.ton-leg i{display:block;width:18px;height:5px;border-radius:3px}
+.ton-leg i.att{background:#8DA2B3;opacity:.6}
+.ton-leg i.moi{background:#2C2723;height:3px}
+.ton-res .dire-row+.dire-row{margin-top:6px}

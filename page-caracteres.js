@@ -113,7 +113,7 @@ function crCarreau(c,V,avecPy){
   const dot=e==='su'||e==='cours'||e==='frag'?`<i class="d" style="background:${ETATS[e].c}"></i>`:'';
   return `<button class="cr-ct${e==='pas'?' vu':''}" onclick="crOuvrir('${jq(c.id)}')" aria-label="${esc(c.hz)}, ${CR_ETATNOM[e]}">${esc(c.hz)}${dot}${avecPy?`<small>${esc(c.py)}</small>`:''}</button>`;
 }
-function crOuvrir(id){direFin();go('car',{id:id});}
+function crOuvrir(id){direFin();tonFin();go('car',{id:id});}
 
 function crLegende(){
   return `<div class="cr-leg"><span><i style="background:${ETATS.su.c}"></i>su</span><span><i style="background:${ETATS.cours.c}"></i>en cours</span><span><i style="background:${ETATS.frag.c}"></i>fragile</span><span><i class="pas"></i>pas encore rencontré</span></div>`;
@@ -321,10 +321,12 @@ function vCar(){
     ${T?`<div class="cr-expl">${crExpl(c)}</div>`:''}
     <div class="vb-acts">
       <button class="vb-act on cr-on" onclick="speak('${jq(c.hz)}')">${ico('sound')}Écouter</button>
-      ${direBouton({hz:c.hz,py:c.py},'vb-act')}
+      ${direBouton({hz:c.hz,py:c.py},'vb-act').replace('onclick="direGo()"','onclick="tonFin();direGo()"')}
+      ${tonBouton(c)}
       <button class="vb-act" onclick="crTracer('${jq(c.id)}',0)">${pinceauIco()}Tracer</button>
     </div>
     ${direPanneau()}
+    ${tonPanneau(c)}
 
     <div class="vb-lab">Comment il s’écrit</div>
     <div class="cr-ident">
@@ -380,7 +382,7 @@ function crPeindre(){
    Le tracé : guidé (contour visible, non noté) ou de mémoire (noté)
    ===================================================================== */
 let CRW=null;
-function crTracer(id,memoire){direFin();go('trace',{id:id,memoire:!!memoire});}
+function crTracer(id,memoire){direFin();tonFin();go('trace',{id:id,memoire:!!memoire});}
 function vTrace(){
   const c=crCar(ctx.id);
   if(!c)return header('Tracer')+nothing('Ce caractère est introuvable.');
@@ -1076,4 +1078,373 @@ function crBilan(){
   ${rates.length?`<h2 class="sec">À retravailler</h2><div class="vb-list">${rates.map(c=>crLigne(c,V)).join('')}</div>`:''}
   <button class="btn mt" onclick="back();crSeance()">Nouvelle séance</button>
   <button class="btn pale mt" onclick="back()">Retour aux caractères</button>`;
+}
+
+/* =====================================================================
+   « Mon ton » : la courbe de la voix (lot 3)
+   Sur la fiche d’un caractère. Le micro passe par Web Audio ; la hauteur
+   de la voix est calculée sur l’appareil (autocorrélation normalisée,
+   toutes les 10 ms, entre 70 et 500 Hz) : rien n’est envoyé ni gardé,
+   et cela marche hors ligne. La courbe est ramenée à l’échelle de Chao
+   (1 à 5) d’après le registre de la voix (S.settings.voix : deux
+   nombres, la note basse et la note haute), appris au fil des essais
+   ou réglé une fois (« mā má mǎ mà »). Rien n’est noté.
+   ===================================================================== */
+let TON={id:'',etat:'',res:null,err:'',note:''};
+let TON_REC=null;
+
+function tonPossible(){
+  return typeof navigator!=='undefined'&&!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)&&
+    typeof window!=='undefined'&&!!(window.AudioContext||window.webkitAudioContext);
+}
+function tonFin(){
+  if(TON_REC)TON_REC.stop(true);
+  TON={id:'',etat:'',res:null,err:'',note:''};
+}
+
+/* ---- L’enregistrement --------------------------------------------------
+   o.max : durée maximale (ms) ; o.silence : arrêt après ce silence (ms),
+   une fois la voix entendue ; o.fin(échantillons, fréquence) ; o.err(code). */
+function tonEnregistrer(o){
+  const R={actif:true,tm:null};
+  let ac=null,flux=null,proc=null,src=null,fond=0,nb=0,vu=false,calme=0;
+  const bufs=[];
+  R.stop=annule=>{
+    if(!R.actif)return;
+    R.actif=false;clearTimeout(R.tm);
+    try{if(proc)proc.disconnect();if(src)src.disconnect();}catch(e){}
+    try{if(flux)flux.getTracks().forEach(t=>t.stop());}catch(e){}
+    const sr=ac?ac.sampleRate:48000;
+    try{if(ac)ac.close();}catch(e){}
+    if(TON_REC===R)TON_REC=null;
+    if(annule)return;
+    let n=0;bufs.forEach(b=>{n+=b.length;});
+    const x=new Float32Array(n);let k=0;
+    bufs.forEach(b=>{x.set(b,k);k+=b.length;});
+    o.fin(x,sr);
+  };
+  TON_REC=R;
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}).then(s=>{
+    if(!R.actif){s.getTracks().forEach(t=>t.stop());return;}
+    flux=s;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    ac=new AC();
+    if(ac.state==='suspended'&&ac.resume)ac.resume();
+    src=ac.createMediaStreamSource(s);
+    proc=ac.createScriptProcessor(2048,1,1);
+    const dt=2048/ac.sampleRate*1000;
+    proc.onaudioprocess=ev=>{
+      if(!R.actif)return;
+      const d=new Float32Array(ev.inputBuffer.getChannelData(0));
+      bufs.push(d);
+      let e=0;for(let i=0;i<d.length;i++)e+=d[i]*d[i];
+      const r=Math.sqrt(e/d.length);
+      /* Le bruit de fond : le plus faible des premiers blocs. */
+      if(nb<4)fond=nb?Math.min(fond,r):r;
+      nb++;
+      if(r>Math.max(0.008,fond*4)){vu=true;calme=0;}
+      else if(vu){calme+=dt;if(o.silence&&calme>=o.silence)R.stop(false);}
+    };
+    src.connect(proc);proc.connect(ac.destination);
+    R.tm=setTimeout(()=>R.stop(false),o.max);
+  }).catch(e=>{
+    R.actif=false;if(TON_REC===R)TON_REC=null;
+    const n=e&&e.name;
+    o.err(n==='NotAllowedError'||n==='SecurityError'?'not-allowed':n==='NotFoundError'||n==='NotReadableError'?'audio-capture':'erreur');
+  });
+  return R;
+}
+
+/* ---- La hauteur de la voix ---------------------------------------------
+   Le signal est ramené vers 16 kHz, puis, toutes les 10 ms, une fenêtre de
+   40 ms passe par la fonction de différence normalisée (McLeod) : le
+   premier sommet qui atteint 85 % du plus haut donne la période. Renvoie
+   une hauteur en Hz par tranche de 10 ms (0 : pas de voix). */
+function tonHauteurs(x0,sr0){
+  const q=Math.max(1,Math.round(sr0/16000)),sr=sr0/q;
+  const n=Math.floor(x0.length/q),x=new Float32Array(n);
+  for(let i=0;i<n;i++){let a=0;for(let j=0;j<q;j++)a+=x0[i*q+j];x[i]=a/q;}
+  const hop=Math.round(sr*0.01),win=Math.round(sr*0.04);
+  const minL=Math.floor(sr/500),maxL=Math.ceil(sr/70);
+  const E=[];let maxE=0;
+  for(let s=0;s+win+maxL<=n;s+=hop){
+    let e=0;for(let i=0;i<win;i++)e+=x[s+i]*x[s+i];
+    const r=Math.sqrt(e/win);E.push(r);if(r>maxE)maxE=r;
+  }
+  const seuil=Math.max(0.003,maxE*0.1);
+  const F=[],C=[],ns=new Float32Array(maxL+2);
+  E.forEach((r,j)=>{
+    if(r<seuil){F.push(0);C.push(0);return;}
+    const s=j*hop;
+    for(let L=minL-1;L<=maxL+1;L++){
+      let ac=0,m=0;
+      for(let i=0;i<win;i++){const a=x[s+i],b=x[s+i+L]||0;ac+=a*b;m+=a*a+b*b;}
+      ns[L]=m>0?2*ac/m:0;
+    }
+    let L=minL;
+    while(L<=maxL&&ns[L]>0)L++;
+    const pics=[];let cur=null;
+    for(;L<=maxL;L++){
+      if(ns[L]>0){if(!cur||ns[L]>cur.v)cur={L:L,v:ns[L]};}
+      else if(cur){pics.push(cur);cur=null;}
+    }
+    if(cur)pics.push(cur);
+    let M=0;pics.forEach(p=>{if(p.v>M)M=p.v;});
+    const p=pics.find(p=>p.v>=0.85*M);
+    if(!p||M<0.55){F.push(0);C.push(M);return;}
+    const a=ns[p.L-1],b=ns[p.L],c=ns[p.L+1],den=a-2*b+c;
+    const dl=den?0.5*(a-c)/den:0;
+    F.push(sr/(p.L+(Math.abs(dl)<1?dl:0)));C.push(M);
+  });
+  return F;
+}
+function tonMediane(L){const s=L.slice().sort((a,b)=>a-b);return s.length?s[s.length>>1]:0;}
+
+/* Le segment voisé le plus long (trous de 40 ms au plus, comblés), corrigé
+   des sauts d’octave, lissé, rogné de ses bords. */
+function tonSegment(F){
+  let best=null,deb=-1,trou=0;
+  for(let i=0;i<=F.length;i++){
+    const v=i<F.length&&F[i]>0;
+    if(v){if(deb<0)deb=i;trou=0;}
+    else if(deb>=0){
+      trou++;
+      if(trou>4||i===F.length){
+        const fin=i-trou;
+        if(!best||fin-deb>best[1]-best[0])best=[deb,fin];
+        deb=-1;trou=0;
+      }
+    }
+  }
+  if(!best)return [];
+  let S=F.slice(best[0],best[1]+1);
+  for(let i=0;i<S.length;i++)if(!S[i]){
+    let a=i-1,b=i;while(b<S.length&&!S[b])b++;
+    for(let k=i;k<b;k++)S[k]=S[a]+(S[b]-S[a])*(k-a)/(b-a);
+    i=b;
+  }
+  const med=tonMediane(S);
+  S=S.map(f=>{while(f>med*1.8)f/=2;while(f<med/1.8)f*=2;return f;});
+  S=S.map((f,i)=>tonMediane(S.slice(Math.max(0,i-2),i+3)));
+  if(S.length>20)S=S.slice(2,-2);
+  return S;
+}
+
+const TON_ERR={
+  court:'Trop bref : dites la syllabe un peu plus longuement.',
+  mal:'Je vous entends mal : rapprochez-vous du micro, dans un endroit calme.',
+  rien:'Rien entendu. Parlez juste après avoir touché « Mon ton ».'
+};
+function tonAnalyse(x,sr){
+  const F=tonHauteurs(x,sr);
+  const nv=F.filter(f=>f>0).length;
+  if(!nv)return {err:'rien'};
+  const S=tonSegment(F);
+  if(S.length<12)return {err:nv<12?'court':'mal'};
+  return {f:S};
+}
+
+/* ---- Le registre de la voix --------------------------------------------- */
+function tonVoix(f){
+  const V=S.settings.voix;
+  if(V&&V.lo>0&&V.hi>V.lo)return V;
+  const m=tonMediane(f);
+  return m>=160?{lo:160,hi:320,src:'defaut'}:{lo:85,hi:170,src:'defaut'};
+}
+function tonChao(f,V){
+  const a=Math.log2(V.lo),b=Math.log2(V.hi);
+  return f.map(h=>1+4*(Math.log2(h)-a)/(b-a));
+}
+function tonPct(L,p){const s=L.slice().sort((a,b)=>a-b);return s[Math.min(s.length-1,Math.max(0,Math.round(p*(s.length-1))))];}
+/* Après chaque essai : le registre s’élargit vite quand la voix en sort,
+   se resserre lentement. Un registre réglé ne fait que s’élargir. */
+function tonApprendre(f,V){
+  const lo=tonPct(f,.05),hi=tonPct(f,.95);
+  const L=x=>Math.log2(x);
+  let a=L(V.lo),b=L(V.hi);
+  const etal=V.src==='etal';
+  if(L(lo)<a)a+=(etal?.3:.5)*(L(lo)-a);else if(!etal)a+=.08*(L(lo)-a);
+  if(L(hi)>b)b+=(etal?.3:.5)*(L(hi)-b);else if(!etal)b+=.08*(L(hi)-b);
+  if(b-a<5/12){const m=(a+b)/2;a=m-2.5/12;b=m+2.5/12;}
+  S.settings.voix={lo:Math.round(2**a*10)/10,hi:Math.round(2**b*10)/10,src:etal?'etal':'auto'};
+  save();
+}
+
+/* ---- Le jugement ------------------------------------------------------------
+   v : la courbe en unités de Chao. On la ramène à 20 points, puis quatre
+   repères : départ, arrivée, point le plus bas (et où il tombe), moyenne. */
+function tonReperes(v){
+  const N=20,P=[];
+  for(let i=0;i<N;i++){const t=i*(v.length-1)/(N-1),k=Math.floor(t),r=t-k;P.push(v[k]+(v[Math.min(v.length-1,k+1)]-v[k])*r);}
+  const moy=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  let mn=Infinity,pmn=0,mx=-Infinity;
+  P.forEach((y,i)=>{if(y<mn){mn=y;pmn=i/(N-1);}if(y>mx)mx=y;});
+  return {P:P,s:moy(P.slice(0,3)),e:moy(P.slice(-3)),mn:mn,pmn:pmn,mx:mx,moy:moy(P)};
+}
+const TON_MODELES={1:[[0,5],[1,5]],2:[[0,3],[1,5]],3:[[0,2],[.5,1],[1,3]],4:[[0,5],[1,1]]};
+function tonModele(t,x){
+  const M=TON_MODELES[t];
+  for(let i=1;i<M.length;i++)if(x<=M[i][0])return M[i-1][1]+(M[i][1]-M[i-1][1])*(x-M[i-1][0])/(M[i][0]-M[i-1][0]);
+  return M[M.length-1][1];
+}
+/* Le ton le plus proche de ce qui a été dit : la forme compte, le niveau
+   un peu. */
+function tonRessemble(R){
+  let best=0,d0=Infinity;
+  [1,2,3,4].forEach(t=>{
+    const m=R.P.map((y,i)=>tonModele(t,i/(R.P.length-1)));
+    const mm=m.reduce((a,b)=>a+b,0)/m.length;
+    let d=0;R.P.forEach((y,i)=>{d+=((y-R.moy)-(m[i]-mm))**2;});
+    d=Math.sqrt(d/R.P.length)+0.35*Math.abs(R.moy-mm);
+    if(d<d0){d0=d;best=t;}
+  });
+  return best;
+}
+/* forme : registre encore inconnu (premier essai, sans réglage) : seule
+   la forme est jugée, pas la hauteur. */
+function tonJuge(v,t,forme){
+  const R=tonReperes(v);
+  const monte=R.e-R.s,creux=R.s-R.mn;
+  let n='non',c='';
+  if(t===1){
+    const plat=Math.abs(monte)<=0.9&&R.mx-R.mn<=1.4,haut=forme||R.moy>=3.5;
+    if(plat&&haut){n='ok';c='Beau 1ᵉʳ ton : haut et tenu.';}
+    else{
+      if(plat&&R.moy>=2.8||haut&&Math.abs(monte)<=1.4)n='proche';
+      c=!haut?'Le 1ᵉʳ ton se tient dans le haut de votre voix : partez plus haut.'
+        :monte>0.9?'Votre voix monte : gardez-la au même niveau, comme une note chantée.'
+        :'Votre voix retombe : tenez la note jusqu’au bout.';
+    }
+  }else if(t===2){
+    if(monte>=1.3&&(forme||R.e>=3.6)&&creux<=0.7){n='ok';c='Beau 2ᵉ ton : la voix monte franchement.';}
+    else{
+      if(monte>=0.8&&creux<=1)n='proche';
+      c=creux>0.7&&R.pmn>0.15&&R.pmn<0.8?'Votre voix descend avant de monter : c’est le geste du 3ᵉ ton. Partez du milieu et montez tout de suite.'
+        :monte<1.3?'Montez davantage, comme dans une question étonnée : « ah ? »'
+        :'Finissez plus haut.';
+    }
+  }else if(t===3){
+    if((forme?creux>=0.8:R.mn<=2&&R.s<=3.3)&&creux>=0.6&&R.pmn>=0.2&&!(forme&&R.s-R.e>=1.5&&R.pmn>0.85)){
+      n='ok';
+      c=R.e-R.mn>=1?'Beau 3ᵉ ton : bien descendu, puis remonté.'
+        :'Bien descendu. Seul, le 3ᵉ ton remonte un peu à la fin ; dans une phrase, on reste souvent en bas.';
+    }else{
+      if(R.mn<=2.5&&creux>=0.4)n='proche';
+      c=R.s>3.3&&R.s-R.e>=1.5?'Votre voix tombe de haut : on entend un 4ᵉ ton. Partez du milieu de votre voix et descendez jusqu’au fond.'
+        :creux<0.6&&monte>=0.8?'Votre voix monte sans descendre d’abord : on entend un 2ᵉ ton. Commencez par plonger.'
+        :R.mn>2?'Descendez plus bas, jusqu’au fond de votre voix : c’est ce creux qu’on entend.'
+        :'Descendez d’abord, puis remontez un peu : le creux doit venir après le début.';
+    }
+  }else{
+    const chute=R.s-R.e;
+    if(chute>=2&&(forme||R.s>=3.8)){n='ok';c='Beau 4ᵉ ton : il tombe de haut, d’un coup.';}
+    else{
+      if(chute>=1.2)n='proche';
+      c=monte>0.8?'Votre voix monte au lieu de tomber : partez du haut de votre voix et laissez-la tomber d’un coup.'
+        :R.s<3.8?'Partez de plus haut : le 4ᵉ ton tombe du sommet de votre voix.'
+        :'Tombez franchement, d’un coup, comme un ordre sec : « non ! »';
+    }
+  }
+  const r=tonRessemble(R);
+  return {n:n,c:c,r:r,R:R};
+}
+
+/* ---- Le bouton, l’essai, le réglage ----------------------------------------- */
+function tonCourbeIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><path d="M3 17c3 0 4-9 7-9s3 8 6 8 3-5 5-5"/></svg>`;}
+function tonBouton(c){
+  if(!toneOf(c.py||''))return '';
+  if(!tonPossible())return `<button class="vb-act" disabled aria-disabled="true" title="Pas sur ce navigateur">${tonCourbeIco()}Mon ton</button>`;
+  const on=TON.id===c.id&&TON.etat==='ecoute';
+  return `<button class="vb-act ton${on?' ecoute':''}" onclick="tonGo('${jq(c.id)}')" aria-pressed="${on}">${tonCourbeIco()}${on?'J’écoute…':'Mon ton'}</button>`;
+}
+function tonGo(id){
+  if(TON.id===id&&(TON.etat==='ecoute'||TON.etat==='etal')){if(TON_REC)TON_REC.stop(false);return;}
+  direFin();
+  if(TON_REC)TON_REC.stop(true);
+  TON={id:id,etat:'ecoute',res:null,err:'',note:''};
+  render();
+  tonEnregistrer({max:2500,silence:450,
+    fin:(x,sr)=>tonApres(id,x,sr),
+    err:code=>{if(TON.id!==id)return;TON.etat='err';TON.err=ecouteErreur(code);render();}});
+}
+function tonApres(id,x,sr){
+  if(TON.id!==id||view!=='car'||ctx.id!==id)return;
+  const c=crCar(id);
+  const A=tonAnalyse(x,sr);
+  if(A.err){TON.etat='err';TON.err=TON_ERR[A.err];render();return;}
+  const V=tonVoix(A.f);
+  const v=tonChao(A.f,V);
+  const t=toneOf(c.py);
+  TON.res={v:v,t:t,j:tonJuge(v,t,V.src==='defaut'),regle:V.src==='etal'};
+  tonApprendre(A.f,V);
+  TON.etat='fini';
+  render();
+}
+function tonEtal(id){
+  direFin();
+  if(TON_REC)TON_REC.stop(true);
+  TON={id:id,etat:'etal',res:null,err:'',note:''};
+  render();
+  tonEnregistrer({max:7000,silence:1500,
+    fin:(x,sr)=>{
+      if(TON.id!==id||view!=='car')return;
+      const F=tonHauteurs(x,sr).filter(f=>f>0);
+      if(F.length<40){TON.etat='err';TON.err='Je n’ai pas assez entendu votre voix. Dites les quatre syllabes, lentement, près du micro.';render();return;}
+      const med=tonMediane(F);
+      const G=F.map(f=>{while(f>med*1.8)f/=2;while(f<med/1.8)f*=2;return f;});
+      const lo=tonPct(G,.05),hi=tonPct(G,.95);
+      if(Math.log2(hi/lo)<5/12){TON.etat='err';TON.err='Votre voix n’a pas assez varié : exagérez les tons, du plus bas au plus haut.';render();return;}
+      S.settings.voix={lo:Math.round(lo*0.97*10)/10,hi:Math.round(hi*10)/10,src:'etal'};save();
+      TON.etat='';TON.note='Réglé sur votre voix. Dites maintenant la syllabe avec « Mon ton ».';
+      render();
+    },
+    err:code=>{if(TON.id!==id)return;TON.etat='err';TON.err=ecouteErreur(code);render();}});
+}
+
+/* ---- Le dessin --------------------------------------------------------------- */
+function tonDessin(res){
+  const X=x=>34+x*252,Y=v=>122-(Math.max(.6,Math.min(5.4,v))-1)*25;
+  const grille=[1,2,3,4,5].map(k=>`<path d="M30 ${Y(k)}H290" class="g"/><text x="14" y="${Y(k)+4}">${k}</text>`).join('');
+  const M=TON_MODELES[res.t];
+  let att=`M${X(M[0][0])} ${Y(M[0][1])}`;
+  if(M.length===3)att+=` Q${X(M[1][0])} ${Y(M[1][1]-1.05)} ${X(M[2][0])} ${Y(M[2][1])}`;
+  else att+=` L${X(M[1][0])} ${Y(M[1][1])}`;
+  const v=res.v,n=Math.min(40,v.length);
+  const pts=[];for(let i=0;i<n;i++){const k=Math.round(i*(v.length-1)/(n-1));pts.push(X(i/(n-1)).toFixed(1)+' '+Y(v[k]).toFixed(1));}
+  return `<svg class="ton-svg" viewBox="0 0 300 140" role="img" aria-label="Votre courbe de voix sur la courbe attendue">
+    <g class="ton-gr">${grille}</g>
+    <path d="${att}" class="att"/>
+    <path d="M${pts.join(' L')}" class="moi"/>
+  </svg>
+  <div class="ton-leg"><span><i class="att"></i>attendu</span><span><i class="moi"></i>votre voix</span></div>`;
+}
+const TON_NOMS={1:'1ᵉʳ ton',2:'2ᵉ ton',3:'3ᵉ ton',4:'4ᵉ ton'};
+function tonPanneau(c){
+  if(TON.id!==c.id||!tonPossible())return '';
+  let note='';
+  if(!S.settings.tonVu&&TON.etat){
+    note=`<p class="dire-note">Le son reste sur votre appareil : il n’est ni envoyé ni gardé.</p>`;
+    S.settings.tonVu=true;save();
+  }
+  const reg=`<button class="btn pale sm" onclick="tonEtal('${jq(c.id)}')">${S.settings.voix&&S.settings.voix.src==='etal'?'Régler à nouveau sur ma voix':'Régler sur ma voix (5 s)'}</button>`;
+  if(TON.etat==='ecoute')return `<div class="dire-res v-ecoute" aria-live="polite"><p>Dites <span class="hz">${esc(c.hz)}</span> ${pinyin(c.py||'')} maintenant.</p>${note}</div>`;
+  if(TON.etat==='etal')return `<div class="dire-res v-ecoute" aria-live="polite"><p>Dites lentement, en exagérant les tons : <b class="py">${pinyin('mā má mǎ mà')}</b></p>
+    <div class="dire-row"><button class="btn pale sm" onclick="tonGo('${jq(c.id)}')">J’ai fini</button></div>${note}</div>`;
+  if(TON.etat==='err')return `<div class="dire-res v-err" aria-live="polite"><p>${esc(TON.err)}</p>
+    <div class="dire-row"><button class="btn pale sm" onclick="tonGo('${jq(c.id)}')">Réessayer</button></div>${note}</div>`;
+  if(TON.etat==='fini'){
+    const r=TON.res,j=r.j;
+    const cl=j.n==='ok'?'v-ok':j.n==='proche'?'v-ton':'v-autre';
+    const tete=j.n==='ok'?'':j.n==='proche'?'Presque. ':'';
+    const sembl=j.n!=='ok'&&j.r&&j.r!==r.t?` On dirait plutôt un ${TON_NOMS[j.r]}.`:'';
+    return `<div class="dire-res ton-res ${cl}" aria-live="polite">
+      ${tonDessin(r)}
+      <p>${tete}${esc(j.c)}${sembl}</p>
+      ${r.regle?'':`<p class="mut sm">Courbe approchée : l’appli apprend le registre de votre voix au fil des essais. Pour plus de justesse, réglez-la sur votre voix.</p>`}
+      <div class="dire-row"><button class="btn pale sm" onclick="tonGo('${jq(c.id)}')">Réessayer</button>
+        <button class="btn pale sm" onclick="speak('${jq(c.hz)}')">Écouter le modèle</button></div>
+      <div class="dire-row">${reg}</div>${note}</div>`;
+  }
+  if(TON.note)return `<div class="dire-res v-ok" aria-live="polite"><p>${esc(TON.note)}</p></div>`;
+  return '';
 }
