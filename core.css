@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261113a
+   core.css — livraison 20261116a
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261113a';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261116a';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1124,3 +1124,25 @@ body.exo .vb-mot{margin-bottom:-24px}
 .vb-ap.fait{border-color:var(--jade);background:var(--jade-s);color:var(--jade-d);box-shadow:none;opacity:.75}
 .vb-ap.rate{border-color:var(--red);animation:secoue .35s}
 .vb-fin .score .n small{font-size:.5em}
+
+/* ---------- « Dire » : reconnaissance de la voix ---------- */
+.vb-act.dire.ecoute,.btn.dire.ecoute{background:var(--red);color:#FFF3E6;box-shadow:0 0 0 0 rgba(184,52,46,.45);
+  animation:direPulse 1.3s ease-out infinite}
+@keyframes direPulse{0%{box-shadow:0 0 0 0 rgba(184,52,46,.45)}100%{box-shadow:0 0 0 14px rgba(184,52,46,0)}}
+@media (prefers-reduced-motion:reduce){.vb-act.dire.ecoute,.btn.dire.ecoute{animation:none}}
+.btn.dire .ico{width:16px;height:16px;margin-right:5px;vertical-align:-3px}
+.dire-sess{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.dire-sess .btn{width:auto;display:inline-flex;align-items:center;padding:10px 18px}
+.dire-res{margin-top:12px;padding:12px 14px;border-radius:16px;font-size:14px;background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--line2)}
+.dire-res p{margin:0}
+.dire-res.v-ok,.dire-res.v-son{background:var(--jade-s);box-shadow:inset 0 0 0 1.5px #BFDCD3}
+.dire-res.v-ton{background:var(--gold-s);box-shadow:inset 0 0 0 1.5px #EBD6A8}
+.dire-res.v-ecoute{background:var(--red-s);box-shadow:inset 0 0 0 1.5px #EFC9C3}
+.dire-res .hz{font-weight:700}
+.dire-l{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:2px 0 3px}
+.dire-h{font-size:22px;font-weight:700;margin-bottom:6px}
+.dire-p{margin:-4px 0 8px;color:var(--muted)}
+.dire-row{display:flex;gap:8px;margin-top:10px}
+.dire-row .btn{flex:1 1 0;min-width:0;padding:10px 8px}
+.dire-note{margin-top:10px!important;font-size:12.5px;color:var(--muted)}
+.dire-pas{font-size:13px;color:var(--muted);margin:8px 0 0}

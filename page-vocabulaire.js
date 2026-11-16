@@ -6,7 +6,7 @@
        grille des thèmes avec leurs anneaux ;
      · l’écran d’un thème : grand anneau, niveaux, quatre regroupements ;
      · la fiche d’un mot : zone rouge laque, pinyin cerclé, dessin des
-       tons, API, Écouter / Dire / Tracer, puis le détail ;
+       tons, API, Écouter / Dire / Tracer (« Dire » : voir plus bas), puis le détail ;
      · le tracé d’un mot.
    Les boîtes de Leitner restent invisibles : on ne montre que l’état.
    La séance (épreuves par palier) est inchangée, plus bas.
@@ -463,9 +463,10 @@ function vMot(){
     ${api?`<div class="vb-api">API : ${api}</div>`:''}
     <div class="vb-acts">
       <button class="vb-act on" onclick="speak('${jq(w.hz)}')">${ico('sound')}Écouter</button>
-      <button class="vb-act" disabled aria-disabled="true" title="Bientôt disponible">${micIco()}Dire<small>bientôt</small></button>
+      ${direBouton({hz:w.hz,py:w.py},'vb-act')}
       <button class="vb-act" onclick="go('tracer',{id:'${jq(w.id)}'})">${pinceauIco()}Tracer</button>
     </div>
+    ${direPanneau()}
 
     <div class="vb-lab">Où j’en suis</div>
     <div class="vb-state">${anneauMot(w.id,34)}<span><b style="color:${e==='neuf'?'#776E66':e==='cours'?'#8E651A':E.c}">${E.n}</b> · ${E.t}${e!=='neuf'&&aRevoir(w)?' · à revoir aujourd’hui':''}</span></div>
@@ -491,6 +492,106 @@ function chercherIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden=
 function chevIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;}
 function micIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`;}
 function pinceauIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><path d="M4 20c4-1 6-3 9-6l5-5-3-3-5 5c-3 3-5 5-6 9z"/><path d="M14 6l3 3"/></svg>`;}
+
+/* =====================================================================
+   « Dire » : la reconnaissance de la voix (speech.js), sur la fiche d’un
+   mot et, une fois la réponse affichée, dans les séances. Un essai libre :
+   rien n’est gardé, ni le son ni le résultat, et rien n’est noté.
+   Un seul « Dire » par écran : sa cible est celle du dernier rendu.
+   ===================================================================== */
+let DIRE={cle:'',etat:'',res:null,err:''};
+let DIRE_CIBLE=null;
+
+function direFin(){
+  if(DIRE.etat==='ecoute'&&typeof ecouteAnnule==='function')ecouteAnnule();
+  DIRE={cle:'',etat:'',res:null,err:''};
+}
+function direEtat(){return DIRE_CIBLE&&DIRE.cle===DIRE_CIBLE.hz?DIRE.etat:'';}
+
+function direBouton(cible,cls){
+  DIRE_CIBLE=cible;
+  if(!peutEcouter())
+    return `<button class="${cls}" disabled aria-disabled="true" title="Pas sur ce navigateur">${micIco()}Dire</button>`;
+  const on=direEtat()==='ecoute';
+  return `<button class="${cls} dire${on?' ecoute':''}" onclick="direGo()" aria-pressed="${on}">${micIco()}${on?'J’écoute…':'Dire'}</button>`;
+}
+
+function direGo(){
+  const c=DIRE_CIBLE;if(!c)return;
+  if(direEtat()==='ecoute'){ecouteStop();return;}
+  const cle=c.hz;
+  DIRE={cle:cle,etat:'ecoute',res:null,err:''};
+  render();
+  const long=!!c.phr;
+  ecouterMoi({
+    duree:long?12000:6000,
+    onresult:alts=>{
+      if(DIRE.cle!==cle)return;
+      DIRE.res=jugeOral(c,alts);DIRE.etat='fini';render();
+    },
+    onerror:code=>{
+      if(DIRE.cle!==cle)return;
+      DIRE.err=code;DIRE.etat='err';render();
+    }
+  });
+}
+
+function direVerdict(c,r){
+  const mot=!c.phr;
+  const vu=`<span class="hz">${esc(r.hz)}</span>${r.py?' '+pinyin(r.py):''}`;
+  if(r.v==='ok')return mot?'Compris ! Chrome a bien reconnu le mot.':'Compris tel quel !';
+  if(r.v==='son')return `Compris comme ${vu} : même son, c’est bon.`;
+  if(r.v==='ton'&&!mot)return `Les syllabes y sont, mais un ton au moins diffère.${c.py?' Attendu : '+pinyin(String(c.py).replace(/[\s.,!?。，！？]+$/,''))+'.':''}`;
+  if(r.v==='ton')return `Entendu ${vu}. Vérifiez ${hanChars(c.hz).length===1?'le ton':'les tons'}${c.py?' : '+pinyin(String(c.py).replace(/[\s.,!?。，！？]+$/,''))+' attendu':''}.`;
+  return `Ce n’est pas ${mot?'le mot':'la phrase'} attendu${mot?'':'e'}. Réécoutez le modèle, puis réessayez.`;
+}
+
+function direPanneau(){
+  const c=DIRE_CIBLE,e=direEtat();
+  if(!c)return '';
+  if(!peutEcouter())
+    return `<p class="dire-pas">« Dire » n’est pas disponible sur ce navigateur. Essayez avec Chrome.</p>`;
+  if(e==='ecoute')return `<div class="dire-res v-ecoute" aria-live="polite"><p>Dites <span class="hz">${esc(c.hz)}</span> maintenant. Touchez « J’écoute… » pour arrêter.</p></div>`;
+  if(e!=='fini'&&e!=='err')return '';
+  let note='';
+  if(!S.settings.direVu){
+    note=`<p class="dire-note">Le son passe par Google pour être transcrit. L’appli ne garde ni le son ni le résultat.</p>`;
+    S.settings.direVu=true;save();
+  }
+  const actions=`<div class="dire-row">
+      <button class="btn pale sm" onclick="direGo()">Réessayer</button>
+      <button class="btn pale sm" onclick="speak('${jq(c.hz)}')">Écouter le modèle</button></div>`;
+  if(e==='err')return `<div class="dire-res v-err" aria-live="polite"><p>${esc(ecouteErreur(DIRE.err))}</p>${actions}${note}</div>`;
+  const r=DIRE.res,mot=!c.phr;
+  let corps='';
+  if(r.v==='autre'||(!mot&&r.v==='ton')){
+    const dz=diffZh(r.hz,c.hz);
+    corps=`<div class="dire-l">Chrome a entendu</div><div class="dire-h diff">${dz.you||'—'}</div>
+      ${r.py&&mot?`<div class="dire-p">${pinyin(r.py)}</div>`:''}
+      <div class="dire-l">Attendu</div><div class="dire-h diff">${dz.exp}</div>`;
+  }else if(r.v==='ok'){
+    corps=`<div class="dire-h">${esc(r.hz)}</div>`;
+  }
+  return `<div class="dire-res v-${r.v}" aria-live="polite">${corps}<p>${direVerdict(c,r)}</p>${actions}${note}</div>`;
+}
+
+/* En séance : sous la réponse, la cible est ce que « Écouter » fait
+   entendre à cet endroit. La note de l’épreuve n’est jamais touchée. */
+function direCibleSeance(d){
+  const w=d.w;
+  if(d.kind==='faute')return d.a2&&d.a2[d.ok]?{hz:d.a2[d.ok].hz,py:d.a2[d.ok].py||'',phr:true}:null;
+  if(d.kind==='ordre')return d.seg?{hz:d.seg.join(''),py:(d.s&&d.s.py)||'',phr:true}:null;
+  if(['trou','mjuste','trouw','dictee','saisie'].indexOf(d.kind)>=0)
+    return d.s&&d.s.hz?{hz:d.s.hz,py:d.s.py||'',phr:true}:null;
+  if(d.kind==='remploi')return null;
+  return {hz:w.hz,py:w.py||''};
+}
+function direSeance(d){
+  if(!peutEcouter())return '';
+  const c=direCibleSeance(d);
+  if(!c||!hanChars(c.hz).length)return '';
+  return `<div class="dire-sess">${direBouton(c,'btn pale sm')}<span class="mut sm">Facultatif, non noté</span></div>${direPanneau()}`;
+}
 
 /* =====================================================================
    Le tracé d’un mot (bouton « Tracer » de la fiche)
@@ -610,7 +711,7 @@ function vocabDrill(){
       <p class="u-mv13 mut">${esc(w.fr)}</p>
       <button class="btn pale tiny" onclick="speak('${jq(w.hz)}')">Écouter</button>
     </div>`;
-  const suite=rep?`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Suivant':'Voir le bilan'}</button>`:'';
+  const suite=rep?direSeance(d)+`<button class="btn mt" onclick="vNext()">${ctx.session.i<ctx.session.ids.length-1?'Suivant':'Voir le bilan'}</button>`:'';
   /* Le rappel de la réponse, identique partout : c’est le moment où la
      mémoire se fixe, il ne doit jamais manquer. */
   const rappel=`${esc(w.hz)}${w.py?' — '+esc(w.py):''} — ${esc(w.fr)}`;
@@ -899,6 +1000,7 @@ function vGrade(g){
 }
 
 function vNext(){
+  direFin();
   const Z=ctx.session;
   if(Z.i<Z.ids.length-1){
     Z.i++;ctx.show=0;

@@ -1,5 +1,5 @@
 /* =====================================================================
-   speech.js — synthèse vocale.
+   speech.js — synthèse vocale, et reconnaissance de la voix (« Dire »).
    Chargé après core.js, avant les fichiers data-*.js.
 
    Ce fichier existe parce que la synthèse vocale des navigateurs, et
@@ -279,3 +279,180 @@ function speakSeq(items,opts){
 }
 function speak(txt,who){speakSeq([{hz:txt,who:who}]);}
 function speaking(){return !!SPEECH.speaking;}
+
+/* =====================================================================
+   RECONNAISSANCE DE LA VOIX — « Dire »
+   La reconnaissance de Chrome (webkitSpeechRecognition, langue zh-CN)
+   envoie le son aux serveurs de Google et renvoie des caractères, pas du
+   pinyin. Elle ne juge pas les tons : elle devine le mot le plus probable.
+   Elle prouve donc qu’on a été compris, pas que la prononciation est
+   parfaite. Rien n’est enregistré, rien n’est noté.
+
+     peutEcouter() · ecouterMoi({onresult, onerror, duree}) · ecouteAnnule()
+     jugeOral({hz, py}, transcriptions) → verdict ok | son | ton | autre
+   ===================================================================== */
+
+const ECOUTE={rec:null,timer:null,token:0};
+
+function peutEcouter(){
+  return typeof window!=='undefined'&&!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+}
+function ecouteAnnule(){
+  ECOUTE.token++;
+  if(ECOUTE.timer){clearTimeout(ECOUTE.timer);ECOUTE.timer=null;}
+  try{if(ECOUTE.rec)ECOUTE.rec.abort();}catch(e){}
+  ECOUTE.rec=null;
+}
+function ecouteStop(){try{if(ECOUTE.rec)ECOUTE.rec.stop();}catch(e){}}
+
+/* Une seule réponse par appel : onresult(liste des transcriptions) ou
+   onerror(code). Codes : absent, not-allowed, no-speech, audio-capture,
+   network, language-not-supported, erreur. */
+function ecouterMoi(o){
+  o=o||{};
+  ecouteAnnule();
+  stopSpeech();                 /* ne pas transcrire la voix de l’appli */
+  const R=peutEcouter()?(window.SpeechRecognition||window.webkitSpeechRecognition):null;
+  const my=++ECOUTE.token;
+  let fini=false;
+  const fin=(fn,arg)=>{
+    if(fini||my!==ECOUTE.token)return;
+    fini=true;
+    if(ECOUTE.timer){clearTimeout(ECOUTE.timer);ECOUTE.timer=null;}
+    ECOUTE.rec=null;
+    if(fn)try{fn(arg);}catch(e){}
+  };
+  if(!R){fin(o.onerror,'absent');return false;}
+  let r;
+  try{r=new R();}catch(e){fin(o.onerror,'absent');return false;}
+  r.lang='zh-CN';r.interimResults=false;r.continuous=false;r.maxAlternatives=5;
+  r.onresult=ev=>{
+    const alts=[];
+    try{
+      for(let i=0;i<ev.results.length;i++){
+        const res=ev.results[i];
+        for(let j=0;j<res.length;j++){
+          const t=String(res[j]&&res[j].transcript||'').trim();
+          if(t&&alts.indexOf(t)<0)alts.push(t);
+        }
+      }
+    }catch(e){}
+    if(alts.length)fin(o.onresult,alts);else fin(o.onerror,'no-speech');
+  };
+  r.onerror=ev=>{
+    const c=String(ev&&ev.error||'erreur');
+    if(c==='aborted')return;
+    fin(o.onerror,c);
+  };
+  r.onend=()=>fin(o.onerror,'no-speech');
+  try{r.start();}catch(e){fin(o.onerror,'erreur');return false;}
+  ECOUTE.rec=r;
+  /* Filet : Chrome s’arrête seul après un silence, mais pas toujours. */
+  ECOUTE.timer=setTimeout(ecouteStop,Math.max(3000,Number(o.duree)||6000));
+  return true;
+}
+
+function ecouteErreur(code){
+  return ({
+    absent:'Ce navigateur ne propose pas la reconnaissance vocale. Essayez avec Chrome.',
+    'not-allowed':'Le micro est refusé. Pour l’autoriser : cadenas à gauche de l’adresse, puis Autorisations, puis Micro.',
+    'service-not-allowed':'Le micro est refusé. Pour l’autoriser : cadenas à gauche de l’adresse, puis Autorisations, puis Micro.',
+    'no-speech':'Rien entendu. Parlez juste après avoir touché « Dire », près du micro.',
+    'audio-capture':'Aucun micro trouvé sur cet appareil.',
+    network:'La transcription demande une connexion internet.',
+    'language-not-supported':'Ce navigateur ne reconnaît pas le chinois.'
+  })[code]||'La reconnaissance n’a pas abouti. Réessayez.';
+}
+
+/* --- Chiffres : Chrome écrit souvent « 3 » pour 三, « 10 » pour 十 --- */
+const HAN_CHIFFRES='零一二三四五六七八九';
+function nombreEnHan(n){
+  if(n<10)return HAN_CHIFFRES[n];
+  const U=[[10000,'万'],[1000,'千'],[100,'百'],[10,'十']];
+  let out='',reste=n,zero=false,debut=true;
+  for(const [v,nom] of U){
+    const q=Math.floor(reste/v);reste%=v;
+    if(q){
+      if(zero){out+='零';zero=false;}
+      out+=(v===10&&q===1&&debut?'':HAN_CHIFFRES[q])+nom;debut=false;
+    }else if(!debut)zero=true;
+  }
+  if(reste){if(zero)out+='零';out+=HAN_CHIFFRES[reste];}
+  return out;
+}
+function chiffresEnHan(s){
+  return String(s||'').replace(/\d+/g,(m,pos,all)=>{
+    const an=all.charAt(pos+m.length)==='年';
+    if(m.length>5||(an&&m.length>=3)||(m.length>1&&m[0]==='0'))
+      return Array.from(m).map(c=>HAN_CHIFFRES[+c]).join('');
+    return nombreEnHan(+m);
+  });
+}
+
+/* Lectures connues d’un caractère, sous la forme « shi4 ». */
+function lecturesDe(c){
+  const r=new Set(typeof PYDICT!=='undefined'&&PYDICT[c]?Array.from(PYDICT[c]):[]);
+  ['CHARS','WORDS'].forEach(n=>{
+    const L=(typeof window!=='undefined'&&window[n])||[];
+    for(const x of L)if(x&&x.hz===c&&x.py){const s=pySyls(x.py)[0];if(s)r.add(pyRead(s));}
+  });
+  return r;
+}
+const nuDe=k=>String(k).replace(/\d$/,'');
+const tonDe=k=>+String(k).slice(-1)||0;
+
+function jugeOral(cible,alts){
+  const T=hanChars(cible.hz);
+  /* Lectures attendues : celles du pinyin donné, syllabe par syllabe ;
+     à défaut, toutes celles qu’on connaît au caractère. Le ton neutre
+     attendu n’accepte n’importe quel ton que si le pinyin est sûr. */
+  let attendu=null,sur=false;
+  if(cible.py){
+    const pc=pinyinCheck(cible.hz,cible.py,true);
+    if(pc.ok&&pc.paires.length===T.length){attendu=pc.paires.map(p=>new Set([p.s.nu+p.s.ton]));sur=true;}
+  }
+  if(!attendu)attendu=T.map(lecturesDe);
+  const tJoint=T.join('');
+  const essais=[];
+  (alts||[]).forEach(a=>{
+    const h=chiffresEnHan(a);
+    essais.push(h);
+    if(tJoint.indexOf('两')>=0&&h.indexOf('二')>=0)essais.push(h.replace(/二/g,'两'));
+  });
+  const RANGV={ok:0,son:1,ton:2,autre:3};
+  let best=null;
+  essais.forEach(brut=>{
+    const H=hanChars(brut),hJoint=H.join('');
+    let v='autre';
+    const L=H.map(lecturesDe);
+    if(hJoint&&hJoint===tJoint)v='ok';
+    else if(H.length&&H.length===T.length&&L.every(s=>s.size)){
+      const memeSon=H.every((c,i)=>{
+        if(c===T[i])return true;
+        for(const a of attendu[i]){
+          if(L[i].has(a))return true;
+          for(const l of L[i])if(nuDe(l)===nuDe(a)&&((sur&&tonDe(a)===0)||'不一'.indexOf(T[i])>=0))return true;
+        }
+        return false;
+      });
+      if(memeSon)v='son';
+      else if(H.every((c,i)=>c===T[i]||[...attendu[i]].some(a=>[...L[i]].some(l=>nuDe(l)===nuDe(a)))))v='ton';
+    }
+    /* Pinyin de ce qui a été entendu : seulement s’il est sûr partout. */
+    const aligne=H.length===T.length;
+    const syl=H.map((c,i)=>{
+      if(aligne&&c===T[i]&&attendu[i].size===1)return [...attendu[i]][0];
+      const l=[...L[i]];
+      if(l.length===1)return l[0];
+      if(aligne){
+        const p=l.filter(x=>[...attendu[i]].some(a=>nuDe(a)===nuDe(x)));
+        if(p.length===1)return p[0];
+      }
+      return null;
+    });
+    const py=H.length&&syl.every(Boolean)?syl.map(k=>setTone(nuDe(k),tonDe(k))).join(' '):'';
+    const cand={v:v,hz:brut.replace(/[。，！？.,!?\s]+$/,''),py:py};
+    if(!best||RANGV[v]<RANGV[best.v])best=cand;
+  });
+  return best||{v:'autre',hz:'',py:''};
+}
