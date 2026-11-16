@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261116g
+   core.css — livraison 20261116h
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261116g';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261116h';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1180,6 +1180,12 @@ body.exo .vb-mot{margin-bottom:-24px}
 .cr-ct.vu small{color:#A89D92}
 .cr-pas{font-size:11px;color:var(--muted);flex:none}
 .cr-note{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.cr-expl{display:flex;flex-direction:column;gap:8px}
+.cr-ex{background:var(--card,#fff);border-radius:14px;padding:10px 12px;border:1px solid rgba(63,85,104,.14)}
+.cr-ex.un{border-color:rgba(63,85,104,.4)}
+.cr-ex p{margin:6px 0 2px;line-height:1.45}
+.cr-ex small{color:var(--muted);font-size:12px}
+.cr-ex .cr-type{font-size:12px}
 .cr-v{color:#C63A22}
 /* La fiche */
 .cr-top{background:radial-gradient(circle at 75% 90%,#8DA2B3 0,#627A8E 50%,#475D70 100%);color:#FBF6EE;height:316px}

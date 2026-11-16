@@ -13,7 +13,10 @@ Usage
 Lecture (py), sens (fr), niveau (hsk) et thèmes (th) viennent du mot de
 WORDS qui contient le caractère (lecture la plus fréquente) ou de
 outils/chars-gloses.json, à compléter à la main : le script s’arrête et
-dit ce qui manque. Mêmes règles pour les sens des clés et des composants
+dit ce qui manque. Quand la notice Wiktionary présente plusieurs lectures
+de la forme, il le signale : on les rédige toutes dans « explic »
+(liste de {type, fr, src}, la première étant celle que retient la notice).
+Mêmes règles pour les sens des clés et des composants
 de sens (glossaire tiré de CHARS, complété dans le même fichier).
 
 Sources (téléchargées dans /tmp/chars-src au premier lancement)
@@ -74,7 +77,7 @@ def etymologie(ch):
             t = html.unescape(urllib.request.urlopen(
                 urllib.request.Request(u, headers=UA), timeout=30).read().decode())
             m = re.search(r'"etymology_text": ("(?:[^"\\]|\\.)*")', t)
-            return json.loads(m.group(1)).split('\n')[0] if m else ''
+            return json.loads(m.group(1)) if m else ''
         except Exception:
             time.sleep(3)
     return ''
@@ -87,6 +90,9 @@ MMH = {'pictographic': 'picto', 'ideographic': 'ideo', 'pictophonetic': 'phono'}
 VAR = {'水': '氵', '竹': '⺮', '𥫗': '⺮', '阜': '阝', '邑': '阝', '人': '亻', '心': '忄',
        '手': '扌', '言': '讠', '金': '钅', '糸': '纟', '食': '饣', '艸': '艹', '辵': '辶',
        '刀': '刂', '火': '灬', '衣': '衤', '示': '礻', '犬': '犭', '戶': '户'}
+# Notice qui présente plusieurs lectures de la forme (règle d’Ophélie, 16 novembre 2026 :
+# on les met toutes, chacune avec sa source).
+PLUS = re.compile(r'possible interpretation|[Aa]lternatively|[Aa]nother (interpretation|theory|view)|[Tt]heories include|[Mm]ultiple theories|Shuowen (interprets|erroneously|mistakenly|incorrectly)|[Ff]olk etymology|traditional (interpretation|view|explanation)')
 STRUCT = {'D': 'seul', 'A': 'hb', 'B': 'hb', 'E': 'hmb', 'H': 'gd', 'M': 'ghd', 'Q': 'env',
           'R1': 'env3', 'R5': 'env3', 'R6': 'env3', 'R2': 'env2', 'R3': 'env2', 'R4': 'env2'}
 IDC = set('⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻？')
@@ -170,7 +176,8 @@ def fiche(h, MD, TR, B, W, GL, G):
     o = {'id': 'c_' + h, 'hz': h, 'py': py, 'fr': fr, 'hsk': hsk, 'th': th,
          'cle': {'hz': cle, 'fr': GL.get(cle)}}
     if not GL.get(cle): manque.append('sens de la clé ' + cle)
-    ety = etymologie(h); time.sleep(0.5)
+    notice = etymologie(h); time.sleep(0.5)
+    ety = notice.split('\n')[0]
     m = LABRE.match(ety)
     ty = sem = son = None
     if m:
@@ -204,6 +211,10 @@ def fiche(h, MD, TR, B, W, GL, G):
             li = lien(py, pys) if py else None
             o['son'] = {'hz': son, 'py': pys, 'ecart': li}
     o['traits'] = TR.get(h)
+    if g.get('explic'):
+        o['explic'] = g['explic']
+    elif PLUS.search(notice):
+        manque.append('plusieurs explications possibles : les rédiger dans « explic » (voir la notice Wiktionary)')
     st = (B.get(h) or {}).get('structure')
     o['struct'] = STRUCT.get(st, STRUCT.get((st or 'X')[0]))
     if not o['struct']: manque.append('structure')
@@ -233,7 +244,7 @@ def main():
         print(emet(o) if o else h)
         if manque:
             print('   À COMPLÉTER dans outils/chars-gloses.json :', ', '.join(manque))
-            if any(not m.startswith('type') for m in manque): bloque = True
+            if any(not m.startswith(('type', 'plusieurs')) for m in manque): bloque = True
         if o: nouv.append(o)
     if poser:
         assert not bloque, 'compléter les gloses avant --poser'

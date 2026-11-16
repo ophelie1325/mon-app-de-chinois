@@ -275,6 +275,17 @@ function crFrise(c){
   <p class="cr-note">${credit} Quand une forme n’existe pas, la case le dit.</p>`;
 }
 
+/* ---- Plusieurs explications de la forme (champ explic de CHARS) ------
+   Affichées seulement quand les sources en donnent au moins deux ; la
+   première est celle que retient la notice, la source de chacune est dite. */
+function crExplic(c){
+  const L=Array.isArray(c.explic)?c.explic.filter(x=>x&&x.fr):[];
+  if(L.length<2)return '';
+  return `<div class="vb-lab">Plusieurs explications</div>
+  <div class="cr-expl">${L.map((x,i)=>{const T=CR_TYPES[x.type];
+    return `<div class="cr-ex${i===0?' un':''}">${T?`<span class="cr-type">${T[0]}</span>`:''}<p>${esc(x.fr)}</p>${x.src?`<small>${esc(x.src)}</small>`:''}</div>`;}).join('')}</div>`;
+}
+
 function vCar(){
   const c=crCar(ctx.id);
   if(!c)return header('Caractères')+nothing('Ce caractère est introuvable.');
@@ -338,6 +349,7 @@ function vCar(){
     ${comps.length?`<div class="cr-comp">${comps.join('')}</div>`:''}
 
     ${crFrise(c)}
+    ${crExplic(c)}
 
     ${mots.length?`<div class="vb-lab">Les mots qui le contiennent</div>
     <div class="vb-chips">${mots.map(w=>`<a class="vb-chip${actifs.has(w.id)?'':' cr-dim'}" href="vocabulaire.html?mot=${encodeURIComponent(w.id)}"><span class="hz">${esc(w.hz)}</span><span>${pinyin(w.py||'')}</span><span class="cr-go">· ${esc(crSens1(w.fr))} ›</span></a>`).join('')}</div>`:''}
