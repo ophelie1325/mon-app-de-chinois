@@ -431,7 +431,8 @@ function apiMot(py){
 /* =====================================================================
    La fiche d’un mot
    ===================================================================== */
-const TYPES_CAR={picto:'pictogramme',ideo:'idéogramme composé',phono:'idéo-phonogramme'};
+const ECART_CAR={meme:'même son',ton:'même syllabe, autre ton',proche:'son proche',perdu:'le lien ne s’entend plus'};
+const TYPES_CAR={picto:'pictogramme',indic:'caractère indicatif',ideo:'idéogramme composé',phono:'idéo-phonogramme'};
 function pyDe(hz){const w=DATA('WORDS').find(m=>m.hz===hz);return w?w.py:'';}
 
 function vMot(){
@@ -480,7 +481,7 @@ function vMot(){
 
     ${dec.length?`<div class="vb-lab">${dec.length>1?'Les caractères':'Le caractère'}</div>
     <div class="vb-dec">${dec.map(c=>`<div class="vb-decrow"><span class="c">${esc(c.hz)}</span><span class="t">${c.cle?`Clé <span class="hz">${esc(c.cle.hz)}</span>${c.cle.fr?' '+esc(c.cle.fr):''}`:''}${c.type&&TYPES_CAR[c.type]?`<em>${TYPES_CAR[c.type]}</em>`:''}
-      ${c.sens||c.son?`<br>${c.sens?`<span class="hz">${esc(c.sens.hz)}</span> ${esc(c.sens.fr||'')}, pour le sens`:''}${c.sens&&c.son?' + ':''}${c.son?`<span class="hz">${esc(c.son.hz)}</span> ${c.son.py?pinyin(c.son.py):''}, pour le son${c.son.ecart?' ('+esc(c.son.ecart)+')':''}`:''}`:''}</span></div>`).join('')}</div>`:''}
+      ${c.sens||c.son?`<br>${c.sens?`<span class="hz">${esc(c.sens.hz)}</span> ${esc(c.sens.fr||'')}, pour le sens`:''}${c.sens&&c.son?' + ':''}${c.son?`<span class="hz">${esc(c.son.hz)}</span> ${c.son.py?pinyin(c.son.py):''}, pour le son${ECART_CAR[c.son.ecart]?' ('+ECART_CAR[c.son.ecart]+')':''}`:''}`:''}</span></div>`).join('')}</div>`:''}
 
     ${fam.length?`<div class="vb-lab">La même famille</div>
     <div class="vb-chips">${fam.map(m=>`<button class="vb-chip" onclick="ouvrirMot('${jq(m.id)}')"><span class="hz">${esc(m.hz)}</span><span>${pinyin(m.py||'')}</span> · ${esc(m.fr)}</button>`).join('')}</div>`:''}
