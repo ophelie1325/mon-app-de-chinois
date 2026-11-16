@@ -348,9 +348,14 @@ function favToggle(quoi,i){
     save();render();toast('Retiré du carnet.');
     return;
   }
-  S.fav.unshift(favBuild(Object.assign({},o,{fr:fr}),type));
+  const f=favBuild(Object.assign({},o,{fr:fr}),type);
+  S.fav.unshift(f);
   save();render();
   toast('Au carnet — révisable dès maintenant.');
+  /* Caractères sans fiche : demandés au modèle, sans bloquer l’écran. */
+  if(type!=='phrase'&&carsSansFiche(f.hz).length&&S.settings.provider!=='none'&&(S.settings.apikey||'').trim())
+    creerFichesIA(f.hz,f).then(n=>{if(n)toast(n>1?n+' fiches de caractère créées.':'Fiche de caractère créée.');})
+      .catch(()=>{});
 }
 
 function etoile(quoi,i,hz,fr){

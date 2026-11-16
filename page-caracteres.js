@@ -20,7 +20,7 @@ let CF={q:'',pill:'tous',mode:'cle'};
 /* Les caractères rencontrés : un mot actif les contient, ou ils ont déjà
    été tracés. Calculé une fois par rendu. */
 function crVus(){
-  const A=motsActifs().map(w=>w.hz).join('');
+  const A=motsActifs().map(w=>w.hz).concat((S.fav||[]).map(f=>String(f.hz))).join('');
   const V=new Set();
   DATA('CHARS').forEach(c=>{if(S.items[c.id]||A.indexOf(c.hz)>=0)V.add(c.id);});
   return V;
@@ -279,7 +279,7 @@ function vCar(){
   const c=crCar(ctx.id);
   if(!c)return header('Caractères')+nothing('Ce caractère est introuvable.');
   const V=crVus(),e=crEtat(c,V);
-  const kick=[c.hsk?'HSK '+c.hsk:'',CR_ETATNOM[e]].filter(Boolean).join(' · ');
+  const kick=[c.hsk?'HSK '+c.hsk:'',CR_ETATNOM[e],c.ia?'fiche faite par l’IA':''].filter(Boolean).join(' · ');
   const T=CR_TYPES[c.type];
   const R=c.py?tonsReels([c.py]):[];
   const cle=c.cle&&c.cle.hz?c.cle:null;

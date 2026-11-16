@@ -483,6 +483,9 @@ function vMot(){
     <div class="vb-dec">${dec.map(c=>`<div class="vb-decrow"><span class="c">${esc(c.hz)}</span><span class="t">${c.cle?`Clé <span class="hz">${esc(c.cle.hz)}</span>${c.cle.fr?' '+esc(c.cle.fr):''}`:''}${c.type&&TYPES_CAR[c.type]?`<em>${TYPES_CAR[c.type]}</em>`:''}
       ${c.sens||c.son?`<br>${c.sens?`<span class="hz">${esc(c.sens.hz)}</span> ${esc(c.sens.fr||'')}, pour le sens`:''}${c.sens&&c.son?' + ':''}${c.son?`<span class="hz">${esc(c.son.hz)}</span> ${c.son.py?pinyin(c.son.py):''}, pour le son${ECART_CAR[c.son.ecart]?' ('+ECART_CAR[c.son.ecart]+')':''}`:''}`:''}</span></div>`).join('')}</div>`:''}
 
+    ${(()=>{const m=carsSansFiche(w.hz);return m.length?`<div class="vb-lab">${m.length>1?'Caractères sans fiche':'Caractère sans fiche'}</div>
+    <div class="vb-chips"><button class="vb-chip" onclick="vFichesIA('${jq(w.id)}',this)">Créer la fiche de <span class="hz">${esc(m.join(' '))}</span></button></div>`:'';})()}
+
     ${fam.length?`<div class="vb-lab">La même famille</div>
     <div class="vb-chips">${fam.map(m=>`<button class="vb-chip" onclick="ouvrirMot('${jq(m.id)}')"><span class="hz">${esc(m.hz)}</span><span>${pinyin(m.py||'')}</span> · ${esc(m.fr)}</button>`).join('')}</div>`:''}
   </div>
@@ -1188,4 +1191,18 @@ function vReveal(){
   const d=ctx.d;if(!d||d.ans!=null)return;
   d.ans=-1;beep('no');notePremier(d.w.id,0,d.kind);grade(d.w.id,0);render();
   setTimeout(()=>TW.forEach((t,i)=>setTimeout(()=>t.animateCharacter(),i*900)),120);
+}
+
+/* Fiches de caractère faites par l’IA, à la demande (mots gardés avant
+   le 16 novembre 2026, ou demande automatique échouée). */
+async function vFichesIA(id,btn){
+  const w=anyWord(id);if(!w)return;
+  if(S.settings.provider==='none'||!(S.settings.apikey||'').trim())
+    return toast('Il faut une clé d’IA dans les Réglages.');
+  if(btn){btn.disabled=true;btn.textContent='Création en cours…';}
+  try{
+    const n=await creerFichesIA(w.hz,w);
+    toast(n>1?n+' fiches de caractère créées.':'Fiche de caractère créée.');
+  }catch(e){toast('Fiche impossible à créer : '+e.message);}
+  render();
 }

@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261116f';
+const BUILD='20261116g';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -76,7 +76,7 @@ const KEY='coach-chinois-v2';
 let memoryOnly=false;
 
 function loadState(){
-  const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',fav:[],enrich:{},
+  const base={items:{},written:[],lessons:{},streak:{n:0,last:''},lastLesson:'',fav:[],enrich:{},charsIA:{},
     settings:{level:2,theme:'all',provider:'none',apikey:'',rate:.85,font:'sans',
       pause:.7,sfx:true,auto:false,flow:'decoupe',gmodel:'',gver:'v1beta',gauth:'query',gjson:true,backup:'none',backupKey:'',chatOneQ:true,chatTurns:7,chatDemote:true,
       voices:{d:'',A:'',B:'',C:''}}};
@@ -119,6 +119,7 @@ function normState(S){
   });
   /* Données d’exercice ajoutées après coup aux mots du corpus. */
   S.enrich=obj(S.enrich);
+  S.charsIA=obj(S.charsIA);
   /* Les étapes franchies ont été enregistrées en objet par une version
      ancienne : les méthodes de tableau cassaient dessus. */
   S.lessons=obj(S.lessons);
@@ -707,7 +708,128 @@ function motActif(w){
 /* Un caractère se montre dès qu’un mot actif le contient. */
 function carActif(c){
   if(S.items[c.id])return true;
+  if((S.fav||[]).some(f=>String(f.hz).indexOf(c.hz)>=0))return true;
   return motsActifs().some(w=>w.hz.indexOf(c.hz)>=0);
+}
+
+/* =====================================================================
+   Fiches de caractère faites par l’IA (16 novembre 2026)
+   Un mot gardé depuis le traducteur peut contenir un caractère absent de
+   CHARS. Sa fiche est alors demandée au modèle et rangée dans
+   S.charsIA (progression de l’apprenante, pas données de l’appli). Ce qui
+   se calcule ne lui est pas demandé : les traits viennent des données de
+   tracé, l’écart de son suit la règle de outils/chars.py, le pinyin passe
+   au contrôle. Le modèle répond « inconnu » quand il doute : pas de type
+   plutôt qu’un type inventé. Une fiche officielle de CHARS l’emporte
+   toujours (charsIA() écarte les doublons).
+   ===================================================================== */
+function charsIA(){
+  if(typeof S==='undefined'||!S||!S.charsIA)return [];
+  const off=new Set(((typeof window!=='undefined'&&window.CHARS)||[]).map(c=>c.hz));
+  return Object.keys(S.charsIA).map(k=>S.charsIA[k]).filter(c=>c&&c.hz&&!off.has(c.hz));
+}
+function carsSansFiche(hz){
+  const have=new Set(DATA('CHARS').map(c=>c.hz));
+  return Array.from(new Set(String(hz||'').match(/[\u4e00-\u9fff]/g)||[])).filter(c=>!have.has(c));
+}
+const CIA_TON={};
+[['a','āáǎà'],['e','ēéěè'],['i','īíǐì'],['o','ōóǒò'],['u','ūúǔù'],['ü','ǖǘǚǜ']]
+  .forEach(([v,r])=>r.split('').forEach((c,i)=>{CIA_TON[c]=[v,i+1];}));
+const CIA_INI=['zh','ch','sh','b','p','m','f','d','t','n','l','g','k','h','j','q','x','r','z','c','s'];
+function ciaSyl(p){
+  p=String(p||'').trim().split(/\s+/)[0].toLowerCase();let t=5,b='';
+  for(const ch of p){if(CIA_TON[ch]){b+=CIA_TON[ch][0];t=CIA_TON[ch][1];}else b+=ch;}
+  const ini=CIA_INI.find(i=>b.indexOf(i)===0)||'';
+  let fin=b.slice(ini.length);
+  if(!ini)for(const [a,r] of [['yu','ü'],['yi','i'],['y','i'],['wu','u'],['w','u']])
+    if(b.indexOf(a)===0){fin=r+b.slice(a.length);break;}
+  if(['j','q','x'].indexOf(ini)>=0&&fin[0]==='u')fin='ü'+fin.slice(1);
+  if(ini)fin=({iu:'iou',ui:'uei',un:'uen'})[fin]||fin;
+  return [b,t,ini,fin];
+}
+function ciaLien(a,b){
+  const A=ciaSyl(a),B=ciaSyl(b);
+  if(A[0]===B[0])return A[1]===B[1]?'meme':'ton';
+  if((A[2]&&A[2]===B[2])||A[3]===B[3])return 'proche';
+  return 'perdu';
+}
+const CIA_T={type:'STRING'};
+const CIA_HF={type:'OBJECT',properties:{hz:CIA_T,fr:CIA_T},propertyOrdering:['hz','fr'],required:['hz','fr']};
+const CIA_SCHEMA={type:'OBJECT',properties:{
+  py:CIA_T,fr:CIA_T,cle:CIA_HF,type:CIA_T,sens:CIA_HF,
+  son:{type:'OBJECT',properties:{hz:CIA_T,py:CIA_T},propertyOrdering:['hz','py'],required:['hz','py']},
+  struct:CIA_T},
+  propertyOrdering:['py','fr','cle','type','sens','son','struct'],
+  required:['py','fr','cle','type','sens','son','struct']};
+const CIA_TYPES=['picto','indic','ideo','phono'];
+const CIA_STRUCT=['gd','ghd','hb','hmb','env','env3','env2','seul'];
+function ciaPrompt(c,mot){
+  return `Fiche du caractère chinois ${c}${mot&&mot.hz&&mot.hz!==c?`, tel qu’il se lit dans le mot ${mot.hz}${mot.py?' ('+mot.py+')':''}`:''}, pour une apprenante francophone.
+Réponds en français, brièvement, sur la forme simplifiée.
+· py — sa lecture (une syllabe, ton noté par un accent), celle du mot donné.
+· fr — son sens propre, en quelques mots.
+· cle — sa clé (部首) telle que la donnent les dictionnaires modernes, et son sens en français.
+· type — son origine selon les six catégories : picto (象形), indic (指事), ideo (会意) ou phono (形声). Réponds « inconnu » si les sources ne s’accordent pas ou si tu n’es pas certain. Ne devine jamais.
+· sens et son — seulement pour phono : l’élément qui porte le sens (et son sens en français), l’élément qui porte le son (et sa lecture moderne, accent compris). L’élément de son doit se voir dans la forme simplifiée ; sinon, ou pour un autre type, laisse les deux vides.
+· struct — sa structure : gd (gauche-droite), ghd (gauche-milieu-droite), hb (haut-bas), hmb (haut-milieu-bas), env (enveloppant complet), env3 (sur trois côtés), env2 (sur deux côtés), seul (d’un seul tenant), ou « inconnu ».`;
+}
+async function ciaTraits(c){
+  try{
+    const r=await fetch('https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/'+encodeURIComponent(c)+'.json');
+    if(!r.ok)return null;
+    const d=await r.json();
+    return Array.isArray(d.strokes)&&d.strokes.length?d.strokes.length:null;
+  }catch(e){return null;}
+}
+const ciaUn=s=>{s=String(s||'').trim();return /^[\u2e80-\u9fff]$/.test(s)?s:'';};
+/* Crée les fiches manquantes des caractères de hz. Rend le nombre créé ;
+   lève une erreur si aucune n’a pu l’être. */
+async function creerFichesIA(hz,mot){
+  const manque=carsSansFiche(hz);
+  let n=0,err=null;
+  for(const c of manque){
+    try{
+      const o=await askJSON('Tu es un spécialiste de l’écriture chinoise. Tu ne donnes que des informations sûres.',
+        ciaPrompt(c,mot),CIA_SCHEMA,0.1);
+      const py=String(o.py||'').trim().toLowerCase();
+      if(!py||py.split(/\s+/).length!==1||!pinyinCheck(c,py).ok)throw new Error('lecture douteuse ('+py+')');
+      /* Garde-fou : la lecture doit être celle du caractère dans le mot gardé
+         (même syllabe ; le ton peut changer par sandhi ou ton neutre). */
+      if(mot&&mot.py){
+        const hzs=Array.from(String(mot.hz||'')).filter(x=>/[\u4e00-\u9fff]/.test(x));
+        const sy=String(mot.py).trim().split(/\s+/);
+        if(hzs.length===sy.length){
+          const i=hzs.indexOf(c);
+          if(i>=0&&ciaSyl(sy[i])[0]!==ciaSyl(py)[0])throw new Error('lecture '+py+' ≠ '+sy[i]+' dans '+mot.hz);
+        }
+      }
+      const fr=String(o.fr||'').trim().replace(/'/g,'’');
+      if(!fr)throw new Error('sens absent');
+      const f={id:'cia_'+c,hz:c,py:py,fr:fr,hsk:null,th:[],ia:true,t:Date.now()};
+      if(o.cle&&ciaUn(o.cle.hz))f.cle={hz:ciaUn(o.cle.hz),fr:String(o.cle.fr||'').trim().replace(/'/g,'’')};
+      const ty=String(o.type||'').trim().toLowerCase();
+      if(CIA_TYPES.indexOf(ty)>=0){
+        f.type=ty;
+        if(ty==='phono'){
+          if(o.sens&&ciaUn(o.sens.hz)&&ciaUn(o.sens.hz)!==c)f.sens={hz:ciaUn(o.sens.hz),fr:String(o.sens.fr||'').trim().replace(/'/g,'’')};
+          const sh=o.son&&ciaUn(o.son.hz),sp=o.son&&String(o.son.py||'').trim().toLowerCase();
+          if(sh&&sh!==c){
+            f.son={hz:sh};
+            if(sp&&sp.split(/\s+/).length===1&&pinyinCheck(sh,sp).ok){f.son.py=sp;f.son.ecart=ciaLien(sp,py);}
+          }
+          if(!f.sens&&!f.son)delete f.type;   /* phono sans aucun élément : pas de type */
+        }
+      }
+      const st=String(o.struct||'').trim();
+      if(CIA_STRUCT.indexOf(st)>=0)f.struct=st;
+      const tr=await ciaTraits(c);
+      if(tr)f.traits=tr;
+      S.charsIA=S.charsIA||{};S.charsIA[c]=f;n++;
+    }catch(e){err=e;}
+  }
+  if(n)save();
+  if(!n&&manque.length)throw err||new Error('échec');
+  return n;
 }
 function motsLecon(){return DATA('WORDS').filter(deLecon);}
 function motsActifs(){return DATA('WORDS').filter(motActif);}
@@ -748,7 +870,10 @@ function currentLesson(){
 /* Lecture tolérante des tableaux de données : une page qui ne charge pas
    data-corpus.js doit rendre un tableau vide, pas casser. */
 function param(n){try{return new URLSearchParams(location.search).get(n);}catch(e){return null;}}
-function DATA(n){return (typeof window!=='undefined'&&window[n])||[];}
+function DATA(n){
+  const v=(typeof window!=='undefined'&&window[n])||[];
+  return n==='CHARS'?v.concat(charsIA()):v;
+}
 
 
 /* --- Correction assistée (facultative) ---
