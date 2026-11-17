@@ -1,5 +1,18 @@
 {
-  "历": {"fr": "passer par ; calendrier"},
-  "史": {"fr": "histoire, annales"},
-  "厂": "abri (falaise)"
+ "历": {
+  "fr": "passer par ; calendrier"
+ },
+ "史": {
+  "fr": "histoire, annales"
+ },
+ "厂": "abri (falaise)",
+ "定": {
+  "fr": "fixer ; décider ; sûr"
+ },
+ "肚": {
+  "fr": "ventre"
+ },
+ "尚": {
+  "py": "shàng"
+ }
 }
