@@ -7,7 +7,7 @@
    tons, le son, les boîtes de Leitner, la coque de navigation et le
    dessin d’écran. Une correction faite ici vaut pour toutes les pages.
    ===================================================================== */
-const BUILD='20261118a';
+const BUILD='20261118b';
 
 /* --- Modèle d’IA -------------------------------------------------------
    Retenu après le banc d’essai du 7 novembre 2026 (page test-ia.html) :
@@ -1439,6 +1439,13 @@ function finishStep(){
   const neuf=!S.lessons[l].includes(i);
   if(neuf)S.lessons[l].push(i);
   touchStreak();save();stopSpeech();
+  /* Étape faite dans une autre page (une fiche de grammaire) : on revient
+     sur parcours.html, à la leçon. La page remplace l’étape dans
+     l’historique, pour que le retour ne rouvre pas la fiche. */
+  if(PAGE!=='parcours'){
+    location.replace('parcours.html?l='+encodeURIComponent(l)+(neuf?'&fait='+i:''));
+    return;
+  }
   if(neuf)TAMPON={l:l,i:i};
   view='lecon';ctx={l:l};NAVDIR='in-l';render();scrollTo(0,0);
   const L=DATA('LESSONS').find(x=>x.id===l);

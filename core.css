@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261118a
+   core.css — livraison 20261118b
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261118a';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261118b';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1355,3 +1355,97 @@ a.vb-chip{color:inherit;text-decoration:none}
   font-family:'Ma Shan Zheng',var(--han-serif);font-size:24px;line-height:34px;text-align:center;transform:rotate(-6deg);box-shadow:0 0 0 2px rgba(251,246,238,.8)}
 #app.fresh .cr-fseal{animation:crStamp .6s .9s cubic-bezier(.3,1.6,.5,1) both}
 .vb-split.plein .cr-plum,.vb-split.plein .cr-fseal{display:none}
+
+/* =====================================================================
+   Grammaire : porcelaine bleu et blanc 青花 (18 novembre 2026)
+   Maquette « GrammairePorcelaine », validée. Le module seul :
+   body.gr-porc sur grammaire.html. Préfixe gr-.
+   ===================================================================== */
+body.gr-porc{--bg:#F8F7F2;--p:#1F4E9E;--pd:#133672;--pl:#E8EFF9;--plb:#C9D7EE;--psoft:#CFDDF3;--ptx:#173C80;--ptxs:#4F6FA8}
+body.gr-porc :focus-visible{outline-color:var(--p)}
+body.gr-porc .tabs button.on{color:var(--p)}
+body.gr-porc .btn:not(.pale):not(.jade):not(.gold){background:var(--p);box-shadow:0 5px 0 var(--pd)}
+body.gr-porc .btn:not(.pale):not(.jade):not(.gold):active{box-shadow:0 1px 0 var(--pd)}
+body.gr-porc .pill.on{background:var(--p);border-color:var(--p);color:#fff}
+/* Le trait sous le titre : un lavis bleu pâle, net, sans bavure. */
+body.gr-porc .ink .encre g{filter:none;fill:#8FB0DE;stroke:#8FB0DE}
+body.gr-porc .vb-fbtn{background:var(--ptx);color:#fff}
+body.gr-porc .vb-opt.on{background:var(--p);border-color:var(--p);color:#fff}
+body.gr-porc .vb-badge{background:var(--p)}
+
+/* Carte du jour */
+.gr-motif{position:absolute;left:0;right:0;bottom:0;width:100%;pointer-events:none}
+.gr-today{position:relative;overflow:hidden}
+.gr-today .vb-tod{position:relative}
+.gr-num{width:66px;height:66px;flex:none;border-radius:22px;display:grid;place-items:center;text-align:center;line-height:1;
+  background:#fff;color:var(--ptx);border:2px solid var(--p);box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)}
+.gr-num b{display:block;font-size:26px}
+.gr-num small{display:block;font-size:10.5px;margin-top:3px}
+.gr-today .vb-tx p{font-size:13px}
+.btn.gr-go{margin-top:12px}
+
+/* Bascule « Dans l’ordre / Par famille » */
+.gr-seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;margin:16px 0 6px;background:#E9E8EF;border-radius:16px}
+.gr-seg button{padding:10px 4px;border-radius:12px;font-size:14px;text-align:center;color:#575369}
+.gr-seg button.on{background:#fff;color:var(--ink);box-shadow:0 3px 8px -4px rgba(40,40,70,.4)}
+.gr-lvl{display:flex;gap:6px;margin:12px 0 4px;align-items:center;flex-wrap:wrap}
+.gr-lvl .pill{padding:7px 13px;font-size:13.5px}
+.gr-lvl small{margin-left:auto;font-size:12px;color:var(--muted)}
+.gr-chipf{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 13px;border-radius:999px;background:var(--pl);font-size:13px;color:var(--p)}
+
+/* Le chemin d’un niveau */
+.gr-path{position:relative;margin-top:10px}
+.gr-path:before{content:'';position:absolute;left:21px;top:22px;bottom:22px;width:3px;border-radius:2px;background:var(--plb)}
+.gr-st{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:7px 0;text-align:left}
+.gr-ring{position:relative;width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;background:var(--bg)}
+.gr-ring svg{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg)}
+.gr-ring b{position:relative;font-size:12.5px;color:var(--p)}
+.gr-st .tx{flex:1;min-width:0;background:#fff;border-radius:16px;padding:10px 13px;box-shadow:0 8px 16px -14px rgba(40,40,70,.5)}
+.gr-st .tx b{display:block;font-size:14.5px;line-height:1.3}
+.gr-st .tx small{display:block;margin-top:3px;font-size:12px;color:var(--muted)}
+.gr-st:active .tx{transform:translateY(2px)}
+.gr-st.next .tx{background:var(--p);color:#fff;animation:grLueur 2.4s ease-in-out infinite}
+.gr-st.next .tx small{color:var(--psoft)}
+@keyframes grLueur{0%,100%{box-shadow:0 0 0 0 rgba(217,164,65,0)}50%{box-shadow:0 0 0 5px rgba(217,164,65,.4)}}
+.gr-etq{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11px;vertical-align:1px}
+.e-frag{background:#FBE3DC;color:#A33A23}.e-cours{background:#F7EED6;color:#8A6416}.e-su{background:#E1F0E2;color:#2F6B37}
+.e-pas{background:#EEEDF2;color:#6E6A7C}.e-due{background:var(--p);color:#fff}
+.gr-st.next .e-pas{background:rgba(255,255,255,.2);color:#fff}
+#app.fresh .gr-st{animation:monte .45s cubic-bezier(.2,.9,.3,1.25) both}
+#app.fresh .gr-st:nth-child(n+4){animation-delay:.04s} #app.fresh .gr-st:nth-child(n+8){animation-delay:.08s}
+
+/* Les familles */
+.gr-fams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.gr-fam{position:relative;padding:14px;border-radius:22px;background:#fff;color:var(--ptx);border:2px solid var(--p);min-height:126px;text-align:left;
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.12),0 12px 18px -14px rgba(30,30,70,.6);overflow:hidden}
+.gr-fam:active{transform:translateY(3px)}
+.gr-fam .em{position:absolute;right:-6px;bottom:-22px;font-family:var(--han-serif);font-size:86px;line-height:1.2;color:rgba(31,78,158,.10)}
+.gr-fam b{position:relative;display:block;font-size:15px;margin-top:8px}
+.gr-fam small{position:relative;display:block;font-size:12px;color:var(--ptxs);margin-top:2px}
+.gr-fam .gr-ring{background:#EEF3FB}
+.gr-fam .gr-ring b{color:var(--ptx);font-size:11px;margin:0}
+.gr-note{margin-top:12px;color:var(--muted)}
+
+/* Interrupteur du panneau Filtres */
+.gr-sw{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:16px;background:var(--bg);text-align:left}
+.gr-sw b{display:block;font-size:14px}.gr-sw small{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.gr-tog{position:relative;width:46px;height:28px;flex:none;margin-left:auto;border-radius:999px;background:#CFCBDB;transition:background .25s}
+.gr-tog i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .25s}
+.gr-tog.on{background:var(--p)}.gr-tog.on i{transform:translateX(18px)}
+
+/* Fiche et découverte : les teintes de la porcelaine */
+body.gr-porc .gsec{border-color:#DCE5F3}
+body.gr-porc .gsec h3{color:var(--p)}
+body.gr-porc .gsec b{color:var(--p)}
+body.gr-porc .gex{border-left-color:var(--p)}
+body.gr-porc .gres{background:var(--pl);color:var(--ptx)}
+body.gr-porc .gprog i.on{background:var(--p)}
+body.gr-porc .gconsigne{color:var(--p)}
+.gr-lesson{display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 12px;width:100%;border-radius:16px;background:var(--bg);text-align:left}
+.gr-lesson .sl{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:11px;background:#B8342E;color:#F3EEDF;font-family:var(--han-serif);font-size:17px}
+.gr-lesson b{display:block;font-size:14px;color:var(--ink);font-family:var(--ui)}
+.gr-lesson small{display:block;font-size:12px;color:var(--muted)}
+.gr-lesson.off .sl{background:#CFCBDB}
+@media (prefers-reduced-motion:reduce){.gr-st.next .tx{animation:none}}
+.gr-fam{padding-bottom:30px}
+body.gr-porc .gvoir .pill{max-width:100%;white-space:normal;text-align:left;line-height:1.35}

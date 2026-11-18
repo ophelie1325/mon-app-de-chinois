@@ -62,7 +62,12 @@ function openStep(lid,i){
   const from={l:lid,i:i};
   if(s.k==='mots')return startQuiz(lid,'mots',i);
   if(s.k==='bilan')return startQuiz(lid,'bilan',i);
-  if(s.k==='gram')return go('gram',{g:s.ref,from:from});
+  /* La fiche vit dans grammaire.html : on y va, avec la leçon et l’étape. */
+  if(s.k==='gram'){
+    stopSpeech();
+    location.href='grammaire.html?g='+encodeURIComponent(s.ref)+'&l='+encodeURIComponent(lid)+'&i='+i+'&n='+l.steps.length;
+    return;
+  }
   if(s.k==='prod')return go('prod',{p:s.ref,from:from});
   if(s.k==='chat')return go('chat',{from:from,lesson:lid});
   const t=TEXTS.find(x=>x.id===s.ref);

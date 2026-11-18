@@ -7,12 +7,11 @@
    correction faite une fois vaut pour les deux rendus.
    ===================================================================== */
 
-const FAMCLASS={nom:'c-indigo',verbe:'c-jade',phrase:'c-plum',oral:'c-clay'};
 
 function gById(id){return GRAMMAR.find(g=>g.id===id);}
 function famOf(k){return FAM.find(f=>f.k===k)||FAM[2];}
-/* Progression propre à la grammaire, distincte des boîtes de vocabulaire.
-   S.items[id] porte la boîte de Leitner ; S.gram[id] retient si la
+/* Progression propre à la grammaire. S.items[id] porte la boîte de
+   Leitner (jamais affichée : seuls les quatre états se voient) ; S.gram[id] retient si la
    découverte a été faite et le meilleur score aux exercices. */
 function gRec(id){
   S.gram=S.gram||{};
@@ -26,43 +25,233 @@ function segPy(seg){return seg.map(t=>t.p).filter(Boolean).join(' ');}
 function segMots(seg){return seg.filter(t=>t.p);}   /* sans la ponctuation */
 
 /* =====================================================================
-   1. SOMMAIRE DU MODULE
+   1. ACCUEIL DU MODULE — thème porcelaine bleu et blanc 青花
+   (maquette « GrammairePorcelaine », validée le 18 novembre 2026)
+
+   Carte du jour, recherche en français ou en chinois, pastilles
+   rapides, panneau Filtres (famille, oral), et deux façons de parcourir
+   les fiches : le chemin d’un niveau dans l’ordre du programme, ou les
+   familles. Les boîtes de Leitner travaillent en coulisse : seuls les
+   quatre états se voient.
    ===================================================================== */
-function vGramHome(){
-  const dispo=GRAMMAR.filter(fits);
-  const revoir=GRAMMAR.filter(g=>S.items[g.id]&&due(g.id));
-  return `${header('Grammaire','Fiches, découverte et systématisation')}
-  ${coach('pinceau','Une fiche se fait en trois temps\u202F: la découverte, les exemples, puis les exercices.')}
-  ${levelPills(l=>GRAMMAR.filter(g=>g.hsk===l).length)}
-  ${themeSelect()}
 
-  <div class="gsub">Les fiches de mon niveau</div>
-  ${dispo.length?dispo.map(g=>ligneFiche(g)).join(''):nothing('Aucune fiche de grammaire à ce niveau et sur ce thème. '+couverture(['GRAMMAR']))}
+/* ---- Les quatre états d’une fiche ---------------------------------
+   Ceux des mots (etatMot, core.js), à une nuance près : une fiche dont
+   la découverte est faite mais qu’on n’a pas encore exercée est déjà
+   « en cours ». « À revoir » n’est pas un état : c’est une échéance,
+   qui peut tomber sur une fiche sue comme sur une fiche fragile. */
+function etatFiche(id){
+  const r=S.items[id],vu=((S.gram||{})[id]||{}).vu;
+  if(!r||!r.seen)return vu?'cours':'neuf';
+  return etatMot(id);
+}
+function aRevoirFiche(id){const r=S.items[id];return !!(r&&r.seen&&due(id));}
+/* Teintes de la maquette, propres au module. */
+const GCOUL={su:'#3D8A46',cours:'#C9A23A',frag:'#C8553D',neuf:'#CFCBDB'};
 
-  <div class="gsub">Explorer</div>
-  <button class="grow c-indigo" onclick="go('index')">
-    <span class="em">目</span>
-    <span class="tx"><b>Index grammatical</b><small>Les ${GRAMMAR.length} fiches par famille, tous niveaux</small></span>
-  </button>
-  <button class="grow ${revoir.length?'c-plum':''}" onclick="go('revoir')">
-    <span class="em">复</span>
-    <span class="tx"><b>Points à revoir</b><small>${revoir.length?revoir.length+' fiche'+(revoir.length>1?'s':'')+' à reprendre':'Rien à reprendre pour l’instant'}</small></span>
-    ${revoir.length?`<span class="st due">${revoir.length}</span>`:''}
-  </button>`;
+/* L’ordre du programme : par niveau, les fiches numérotées dans l’ordre,
+   puis la reprise orale du niveau. */
+function ordreProg(){
+  const pos=new Map(GRAMMAR.map((g,i)=>[g.id,i]));
+  const oral=g=>/^gO/.test(g.id)?1:0;
+  return GRAMMAR.slice().sort((a,b)=>a.hsk-b.hsk||oral(a)-oral(b)
+    ||a.id.localeCompare(b.id,'fr',{numeric:true})||pos.get(a.id)-pos.get(b.id));
+}
+function niveauxGram(){return Array.from(new Set(GRAMMAR.map(g=>g.hsk))).sort((a,b)=>a-b);}
+function prochaineFiche(){return ordreProg().find(g=>etatFiche(g.id)==='neuf')||null;}
+
+/* Toutes les fiches ont un écran « À l’oral » : le filtre retient celles
+   où l’oral occupe plusieurs écrans, et les reprises orales. */
+function ficheOrale(g){return g.fam==='oral'||g.steps.filter(s=>s.reg==='oral').length>=2;}
+
+/* Le nom court d’une fiche, pour la carte du jour : la partie du titre
+   qui porte le chinois (« 了 : l’action accomplie » → 了). */
+function nomCourt(g){
+  const parts=g.title.split(/\s:\s/);
+  const zh=parts.find(x=>HAN_RE.test(x));
+  return (parts.length>1&&zh)?zh:g.title;
 }
 
-function ligneFiche(g,verrou){
-  const f=famOf(g.fam), r=gRec(g.id), b=boxOf(g.id);
-  let etat='', cls='';
-  if(!r.vu){etat='À découvrir';}
-  else if(S.items[g.id]&&due(g.id)){etat='À revoir';cls='due';}
-  else if(mastered(g.id)){etat='Acquis';cls='ok';}
-  else{etat='Boîte '+b;}
-  return `<button class="grow ${FAMCLASS[g.fam]||''}${verrou?' glock':''}" onclick="ouvrir('${g.id}')">
-    <span class="em">${f.em}</span>
-    <span class="tx"><b>${esc(g.title)}</b><small>HSK ${g.hsk} · ${esc(f.n.toLowerCase())}</small></span>
-    <span class="st ${cls}">${etat}</span>
-  </button>`;
+function gsa(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+function gPlat(h){return String(h||'').replace(/<[^>]*>/g,'');}
+/* Recherche : en chinois, dans les titres et les exemples ; en
+   français, dans le titre, le résumé et les titres d’écrans. */
+function gTrouve(g,q){
+  q=String(q||'').trim();
+  if(!q)return true;
+  if(HAN_RE.test(q)){
+    const zh=q.replace(/\s+/g,'');
+    return [g.title].concat(g.steps.map(s=>s.t)).some(t=>String(t).replace(/\s+/g,'').indexOf(zh)>=0)
+      ||g.steps.some(s=>(s.ex||[]).some(e=>String(e.hz).indexOf(zh)>=0));
+  }
+  const m=gsa(q);
+  return [g.title,g.resume].concat(g.steps.map(s=>s.t)).some(t=>gsa(gPlat(t)).indexOf(m)>=0);
+}
+
+/* L’état de l’accueil vit le temps de la page. */
+let GF={q:'',pill:'toutes',mode:'ordre',lvl:0,fam:'',oral:false,ouvert:false,anim:false};
+function gNiveau(){
+  const N=niveauxGram();
+  if(N.indexOf(GF.lvl)>=0)return GF.lvl;
+  const l=S.settings.level;
+  if(N.indexOf(l)>=0)return l;
+  return N.filter(x=>x<=l).pop()||N[0];
+}
+function gPasse(g){
+  if(GF.fam&&g.fam!==GF.fam)return false;
+  if(GF.oral&&!ficheOrale(g))return false;
+  const e=etatFiche(g.id);
+  if(GF.pill==='decouvrir'&&e!=='neuf')return false;
+  if(GF.pill==='revoir'&&!aRevoirFiche(g.id))return false;
+  if(GF.pill==='fragiles'&&e!=='frag')return false;
+  return gTrouve(g,GF.q);
+}
+
+function pl2(n,s,p){return n+'\u00A0'+(n>1?(p||s+'s'):s);}
+function listeEt2(l){return l.length>1?l.slice(0,-1).join(', ')+' et '+l[l.length-1]:(l[0]||'');}
+
+/* ---- Fragments ---- */
+const GR_C=119.4;   /* circonférence de l’anneau (r = 19) */
+function gAnneau(frac,coul,label,fond){
+  return `<span class="gr-ring"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+    <circle cx="22" cy="22" r="19" fill="none" stroke="${fond||'#E3E0EC'}" stroke-width="4"/>
+    ${frac>0?`<circle cx="22" cy="22" r="19" fill="none" stroke="${coul}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(frac*GR_C).toFixed(1)} ${GR_C}"/>`:''}</svg><b>${label}</b></span>`;
+}
+function gEtiquette(g){
+  const e=etatFiche(g.id),rv=aRevoirFiche(g.id);
+  if(e==='frag')return `<span class="gr-etq e-frag">fragile${rv?' · à revoir':''}</span>`;
+  if(rv)return `<span class="gr-etq e-due">à revoir</span>`;
+  return `<span class="gr-etq e-${e==='neuf'?'pas':e}">${{su:'su',cours:'en cours',neuf:'pas encore vue'}[e]}</span>`;
+}
+function vague(id,h,op){
+  return `<svg class="gr-motif" style="height:${h}px" viewBox="0 0 360 ${h}" preserveAspectRatio="xMinYMax slice" aria-hidden="true" focusable="false"><defs><pattern id="${id}" width="24" height="12" patternUnits="userSpaceOnUse"><path d="M0 12A12 12 0 0 1 24 12M4 12A8 8 0 0 1 20 12M8 12A4 4 0 0 1 16 12" fill="none" stroke="rgba(31,78,158,${op})" stroke-width="1.1"/></pattern></defs><rect width="360" height="${h}" fill="url(#${id})"/></svg>`;
+}
+function grChercherIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>`;}
+function grFiltreIco(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>`;}
+
+/* ---- L’accueil ---- */
+function vGramHome(){
+  const tout=ordreProg();
+  const trav=tout.filter(g=>etatFiche(g.id)!=='neuf').length;
+  const R=tout.filter(g=>aRevoirFiche(g.id));
+  const nx=prochaineFiche();
+  const noms=R.slice(0,4).map(nomCourt);
+  const titre=R.length?(R.length>1?pl2(R.length,'point')+' reviennent':'Un point revient'):'Tout est à jour';
+  const dit=(R.length?esc(listeEt2(noms))+(R.length>4?'…':'')+'. ':'')
+    +(nx?'Prochaine fiche à découvrir\u202F: '+esc(nx.title)+'.':'Toutes les fiches sont découvertes.');
+  const nf=(GF.fam?1:0)+(GF.oral?1:0);
+  return `${header('Grammaire',pl2(GRAMMAR.length,'fiche')+' · '+trav+' travaillée'+(trav>1?'s':''))}
+  ${ribbon()}
+  <section class="vb-card gr-today">
+    ${vague('gr-vagc',30,.13)}
+    <div class="vb-tod">
+      <div class="gr-num"><b>${R.length}</b><small>à revoir</small></div>
+      <div class="vb-tx"><h2>${titre}</h2><p>${dit}</p></div>
+      ${banban('pinceau','vb-lit',1)}
+    </div>
+  </section>
+  ${R.length||nx?`<button class="btn gr-go" onclick="reviserGrammaire()">${R.length?'Réviser ma grammaire':'Découvrir la prochaine fiche'}</button>`:''}
+  <div class="vb-search">
+    <label class="vb-q">${grChercherIco()}<span class="vb-sr">Chercher une notion</span>
+      <input type="search" value="${esc(GF.q)}" placeholder="把, 了, comparer, le temps…" oninput="grChercher(this.value)" autocomplete="off"></label>
+    <button class="vb-fbtn gr-fbtn" onclick="grOuvrirFiltres()" aria-label="Filtres${nf?', '+nf+' actifs':''}">${grFiltreIco()}Filtres${nf?`<span class="vb-badge">${nf}</span>`:''}</button>
+  </div>
+  <div id="gr-res">${grResultats()}</div>
+  ${GF.ouvert?grPanneau():''}`;
+}
+
+function grResultats(){
+  const q=GF.q.trim();
+  const lv=gNiveau();
+  /* Avec une recherche, on cherche dans tous les niveaux. */
+  const base=q?ordreProg():ordreProg().filter(g=>g.hsk===lv);
+  const cnt={toutes:base.length,
+    decouvrir:base.filter(g=>etatFiche(g.id)==='neuf').length,
+    revoir:base.filter(g=>aRevoirFiche(g.id)).length,
+    fragiles:base.filter(g=>etatFiche(g.id)==='frag').length};
+  const P=[['toutes','Toutes'],['decouvrir','À découvrir'],['revoir','À revoir'],['fragiles','Fragiles']];
+  const pills=`<div class="vb-pills gr-pills">${P.map(([k,l])=>`<button class="pill ${GF.pill===k?'on':''}" onclick="grPastille('${k}')">${l} · ${cnt[k]}</button>`).join('')}</div>`;
+  const seg=`<div class="gr-seg" role="tablist">${[['ordre','Dans l’ordre'],['famille','Par famille']].map(([k,l])=>
+    `<button role="tab" aria-selected="${GF.mode===k}" class="${GF.mode===k?'on':''}" onclick="grMode('${k}')">${l}</button>`).join('')}</div>`;
+  if(GF.mode==='famille'&&!q)return pills+seg+grFamilles();
+  return pills+seg+grChemin(base,lv,!!q);
+}
+
+function grChemin(base,lv,tous){
+  const N=niveauxGram();
+  const num=new Map();
+  N.forEach(l=>ordreProg().filter(g=>g.hsk===l).forEach((g,i)=>num.set(g.id,i+1)));
+  const L=base.filter(gPasse);
+  const nx=ordreProg().filter(g=>g.hsk===lv).find(g=>etatFiche(g.id)==='neuf');
+  const lvls=tous?`<div class="gr-lvl"><small>${pl2(L.length,'fiche')} dans tous les niveaux</small></div>`
+    :`<div class="gr-lvl">${N.map(l=>`<button class="pill ${l===lv?'on':''}" onclick="grNiveau(${l})">HSK ${l}</button>`).join('')}
+      <small>dans l’ordre du programme</small></div>`;
+  const chip=GF.fam?`<button class="gr-chipf" onclick="grFamille('')">${esc(famOf(GF.fam).n)} <span aria-hidden="true">✕</span><span class="vb-sr">retirer ce filtre</span></button>`:'';
+  if(!L.length)return lvls+chip+`<div class="void"><span class="em">空</span><p><b>Aucune fiche ne correspond</b></p>
+    <p class="sm">Essayez un autre mot, en français ou en chinois, ou retirez un filtre.</p></div>`;
+  return lvls+chip+`<div class="gr-path">${L.map(g=>{
+    const e=etatFiche(g.id);
+    const next=nx&&g.id===nx.id;
+    return `<button class="gr-st${next?' next':''}" onclick="ouvrir('${g.id}')">
+      ${gAnneau(ETATS[e].f,GCOUL[e],(tous?g.hsk+'·':'')+num.get(g.id))}
+      <span class="tx"><b>${esc(g.title)}</b><small>${esc(famOf(g.fam).n)}${gEtiquette(g)}</small></span>
+    </button>`;}).join('')}</div>`;
+}
+
+function grFamilles(){
+  return `<div class="gr-fams">${FAM.map(f=>{
+    const l=GRAMMAR.filter(g=>g.fam===f.k);
+    if(!l.length)return '';
+    const su=l.filter(g=>etatFiche(g.id)==='su').length;
+    const p=Math.round(su/l.length*100);
+    return `<button class="gr-fam" onclick="grFamille('${f.k}')">
+      ${vague('gr-vagf-'+f.k,24,.35)}
+      <span class="em" aria-hidden="true">${f.em}</span>
+      ${gAnneau(p/100,'#1F4E9E',p+'\u00A0%','#D6E1F2')}
+      <b>${esc(f.n)}</b><small>${pl2(l.length,'fiche')} · ${su} ${su>1?'sues':'sue'}</small>
+    </button>`;}).join('')}</div>
+  <p class="sm gr-note">Toucher une famille montre ses fiches, toujours dans l’ordre du programme.</p>`;
+}
+
+function grPanneau(){
+  const anim=GF.anim;GF.anim=false;
+  const lv=gNiveau(),q=GF.q.trim();
+  const base=q?ordreProg():ordreProg().filter(g=>g.hsk===lv);
+  const res=base.filter(gPasse).length;
+  return `<button class="vb-veil" onclick="grFermerFiltres()" aria-label="Fermer les filtres"></button>
+  <div class="vb-panel ${anim?'anim':''}" role="dialog" aria-label="Filtres">
+    <div class="vb-grab"></div>
+    <div class="vb-phead"><b>Filtres</b></div>
+    <div class="vb-fsec"><h4>Famille</h4><div class="vb-opts">${FAM.map(f=>
+      `<button class="vb-opt ${GF.fam===f.k?'on':''}" onclick="grFamilleP('${f.k}')">${esc(f.n)}<small>${GRAMMAR.filter(g=>g.fam===f.k).length}</small></button>`).join('')}</div></div>
+    <div class="vb-fsec"><h4>Registre</h4>
+      <button class="gr-sw" onclick="grOral()" role="switch" aria-checked="${GF.oral}">
+        <span><b>Seulement les fiches centrées sur l’oral</b><small>Les reprises orales et les fiches où l’oral occupe plusieurs écrans. Chaque fiche a déjà son écran «\u00A0À l’oral\u00A0».</small></span>
+        <span class="gr-tog ${GF.oral?'on':''}"><i></i></span></button></div>
+    <div class="vb-fbar"><button class="vb-clear" onclick="grEffacer()">Tout effacer</button>
+      <button class="btn" onclick="grFermerFiltres()">Voir ${pl2(res,'fiche')}</button></div>
+  </div>`;
+}
+
+/* ---- Actions ---- */
+function grChercher(v){GF.q=v;const r=document.getElementById('gr-res');if(r)r.innerHTML=grResultats();}
+function grPastille(k){GF.pill=k;render();}
+function grMode(k){GF.mode=k;render();}
+function grNiveau(l){GF.lvl=l;render();}
+function grFamille(k){GF.fam=k;GF.mode='ordre';render();}
+function grFamilleP(k){GF.fam=GF.fam===k?'':k;render();}
+function grOral(){GF.oral=!GF.oral;render();}
+function grEffacer(){GF.fam='';GF.oral=false;render();}
+function grOuvrirFiltres(){GF.ouvert=true;GF.anim=true;render();}
+function grFermerFiltres(){GF.ouvert=false;render();}
+/* En attendant le panneau de séance (lot 3) : la première fiche à
+   revoir, dans l’ordre du programme, ou la prochaine à découvrir. */
+function reviserGrammaire(){
+  const R=ordreProg().filter(g=>aRevoirFiche(g.id));
+  if(R.length)return lancerExos(R[0].id);
+  const nx=prochaineFiche();
+  if(nx)return ouvrir(nx.id);
+  toast('Tout est à jour.');
 }
 
 /* Une fiche jamais ouverte commence par la découverte ; ensuite, on
@@ -73,23 +262,10 @@ function ouvrir(id){
   else go('decouv',{g:id,i:0});
 }
 
-function vIndex(){
-  return `${header('Index grammatical','Toutes les fiches, tous niveaux')}
-  ${FAM.map(f=>{
-    const l=GRAMMAR.filter(g=>g.fam===f.k).sort((a,b)=>a.hsk-b.hsk);
-    if(!l.length)return '';
-    return `<div class="gsub">${esc(f.n)}</div>${l.map(g=>ligneFiche(g,g.hsk>S.settings.level)).join('')}`;
-  }).join('')}
-  <p class="sm mt">${GRAMMAR.length} fiches, du HSK ${Math.min(...GRAMMAR.map(g=>g.hsk))} au HSK ${Math.max(...GRAMMAR.map(g=>g.hsk))}.</p>`;
-}
-
-function vRevoir(){
-  const l=GRAMMAR.filter(g=>S.items[g.id]&&due(g.id));
-  return `${header('Points à revoir','Les fiches dont les exercices ont échoué')}
-  ${l.length?l.map(g=>ligneFiche(g)).join(''):
-    `<div class="void"><span class="em">净</span><p><b>Rien à reprendre</b></p>
-     <p class="sm">Une fiche revient ici quand ses exercices tombent sous 75 %, puis à chaque échéance de sa boîte.</p></div>`}`;
-}
+/* Anciennes vues, gardées pour les liens : elles ouvrent l’accueil
+   dans le bon réglage. */
+function vIndex(){GF.mode='famille';GF.q='';view='home';return vGramHome();}
+function vRevoir(){GF.pill='revoir';GF.mode='ordre';GF.q='';view='home';return vGramHome();}
 
 /* =====================================================================
    2. DÉCOUVERTE — un emploi par écran
@@ -202,6 +378,8 @@ function vFiche(){
 
   ${blocPiege(g)}
 
+  ${etudieeDans(g)}
+
   ${(g.voir||[]).length?`<div class="gsec"><h3>Voir aussi</h3><div class="gvoir">
     ${g.voir.map(v=>{const o=gById(v);return o?`<button class="pill" onclick="ouvrir('${o.id}')">${esc(o.title)}</button>`:'';}).join('')}
   </div></div>`:''}
@@ -212,6 +390,29 @@ function vFiche(){
   ${r.essais?`<p class="sm mt">Déjà tentés ${r.essais} fois, meilleur score ${r.best} %. Les phrases changent à chaque passage.</p>`:''}
   <button class="btn pale mt" onclick="go('decouv',{g:'${g.id}',i:0})">Revoir la découverte pas à pas</button>`;
 }
+
+/* « Étudiée dans… » : la leçon de chaque thème de la fiche, à son
+   niveau. Tant que l’écran de leçon n’est pas refait, on la nomme
+   « Leçon du thème X » ; si elle n’existe pas encore, on le dit. Une
+   leçon qui appelle la fiche hors de ses thèmes s’ajoute à la liste. */
+function etudieeDans(g){
+  const L=DATA('LESSONS'),T=DATA('THEMES');
+  const nomTh=id=>(T.find(t=>t.id===id)||{}).n||id;
+  const vus={},items=[];
+  (g.th||[]).forEach(th=>{
+    const l=L.find(x=>x.theme===th&&x.hsk===g.hsk);
+    if(l)vus[l.id]=1;
+    items.push({l:l,th:th});
+  });
+  L.filter(l=>!vus[l.id]&&l.steps.some(s=>s.k==='gram'&&s.ref===g.id)).forEach(l=>items.push({l:l,th:l.theme}));
+  if(!items.length)return '';
+  return `<div class="gsec gr-etudiee"><h3>Étudiée dans…</h3>${items.map(o=>o.l
+    ?`<button class="gr-lesson" onclick="versLecon('${jq(o.l.id)}')"><span class="sl" aria-hidden="true">课</span>
+       <span><b>Leçon du thème ${esc(nomTh(o.th))}</b><small>HSK ${o.l.hsk}</small></span></button>`
+    :`<div class="gr-lesson off"><span class="sl" aria-hidden="true">课</span>
+       <span><b>Leçon du thème ${esc(nomTh(o.th))}</b><small>HSK ${g.hsk} · pas encore écrite</small></span></div>`).join('')}</div>`;
+}
+function versLecon(id){stopSpeech();location.href='parcours.html?l='+encodeURIComponent(id);}
 
 /* =====================================================================
    4. EXERCICES DE SYSTÉMATISATION
@@ -460,8 +661,8 @@ function vBilanExos(g){
   return `${header('Bilan',g.title)}
   <div class="score"><b>${pct} %</b><span>${ok} sur ${n}</span></div>
   <div class="verdict ${reussi?'ok':'no'}">
-    ${reussi?`Fiche validée. Elle passe en boîte ${boxOf(g.id)} et reviendra le moment venu.`
-            :'Sous 75 % : la fiche retourne en boîte 0 et réapparaît dans « Points à revoir ».'}
+    ${reussi?`Fiche validée. Elle reviendra le moment venu, pour vérifier qu’elle tient.`
+            :'Sous 75\u00A0%\u202F: la fiche reviendra bientôt, avec la pastille «\u00A0À revoir\u00A0».'}
   </div>
   <button class="btn" onclick="lancerExos('${g.id}')">Refaire, avec d’autres phrases</button>
   <button class="btn pale mt" onclick="go('fiche',{g:'${g.id}'})">Retourner à la fiche</button>

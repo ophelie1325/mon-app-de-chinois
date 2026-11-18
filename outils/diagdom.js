@@ -62,12 +62,59 @@ const casse=h=>/n’a pas pu s’afficher/.test(h);
   const rend=(v,c)=>{ev(`view=${JSON.stringify(v)};ctx=${JSON.stringify(c)};render();`);return app(w);};
   for(const lv of [2,3,4]){ev(`S.settings.level=${lv};S.settings.theme='all'`);const h=rend('home',{});ok(!casse(h),'sommaire grammaire niveau '+lv);}
   ev(`S.settings.level=3`);
-  const hi=rend('index',{});
-  ok(!casse(hi)&&G.every(g=>hi.includes(ev(`esc(${JSON.stringify(g.title)})`))),'index : fiche manquante');
-  ok(!/Il reste -|-\d+ fiche/.test(hi),'index : décompte négatif');
-  const hs=G.map(g=>g.hsk);
-  ok(hi.includes(`${G.length} fiches, du HSK ${Math.min(...hs)} au HSK ${Math.max(...hs)}.`),'index : décompte automatique absent');
-  ok(!casse(rend('revoir',{})),'points à revoir');
+  /* Accueil porcelaine (lot 1) : chemin de chaque niveau, familles,
+     recherche, pastilles, panneau Filtres, et plus aucune boîte visible. */
+  const niv=[...new Set(G.map(g=>g.hsk))];
+  for(const lv of niv){
+    ev(`GF={q:'',pill:'toutes',mode:'ordre',lvl:${lv},fam:'',oral:false,ouvert:false,anim:false}`);
+    const h=rend('home',{});
+    const titres=G.filter(g=>g.hsk===lv).map(g=>ev(`esc(${JSON.stringify(g.title)})`));
+    ok(!casse(h)&&titres.every(t=>h.includes(t)),'chemin HSK '+lv+' : fiche manquante');
+    ok((h.match(/class="gr-st/g)||[]).length===titres.length,'chemin HSK '+lv+' : nombre de lignes');
+    ok((h.match(/gr-st next/g)||[]).length<=1,'chemin HSK '+lv+' : plusieurs « prochaine fiche »');
+  }
+  const ordre=ev('ordreProg().map(g=>g.id)');
+  ok(ordre.length===G.length&&new Set(ordre).size===G.length,'ordre du programme : fiches perdues');
+  ok(ordre.indexOf('gO2')>ordre.indexOf('g210')&&ordre.indexOf('gO2')<ordre.indexOf('g301')&&ordre.indexOf('gO3')===ordre.length-1-G.filter(g=>g.hsk>3).length,'ordre du programme : reprises orales mal placées');
+  ev(`GF.mode='famille'`);
+  const hfa=rend('home',{});
+  ok(ev('FAM').every(f=>!G.some(g=>g.fam===f.k)||hfa.includes(f.n.replace(/’/g,'’'))),'familles : tuile manquante');
+  ok((hfa.match(/class="gr-fam"/g)||[]).length===ev('FAM').filter(f=>G.some(g=>g.fam===f.k)).length,'familles : nombre de tuiles');
+  ev(`grFamille('verbe')`);
+  const hv=app(w);
+  ok(ev(`GF.mode`)==='ordre'&&!/Autour du nom<span/.test(hv)&&hv.includes('gr-chipf'),'famille : filtre du chemin');
+  const cherche=(q,id,doit)=>{ev(`GF={q:${JSON.stringify(q)},pill:'toutes',mode:'ordre',lvl:3,fam:'',oral:false,ouvert:false,anim:false}`);
+    const h=rend('home',{});const t=ev(`esc(gById(${JSON.stringify(id)}).title)`);ok(!casse(h)&&h.includes(t)===doit,`recherche « ${q} » → ${id} ${doit?'absente':'présente à tort'}`);};
+  cherche('把','g307',true);cherche('comparer','g208',true);cherche('COMPARER','g311',true);cherche('passe','g203',false);
+  cherche('是…的','g301',true);cherche('zzzz','g301',false);
+  for(const p of ['toutes','decouvrir','revoir','fragiles']){ev(`GF={q:'',pill:'${p}',mode:'ordre',lvl:3,fam:'',oral:false,ouvert:true,anim:true}`);
+    const h=rend('home',{});ok(!casse(h)&&h.includes('vb-panel'),'pastille '+p+' et panneau Filtres');}
+  ev(`GF={q:'',pill:'toutes',mode:'ordre',lvl:3,fam:'',oral:true,ouvert:false,anim:false}`);
+  const ho=rend('home',{});
+  ok(G.filter(g=>g.hsk===3).every(g=>ho.includes(ev(`esc(${JSON.stringify(g.title)})`))===ev(`ficheOrale(gById(${JSON.stringify(g.id)}))`)),'filtre oral');
+  /* États : une fiche fragile, une sue à revoir, une découverte non exercée. */
+  ev(`S.items.g303={box:0,due:0,seen:3,ok:1,ko:2};S.items.g304={box:5,due:0,seen:6,ok:6,ko:0};S.gram=S.gram||{};S.gram.g305={vu:1,essais:0,best:0}`);
+  ok(ev(`etatFiche('g303')`)==='frag'&&ev(`etatFiche('g304')`)==='su'&&ev(`aRevoirFiche('g304')`)&&ev(`etatFiche('g305')`)==='cours'&&ev(`etatFiche('g306')`)==='neuf','états des fiches');
+  ev(`GF={q:'',pill:'revoir',mode:'ordre',lvl:3,fam:'',oral:false,ouvert:false,anim:false}`);
+  const hr=rend('home',{});
+  ok(hr.includes(ev(`esc(gById('g303').title)`))&&hr.includes(ev(`esc(gById('g304').title)`))&&!hr.includes(ev(`esc(gById('g306').title)`)),'pastille À revoir');
+  ok(/2<\/b><small>à revoir/.test(hr),'carte du jour : décompte');
+  ev(`GF.pill='fragiles'`);const hfr=rend('home',{});
+  ok(hfr.includes(ev(`esc(gById('g303').title)`))&&!hfr.includes(ev(`esc(gById('g304').title)`)),'pastille Fragiles');
+  ok(!casse(rend('index',{}))&&!casse(rend('revoir',{})),'anciennes vues index et revoir');
+  /* Plus aucune boîte affichée dans le module. */
+  const ecrans=[rend('home',{}),rend('fiche',{g:'g303'}),rend('fiche',{g:'g201'})];
+  ev(`window.__q=buildSession(gById('g303'))`);
+  ev(`view='exos';ctx={g:'g303',q:window.__q,i:12,res:[1,1,1,1,1,1,1,1,1,1,1,1],pose:[],rep:null};render();`);ecrans.push(app(w));
+  ev(`view='exos';ctx={g:'g304',q:window.__q,i:12,res:[0,0,0,0,0,0,0,0,0,0,0,0],pose:[],rep:null};render();`);ecrans.push(app(w));
+  ok(ecrans.every(h=>!/[Bb]oîte\s*\d|en boîte/.test(h)),'une boîte est encore affichée');
+  ev(`S.items={};S.gram={}`);
+  /* Étudiée dans… */
+  const hg=rend('fiche',{g:'g201'});
+  ok(hg.includes('Étudiée dans')&&hg.includes("versLecon('l-presenter-2')"),'g201 : lien vers sa leçon');
+  const hp3=rend('fiche',{g:'g331'});
+  ok(hp3.includes('Étudiée dans')&&hp3.includes('pas encore écrite'),'g331 : leçon pas encore écrite');
+  for(const g of G){const h=rend('fiche',{g:g.id});ok(!casse(h)&&h.includes('Étudiée dans'),g.id+' : « Étudiée dans… » absent');}
   for(const g of G){
     const ns=g.steps.length;
     for(let i=0;i<ns;i++){
@@ -92,11 +139,25 @@ const casse=h=>/n’a pas pu s’afficher/.test(h);
       }
     }
   }
-  /* Ouverture depuis un parcours. */
+  /* Ouverture depuis un parcours, et retour à la leçon. */
   const last=G[G.length-1].id;
-  const r2=await monter('grammaire','?g='+last+'&l=x&i=0&n=3');
-  ok(r2.w.eval('view')==='decouv'&&r2.w.eval('ctx.g')===last,'ouverture par paramètre ?g=');
-  ok(!erreurs.length&&!r2.erreurs.length,'grammaire : erreurs JS — '+erreurs.concat(r2.erreurs).slice(0,3).join(' | '));
+  const r2=await monter('grammaire','?g='+last+'&l=l-presenter-2&i=3&n=9');
+  ok(r2.w.eval('view')==='decouv'&&r2.w.eval('ctx.g')===last&&r2.w.eval('ctx.from.l')==='l-presenter-2'&&r2.w.eval('ctx.from.i')===3,'ouverture par paramètre ?g=&l=&i=');
+  ok(r2.w.eval('window.RETOUR_HIST')===true,'retour vers la leçon (historique)');
+  ok(app(r2.w).includes('finishStep()'),'ruban de leçon absent');
+  r2.w.eval('finishStep()');
+  ok(JSON.stringify(r2.w.eval('S.lessons["l-presenter-2"]'))==='[3]','finishStep : étape non notée');
+  ok(r2.erreurs.every(e=>/navigation/i.test(e)),'grammaire depuis une leçon : erreurs JS — '+r2.erreurs.slice(0,3).join(' | '));
+  const src=fs.readFileSync(path.join(RACINE,'page-parcours.js'),'utf8');
+  ok(/location\.href='grammaire\.html\?g='/.test(src)&&!/go\('gram'/.test(src),'openStep : lien vers grammaire.html');
+  ok(/location\.replace\('parcours\.html\?l='/.test(fs.readFileSync(path.join(RACINE,'core.js'),'utf8')),'finishStep : retour vers parcours.html');
+  const r3=await monter('parcours','?l=l-presenter-2&fait=3');
+  ok(r3.w.eval('view')==='lecon'&&r3.w.eval('ctx.l')==='l-presenter-2'&&app(r3.w).includes('Se présenter — HSK 2'),'parcours.html?l= : leçon non ouverte');
+  ok(r3.w.eval('stack.length')===1&&r3.w.eval('stack[0][0]')==='parcours','parcours.html?l= : retour vers le chemin');
+  ok(!r3.erreurs.length,'parcours.html?l= : erreurs JS — '+r3.erreurs.slice(0,3).join(' | '));
+  const r4=await monter('parcours','?l=inconnue');
+  ok(r4.w.eval('view')==='parcours'&&!r4.erreurs.length,'parcours.html?l=inconnue');
+  ok(!erreurs.length,'grammaire : erreurs JS — '+erreurs.slice(0,3).join(' | '));
   console.log(`diagdom.js — 13 pages, ${G.length} fiches, ${n} contrôles de rendu.`);
   console.log(`Échecs : ${echecs.length}`); echecs.slice(0,60).forEach(e=>console.log('  ✗ '+e));
   process.exit(echecs.length?1:0);
