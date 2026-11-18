@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261117a
+   core.css — livraison 20261118a
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261117a';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261118a';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1321,3 +1321,37 @@ a.vb-chip{color:inherit;text-decoration:none}
 .vb-split.plein .vb-glyph,.vb-split.plein .vb-wm,.vb-split.plein .cr-tian,
 .vb-split.plein .cr-glyph,.vb-split.plein .vb-bb{display:none}
 @media (prefers-reduced-motion:reduce){.vb-split .vb-top,.vb-grip i{transition:none}}
+
+/* =====================================================================
+   Caractères : rappels d’encre et de calligraphie (18 novembre 2026)
+   Paysage au lavis, bambou, 字 cursif en filigrane, 汉字 au pinceau,
+   clés au pinceau sur grille 米字格, traits de pinceau entre groupes,
+   sceau 熟 des caractères sus, branche de prunier sur la fiche.
+   ===================================================================== */
+.cr-home{position:relative}
+.cr-home>*:not(.cr-deco){position:relative;z-index:1}
+.cr-deco{position:absolute;top:0;bottom:0;left:-16px;right:-16px;pointer-events:none;overflow:hidden;z-index:0}
+.cr-wash{position:absolute;right:0;top:0;width:230px;height:90px}
+.cr-bamboo{position:absolute;right:-6px;top:440px;width:140px;height:270px}
+.cr-cali{position:absolute;left:-30px;top:360px;font-family:'Zhi Mang Xing',var(--han-serif);font-size:300px;line-height:1;color:rgba(44,39,35,.05)}
+.cr-calt{position:relative;margin-left:10px;font-family:'Ma Shan Zheng',var(--han-serif);font-size:30px;font-weight:400;color:var(--ink);vertical-align:-3px}
+.cr-calt i{position:absolute;right:-12px;top:-2px;width:9px;height:9px;border-radius:50% 45% 55% 40%;background:var(--ink);opacity:.75}
+.cr-calt i:after{content:'';position:absolute;left:10px;top:9px;width:4px;height:4px;border-radius:50%;background:var(--ink)}
+.cr-today{position:relative}
+.cr-today .vb-tod,.cr-today .btn{position:relative}
+.cr-cardwash{position:absolute;left:0;right:0;bottom:0;width:100%;height:70px;border-radius:0 0 24px 24px;pointer-events:none}
+@keyframes crStamp{from{transform:scale(2.4) rotate(-25deg);opacity:0}to{transform:rotate(-6deg);opacity:1}}
+.cr-seal{position:absolute;right:3px;top:3px;width:16px;height:16px;border-radius:3px;background:#B8342E;color:#FBEDE2;
+  font-family:'Ma Shan Zheng',var(--han-serif);font-style:normal;font-weight:400;font-size:12px;line-height:16px;text-align:center;
+  transform:rotate(-6deg);box-shadow:0 0 0 1px rgba(251,246,238,.7)}
+#app.fresh .cr-ct .cr-seal{animation:crStamp .5s .3s cubic-bezier(.3,1.6,.5,1) both}
+.cr-leg i.cr-seal{position:static;width:13px;height:13px;border-radius:2px;font-size:9.5px;line-height:13px;box-shadow:none}
+.cr-bsep{display:block;width:70%;height:9px;margin:0 0 10px 2px}
+.cr-gh .k{position:relative;font-family:'Ma Shan Zheng',var(--han-serif);font-weight:400;font-size:28px;color:var(--ink);background:#FEFCF8;border:1.5px solid #C9A99A}
+.cr-gh .k .cr-mzg{position:absolute;inset:0;width:100%;height:100%}
+.cr-gh .k span{position:relative}
+.cr-plum{position:absolute;left:-14px;top:54px;width:150px;height:240px;pointer-events:none}
+.cr-fseal{position:absolute;left:50%;top:238px;margin-left:66px;z-index:2;width:34px;height:34px;border-radius:5px;background:#B8342E;color:#FBEDE2;
+  font-family:'Ma Shan Zheng',var(--han-serif);font-size:24px;line-height:34px;text-align:center;transform:rotate(-6deg);box-shadow:0 0 0 2px rgba(251,246,238,.8)}
+#app.fresh .cr-fseal{animation:crStamp .6s .9s cubic-bezier(.3,1.6,.5,1) both}
+.vb-split.plein .cr-plum,.vb-split.plein .cr-fseal{display:none}

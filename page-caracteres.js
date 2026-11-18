@@ -110,14 +110,41 @@ function crOrdre(V){
 const CR_ETATNOM={su:'su',cours:'en cours',frag:'fragile',neuf:'rencontré, pas encore tracé',pas:'pas encore rencontré'};
 function crCarreau(c,V,avecPy){
   const e=crEtat(c,V);
-  const dot=e==='su'||e==='cours'||e==='frag'?`<i class="d" style="background:${ETATS[e].c}"></i>`:'';
+  const dot=e==='su'?'<i class="cr-seal" aria-hidden="true">熟</i>'
+    :e==='cours'||e==='frag'?`<i class="d" style="background:${crCouleur(e)}"></i>`:'';
   return `<button class="cr-ct${e==='pas'?' vu':''}" onclick="crOuvrir('${jq(c.id)}')" aria-label="${esc(c.hz)}, ${CR_ETATNOM[e]}">${esc(c.hz)}${dot}${avecPy?`<small>${esc(c.py)}</small>`:''}</button>`;
 }
 function crOuvrir(id){direFin();tonFin();go('car',{id:id});}
 
+/* Le sceau rouge 熟 marque un caractère su. Pour qu’il ne se confonde pas
+   avec la pastille « fragile », celle-ci passe en orange brique dans ce
+   module (en Vocabulaire, le rouge des états ne change pas). */
+const CR_FRAG='#C45A2C';
+function crCouleur(e){return e==='frag'?CR_FRAG:ETATS[e].c;}
 function crLegende(){
-  return `<div class="cr-leg"><span><i style="background:${ETATS.su.c}"></i>su</span><span><i style="background:${ETATS.cours.c}"></i>en cours</span><span><i style="background:${ETATS.frag.c}"></i>fragile</span><span><i class="pas"></i>pas encore rencontré</span></div>`;
+  return `<div class="cr-leg"><span><i class="cr-seal" aria-hidden="true">熟</i>su</span><span><i style="background:${ETATS.cours.c}"></i>en cours</span><span><i style="background:${CR_FRAG}"></i>fragile</span><span><i class="pas"></i>pas encore rencontré</span></div>`;
 }
+
+/* ---- Rappels de peinture à l’encre, derrière l’accueil ----------------
+   Paysage au lavis et soleil rouge en haut, bambou derrière la liste,
+   grand 字 en écriture cursive en filigrane. Purement décoratif. */
+function crDeco(){
+  return `<div class="cr-deco" aria-hidden="true">
+  <svg class="cr-wash" viewBox="0 0 230 90" focusable="false"><defs><filter id="crLav" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter><linearGradient id="crM1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3F5568" stop-opacity=".30"/><stop offset="1" stop-color="#3F5568" stop-opacity="0"/></linearGradient><linearGradient id="crM2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3F5568" stop-opacity=".16"/><stop offset="1" stop-color="#3F5568" stop-opacity="0"/></linearGradient></defs><circle cx="196" cy="24" r="13" fill="#B8342E" opacity=".22"/><path d="M40 90C70 62 92 40 112 30C124 24 132 34 140 46C150 30 164 14 180 10C194 6 206 24 216 40C222 50 228 56 230 58V90Z" fill="url(#crM2)" filter="url(#crLav)"/><path d="M96 90C118 72 136 58 154 52C164 48 172 56 178 64C188 54 200 44 212 44C222 44 228 52 230 56V90Z" fill="url(#crM1)" filter="url(#crLav)"/></svg>
+  <svg class="cr-bamboo" viewBox="0 0 140 270" focusable="false"><g fill="#2C2723" opacity=".13"><path d="M88 270C87 210 89 150 93 70L98 70C95 150 94 210 94 270Z"/><path d="M110 270C110 220 112 170 116 120L120 120C117 170 116 220 116 270Z"/><rect x="86" y="200" width="10" height="3" rx="1.5"/><rect x="88" y="138" width="9" height="3" rx="1.5"/><rect x="108" y="214" width="10" height="3" rx="1.5"/><rect x="110" y="166" width="9" height="3" rx="1.5"/><path d="M93 96C74 84 54 82 28 90C52 88 72 92 93 101Z"/><path d="M94 104C80 110 66 122 54 140C70 126 82 116 95 110Z"/><path d="M97 82C110 70 124 64 140 62C126 70 112 78 98 88Z"/><path d="M116 136C100 128 84 128 62 136C82 134 100 136 116 141Z"/><path d="M118 128C126 114 134 106 140 102C136 112 128 122 119 133Z"/></g></svg>
+  <span class="cr-cali">字</span>
+</div>`;
+}
+const CR_CARDWASH=`<svg class="cr-cardwash" viewBox="0 0 320 70" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><defs><filter id="crLav2" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="2"/></filter><linearGradient id="crM3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3F5568" stop-opacity=".14"/><stop offset="1" stop-color="#3F5568" stop-opacity="0"/></linearGradient></defs><path d="M0 70C40 50 70 36 96 34C112 33 120 44 130 52C146 38 166 22 190 20C212 18 226 34 240 46C256 34 280 26 300 30C312 32 318 38 320 40V70Z" fill="url(#crM3)" filter="url(#crLav2)"/></svg>`;
+const CR_BSEP=`<svg class="cr-bsep" viewBox="0 0 300 9" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 5C60 2.4 140 1.8 220 3S290 3.8 298 4.4C292 6.2 240 6.6 170 6.8S40 7.4 2 5Z" fill="#3F5568" opacity=".3"/></svg>`;
+const CR_MZG=`<svg class="cr-mzg" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M20 0V40M0 20H40" stroke="#E3C9BC" stroke-width="1" stroke-dasharray="2 2.5"/><path d="M0 0L40 40M40 0L0 40" stroke="#EEDDD3" stroke-width="1" stroke-dasharray="2 3"/></svg>`;
+/* Branche de prunier à l’encre, en haut de la fiche d’un caractère :
+   bois en traits de pinceau qui s’affinent, nœuds, fleurs à cinq pétales. */
+const CR_PRUNIER=`<svg class="cr-plum" viewBox="0 0 150 240" aria-hidden="true" focusable="false"><defs><g id="crFleur"><circle cx="0" cy="-3.6" r="3.3"/><circle cx="3.4" cy="-1.1" r="3.3"/><circle cx="2.1" cy="2.9" r="3.3"/><circle cx="-2.1" cy="2.9" r="3.3"/><circle cx="-3.4" cy="-1.1" r="3.3"/></g></defs>
+<g fill="#1E2A35" opacity=".62"><path d="M-6 236C6 222 18 206 28 188C36 172 40 156 46 140C52 124 60 110 72 98C82 88 94 80 104 70L106 73C96 84 86 93 77 103C66 116 59 129 54 144C48 162 43 178 34 194C24 212 12 226 0 240Z"/><path d="M50 138C60 134 72 133 84 128C94 124 104 120 114 112L115 115C106 123 96 129 86 133C74 138 62 140 52 142Z"/><path d="M104 70C110 60 114 50 116 38C117 30 118 22 122 14L124 15C121 24 120 32 119 40C117 52 113 62 106 72Z"/><path d="M72 99C67 90 64 80 64 68C64 60 65 54 68 48L70 49C67 56 67 62 67 69C67 80 70 89 74 97Z"/><path d="M84 128C88 136 90 144 90 152L88 152C88 145 86 138 82 130Z"/><ellipse cx="46" cy="140" rx="3.4" ry="2.4"/><ellipse cx="72" cy="98" rx="3" ry="2.2"/><ellipse cx="104" cy="71" rx="2.6" ry="1.9"/></g>
+<g fill="#F4B5B0" opacity=".92"><use href="#crFleur" x="116" y="111"/><use href="#crFleur" x="122" y="16"/><use href="#crFleur" x="66" y="48"/><use href="#crFleur" x="90" y="154"/><use href="#crFleur" x="112" y="44" transform="rotate(20 112 44)"/></g>
+<g fill="#B8342E"><circle cx="116" cy="111" r="1.4"/><circle cx="122" cy="16" r="1.4"/><circle cx="66" cy="48" r="1.4"/><circle cx="90" cy="154" r="1.4"/><circle cx="112" cy="44" r="1.4"/></g>
+<g fill="#D9827D"><ellipse cx="96" cy="124" rx="2.2" ry="3" transform="rotate(-30 96 124)"/><ellipse cx="60" cy="72" rx="2" ry="2.8" transform="rotate(20 60 72)"/><ellipse cx="34" cy="186" rx="2.2" ry="3" transform="rotate(-20 34 186)"/></g></svg>`;
 
 /* =====================================================================
    L’accueil
@@ -129,8 +156,10 @@ function vChars(){
   const cnt={tous:C.length,vus:nVus,tracer:aTracer,frag:C.filter(c=>crEtat(c,V)==='frag').length};
   const P=[['tous','Tous'],['vus','Rencontrés'],['tracer','À tracer'],['frag','Fragiles']];
   const M=[['cle','Par clé'],['son','Par son'],['tous','Tous']];
-  return header('Caractères',pl(C.length,'caractère')+' · '+pl(nVus,'rencontré'))+`
-  <section class="vb-card vb-today">
+  const h=header('Caractères',pl(C.length,'caractère')+' · '+pl(nVus,'rencontré'))
+    .replace('</svg></span>','</svg></span><span class="cr-calt" aria-hidden="true">汉字<i></i></span>');
+  return `<div class="cr-home">${crDeco()}`+h+`
+  <section class="vb-card vb-today cr-today">${CR_CARDWASH}
     <div class="vb-tod">
       <div class="vb-num cr-num"><b>${aTracer}</b><small>à tracer</small></div>
       <div class="vb-tx"><h2>Séance d’écriture</h2><p>Tracé, clés, composants</p></div>
@@ -146,7 +175,7 @@ function vChars(){
   <div class="vb-pills cr-pills">${P.map(([k,l])=>`<button class="pill ${CF.pill===k?'on':''}" onclick="crPastille('${k}')">${l} · ${cnt[k]}</button>`).join('')}</div>
   <div class="cr-seg" role="tablist">${M.map(([k,l])=>`<button role="tab" aria-selected="${CF.mode===k}" class="${CF.mode===k?'on':''}" onclick="crMode('${k}')">${l}</button>`).join('')}</div>
   ${crLegende()}
-  <div id="cr-res">${crResultats(V)}</div>`;
+  <div id="cr-res">${crResultats(V)}</div></div>`;
 }
 
 function crResultats(V){
@@ -176,8 +205,8 @@ function crLigne(c,V){
 }
 
 function crGroupe(cle,titre,sous,L,V,avecPy,pyCle){
-  return `<div class="cr-grp">
-    <div class="cr-gh">${cle?`<span class="k">${esc(cle)}</span>`:''}<span><b>${titre}</b><small>${esc(sous)}</small></span></div>
+  return `<div class="cr-grp">${CR_BSEP}
+    <div class="cr-gh">${cle?`<span class="k">${CR_MZG}<span>${esc(cle)}</span></span>`:''}<span><b>${titre}</b><small>${esc(sous)}</small></span></div>
     <div class="cr-tiles">${L.map(c=>crCarreau(c,V,avecPy)).join('')}</div>
   </div>`;
 }
@@ -319,6 +348,8 @@ function vCar(){
   <div class="vb-top cr-top">
     <div class="vb-th"><button class="vb-back" onclick="back()" aria-label="Retour">${ico('back')}</button><span class="vb-mini" aria-hidden="true">${esc(c.hz)}</span><span>${esc(kick)}</span></div>
     <div class="cr-tian" aria-hidden="true"><svg viewBox="0 0 196 196" focusable="false"><path d="M98 0V196M0 98H196" stroke="rgba(245,225,180,.65)" stroke-width="1.5" stroke-dasharray="6 7"/><path d="M0 0L196 196M196 0L0 196" stroke="rgba(245,225,180,.35)" stroke-width="1.2" stroke-dasharray="4 8"/></svg></div>
+    ${CR_PRUNIER}
+    ${e==='su'?'<span class="cr-fseal" role="img" aria-label="Caractère su">熟</span>':''}
     <div class="cr-glyph" id="cr-glyph" role="img" aria-label="${esc(c.hz)}${cle?', la clé '+esc(cle.hz):''}"><span>${esc(c.hz)}</span></div>
   </div>
   ${banban('pinceau','vb-bb cr-bb',1)}
