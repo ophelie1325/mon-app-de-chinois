@@ -206,7 +206,7 @@ const casse=h=>/n’a pas pu s’afficher/.test(h);
   ok(ev('GS.mode')==='choix'&&ev('Object.keys(GS.choix).join()')==='g307'&&hs.includes('gr-slide')&&hs.includes('gr-sheet'),'panneau depuis la fiche');
   ev(`grSeanceDuree(10);grSeanceLancer()`);
   ok(ev('view')==='exos'&&ev('ctx.q.length')===20&&ev('ctx.q.every(x=>x.g==="g307")')&&ev('!!ctx.seance'),'séance d’une fiche lancée');
-  const TYPES=['rep','sub','comp','tra','fix','reu','dic','dire'];
+  const TYPES=['rep','sub','comp','tra','fix','reu','dic','dire','duo','tia'];
   const essais=[[['g307'],10,false],[['g303','g307','g313'],5,true],[['g303','g307','g313'],20,true],[G.slice(0,8).map(g=>g.id),15,false],[G.map(g=>g.id),20,true]];
   for(const [ids,dur,parler] of essais){
     const Q=ev(`composerSeance(${JSON.stringify(ids)},${dur*2},${parler})`);
@@ -239,6 +239,60 @@ const casse=h=>/n’a pas pu s’afficher/.test(h);
     ok(notees.every(id=>ev(`gRec(${JSON.stringify(id)}).essais`)===1),`${tag} : notée deux fois`);
   }
   ev(`S.items={};S.gram={};GS.ouvert=false`);
+  /* Lot 4 : ordre français → chinois, choix entre deux structures,
+     traduction corrigée par l’IA (appel simulé). */
+  const ORD=ev('Object.keys(GRAM_ORDRE)');
+  for(const hz of ORD){
+    const ou=G.flatMap(g=>g.steps.map((st,i)=>({g,st,i}))).find(o=>(o.st.ex||[]).some(e=>e.hz===hz));
+    ok(!!ou,`ordre : exemple introuvable ${hz}`);
+    if(!ou)continue;
+    const e=ou.st.ex.find(x=>x.hz===hz);
+    const T=ev(`ordreDe(${JSON.stringify(e)})`);
+    ok(!!T,`ordre : morceaux qui ne refont pas la phrase ${hz}`);
+    if(!T)continue;
+    ok(T.every(t=>t.fr&&t.h&&t.p&&t.p.split(' ').length===[...t.h].length),`ordre : morceau vide ou pinyin décalé ${hz}`);
+    ok(new Set(T.map(t=>t.b)).size===T.length&&T.every(t=>t.b>=0&&t.b<T.length),`ordre : rangs chinois ${hz}`);
+    ok(T.map(t=>t.p).join(' ')!==''&&T.slice().sort((a,b)=>a.b-b.b).map(t=>t.p).join(' ')===syl(e.py),`ordre : pinyin ${hz}`);
+    const C=ev(`cartesFiche(gById(${JSON.stringify(ou.g.id)}))[${ou.i}].html`);
+    ok(C.includes('data-anim="ordre"'),`ordre : animation absente de ${ou.g.id} carte ${ou.i+1}`);
+  }
+  const PA=ev('GRAM_PAIRES');
+  let nDuo=0;
+  PA.forEach(P=>{
+    ok(gById2(P.a.g)&&gById2(P.b.g)&&P.a.t!==P.b.t,`paire ${P.a.t}/${P.b.t} : fiches`);
+    (P.exclu||[]).forEach(fr=>ok([P.a.g,P.b.g].some(id=>G.find(g=>g.id===id).banque.some(s=>s.fr===fr)),`paire ${P.a.t}/${P.b.t} : exclusion sans phrase « ${fr} »`));
+  });
+  function gById2(id){return G.some(g=>g.id===id);}
+  for(const g of G){
+    const D=ev(`paireItems(${JSON.stringify(g.id)})`);
+    D.forEach(d=>{nDuo++;
+      ok(d.s.seg[d.s.cle].h===d.bon&&d.bon!==d.autre,`${g.id} choix : mot clé ${d.bon}`);
+      ev(`view='exos';ctx={g:${JSON.stringify(g.id)},q:[${JSON.stringify(d)}],i:0,res:[],pose:[],rep:null,seance:{ids:[${JSON.stringify(g.id)}],dur:5,parler:false}};render();`);
+      const h=app(w);
+      ok(!casse(h)&&h.includes('Quel mot convient')&&!h.includes(segHzJS(d.s.seg)),`${g.id} choix : rendu ${segHzJS(d.s.seg)}`);
+      ev(`repDuo(${JSON.stringify(d.bon)})`);
+      ok(ev('ctx.res[0]')===1&&app(w).includes('Exact.'),`${g.id} choix : bonne réponse`);
+    });
+  }
+  function segHzJS(seg){return seg.map(x=>x.h).join('');}
+  ok(nDuo>=60,`choix entre deux structures : seulement ${nDuo} phrases`);
+  /* Traduction IA : sans clé, absente ; avec une clé, présente et rendue. */
+  ev(`S.settings.provider='none';S.settings.apikey=''`);
+  ok(ev(`composerSeance(['g307','g313'],40,false)`).every(x=>x.t!=='tia'),'traduction IA sans clé');
+  ev(`S.settings.provider='gemini';S.settings.apikey='test';window.askJSON=async()=>({juste:true,structure:true,corrige:'我把书放在桌子上。',remarque:'Bien.'})`);
+  const QT=ev(`composerSeance(['g307','g313'],40,false)`);
+  ok(QT.some(x=>x.t==='tia'),'traduction IA avec clé');
+  ev(`window.__q=composerSeance(['g307'],20,false).filter(x=>x.t==='tia');view='exos';ctx={g:'g307',q:window.__q,i:0,res:[],pose:[],rep:null,seance:{ids:['g307'],dur:5,parler:false}};render();`);
+  ok(app(w).includes('Faire corriger'),'traduction IA : rendu');
+  w.document.getElementById('tia').value='我把书放在桌子上。';
+  await ev('tiaCorriger()');
+  ok(ev('ctx.res[0]')===1&&app(w).includes('Juste, et la structure y est.'),'traduction IA : correction');
+  ev(`ctx.i=0;ctx.res=[];ctx.tia=null;render();tiaPasser()`);
+  ok(ev('ctx.res[0]')===-1&&/Question suivante|Voir le bilan/.test(app(w)),'traduction IA : passer');
+  ev(`ctx.q=[ctx.q[0]];ctx.i=1;render()`);
+  ok(app(w).includes('0<small> sur 0'),'fin : exercice passé non compté');
+  ev(`S.settings.provider='none';S.settings.apikey='';S.items={};S.gram={}`);
+  console.log(`lot 4 : ${ORD.length} phrases en ordre, ${nDuo} phrases à choisir`);
   /* Ouverture depuis un parcours, et retour à la leçon. */
   const last=G[G.length-1].id;
   const r2=await monter('grammaire','?g='+last+'&l=l-presenter-2&i=3&n=9');

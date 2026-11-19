@@ -525,7 +525,7 @@ function cartesFiche(g){
   const n=g.steps.length;
   g.steps.forEach((st,i)=>{
     const cles=clesFiche(g,st);
-    let anim=animTransfo(g,st,cles);
+    let anim=animOrdre(st,cles)||animTransfo(g,st,cles);
     if(!anim){const k=gabaritDeCarte(g,st,pris,cles);if(k>=0){pris.add(k);anim=animMoule(g,i,k);}}
     C.push({lab:st.t,fil:filigrane(g,st),html:`
       <span class="n">Emploi ${i+1} sur ${n}</span>
@@ -706,7 +706,7 @@ function grTic(){
     if(view!=='fiche'){clearInterval(GR_TIC);GR_TIC=null;return;}
     if(GR_MOINS)return;
     const s=document.querySelector('.gr-slide.on');if(!s)return;
-    s.querySelectorAll('.gr-stage[data-anim="transfo"],.gr-stage[data-anim="piege"]').forEach(st=>st.classList.toggle('ph'));
+    s.querySelectorAll('.gr-stage[data-anim="transfo"],.gr-stage[data-anim="piege"],.gr-stage[data-anim="ordre"]').forEach(st=>st.classList.toggle('ph'));
   },2600);
 }
 function grMonter(){
@@ -805,7 +805,7 @@ function lancerExos(id){
 
 const NOMFAM={rep:'Repérage',sub:'Substitution',comp:'Complétion',
               tra:'Transformation',fix:'改错 — corriger la faute',reu:'Réemploi',
-              dic:'Dictée',dire:'Dire'};
+              dic:'Dictée',dire:'Dire',duo:'Choisir entre deux structures',tia:'Traduction corrigée'};
 
 function vExos(){
   if(ctx.seance&&ctx.i>=ctx.q.length)return vFinSeance();
@@ -813,14 +813,11 @@ function vExos(){
   if(ctx.i>=ctx.q.length)return vBilanExos(g0);
   const q=ctx.q[ctx.i];
   const g=gById(q.g)||g0;
-  const corps={rep:exRep,sub:exSub,comp:exComp,tra:exTra,fix:exFix,reu:exReu,dic:exDic,dire:exDire}[q.t];
+  const corps={rep:exRep,sub:exSub,comp:exComp,tra:exTra,fix:exFix,reu:exReu,dic:exDic,dire:exDire,duo:exDuo,tia:exTia}[q.t];
   return `${ctx.seance?header('Réviser ma grammaire','Exercice '+(ctx.i+1)+' sur '+ctx.q.length)
                      :header(g.title,'Exercices — '+(ctx.i+1)+' sur '+ctx.q.length)}
   ${ctx.seance&&ctx.seance.ids.length>1?`<div class="gr-fchip">${esc(g.title)}</div>`:''}
-  <div class="qprog">${ctx.q.map((_,k)=>{
-    const r=ctx.res[k];
-    return `<i class="${r===1?'ok':(r===0?'no':'')}"></i>`;
-  }).join('')}</div>
+  <div class="gr-qbar" role="progressbar" aria-valuemin="0" aria-valuemax="${ctx.q.length}" aria-valuenow="${ctx.i}"><i style="width:${Math.round(ctx.i/ctx.q.length*100)}%"></i></div>
   <div class="gconsigne">${esc(NOMFAM[q.t])}</div>
   ${corps(q,g)}`;
 }
@@ -1094,6 +1091,9 @@ function fileFiche(g,parler,seule){
   const b=shuffle(g.banque||[]);
   if(b[0])q.push({t:'dic',s:b[0]});
   if(parler&&b[1])q.push({t:'dire',s:b[1]});
+  const D=shuffle(paireItems(g.id));
+  if(D[0])q.push(D[0]);
+  if(iaPrete()&&b[2])q.push({t:'tia',s:b[2]});
   return shuffle(q).map(x=>Object.assign(x,{g:g.id}));
 }
 function composerSeance(ids,n,parler){
@@ -1191,13 +1191,14 @@ function vFinSeance(){
   const Z=ctx.seance,Q=ctx.q;
   const ecrits=Q.map((q,k)=>({q,k})).filter(x=>x.q.t!=='dire');
   const oraux=Q.map((q,k)=>({q,k})).filter(x=>x.q.t==='dire');
-  const ok=ecrits.filter(x=>ctx.res[x.k]===1).length,n=ecrits.length;
+  const notes=ecrits.filter(x=>ctx.res[x.k]!==-1);
+  const ok=notes.filter(x=>ctx.res[x.k]===1).length,n=notes.length;
   const okO=oraux.filter(x=>ctx.res[x.k]===1).length;
   const pct=n?Math.round(ok/n*100):0;
   /* Chaque fiche est notée sur ses propres exercices écrits (deux au
      moins, sinon elle garde son échéance). */
   const parFiche=Z.ids.map(id=>{
-    const L=ecrits.filter(x=>x.q.g===id);
+    const L=notes.filter(x=>x.q.g===id);
     const k=L.filter(x=>ctx.res[x.k]===1).length;
     return {g:gById(id),n:L.length,k:k,p:L.length?Math.round(k/L.length*100):0};
   });
@@ -1231,6 +1232,144 @@ function grSeanceRelancer(){
   view='home';ctx={};stack=[];
   grSeance(GS.mode==='choix'?Z.ids:null);
 }
+
+/* =====================================================================
+   6. LOT 4 — choisir entre deux structures, traduction corrigée par
+   l’IA, et l’ordre français → l’ordre chinois.
+   Données : data-gram-plus.js (GRAM_PAIRES, GRAM_ORDRE).
+   ===================================================================== */
+
+/* ---- De l’ordre français à l’ordre chinois ----
+   Les morceaux arrivent dans l’ordre français, en français ; puis ils
+   glissent à leur place chinoise et deviennent du chinois. Le pinyin de
+   chaque morceau est découpé dans celui de l’exemple. */
+function ordreDe(e){
+  const O=(typeof GRAM_ORDRE!=='undefined'&&GRAM_ORDRE[e.hz])||null;
+  if(!O)return null;
+  const han=hanChars(e.hz).join('');
+  const zh=O.slice().sort((x,y)=>x[2]-y[2]);
+  if(zh.map(x=>x[1].replace(/…/g,'')).join('')!==han)return null;
+  const sy=sylls(e.py);
+  if(sy.length!==han.length)return null;
+  let k=0;const py={};
+  zh.forEach(x=>{const n=hanChars(x[1]).length;py[x[2]]=sy.slice(k,k+n).join(' ');k+=n;});
+  return O.map((x,i)=>({fr:x[0],h:x[1],p:py[x[2]],a:i,b:x[2]}));
+}
+function animOrdre(st,cles){
+  const e=(st.ex||[]).find(x=>ordreDe(x));
+  if(!e)return '';
+  const T=ordreDe(e);
+  return `<div class="gr-stage gr-ordre" data-anim="ordre">
+    <span class="cap">De l’ordre français à l’ordre chinois</span>
+    <div class="gr-morph ordre">${T.map(t=>`<span class="gr-tk${estCle({h:t.h},cles)?' key':''}" data-a="${t.a}" data-b="${t.b}">
+      <span class="o-fr">${esc(t.fr)}</span><span class="o-zh"><span class="h">${esc(t.h)}</span><span class="p">${pinyin(t.p)}</span></span></span>`).join('')}</div>
+    <div class="say"><span class="sa">${esc(e.fr)}</span><span class="sb">${esc(e.hz)}</span></div>
+    <button class="gr-replay" onclick="grRejouer(this)">${ICO_REJOUER}Rejouer</button>
+  </div>`;
+}
+
+/* ---- Choisir entre deux structures ---- */
+function paireItems(gid){
+  if(typeof GRAM_PAIRES==='undefined')return [];
+  const out=[];
+  GRAM_PAIRES.forEach(P=>{
+    [[P.a,P.b],[P.b,P.a]].forEach(([x,y])=>{
+      if(x.g!==gid&&y.g!==gid)return;
+      const g=gById(x.g);if(!g||!gById(y.g))return;
+      (g.banque||[]).forEach(s=>{
+        const c=s.seg[s.cle];
+        if(!c||c.h!==x.t||(P.exclu||[]).indexOf(s.fr)>=0)return;
+        out.push({t:'duo',s:s,bon:x.t,autre:y.t,gb:x.g,ga:y.g});
+      });
+    });
+  });
+  return out;
+}
+function exDuo(q){
+  const fait=ctx.res[ctx.i]!=null;
+  if(!ctx.duo||ctx.duo.i!==ctx.i)ctx.duo={i:ctx.i,o:shuffle([q.bon,q.autre])};
+  const s=q.s;
+  const trou=`<span class="gr-trou">${fait?esc(q.bon):'？'}</span>`;
+  return `<p>Quel mot convient ?</p>
+  <div class="gr-dire-fr">${esc(s.fr)}${badgeReg(s.reg)}</div>
+  <div class="gex"><div class="hz">${s.seg.map((t,k)=>k===s.cle?trou:esc(t.h)).join('')}</div>
+    ${fait?`<div class="py">${pinyin(segPy(s.seg))}</div>`:''}</div>
+  <div class="opts gr-duo">${ctx.duo.o.map(o=>{
+    let cl='';
+    if(fait)cl=o===q.bon?'ok':(o===ctx.rep?'no':'');
+    return `<button class="opt han ${cl}" ${fait?'disabled':''} onclick="repDuo('${jq(o)}')">${esc(o)}</button>`;}).join('')}</div>
+  ${fait?`<div class="verdict ${ctx.res[ctx.i]?'ok':'no'}">${ctx.res[ctx.i]?'Exact.':'Ici, c’est '+esc(q.bon)+'.'}
+    <p class="sm mt">${q.ga===q.gb?`Fiche\u202F: ${esc(gById(q.gb).title)}`
+      :`<b>${esc(q.bon)}</b>\u202F: ${esc(gById(q.gb).title)}<br><b>${esc(q.autre)}</b>\u202F: ${esc(gById(q.ga).title)}`}</p></div>${boutonSuite()}`:''}`;
+}
+function repDuo(o){const q=ctx.q[ctx.i];ctx.rep=o;noter(o===q.bon);}
+
+/* ---- Traduction libre corrigée par l’IA ----
+   Seulement si une clé d’IA est réglée. La correction juge le sens, la
+   langue et l’emploi de la structure de la fiche ; la phrase de la
+   banque est donnée comme une traduction possible parmi d’autres.
+   Le pinyin affiché est toujours celui de la fiche, jamais celui de
+   l’IA : une erreur de ton mémorisée coûte trop cher. */
+function iaPrete(){return S.settings.provider!=='none'&&!!(S.settings.apikey||'').trim();}
+const TIA_SCHEMA={type:'object',properties:{
+  juste:{type:'boolean'},structure:{type:'boolean'},
+  corrige:{type:'string'},remarque:{type:'string'}},
+  required:['juste','structure','corrige','remarque']};
+function tiaSys(){return 'Tu es professeur de chinois mandarin pour une apprenante francophone. Tu corriges avec exactitude et bienveillance, en français, sans jamais inventer de règle.';}
+function tiaPrompt(q,txt){
+  const g=gById(q.g);
+  return `Niveau de l’apprenante : HSK ${S.settings.level}.
+Notion travaillée : « ${g.title} ».
+Phrase française à traduire : « ${q.s.fr} »
+Une traduction possible (il peut y en avoir d’autres, tout aussi justes) : ${segHz(q.s.seg)}
+Traduction de l’apprenante : ${txt}
+
+Réponds par un objet JSON :
+- juste : true si sa phrase est du chinois correct et naturel et rend le sens de la phrase française (une autre formulation correcte est juste) ;
+- structure : true si elle emploie la notion travaillée ;
+- corrige : sa phrase corrigée en caractères chinois (identique si elle est juste), sans pinyin ;
+- remarque : une ou deux phrases en français, l’erreur principale et la règle, ou ce qui est réussi. Pas de pinyin.`;
+}
+function exTia(q){
+  const fait=ctx.res[ctx.i]!=null;
+  const T=ctx.tia&&ctx.tia.i===ctx.i?ctx.tia:(ctx.tia={i:ctx.i,etat:'',r:null,err:'',txt:''});
+  let retour='';
+  if(T.etat==='attente')retour=`<p class="sm mt" aria-live="polite">Correction en cours…</p>`;
+  if(T.etat==='err')retour=`<div class="verdict no" aria-live="polite">La correction n’a pas abouti (${esc(T.err)}).</div>
+    <button class="btn pale mt" onclick="tiaPasser()">Je passe</button>`;
+  if(T.r){
+    const r=T.r;
+    retour=`<div class="verdict ${r.juste&&r.structure?'ok':'no'}" aria-live="polite">
+      ${r.juste?(r.structure?'Juste, et la structure y est.':'Juste, mais sans la structure travaillée.'):'Pas encore.'}
+      ${!r.juste&&r.corrige?`<div class="hz mt">${esc(r.corrige)}</div>`:''}
+      <p class="sm mt">${esc(r.remarque)}</p></div>
+    <div class="gex"><div class="note">Une traduction possible</div><div class="hz">${esc(segHz(q.s.seg))}</div><div class="py">${pinyin(segPy(q.s.seg))}</div></div>`;
+  }
+  return `<p>Traduisez en chinois, avec la structure de la fiche.</p>
+  <div class="gr-dire-fr">${esc(q.s.fr)}</div>
+  <textarea class="gta" id="tia" ${fait||T.etat==='attente'?'disabled':''} placeholder="Écrivez en caractères…">${esc(T.txt)}</textarea>
+  ${!fait&&T.etat!=='attente'?`<button class="btn mt" onclick="tiaCorriger()">Faire corriger</button>`:''}
+  ${retour}
+  ${fait?boutonSuite():''}`;
+}
+async function tiaCorriger(){
+  const el=document.getElementById('tia'),txt=(el&&el.value||'').trim();
+  if(!txt)return toast('Écrivez d’abord votre phrase.');
+  const i=ctx.i,q=ctx.q[i],T=ctx.tia;
+  T.txt=txt;T.etat='attente';T.err='';render();
+  try{
+    const r=await askJSON(tiaSys(),tiaPrompt(q,txt),TIA_SCHEMA,.2,'medium');
+    if(ctx.i!==i||ctx.tia!==T)return;
+    T.r={juste:!!r.juste,structure:!!r.structure,corrige:String(r.corrige||''),remarque:String(r.remarque||'')};
+    T.etat='fini';
+    noter(T.r.juste&&T.r.structure);
+  }catch(e){
+    if(ctx.i!==i||ctx.tia!==T)return;
+    T.etat='err';T.err=String(e&&e.message||e).slice(0,120);render();
+  }
+}
+/* Sans correction, l’exercice ne compte pas. */
+function tiaPasser(){ctx.res[ctx.i]=-1;render();}
 
 /* --- Bilan de session : c’est lui qui note la fiche --- */
 function vBilanExos(g){

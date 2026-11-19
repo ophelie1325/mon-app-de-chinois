@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261119c
+   core.css — livraison 20261119d
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261119c';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261119d';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1571,3 +1571,17 @@ button.gr-w:active{background:var(--pl)}
 .btn.pale.sm.gr-voir-zh{width:auto}
 .gr-fin{margin-top:6px}
 .btn.gr-go2{margin-top:8px}
+
+/* ---- Grammaire : lot 4 ---- */
+.gr-qbar{height:10px;margin:4px 0 16px;border-radius:99px;background:#E3E0EC;overflow:hidden}
+.gr-qbar i{display:block;height:100%;border-radius:99px;background:var(--p,#1F4E9E);transition:width .4s ease}
+.gr-morph.ordre{height:72px}
+.gr-ordre .gr-tk{display:grid}
+.gr-ordre .gr-tk>span{grid-area:1/1;transition:opacity .5s}
+.gr-ordre .o-fr{align-self:start;padding:8px 10px;border-radius:12px;background:#fff;font-size:14px;font-weight:700;white-space:nowrap;box-shadow:0 4px 0 var(--plb);color:var(--ptx)}
+.gr-ordre .o-zh{display:flex;flex-direction:column;align-items:center;opacity:0}
+.gr-ordre.ph .o-fr{opacity:0}
+.gr-ordre.ph .o-zh{opacity:1}
+.gr-trou{display:inline-block;min-width:1.6em;margin:0 2px;padding:0 4px;border-radius:8px;background:var(--pl);color:var(--p);text-align:center}
+.gr-duo{flex-direction:row}
+.gr-duo .opt{flex:1;font-size:22px}
