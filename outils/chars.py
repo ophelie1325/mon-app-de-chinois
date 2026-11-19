@@ -206,6 +206,7 @@ def fiche(h, MD, TR, B, W, GL, G):
                 o['sens'] = {'hz': sem, 'fr': GL.get(sem)}
                 if not GL.get(sem): manque.append('sens du composant ' + sem)
         pys = G.get(son, {}).get('py') or (B.get(son, {}).get('pinyin') or [None])[0]
+        if pys: pys = pys.replace('\u0261', 'g')  # « ɡ » non latin de la source (象, 尚…)
         if not pys: manque.append('lecture du composant ' + son)
         else:
             li = lien(py, pys) if py else None
