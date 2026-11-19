@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261119a
+   core.css — livraison 20261119b
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261119a';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261119b';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1449,3 +1449,98 @@ body.gr-porc .gconsigne{color:var(--p)}
 @media (prefers-reduced-motion:reduce){.gr-st.next .tx{animation:none}}
 .gr-fam{padding-bottom:30px}
 body.gr-porc .gvoir .pill{max-width:100%;white-space:normal;text-align:left;line-height:1.35}
+
+/* ---- Grammaire : la fiche en cartes (lot 2) ---- */
+.gr-band{position:relative;margin:-6px -2px 0;padding:14px 18px 26px;background:#fff;color:var(--ptx);border-radius:0 0 30px 30px;overflow:hidden;
+  border-bottom:2px solid var(--p);box-shadow:0 14px 24px -16px rgba(30,30,80,.6)}
+.gr-bvag{position:absolute;right:0;top:0;width:200px;height:130px;pointer-events:none}
+.gr-hui{position:absolute;left:0;right:0;bottom:4px;width:100%;height:12px;pointer-events:none}
+.gr-band .wm{position:absolute;right:-8px;top:-20px;font-family:var(--han-serif);font-size:150px;line-height:1;color:rgba(31,78,158,.08);pointer-events:none}
+.gr-band .top{position:relative;display:flex;align-items:center;gap:10px}
+.gr-band .x{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:14px;background:var(--pl);color:var(--ptx)}
+.gr-band .x svg{width:19px;height:19px}
+.gr-band .kick{font-size:12px;color:var(--ptxs)}
+.gr-band h1{position:relative;margin:12px 0 4px;font-size:21px;line-height:1.25;color:var(--ink)}
+.gr-band .meta{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.gr-band .meta .gr-etq{margin-left:0;font-size:12px;padding:4px 10px}
+.gr-band .lk{padding:5px 11px;border-radius:999px;background:#E2B04A;color:#25233A;font-size:12px}
+.gr-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 8px}
+.gr-nav .ar{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:#fff;color:var(--p);box-shadow:0 6px 12px -8px rgba(40,40,70,.45)}
+.gr-nav .ar:disabled{opacity:.35}
+.gr-nav .ar svg{width:18px;height:18px}
+.gr-dots{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:220px}
+.gr-dots button{width:8px;height:8px;padding:0;border-radius:999px;background:#D3CFE0;transition:width .3s,background .3s}
+.gr-dots button.on{width:22px;background:var(--p)}
+.gr-nav .lab{display:block;text-align:center;font-size:12px;color:var(--muted);margin-top:5px}
+.gr-view{position:relative;overflow:hidden;touch-action:pan-y;transition:height .35s ease;margin:0 -4px}
+.gr-track{display:flex;align-items:flex-start;transition:transform .45s cubic-bezier(.3,.9,.3,1)}
+.gr-slide{flex:0 0 100%;min-width:0;padding:4px 4px 20px}
+.gr-slide:not(.on) .gr-kc{visibility:hidden;transition:visibility 0s .45s}
+.gr-kc{position:relative;background:#fff;border-radius:26px;padding:18px 16px;box-shadow:0 16px 28px -18px rgba(40,40,70,.5);overflow:hidden;border:2px solid var(--p)}
+.gr-kc .fil{position:absolute;right:-6px;top:-14px;font-family:var(--han-serif);font-size:96px;line-height:1;color:rgba(31,78,158,.08);pointer-events:none}
+.gr-kc .n{position:relative;font-size:12px;color:var(--muted)}
+.gr-kc h2{position:relative;margin:4px 0 10px;font-size:18px;line-height:1.25}
+.gr-kc p{position:relative;margin:10px 0 0;font-size:14.5px;line-height:1.55}
+.gr-kc p b{color:var(--p)}
+.gr-kc .gres{margin-top:4px}
+.gr-kc .gsec{box-shadow:none;border:0;padding:0;margin-top:16px;background:none}
+.gr-kc .btn{margin-top:16px}
+
+/* Scène d’animation */
+.gr-stage{position:relative;margin:4px -4px 0;padding:14px 12px 12px;border-radius:20px;background:var(--pl);text-align:center;overflow:hidden}
+.gr-stage .cap{display:block;text-align:left;font-size:11.5px;color:#575369;text-transform:uppercase;letter-spacing:.6px}
+.gr-stage .say{min-height:20px;margin-top:10px;font-size:13px;line-height:1.45;color:#3A374D}
+.gr-stage .say .sb{display:none}
+.gr-stage.ph .say .sa{display:none}.gr-stage.ph .say .sb{display:inline}
+.gr-replay{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 12px;border-radius:999px;background:#fff;font-size:12.5px;color:var(--p);box-shadow:0 3px 0 var(--plb)}
+.gr-replay svg{width:15px;height:15px}
+.verd{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px}
+.verd.no{background:#FBE3DC;color:#A33A23}.verd.ok{background:#E1F0E2;color:#2F6B37}
+.gr-morph{position:relative;height:66px;margin:12px auto 0;transform-origin:left top;visibility:hidden}
+.gr-morph.pret{visibility:visible}
+.gr-tk{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;transform:translateX(var(--xa));
+  transition:transform .9s cubic-bezier(.5,0,.25,1.15),opacity .6s}
+.gr-tk .h{padding:6px 9px;border-radius:12px;background:#fff;font-family:var(--han);font-size:21px;white-space:nowrap;box-shadow:0 4px 0 var(--plb);transition:background .4s,color .4s}
+.gr-tk .p{margin-top:4px;font-size:11.5px;white-space:nowrap}
+.gr-tk.key .h{background:#E2B04A;box-shadow:0 4px 0 #B5862A}
+.gr-tk.new{opacity:0;transform:translateX(var(--xb)) scale(.3)}
+.gr-stage.ph .gr-tk{transform:translateX(var(--xb))}
+.gr-stage.ph .gr-tk.new{opacity:1;transform:translateX(var(--xb)) scale(1)}
+.gr-stage.ph .gr-tk.gone{opacity:0;transform:translateX(var(--xa)) scale(.3)}
+.gr-tk.bad .h{background:#FBE3DC;color:#A33A23;box-shadow:0 4px 0 #EBC0B3;text-decoration:line-through}
+.gr-stage:not(.ph) .gr-tk.bad .h{animation:grShake .5s .3s 2}
+@keyframes grShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.gr-mould{display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;gap:4px;margin-top:12px}
+.gr-slot{padding:6px 6px;border-radius:12px;background:#fff;text-align:center;box-shadow:0 3px 0 var(--plb)}
+.gr-slot.ba{background:var(--p);color:#fff;box-shadow:0 3px 0 var(--pd)}
+.gr-slot.ba .p{color:var(--psoft)}
+.gr-slot.var{border:2px dashed #E2B04A;background:#FFF8E8;box-shadow:none;min-width:52px}
+.gr-slot .in2{animation:grRoll .45s cubic-bezier(.2,.9,.3,1.2) both}
+.gr-slot .h{display:block;font-family:var(--han);font-size:19px;white-space:nowrap}
+.gr-slot .p{display:block;margin-top:3px;font-size:11px;white-space:nowrap}
+@keyframes grRoll{from{opacity:0;transform:translateY(-70%)}to{opacity:1;transform:none}}
+
+/* Exemples : écouter, toucher un mot */
+.gr-exs{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.gr-ex{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:16px;background:var(--bg)}
+.gr-ear{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:12px;background:#fff;color:var(--p);box-shadow:0 3px 0 #E3E0EC}
+.gr-ear svg{width:18px;height:18px}
+.gr-exc{min-width:0;flex:1}
+.gr-exc .hz{font-family:var(--han);font-size:20px}
+.gr-ws{display:flex;flex-wrap:wrap;gap:2px}
+.gr-w{display:flex;flex-direction:column;align-items:center;padding:2px 3px;border-radius:8px;text-align:center}
+button.gr-w:active{background:var(--pl)}
+.gr-w .h{font-family:var(--han);font-size:20px;line-height:1.3}
+.gr-w .p{font-size:11.5px}
+.gr-w.k{background:var(--pl)}
+.gr-w.k .h{color:var(--p);font-weight:700}
+.gr-w.pon{padding:2px 0}
+.gr-exc .fr{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+.gr-exc .nt{display:block;margin-top:2px;font-size:12.5px;color:#8A6416}
+.gr-exc .reg{margin-left:4px}
+@media (prefers-reduced-motion:reduce){.gr-track,.gr-tk,.gr-view{transition:none}.gr-slot .in2{animation:none}}
+.gr-kc .gtab{border-spacing:0 4px}
+.gr-kc .gtab th{font-size:11px}
+.gr-kc .gtab td .gc{font-family:var(--ui),var(--han);font-weight:600;font-size:13.5px;padding:7px 8px;min-height:0;box-shadow:none}
+.gr-kc .gchk .opt{font-family:var(--ui),var(--han)}
+.gr-kc .gchk .opt.han{font-family:var(--han)}

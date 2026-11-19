@@ -12,18 +12,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="core.css?v=20261119a">
+<link rel="stylesheet" href="core.css?v=20261119b">
 </head>
 <body class="gr-porc">
 <div id="app" class="wrap"></div>
 <nav class="tabs" id="tabs"></nav>
 
-<script src="core.js?v=20261119a"></script>
-<script src="speech.js?v=20261119a"></script>
-<script src="data-words.js?v=20261119a"></script>
-<script src="data-gram.js?v=20261119a"></script>
-<script src="data-corpus.js?v=20261119a"></script>
-<script src="page-grammaire.js?v=20261119a"></script>
+<script src="core.js?v=20261119b"></script>
+<script src="speech.js?v=20261119b"></script>
+<script src="data-words.js?v=20261119b"></script>
+<script src="data-gram.js?v=20261119b"></script>
+<script src="data-corpus.js?v=20261119b"></script>
+<script src="page-grammaire.js?v=20261119b"></script>
 <script>
 window.HOMEVIEW='home';
 window.VIEWS={home:vGramHome,index:vIndex,revoir:vRevoir,
@@ -36,12 +36,14 @@ window.VIEWS={home:vGramHome,index:vIndex,revoir:vRevoir,
   const gp=param('g');
   if(!gp||!gById(gp))return;
   const l=param('l');
-  view=gRec(gp).vu?'fiche':'decouv';
-  ctx={g:gp,i:0,
+  view='fiche';
+  ctx={g:gp,c:0,
        from:l?{l:l,i:parseInt(param('i')||'0',10),n:parseInt(param('n')||'0',10)}:null};
   /* Arrivée depuis une leçon : le bouton retour y ramène. */
   if(l)window.RETOUR_HIST=true;
 })();
+/* La fiche en cartes : mesures, glissement et animations après chaque dessin. */
+window.MOUNT=grMonter;
 </script>
 </body>
 </html>
