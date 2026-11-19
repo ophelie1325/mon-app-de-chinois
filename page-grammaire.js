@@ -150,14 +150,16 @@ function vGramHome(){
       ${banban('pinceau','vb-lit',1)}
     </div>
   </section>
-  ${R.length||nx?`<button class="btn gr-go" onclick="reviserGrammaire()">${R.length?'Réviser ma grammaire':'Découvrir la prochaine fiche'}</button>`:''}
+  ${grFichesVues().length?`<button class="btn gr-go" onclick="reviserGrammaire()">Réviser ma grammaire</button>`:''}
+  ${nx&&!R.length?`<button class="btn pale mt gr-go2" onclick="ouvrir('${nx.id}')">Découvrir la prochaine fiche</button>`:''}
   <div class="vb-search">
     <label class="vb-q">${grChercherIco()}<span class="vb-sr">Chercher une notion</span>
       <input type="search" value="${esc(GF.q)}" placeholder="把, 了, comparer, le temps…" oninput="grChercher(this.value)" autocomplete="off"></label>
     <button class="vb-fbtn gr-fbtn" onclick="grOuvrirFiltres()" aria-label="Filtres${nf?', '+nf+' actifs':''}">${grFiltreIco()}Filtres${nf?`<span class="vb-badge">${nf}</span>`:''}</button>
   </div>
   <div id="gr-res">${grResultats()}</div>
-  ${GF.ouvert?grPanneau():''}`;
+  ${GF.ouvert?grPanneau():''}
+  ${GS.ouvert?grSeancePanneau():''}`;
 }
 
 function grResultats(){
@@ -244,15 +246,8 @@ function grOral(){GF.oral=!GF.oral;render();}
 function grEffacer(){GF.fam='';GF.oral=false;render();}
 function grOuvrirFiltres(){GF.ouvert=true;GF.anim=true;render();}
 function grFermerFiltres(){GF.ouvert=false;render();}
-/* En attendant le panneau de séance (lot 3) : la première fiche à
-   revoir, dans l’ordre du programme, ou la prochaine à découvrir. */
-function reviserGrammaire(){
-  const R=ordreProg().filter(g=>aRevoirFiche(g.id));
-  if(R.length)return lancerExos(R[0].id);
-  const nx=prochaineFiche();
-  if(nx)return ouvrir(nx.id);
-  toast('Tout est à jour.');
-}
+/* « Réviser ma grammaire » ouvre le panneau de séance (section 5). */
+function reviserGrammaire(){grSeance();}
 
 /* Une fiche s’ouvre toujours sur sa première carte. */
 function ouvrir(id){go('fiche',{g:id,c:0});}
@@ -560,7 +555,7 @@ function cartesFiche(g){
       ${(g.voir||[]).length?`<div class="gsec gr-voir"><h3>Voir aussi</h3><div class="gvoir">
         ${g.voir.map(v=>{const o=gById(v);return o?`<button class="pill" onclick="ouvrir('${o.id}')">${esc(o.title)}</button>`:'';}).join('')}
       </div></div>`:''}
-      <button class="btn" onclick="lancerExos('${g.id}')">M’entraîner sur cette fiche</button>
+      <button class="btn" onclick="grSeance(['${g.id}'])">M’entraîner sur cette fiche</button>
       ${r.essais?`<p class="sm mt">Déjà tentés ${r.essais} fois, meilleur score ${r.best}\u00A0%. Les phrases changent à chaque passage.</p>`:''}`});
   return C;
 }
@@ -619,7 +614,8 @@ function vFiche(){
       ${C.map((x,k)=>`<section class="gr-slide${k===c?' on':''}" aria-hidden="${k!==c}"><div class="gr-kc">
         <span class="fil" aria-hidden="true">${esc(x.fil)}</span>${x.html}</div></section>`).join('')}
     </div>
-  </div>`;
+  </div>
+  ${GS.ouvert?grSeancePanneau():''}`;
 }
 function marquerVue(id){const r=gRec(id);if(!r.vu){r.vu=1;save();}}
 /* Changer de carte sans tout redessiner : la piste glisse. */
@@ -714,6 +710,11 @@ function grTic(){
   },2600);
 }
 function grMonter(){
+  if(view==='exos'){
+    const q=ctx.q&&ctx.q[ctx.i];
+    if(q&&q.t==='dic'&&ctx.dicJoue!==ctx.i&&ctx.res[ctx.i]==null){ctx.dicJoue=ctx.i;setTimeout(()=>speak(segHz(q.s.seg)),300);}
+    return;
+  }
   if(view!=='fiche')return;
   grGlisser();grMorphs();
   if(GR_MOINS)document.querySelectorAll('.gr-stage').forEach(st=>st.classList.add('ph'));
@@ -803,14 +804,19 @@ function lancerExos(id){
 }
 
 const NOMFAM={rep:'Repérage',sub:'Substitution',comp:'Complétion',
-              tra:'Transformation',fix:'改错 — corriger la faute',reu:'Réemploi'};
+              tra:'Transformation',fix:'改错 — corriger la faute',reu:'Réemploi',
+              dic:'Dictée',dire:'Dire'};
 
 function vExos(){
-  const g=gById(ctx.g); if(!g)return vGramHome();
-  if(ctx.i>=ctx.q.length)return vBilanExos(g);
+  if(ctx.seance&&ctx.i>=ctx.q.length)return vFinSeance();
+  const g0=gById(ctx.g); if(!g0)return vGramHome();
+  if(ctx.i>=ctx.q.length)return vBilanExos(g0);
   const q=ctx.q[ctx.i];
-  const corps={rep:exRep,sub:exSub,comp:exComp,tra:exTra,fix:exFix,reu:exReu}[q.t];
-  return `${header(g.title,'Exercices — '+(ctx.i+1)+' sur '+ctx.q.length)}
+  const g=gById(q.g)||g0;
+  const corps={rep:exRep,sub:exSub,comp:exComp,tra:exTra,fix:exFix,reu:exReu,dic:exDic,dire:exDire}[q.t];
+  return `${ctx.seance?header('Réviser ma grammaire','Exercice '+(ctx.i+1)+' sur '+ctx.q.length)
+                     :header(g.title,'Exercices — '+(ctx.i+1)+' sur '+ctx.q.length)}
+  ${ctx.seance&&ctx.seance.ids.length>1?`<div class="gr-fchip">${esc(g.title)}</div>`:''}
   <div class="qprog">${ctx.q.map((_,k)=>{
     const r=ctx.res[k];
     return `<i class="${r===1?'ok':(r===0?'no':'')}"></i>`;
@@ -986,6 +992,244 @@ function blocReu(r){
     <ul class="gcrit">${r.criteres.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
   </div>
   ${boutonSuite()}`;
+}
+
+/* =====================================================================
+   5. LA SÉANCE « RÉVISER MA GRAMMAIRE » (lot 3)
+
+   Un panneau règle la séance : les notions (tout ce qui est à revoir,
+   ou un choix de fiches), la durée (5, 10, 15 ou 20 minutes, environ
+   30 secondes par exercice) et « Je peux parler ». La séance mêle les
+   fiches choisies : les six familles d’exercices habituelles, plus la
+   dictée (on entend la phrase, on la remet en ordre) et, si l’on peut
+   parler, « Dire » (on dit la phrase dont on lit le sens). Aucune
+   phrase nouvelle : tout vient des banques des fiches.
+   À la fin, chaque fiche est notée sur ses exercices écrits.
+   ===================================================================== */
+
+const GR_SEC=30;   /* secondes par exercice, pour l’estimation (à recaler) */
+let GS={ouvert:false,anim:false,mode:'revoir',choix:{},dur:0,parler:false};
+
+function grFichesVues(){return ordreProg().filter(g=>etatFiche(g.id)!=='neuf');}
+function grNotions(){
+  if(GS.mode==='revoir')return ordreProg().filter(g=>aRevoirFiche(g.id));
+  return ordreProg().filter(g=>GS.choix[g.id]);
+}
+function grNbExos(){return Math.round(GS.dur*60/GR_SEC);}
+
+/* Ouvrir le panneau. ids : fiches cochées d’avance (bouton « M’entraîner »). */
+function grSeance(ids){
+  GS.ouvert=true;GS.anim=true;
+  GS.dur=GS.dur||S.settings.grDur||10;
+  GS.parler=S.settings.grParler!=null?!!S.settings.grParler:false;
+  if(ids&&ids.length){GS.mode='choix';GS.choix={};ids.forEach(id=>GS.choix[id]=1);}
+  else{
+    GS.mode=ordreProg().some(g=>aRevoirFiche(g.id))?'revoir':'choix';
+    if(GS.mode==='choix'&&!Object.keys(GS.choix).length){
+      const p=grFichesVues().filter(g=>etatFiche(g.id)!=='su').slice(0,4);
+      (p.length?p:grFichesVues().slice(0,4)).forEach(g=>GS.choix[g.id]=1);
+    }
+  }
+  render();
+}
+function grSeanceFermer(){GS.ouvert=false;render();}
+function grSeanceMode(m){
+  GS.mode=m;
+  /* Passer à « Choisir » coche d’avance ce qui est à revoir. */
+  if(m==='choix'&&!Object.keys(GS.choix).length)ordreProg().filter(g=>aRevoirFiche(g.id)).forEach(g=>GS.choix[g.id]=1);
+  render();
+}
+function grSeanceCocher(id){if(GS.choix[id])delete GS.choix[id];else GS.choix[id]=1;render();}
+function grSeanceDuree(m){GS.dur=m;S.settings.grDur=m;save();render();}
+function grSeanceParler(){GS.parler=!GS.parler;S.settings.grParler=GS.parler;save();render();}
+
+const ICO_COCHE='<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+function grSeancePanneau(){
+  const anim=GS.anim;GS.anim=false;
+  const R=ordreProg().filter(g=>aRevoirFiche(g.id));
+  const V=grFichesVues();
+  /* En mode « choix », toutes les fiches déjà ouvertes, et celles qu’on
+     a cochées d’avance même si elles ne le sont pas encore. */
+  const liste=GS.mode==='revoir'?R:ordreProg().filter(g=>V.indexOf(g)>=0||GS.choix[g.id]);
+  const N=grNotions(),n=grNbExos();
+  const micro=peutEcouter();
+  const resume=N.length
+    ?`Environ ${n} exercices, ${N.length>1?pl2(N.length,'notion')+' mêlées':'une notion'}${GS.parler&&micro?', dont quelques-uns à dire':''}.`
+    :(GS.mode==='revoir'?'Rien n’est à revoir pour l’instant : choisissez des notions.':'Cochez au moins une notion.');
+  return `<button class="vb-veil" onclick="grSeanceFermer()" aria-label="Fermer"></button>
+  <div class="vb-panel gr-sheet ${anim?'anim':''}" role="dialog" aria-label="Réglages de la séance">
+    <div class="vb-grab"></div>
+    <div class="vb-phead"><b>Réviser ma grammaire</b></div>
+    <div class="vb-fsec"><h4>Quelles notions</h4>
+      <div class="gr-seg gr-seg-s" role="tablist">${[['revoir','Tout ce qui est à revoir'],['choix','Choisir']].map(([k,l])=>
+        `<button role="tab" aria-selected="${GS.mode===k}" class="${GS.mode===k?'on':''}" onclick="grSeanceMode('${k}')">${l}</button>`).join('')}</div>
+      <div class="gr-chks">${liste.length?liste.map(g=>{
+        const on=GS.mode==='revoir'||GS.choix[g.id];
+        return `<button class="gr-chk ${on?'on':''}" ${GS.mode==='revoir'?'disabled':''} role="checkbox" aria-checked="${!!on}" onclick="grSeanceCocher('${g.id}')">
+          <span class="bx">${ICO_COCHE}</span><span class="t">${esc(g.title)}</span>${gEtiquette(g)}</button>`;}).join('')
+        :`<p class="sm">${GS.mode==='revoir'?'Aucune fiche à revoir aujourd’hui.':'Aucune fiche découverte pour l’instant.'}</p>`}</div>
+    </div>
+    <div class="vb-fsec"><h4>Combien de temps</h4>
+      <div class="gr-durs">${[5,10,15,20].map(m=>`<button class="${GS.dur===m?'on':''}" aria-pressed="${GS.dur===m}" onclick="grSeanceDuree(${m})">${m}<small>min</small></button>`).join('')}</div>
+    </div>
+    <div class="vb-fsec"><h4>L’oral</h4>
+      <button class="gr-sw" onclick="grSeanceParler()" role="switch" aria-checked="${GS.parler}" ${micro?'':'disabled'}>
+        <span><b>Je peux parler</b><small>${micro?'Ajoute les exercices où l’on dit la phrase au micro.':'Ce navigateur ne propose pas le micro. Essayez avec Chrome.'}</small></span>
+        <span class="gr-tog ${GS.parler&&micro?'on':''}"><i></i></span></button>
+    </div>
+    <div class="gr-sum">${resume}</div>
+    <div class="vb-fbar"><button class="vb-clear" onclick="grSeanceFermer()">Annuler</button>
+      <button class="btn" ${N.length?'':'disabled'} onclick="grSeanceLancer()">Commencer</button></div>
+  </div>`;
+}
+
+/* ---- Composer la séance ----
+   Chaque fiche fournit sa file : une session habituelle de douze
+   exercices, plus une dictée et, si l’on parle, un « Dire ». Les files
+   sont mêlées à tour de rôle jusqu’au nombre voulu. Le réemploi (écrire
+   sa propre phrase, plus long) ne vient que dans une séance d’une seule
+   fiche. */
+function fileFiche(g,parler,seule){
+  const q=buildSession(g).filter(x=>seule||x.t!=='reu');
+  const b=shuffle(g.banque||[]);
+  if(b[0])q.push({t:'dic',s:b[0]});
+  if(parler&&b[1])q.push({t:'dire',s:b[1]});
+  return shuffle(q).map(x=>Object.assign(x,{g:g.id}));
+}
+function composerSeance(ids,n,parler){
+  const F=ids.map(gById).filter(Boolean);
+  if(!F.length)return [];
+  const files=F.map(g=>fileFiche(g,parler,F.length===1));
+  const out=[];let k=0,garde=0;
+  while(out.length<n&&garde<n*20){
+    garde++;
+    const i=k%F.length;k++;
+    if(!files[i].length)files[i]=fileFiche(F[i],parler,F.length===1);
+    out.push(files[i].shift());
+  }
+  /* Au moins une dictée, et un « Dire » quand on peut parler. */
+  const garantir=(t,pos)=>{
+    if(out.length<4||out.some(x=>x.t===t))return;
+    const k=Math.min(pos,out.length-1),g=gById(out[k].g),b=shuffle(g.banque||[]);
+    if(b[0])out[k]={t:t,s:b[0],g:g.id};
+  };
+  garantir('dic',2);
+  if(parler)garantir('dire',Math.floor(out.length/2));
+  /* « Dire » jamais deux fois de suite, ni en tout premier. */
+  for(let i=0;i<out.length;i++){
+    if(out[i].t==='dire'&&(i===0||out[i-1].t==='dire')){
+      const j=out.findIndex((x,m)=>m>i+1&&x.t!=='dire'&&(m+1>=out.length||out[m+1].t!=='dire'));
+      if(j>0){const t=out[i];out[i]=out[j];out[j]=t;}
+    }
+  }
+  return out;
+}
+function grSeanceLancer(){
+  const N=grNotions();if(!N.length)return;
+  const parler=GS.parler&&peutEcouter();
+  const q=composerSeance(N.map(g=>g.id),grNbExos(),parler);
+  GS.ouvert=false;
+  stopSpeech();
+  go('exos',{g:N[0].id,q:q,i:0,res:[],pose:[],rep:null,seance:{ids:N.map(g=>g.id),dur:GS.dur,parler:parler},from:ctx.from});
+}
+
+/* ---- Dictée : on entend la phrase, on remet les étiquettes en ordre ---- */
+function exDic(q){
+  const hz=segHz(q.s.seg);
+  return `<div class="gr-dic">
+    <button class="btn pale gr-ecoute" onclick="speak(${esc(JSON.stringify(hz))})">${ICO_EAR}Écouter la phrase</button>
+  </div>
+  ${assemblage(segMots(q.s.seg),q.s.seg,'Écoutez, puis remettez les mots dans l’ordre.')}
+  ${ctx.res[ctx.i]!=null?`<p class="sm mt">${esc(q.s.fr)}</p>`:''}`;
+}
+
+/* ---- Dire : on lit le sens, on dit la phrase ---- */
+let GD={i:-1,etat:'',res:null,err:'',vu:false};
+function exDire(q){
+  if(GD.i!==ctx.i)GD={i:ctx.i,etat:'',res:null,err:'',vu:false};
+  const hz=segHz(q.s.seg),py=segPy(q.s.seg);
+  const fait=ctx.res[ctx.i]!=null;
+  const on=GD.etat==='ecoute';
+  let retour='';
+  if(GD.etat==='err')retour=`<div class="dire-res v-err" aria-live="polite"><p>${esc(ecouteErreur(GD.err))}</p></div>`;
+  if(GD.etat==='fini'&&GD.res){
+    const r=GD.res;
+    if(r.v==='ok'||r.v==='son')retour=`<div class="dire-res v-ok" aria-live="polite"><p>${r.v==='ok'?'Compris tel quel !':'Compris : même son, c’est bon.'}</p></div>`;
+    else{const dz=diffZh(r.hz,hz);
+      retour=`<div class="dire-res v-${r.v}" aria-live="polite"><div class="dire-l">Chrome a entendu</div><div class="dire-h diff">${dz.you||'—'}</div>
+        <div class="dire-l">Attendu</div><div class="dire-h diff">${dz.exp}</div>
+        <p>${r.v==='ton'?'Les syllabes y sont, mais un ton au moins diffère.':'Ce n’est pas encore la phrase attendue.'} Écoutez le modèle, puis réessayez.</p></div>`;}
+  }
+  return `<p>Dites cette phrase en chinois.</p>
+  <div class="gr-dire-fr">${esc(q.s.fr)}${badgeReg(q.s.reg)}</div>
+  ${GD.vu||fait?`<div class="gex"><div class="hz">${esc(hz)}</div><div class="py">${pinyin(py)}</div></div>`
+    :`<button class="btn pale sm" onclick="GD.vu=true;render()">Voir la phrase en chinois</button>`}
+  ${!fait?`<div class="dire-sess"><button class="btn sm dire${on?' ecoute':''}" onclick="grDireGo()" aria-pressed="${on}">${micIcoG()}${on?'J’écoute…':'Dire'}</button>
+    <button class="btn pale sm" onclick="speak(${esc(JSON.stringify(hz))})">Écouter le modèle</button></div>`:''}
+  ${on?`<div class="dire-res v-ecoute" aria-live="polite"><p>Parlez maintenant. Touchez « J’écoute… » pour arrêter.</p></div>`:retour}
+  ${!fait&&(GD.etat==='fini'||GD.etat==='err')?`<button class="btn pale mt" onclick="grDirePasser()">Je passe</button>`:''}
+  ${fait?boutonSuite():''}
+  ${!S.settings.direVu&&GD.etat==='fini'?(S.settings.direVu=true,save(),`<p class="dire-note">Le son passe par Google pour être transcrit. L’appli ne garde ni le son ni le résultat.</p>`):''}`;
+}
+function micIcoG(){return `<svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`;}
+function grDireGo(){
+  const q=ctx.q[ctx.i];if(!q||q.t!=='dire')return;
+  if(GD.etat==='ecoute'){ecouteStop();return;}
+  const i=ctx.i,hz=segHz(q.s.seg),py=segPy(q.s.seg);
+  GD.etat='ecoute';GD.res=null;GD.err='';render();
+  ecouterMoi({duree:12000,
+    onresult:alts=>{if(GD.i!==i||ctx.i!==i)return;
+      GD.res=jugeOral({hz:hz,py:py},alts);GD.etat='fini';
+      if(GD.res.v==='ok'||GD.res.v==='son'){GD.vu=true;noter(true);}else render();},
+    onerror:code=>{if(GD.i!==i||ctx.i!==i)return;GD.err=code;GD.etat='err';render();}});
+}
+/* Passer sans être compris : l’exercice compte comme raté, sans plus. */
+function grDirePasser(){GD.vu=true;ecouteAnnule();noter(false);}
+
+/* ---- Fin de séance ---- */
+function vFinSeance(){
+  const Z=ctx.seance,Q=ctx.q;
+  const ecrits=Q.map((q,k)=>({q,k})).filter(x=>x.q.t!=='dire');
+  const oraux=Q.map((q,k)=>({q,k})).filter(x=>x.q.t==='dire');
+  const ok=ecrits.filter(x=>ctx.res[x.k]===1).length,n=ecrits.length;
+  const okO=oraux.filter(x=>ctx.res[x.k]===1).length;
+  const pct=n?Math.round(ok/n*100):0;
+  /* Chaque fiche est notée sur ses propres exercices écrits (deux au
+     moins, sinon elle garde son échéance). */
+  const parFiche=Z.ids.map(id=>{
+    const L=ecrits.filter(x=>x.q.g===id);
+    const k=L.filter(x=>ctx.res[x.k]===1).length;
+    return {g:gById(id),n:L.length,k:k,p:L.length?Math.round(k/L.length*100):0};
+  });
+  if(!ctx.note){
+    ctx.note=1;
+    parFiche.forEach(f=>{
+      if(f.n<2)return;
+      const r=gRec(f.g.id);r.essais++;r.best=Math.max(r.best,f.p);r.vu=1;
+      grade(f.g.id,f.p>=75?2:0);
+    });
+    touchStreak();save();
+  }
+  const bien=pct>=75;
+  const rates=parFiche.filter(f=>f.n>=2&&f.p<75);
+  return `${header('Séance terminée',pl2(Z.ids.length,'notion'))}
+  <div class="box vb-fin">
+    <div class="score"><div class="n">${ok}<small> sur ${n}</small></div><div class="lbl">du premier coup</div></div>
+    <div class="u-mv44 bar"><i class="${bien?'ok':pct>=50?'mi':'no'}" style="width:${pct}%"></i></div>
+    ${oraux.length?`<p class="sm mt">À l’oral : ${okO} sur ${oraux.length} compris.</p>`:''}
+  </div>
+  ${coach(bien?'saut':'encourage',bien?'Belle séance ! Ce qui tient revient de moins en moins souvent.'
+    :(rates.length?'Les notions fragiles reviendront bientôt, jusqu’à ce qu’elles tiennent.':'On continue : ça s’installe.'))}
+  ${rates.length?`<h2 class="sec">À retravailler</h2><div class="gr-path gr-fin">${rates.map(f=>{const e=etatFiche(f.g.id);
+    return `<button class="gr-st" onclick="ouvrir('${f.g.id}')">${gAnneau(ETATS[e].f,GCOUL[e],f.p+' %')}
+      <span class="tx"><b>${esc(f.g.title)}</b><small>${f.k} sur ${f.n}${gEtiquette(f.g)}</small></span></button>`;}).join('')}</div>`:''}
+  <button class="btn mt" onclick="grSeanceRelancer()">Nouvelle séance</button>
+  <button class="btn pale mt" onclick="tab('home')">Retour à la grammaire</button>`;
+}
+function grSeanceRelancer(){
+  const Z=ctx.seance;
+  view='home';ctx={};stack=[];
+  grSeance(GS.mode==='choix'?Z.ids:null);
 }
 
 /* --- Bilan de session : c’est lui qui note la fiche --- */

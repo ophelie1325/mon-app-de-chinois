@@ -139,7 +139,7 @@ const casse=h=>/n’a pas pu s’afficher/.test(h);
         });
         if(g.piege)ok(h.includes(g.piege.bad.hz)&&h.includes(g.piege.good.hz),`${g.id} piège`);
         if(g.tableau)ok(g.tableau.rows.every(r=>r.every(x=>h.includes(ev(`esc(${JSON.stringify(x)})`)))),`${g.id} récapitulatif incomplet`);
-        ok(h.includes(`lancerExos('${g.id}')`)&&h.includes('Étudiée dans'),`${g.id} récapitulatif : exercices ou leçon`);
+        ok(h.includes(`grSeance(['${g.id}'])`)&&h.includes('Étudiée dans'),`${g.id} récapitulatif : exercices ou leçon`);
         ok(!/[Bb]oîte\s*\d|en boîte/.test(h),`${g.id} : boîte affichée`);
         /* Découpage : caractères et syllabes intacts. */
         g.steps.forEach((st,i)=>(st.ex||[]).forEach(e=>{
@@ -193,6 +193,52 @@ const casse=h=>/n’a pas pu s’afficher/.test(h);
       }
     }
   }
+  /* La séance mêlée (lot 3) : panneau, composition, chaque exercice
+     rendu, fin de séance et notation des fiches. */
+  ev(`S.items={};S.gram={};['g303','g307','g313'].forEach(id=>{S.gram[id]={vu:1,essais:0,best:0};S.items[id]={box:1,due:0,seen:2,ok:1,ko:1};})`);
+  ev(`view='home';ctx={};GS.dur=0;grSeance()`);
+  let hs=app(w);
+  ok(hs.includes('Réviser ma grammaire')&&hs.includes('gr-sheet')&&ev('GS.mode')==='revoir'&&(hs.match(/class="gr-chk on"/g)||[]).length===3,'panneau de séance : mode « à revoir »');
+  ok(/Environ 20 exercices, 3(&nbsp;| |\u00A0)notions mêlées/.test(hs),'panneau : estimation — '+(hs.match(/gr-sum">([^<]*)/)||[])[1]);
+  ev(`grSeanceDuree(5)`);ok(app(w).includes('Environ 10 exercices'),'panneau : durée 5 min');
+  ev(`ctx={g:'g307',c:0};view='fiche';GS.ouvert=false;grSeance(['g307'])`);
+  hs=app(w);
+  ok(ev('GS.mode')==='choix'&&ev('Object.keys(GS.choix).join()')==='g307'&&hs.includes('gr-slide')&&hs.includes('gr-sheet'),'panneau depuis la fiche');
+  ev(`grSeanceDuree(10);grSeanceLancer()`);
+  ok(ev('view')==='exos'&&ev('ctx.q.length')===20&&ev('ctx.q.every(x=>x.g==="g307")')&&ev('!!ctx.seance'),'séance d’une fiche lancée');
+  const TYPES=['rep','sub','comp','tra','fix','reu','dic','dire'];
+  const essais=[[['g307'],10,false],[['g303','g307','g313'],5,true],[['g303','g307','g313'],20,true],[G.slice(0,8).map(g=>g.id),15,false],[G.map(g=>g.id),20,true]];
+  for(const [ids,dur,parler] of essais){
+    const Q=ev(`composerSeance(${JSON.stringify(ids)},${dur*2},${parler})`);
+    const tag=`séance ${ids.length} fiche(s), ${dur} min${parler?', parler':''}`;
+    ok(Q.length===dur*2,`${tag} : ${Q.length} exercices`);
+    ok(Q.every(x=>ids.indexOf(x.g)>=0&&TYPES.indexOf(x.t)>=0),`${tag} : exercice hors notions`);
+    ok(ids.length===1||Q.every(x=>x.t!=='reu'),`${tag} : réemploi dans une séance mêlée`);
+    ok(parler||Q.every(x=>x.t!=='dire'),`${tag} : « Dire » sans micro`);
+    ok(!parler||Q.some(x=>x.t==='dire')||Q.length<4,`${tag} : aucun « Dire »`);
+    ok(Q.some(x=>x.t==='dic'),`${tag} : aucune dictée`);
+    ok(ids.length===1||Math.min(...ids.slice(0,Math.min(ids.length,dur*2)).map(id=>Q.filter(x=>x.g===id).length))>=1,`${tag} : notion absente`);
+    ok(Q[0].t!=='dire'&&Q.every((x,k)=>k===0||!(x.t==='dire'&&Q[k-1].t==='dire')),`${tag} : « Dire » en tête ou deux fois de suite`);
+    ev(`window.__q=composerSeance(${JSON.stringify(ids)},${dur*2},${parler})`);
+    const nq=ev('window.__q.length');
+    for(let i=0;i<nq;i++){
+      ev(`view='exos';ctx={g:${JSON.stringify(ids[0])},q:window.__q,i:${i},res:[],pose:[],rep:null,seance:{ids:${JSON.stringify(ids)},dur:${dur},parler:${parler}}};render();`);
+      const h=app(w),t=ev(`window.__q[${i}].t`);
+      ok(!casse(h)&&h.length>100&&h.includes('Exercice '+(i+1)+' sur '+nq),`${tag} : exercice ${i+1} (${t})`);
+      if(t==='dic'){const A=w.document.getElementById('app').cloneNode(true);A.querySelectorAll('.tiles,.drop').forEach(x=>x.remove());ok(h.includes('Écouter la phrase')&&!A.textContent.replace(/\s+/g,'').includes(ev(`segHz(window.__q[${i}].s.seg)`)),`${tag} : la dictée montre la phrase`);}
+      if(t==='dire')ok(h.includes(ev(`esc(window.__q[${i}].s.fr)`))&&h.includes('Voir la phrase en chinois'),`${tag} : « Dire »`);
+    }
+    /* Fin : moitié juste, et notation de chaque fiche. */
+    ev(`S.items={};S.gram={}`);
+    ev(`view='exos';ctx={g:${JSON.stringify(ids[0])},q:window.__q,i:window.__q.length,res:window.__q.map((x,k)=>k%2),pose:[],rep:null,seance:{ids:${JSON.stringify(ids)},dur:${dur},parler:${parler}}};render();`);
+    const hf=app(w);
+    ok(!casse(hf)&&hf.includes('Séance terminée')&&hf.includes('du premier coup'),`${tag} : fin de séance`);
+    const notees=ev(`${JSON.stringify(ids)}.filter(id=>window.__q.filter(x=>x.g===id&&x.t!=='dire').length>=2)`);
+    ok(notees.every(id=>ev(`gRec(${JSON.stringify(id)}).essais`)===1&&ev(`!!S.items[${JSON.stringify(id)}]`)),`${tag} : fiches non notées`);
+    ev(`render()`);
+    ok(notees.every(id=>ev(`gRec(${JSON.stringify(id)}).essais`)===1),`${tag} : notée deux fois`);
+  }
+  ev(`S.items={};S.gram={};GS.ouvert=false`);
   /* Ouverture depuis un parcours, et retour à la leçon. */
   const last=G[G.length-1].id;
   const r2=await monter('grammaire','?g='+last+'&l=l-presenter-2&i=3&n=9');

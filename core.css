@@ -1,5 +1,5 @@
 /* =====================================================================
-   core.css — livraison 20261119b
+   core.css — livraison 20261119c
 
    Deux registres, et rien entre les deux.
 
@@ -53,7 +53,7 @@
   --tx-4:30px;  /* titre      */
   --tx-5:42px;  /* caractère isolé */
 
-  --build:'20261119b';   /* marqueur de livraison, lu par l’écran Réglages */
+  --build:'20261119c';   /* marqueur de livraison, lu par l’écran Réglages */
 
   --bg:#FBF6EE;
   --card:#FFFFFF;
@@ -1544,3 +1544,30 @@ button.gr-w:active{background:var(--pl)}
 .gr-kc .gtab td .gc{font-family:var(--ui),var(--han);font-weight:600;font-size:13.5px;padding:7px 8px;min-height:0;box-shadow:none}
 .gr-kc .gchk .opt{font-family:var(--ui),var(--han)}
 .gr-kc .gchk .opt.han{font-family:var(--han)}
+
+/* ---- Grammaire : la séance (lot 3) ---- */
+.gr-sheet{max-height:88vh;overflow-y:auto}
+.gr-seg-s{margin:0 0 10px}
+.gr-chks{display:flex;flex-direction:column;gap:6px;max-height:38vh;overflow-y:auto}
+.gr-chk{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border-radius:14px;background:var(--bg);text-align:left;font-size:14px}
+.gr-chk .bx{width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:8px;border:2px solid var(--plb,#C9D7EE);background:#fff;color:transparent}
+.gr-chk .bx svg{width:16px;height:16px}
+.gr-chk.on .bx{background:var(--p,#1F4E9E);border-color:var(--p,#1F4E9E);color:#fff}
+.gr-chk .t{flex:1;min-width:0}
+.gr-chk .gr-etq{flex:none;margin-left:0}
+.gr-chk:disabled{opacity:1;cursor:default}
+.gr-durs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.gr-durs button{padding:10px 0;border-radius:14px;background:var(--bg);font-size:18px;font-weight:700;text-align:center;box-shadow:inset 0 0 0 1.5px var(--line2)}
+.gr-durs button small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.gr-durs button.on{background:var(--p,#1F4E9E);color:#fff;box-shadow:none}
+.gr-durs button.on small{color:var(--psoft,#CFDDF3)}
+.gr-sw:disabled{opacity:.6}
+.gr-sum{margin:14px 0 4px;padding:10px 12px;border-radius:14px;background:var(--pl,#E8EFF9);color:var(--ptx,#173C80);font-size:14px}
+.gr-fchip{display:inline-block;margin:0 0 8px;padding:4px 11px;border-radius:999px;background:var(--pl);color:var(--ptx);font-size:12.5px}
+.gr-dic{margin:4px 0 6px}
+.gr-ecoute{display:inline-flex;align-items:center;gap:8px;width:auto;padding:10px 18px}
+.gr-ecoute svg{width:18px;height:18px}
+.gr-dire-fr{margin:6px 0 12px;padding:12px 14px;border-radius:16px;background:var(--pl);color:var(--ptx);font-size:16px;font-weight:700}
+.btn.pale.sm.gr-voir-zh{width:auto}
+.gr-fin{margin-top:6px}
+.btn.gr-go2{margin-top:8px}
