@@ -89,7 +89,7 @@ LAB = {'pictogram': 'picto', 'ideogram': 'indic', 'ideogrammic compound': 'ideo'
 MMH = {'pictographic': 'picto', 'ideographic': 'ideo', 'pictophonetic': 'phono'}
 VAR = {'水': '氵', '竹': '⺮', '𥫗': '⺮', '阜': '阝', '邑': '阝', '人': '亻', '心': '忄',
        '手': '扌', '言': '讠', '金': '钅', '糸': '纟', '食': '饣', '艸': '艹', '辵': '辶',
-       '刀': '刂', '火': '灬', '衣': '衤', '示': '礻', '犬': '犭', '戶': '户'}
+       '刀': '刂', '火': '灬', '衣': '衤', '示': '礻', '犬': '犭', '戶': '户', '訁': '讠'}
 # Notice qui présente plusieurs lectures de la forme (règle d’Ophélie, 16 novembre 2026 :
 # on les met toutes, chacune avec sa source).
 PLUS = re.compile(r'possible interpretation|[Aa]lternatively|[Aa]nother (interpretation|theory|view)|[Tt]heories include|[Mm]ultiple theories|Shuowen (interprets|erroneously|mistakenly|incorrectly)|[Ff]olk etymology|traditional (interpretation|view|explanation)')
@@ -178,6 +178,14 @@ def fiche(h, MD, TR, B, W, GL, G):
     if not GL.get(cle): manque.append('sens de la clé ' + cle)
     notice = etymologie(h); time.sleep(0.5)
     ety = notice.split('\n')[0]
+    # « Simplified from 記 (訁 → 讠). » : la notice de la forme traditionnelle
+    # fait foi ; un phono n’est gardé que si l’élément de son reste visible
+    # dans la forme simplifiée (contrôle plus bas).
+    m = re.match(r'^\s*Simplified from (\S) \(([^()]*)\)\.?\s*$', ety)
+    if m:
+        trad = etymologie(m.group(1)).split('\n')[0]; time.sleep(0.5)
+        if LABRE.match(trad):
+            ety = trad
     m = LABRE.match(ety)
     ty = sem = son = None
     if m:

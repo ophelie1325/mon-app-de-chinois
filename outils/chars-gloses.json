@@ -37,5 +37,17 @@
   "fr": "à l’avance"
  },
  "舟": "bateau",
- "角": "corne"
+ "角": "corne",
+ "号": {
+  "fr": "numéro ; signe"
+ },
+ "坚": {
+  "fr": "dur ; ferme"
+ },
+ "码": {
+  "fr": "chiffre ; code"
+ },
+ "鸡": {
+  "fr": "poulet ; coq"
+ }
 }
