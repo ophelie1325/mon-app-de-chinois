@@ -37,17 +37,21 @@ function buildSENT(){
 
 /* Questions de grammaire pour le bilan d’un parcours.
    Deux gisements sûrs : les phrases fautives (改错) et les
-   transformations. Chacune donne une question à quatre propositions. */
+   transformations. Chacune donne une question à quatre propositions.
+   « Quelle phrase est correcte ? » n’a qu’une bonne réponse : la phrase
+   corrigée, face à la phrase fautive et à deux autres phrases fautives
+   de la même fiche. Jamais une phrase de la banque, juste elle aussi. */
 function gramQuiz(g,n){
   if(!g)return [];
   const qs=[];
+  const fausses=(g.fixes||[]).map(f=>segHZ(f.seg)).filter(Boolean);
   (g.fixes||[]).forEach(f=>{
     const bon=f.bon||segHZ(f.seg);
     if(!bon)return;
     const faux=segHZ(f.seg);
     if(!faux||faux===bon)return;
-    const leurres=(g.leurres||[]).slice(0,2);
-    const a=[bon,faux].concat((g.banque||[]).slice(0,2).map(b=>segHZ(b.seg)))
+    const autres=shuffle(fausses.filter(x=>x!==faux&&x!==bon)).slice(0,2);
+    const a=[bon,faux].concat(autres)
               .filter((x,i,t)=>x&&t.indexOf(x)===i).slice(0,4);
     if(a.length<2)return;
     qs.push({q:'Quelle phrase est correcte ?',a:shuffle(a),ok:bon,why:f.why||''});
