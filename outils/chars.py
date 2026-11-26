@@ -181,7 +181,8 @@ def fiche(h, MD, TR, B, W, GL, G):
     # « Simplified from 記 (訁 → 讠). » : la notice de la forme traditionnelle
     # fait foi ; un phono n’est gardé que si l’élément de son reste visible
     # dans la forme simplifiée (contrôle plus bas).
-    m = re.match(r'^\s*Simplified from (\S) \(([^()]*)\)\.?\s*$', ety)
+    m = re.match(r'^\s*Simplified from (\S) \(([^()]*)\)\.?\s*$', ety) \
+        or re.match(r'^\s*Variant of (\S)\.()', ety)   # 却 : « Variant of 卻. » (ajout du 26 novembre)
     if m:
         trad = etymologie(m.group(1)).split('\n')[0]; time.sleep(0.5)
         if LABRE.match(trad):
@@ -206,6 +207,9 @@ def fiche(h, MD, TR, B, W, GL, G):
             ty = MMH.get((d.get('etymology') or {}).get('type'))
             if ty == 'phono': ty = None
             manque.append('type à relire (élément de son invisible)')
+    if 'type' in g:  # chars-gloses.json tranche quand la source ne le fait pas (null : pas de type)
+        ty = g['type']
+        manque[:] = [x for x in manque if not x.startswith('type')]
     if ty: o['type'] = ty
     if ty == 'phono':
         if sem and sem != son:

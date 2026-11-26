@@ -49,5 +49,23 @@
  },
  "鸡": {
   "fr": "poulet ; coq"
- }
+ },
+ "即": {
+  "fr": "aussitôt ; c’est-à-dire"
+ },
+ "尽": {
+  "fr": "autant que possible"
+ },
+ "管": {
+  "fr": "tube ; s’occuper de"
+ },
+ "质": {
+  "fr": "qualité ; nature",
+  "type": null
+ },
+ "却": {
+  "type": null
+ },
+ "卩": "personne agenouillée",
+ "尸": "corps étendu"
 }
